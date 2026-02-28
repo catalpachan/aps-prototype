@@ -1,0 +1,3075 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>格力计划排程智能体 - V3.5</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --panel-2: #1f2937;
+      --line: #374151;
+      --txt: #f9fafb;
+      --muted: #9ca3af;
+      --brand: #2563eb;
+      --ok: #10b981;
+      --warn: #f59e0b;
+      --err: #ef4444;
+      --info: #38bdf8;
+      --blue3: #60a5fa;
+      --radius: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+
+    body {
+      background: linear-gradient(160deg, #0b1224 0%, #121d35 45%, #0f172a 100%);
+      color: var(--txt);
+      min-height: 100vh;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(17, 24, 39, 0.95);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(6px);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand-block {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 0 0 auto;
+    }
+
+    .header-logo {
+      width: 130px;
+      height: auto;
+      object-fit: contain;
+      border-radius: 6px;
+      flex: 0 0 auto;
+      display: block;
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .logo {
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      font-size: 18px;
+      color: var(--info);
+      white-space: nowrap;
+    }
+
+    .sub-title {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+
+    .nav-item {
+      white-space: nowrap;
+      font-size: 13px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .nav-item:hover {
+      color: var(--txt);
+      border-color: var(--line);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .nav-item.active {
+      background: var(--brand);
+      border-color: var(--brand);
+      color: #fff;
+    }
+
+    .header-meta {
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .role-select {
+      margin-left: 8px;
+      padding: 4px 6px;
+      font-size: 12px;
+    }
+
+    #app {
+      padding: 16px 20px 30px;
+    }
+
+    .view {
+      display: none;
+      gap: 14px;
+      animation: fade 0.2s ease;
+    }
+
+    .view.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    @keyframes fade {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 14px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      background: rgba(17, 24, 39, 0.95);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .card-hd {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--line);
+      padding: 10px 12px;
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .card-bd {
+      padding: 12px;
+      font-size: 12px;
+      color: var(--txt);
+    }
+
+    .muted { color: var(--muted); }
+
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      background: var(--panel-2);
+      color: var(--txt);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .btn:hover { filter: brightness(1.08); }
+    .btn.sm { padding: 4px 8px; font-size: 11px; }
+    .btn.primary { background: var(--brand); border-color: var(--brand); }
+    .btn.ok { background: var(--ok); border-color: var(--ok); color: #04140f; font-weight: 600; }
+    .btn.warn { background: var(--warn); border-color: var(--warn); color: #1a1203; font-weight: 600; }
+    .btn.err { background: var(--err); border-color: var(--err); }
+
+    input, select, textarea {
+      background: #1f2937;
+      border: 1px solid var(--line);
+      color: var(--txt);
+      border-radius: 8px;
+      padding: 6px 8px;
+      font-size: 12px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    th, td {
+      padding: 8px 6px;
+      border-bottom: 1px solid #293142;
+      text-align: left;
+    }
+
+    th { color: var(--muted); font-weight: 600; }
+
+    .tag {
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: #202938;
+    }
+
+    .tag.red { border-color: #7f1d1d; background: #3b1114; color: #fecaca; }
+    .tag.ok { border-color: #064e3b; background: #032f25; color: #6ee7b7; }
+    .tag.warn { border-color: #78350f; background: #44200a; color: #fde68a; }
+    .tag.info { border-color: #0c4a6e; background: #0b2e45; color: #7dd3fc; }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+    }
+
+    .kpi {
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #121a2b;
+    }
+
+    .kpi .v {
+      font-size: 20px;
+      font-weight: 800;
+      margin-top: 4px;
+    }
+
+    .rule-chip-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      min-height: 40px;
+      border: 1px dashed #44536c;
+      border-radius: 8px;
+      padding: 8px;
+      margin-top: 8px;
+    }
+
+    .rule-chip {
+      user-select: none;
+      cursor: grab;
+      padding: 5px 8px;
+      border: 1px solid #465872;
+      border-radius: 8px;
+      background: #172235;
+      color: #cbe6ff;
+    }
+
+    .rule-chip.dragging { opacity: 0.4; }
+
+    .tree {
+      font-family: "Consolas", "Menlo", monospace;
+      line-height: 1.8;
+      background: #0f1726;
+      border: 1px solid #2d3a51;
+      border-radius: 8px;
+      padding: 8px;
+      white-space: pre-wrap;
+      font-size: 12px;
+    }
+
+    .progress {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: #273245;
+      overflow: hidden;
+    }
+
+    .progress > span {
+      height: 100%;
+      display: block;
+      background: linear-gradient(90deg, #38bdf8, #2563eb);
+    }
+
+    .alert-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px;
+      border-radius: 8px;
+      margin-bottom: 6px;
+      border: 1px solid transparent;
+    }
+
+    .alert-l1 { background: #3a1016; border-color: #7f1d1d; }
+    .alert-l2 { background: #3a2609; border-color: #854d0e; }
+    .alert-l3 { background: #102a40; border-color: #0c4a6e; }
+
+    .blink-red {
+      animation: blinkRed 1s steps(1, end) infinite;
+    }
+
+    @keyframes blinkRed {
+      0%, 50% { box-shadow: 0 0 0 0 rgba(239,68,68,0.2); border-color: #7f1d1d; }
+      51%, 100% { box-shadow: 0 0 0 3px rgba(239,68,68,0.35); border-color: #ef4444; }
+    }
+
+    .lock-strip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 8px;
+      background: #111a2a;
+      margin-bottom: 8px;
+      font-size: 12px;
+    }
+
+    .avatar-group {
+      display: flex;
+      align-items: center;
+    }
+
+    .avatar-dot {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 1px solid #0f172a;
+      color: #e2e8f0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      margin-left: -6px;
+    }
+
+    .incident-panel {
+      margin-top: 10px;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 10px;
+      background: #101b2d;
+      display: none;
+    }
+
+    .incident-panel.show {
+      display: block;
+    }
+
+    .resource-layout {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .resource-sidebar {
+      position: sticky;
+      top: 76px;
+      max-height: calc(100vh - 100px);
+    }
+
+    .resource-menu {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .resource-menu-item {
+      width: 100%;
+      text-align: left;
+      background: #172235;
+      color: #dbeafe;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .resource-menu-item:hover {
+      filter: brightness(1.08);
+    }
+
+    .resource-menu-item.active {
+      background: linear-gradient(135deg, #1e3a8a, #2563eb);
+      border-color: #2563eb;
+      color: #fff;
+    }
+
+    .resource-main {
+      min-width: 0;
+    }
+
+    .resource-subview {
+      display: none;
+    }
+
+    .resource-subview.active {
+      display: block;
+    }
+
+    .resource-pagination {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid #2b3649;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .resource-page-info {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .resource-overview-head {
+      margin-bottom: 12px;
+    }
+
+    .resource-overview-head .kpi .v {
+      font-size: 18px;
+      line-height: 1.3;
+    }
+
+    .resource-overview-head .sub {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+
+    .resource-tools {
+      margin-bottom: 10px;
+      gap: 10px;
+    }
+
+    .resource-tools input {
+      min-width: 220px;
+    }
+
+    .resource-page-nav {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .page-btn.active {
+      background: #2563eb;
+      border-color: #2563eb;
+      color: #fff;
+    }
+
+    .btn.delete-btn {
+      background: #393232;
+      border-color: #b39393;
+      color: #ff8080;
+    }
+
+    .collab-layout {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 14px;
+      min-height: 660px;
+    }
+
+    .collab-left {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .ai-assistant-btn {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      width: 58px;
+      height: 58px;
+      border: 1px solid #3b82f6;
+      border-radius: 999px;
+      padding: 0;
+      color: #e0f2fe;
+      font-size: 24px;
+      background: linear-gradient(135deg, #0b1f57 0%, #1d4ed8 45%, #38bdf8 100%);
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.35), inset 0 0 12px rgba(125, 211, 252, 0.25);
+      cursor: pointer;
+      z-index: 110;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ai-assistant-btn:hover {
+      filter: brightness(1.08);
+    }
+
+    .preplan-btn {
+      width: 100%;
+      border: 1px solid #3b82f6;
+      border-radius: 10px;
+      padding: 10px 12px;
+      color: #dbeafe;
+      font-weight: 700;
+      background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 55%, #38bdf8 100%);
+      box-shadow: 0 4px 16px rgba(37, 99, 235, 0.35);
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    .preplan-btn:hover {
+      filter: brightness(1.08);
+    }
+
+    .execute-btn {
+      width: 100%;
+      border: 1px solid #22c55e;
+      border-radius: 10px;
+      padding: 10px 12px;
+      color: #dcfce7;
+      font-weight: 700;
+      background: linear-gradient(135deg, #166534 0%, #16a34a 55%, #4ade80 100%);
+      box-shadow: 0 4px 16px rgba(34, 197, 94, 0.35);
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    .execute-btn:hover {
+      filter: brightness(1.08);
+    }
+
+    .collab-right {
+      min-width: 0;
+    }
+
+    .gantt-wrap {
+      border: 1px solid #334155;
+      border-radius: 8px;
+      overflow: auto;
+      max-height: 620px;
+      background: #0d1525;
+    }
+
+    .gantt-table {
+      border-collapse: collapse;
+      width: max-content;
+      min-width: 100%;
+      table-layout: fixed;
+      --gantt-cell-w: 56px;
+    }
+
+    .gantt-table th,
+    .gantt-table td {
+      border: 1px solid #2b3548;
+      padding: 0;
+      text-align: center;
+      height: 30px;
+      white-space: nowrap;
+      overflow: visible;
+      position: relative;
+    }
+
+    .gantt-table th {
+      background: #172033;
+      color: #c9d5e9;
+      font-size: 11px;
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+      z-index: 4;
+      padding: 4px 2px;
+      height: 32px;
+    }
+
+    .gantt-line-col {
+      min-width: 92px;
+      width: 92px;
+      background: #101a2d;
+      color: #a6b7d8;
+      font-weight: 600;
+      position: sticky !important;
+      left: 0;
+      z-index: 3;
+      padding: 0 6px !important;
+    }
+
+    .gantt-hour-col {
+      width: var(--gantt-cell-w);
+      min-width: var(--gantt-cell-w);
+    }
+
+    .gantt-cell {
+      background: #0e1628;
+    }
+
+    .gantt-cell:hover {
+      background: #16233a;
+    }
+
+    .gantt-task {
+      position: absolute;
+      left: 1px;
+      top: 3px;
+      height: 22px;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 8px;
+      cursor: grab;
+      z-index: 5;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+      user-select: none;
+    }
+
+    .gantt-task-label {
+      pointer-events: none;
+      padding: 0 8px;
+      max-width: calc(100% - 12px);
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .gantt-resize {
+      position: absolute;
+      top: 0;
+      width: 8px;
+      height: 100%;
+      cursor: ew-resize;
+      z-index: 2;
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .gantt-resize.left {
+      left: 0;
+      border-radius: 6px 0 0 6px;
+    }
+
+    .gantt-resize.right {
+      right: 0;
+      border-radius: 0 6px 6px 0;
+    }
+
+    .gantt-task:active {
+      cursor: grabbing;
+    }
+
+    .gantt-task.a { background: linear-gradient(90deg, #2563eb, #1d4ed8); }
+    .gantt-task.b { background: linear-gradient(90deg, #0f766e, #0d9488); }
+    .gantt-task.c { background: linear-gradient(90deg, #b45309, #d97706); }
+    .gantt-task.d { background: linear-gradient(90deg, #7c3aed, #9333ea); }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(120px, 1fr));
+      gap: 8px;
+    }
+
+    .flow-step {
+      border: 1px solid var(--line);
+      background: #111b2d;
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .flow-step .s {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .flow-step .n {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .decision-gantt-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 300px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .decision-gantt-row {
+      display: grid;
+      grid-template-columns: 96px 1fr;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .decision-gantt-time {
+      display: grid;
+      grid-template-columns: 96px 1fr;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .decision-time-track {
+      display: grid;
+      grid-template-columns: repeat(25, 1fr);
+      font-size: 10px;
+      color: #93c5fd;
+      border: 1px solid #2d3a51;
+      border-radius: 8px;
+      background: #0f1a2d;
+      overflow: hidden;
+    }
+
+    .decision-time-track span {
+      text-align: center;
+      padding: 4px 0;
+      border-right: 1px solid #24334f;
+    }
+
+    .decision-time-track span:last-child {
+      border-right: none;
+    }
+
+    .decision-gantt-track {
+      background: #0f1a2d;
+      border: 1px solid #2d3a51;
+      border-radius: 8px;
+      height: 30px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .decision-gantt-bar {
+      position: absolute;
+      top: 3px;
+      height: 22px;
+      border-radius: 6px;
+      color: #e0f2fe;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 8px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    .decision-gantt-bar.p1 { background: linear-gradient(90deg, #1d4ed8, #2563eb); }
+    .decision-gantt-bar.p2 { background: linear-gradient(90deg, #0f766e, #14b8a6); }
+    .decision-gantt-bar.p3 { background: linear-gradient(90deg, #b45309, #f59e0b); }
+    .decision-gantt-bar.p4 { background: linear-gradient(90deg, #7c3aed, #a78bfa); }
+    .decision-gantt-bar.p5 { background: linear-gradient(90deg, #be123c, #e11d48); }
+
+    .progress-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .heat-item {
+      margin-bottom: 10px;
+      padding: 8px;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      background: #111b2d;
+    }
+
+    .radar-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 0 2px;
+    }
+
+    .radar-legend {
+      margin-top: 4px;
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      font-size: 12px;
+      color: #cbd5e1;
+    }
+
+    .radar-legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .radar-legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+    }
+
+    .radar-note {
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    #toast {
+      position: fixed;
+      left: 50%;
+      top: 60px;
+      transform: translateX(-50%);
+      background: #0f172a;
+      color: #fff;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 12px;
+      opacity: 0;
+      transition: .2s;
+      pointer-events: none;
+      z-index: 9999;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+
+    #toast.show { opacity: 1; }
+
+    .modal-mask {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.72);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 120;
+      padding: 20px;
+    }
+
+    .modal-mask.show {
+      display: flex;
+    }
+
+    .modal-card {
+      width: 560px;
+      max-width: 100%;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .modal-hd {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      border-bottom: 1px solid #334155;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .modal-bd {
+      padding: 12px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .modal-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 12px;
+    }
+
+    .modal-field label {
+      color: var(--muted);
+    }
+
+    .modal-ft {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      padding: 10px 12px;
+      border-top: 1px solid #334155;
+    }
+
+    .ai-chat-card {
+      width: 760px;
+      max-width: 100%;
+      background: #0b1224;
+      border: 1px solid #2b4572;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(2, 6, 23, 0.65);
+    }
+
+    .ai-chat-hd {
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #2b4572;
+      background: linear-gradient(90deg, #0c1d4a, #123778);
+    }
+
+    .ai-chat-body {
+      height: 500px;
+      overflow: auto;
+      padding: 12px;
+      background: radial-gradient(circle at top right, rgba(56, 189, 248, 0.12), transparent 40%), #0b1224;
+    }
+
+    .ai-msg {
+      margin-bottom: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      line-height: 1.5;
+      max-width: 88%;
+      white-space: pre-wrap;
+    }
+
+    .ai-msg.bot {
+      background: #132443;
+      border: 1px solid #2a4c82;
+      color: #dbeafe;
+    }
+
+    .ai-msg.loading {
+      color: #93c5fd;
+      font-style: italic;
+    }
+
+    .ai-msg.user {
+      margin-left: auto;
+      background: #1f2937;
+      border: 1px solid #4b5563;
+      color: #f8fafc;
+    }
+
+    .ai-chat-ft {
+      border-top: 1px solid #2b4572;
+      padding: 10px 12px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .ai-quick-btn {
+      background: #10254d;
+      border: 1px solid #2a4c82;
+      color: #bfdbfe;
+      border-radius: 8px;
+      padding: 6px 8px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .ai-input {
+      flex: 1;
+      min-width: 260px;
+    }
+
+    @media (max-width: 960px) {
+      header { flex-wrap: wrap; }
+      .header-meta { width: 100%; }
+      .collab-layout { grid-template-columns: 1fr; }
+      .resource-layout { grid-template-columns: 1fr; }
+      .resource-sidebar { position: static; max-height: none; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand-block">
+      <img class="header-logo" src="1c5703c9-aca0-43d1-9843-9d502cb66fd0.png" alt="APS Logo" />
+      <div class="brand-text">
+        <div class="logo">格力计划排程智能体</div>
+        <div class="sub-title">Gree Advanced Intelligence Planning System</div>
+      </div>
+    </div>
+    <nav class="nav" id="nav">
+      <button class="nav-item active" data-view="decision">决策中心</button>
+      <button class="nav-item" data-view="collab">协同中心</button>
+      <button class="nav-item" data-view="demand">需求中心</button>
+      <button class="nav-item" data-view="resource">资源中心</button>
+      <button class="nav-item" data-view="rule">规则中心</button>
+      <button class="nav-item" data-view="monitor">监控中心</button>
+    </nav>
+    <div class="header-meta" id="header-meta">
+      <span id="header-date">2026-02-28 08:56:33</span> |
+      <select id="hq-select" class="role-select" disabled>
+        <option>珠海格力总部</option>
+      </select>
+      | 角色
+      <select id="role-select" class="role-select">
+        <option value="admin">管理员</option>
+        <option value="planner">计划员</option>
+        <option value="workshop">车间主管</option>
+      </select>
+    </div>
+  </header>
+
+  <main id="app">
+    <section class="view active" id="view-decision">
+      <div class="kpis">
+        <div class="kpi">
+          <div class="muted">实时产能 (OEE)</div>
+          <div class="v" id="d-kpi-oee">88.4%</div>
+          <div class="muted" id="d-kpi-oee-wow">较上周 ↑ 1.2%</div>
+        </div>
+        <div class="kpi">
+          <div class="muted">今日计划完成率</div>
+          <div class="v" id="d-kpi-plan">92/120</div>
+          <div class="muted" id="d-kpi-plan-extra">76.7% | AI预计 18:20 完成</div>
+        </div>
+        <div class="kpi"><div class="muted">在制订单 (WIP)</div><div class="v" id="d-kpi-wip">34</div><div class="muted">内机 20 / 外机 14</div></div>
+        <div class="kpi">
+          <div class="muted">异常报警 (今日)</div>
+          <div class="v" id="d-kpi-alert">3</div>
+          <div class="muted" id="d-kpi-alert-extra">已解决 2 条 | 未解决 1 条</div>
+        </div>
+      </div>
+
+      <article class="card">
+        <div class="card-hd">
+          <span>各分厂协同甘特图（今日计划）</span>
+          <button class="btn" onclick="renderDecisionCenter()">刷新</button>
+        </div>
+        <div class="card-bd">
+          <div class="decision-gantt-time" style="margin-bottom:8px;">
+            <div class="muted">时间刻度</div>
+            <div class="decision-time-track" id="decision-gantt-time"></div>
+          </div>
+          <div class="decision-gantt-wrap" id="decision-gantt-lanes"></div>
+        </div>
+      </article>
+
+      <div class="grid-3">
+        <article class="card">
+          <div class="card-hd"><span>关键订单生产进度</span></div>
+          <div class="card-bd progress-list" id="decision-order-progress"></div>
+        </article>
+
+        <article class="card">
+          <div class="card-hd"><span>关键资源热力图（模具）</span></div>
+          <div class="card-bd" id="decision-resource-heatmap"></div>
+        </article>
+
+        <article class="card">
+          <div class="card-hd"><span>动态瓶颈雷达图</span></div>
+          <div class="card-bd">
+            <div class="radar-wrap">
+              <svg id="decision-radar" width="280" height="240" viewBox="0 0 280 240"></svg>
+            </div>
+            <div class="radar-legend" id="decision-radar-legend"></div>
+            <div class="radar-note" id="decision-radar-note"></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="view" id="view-demand">
+      <div class="kpis">
+        <div class="kpi"><div class="muted">有效订单</div><div class="v" id="kpi-valid-orders">126</div></div>
+        <div class="kpi"><div class="muted">旺季订单</div><div class="v" id="kpi-peak-orders">19</div></div>
+        <div class="kpi"><div class="muted">库存短缺预警</div><div class="v" id="kpi-shortage">3</div></div>
+        <div class="kpi"><div class="muted">插单影响工单</div><div class="v" id="kpi-insert-impact">8</div></div>
+      </div>
+
+      <div class="grid-2">
+        <article class="card">
+          <div class="card-hd">
+            <span>订单同步与清洗</span>
+            <div class="row">
+              <select id="order-filter"><option value="all">全部状态</option><option value="valid">有效</option><option value="frozen">冻结</option></select>
+              <button class="btn" onclick="syncOrders()">实时同步</button>
+            </div>
+          </div>
+          <div class="card-bd">
+            <table>
+              <thead><tr><th>订单号</th><th>来源</th><th>交期</th><th>数量</th><th>标签</th><th>状态</th></tr></thead>
+              <tbody id="order-tbody"></tbody>
+            </table>
+            <div class="muted" style="margin-top:8px;">旺季订单按PRD要求以红色标识，支持状态筛选与排序演示。</div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-hd">
+            <span>清洗规则配置器（拖拽）</span>
+            <button class="btn" onclick="saveRuleChain()">保存规则链</button>
+          </div>
+          <div class="card-bd">
+            <div class="muted">从左侧拖拽规则到右侧“生效链路”</div>
+            <div class="grid-2">
+              <div>
+                <div class="muted">可用规则</div>
+                <div class="rule-chip-wrap" id="rule-pool">
+                  <div class="rule-chip" draggable="true">过滤草稿单</div>
+                  <div class="rule-chip" draggable="true">过滤冻结单</div>
+                  <div class="rule-chip" draggable="true">过滤数量不足</div>
+                  <div class="rule-chip" draggable="true">旺季特征识别</div>
+                  <div class="rule-chip" draggable="true">客户信用校验</div>
+                </div>
+              </div>
+              <div>
+                <div class="muted">生效链路</div>
+                <div class="rule-chip-wrap" id="rule-chain"></div>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <div class="grid-2">
+        <article class="card">
+          <div class="card-hd">
+            <span>智能BOM拆解（父子工单树）</span>
+            <button class="btn" onclick="traceBatch()">双向溯源</button>
+          </div>
+          <div class="card-bd">
+            <div class="tree" id="bom-tree"></div>
+            <div class="muted" style="margin-top:8px;">能效批次码采用颜色标签区分，支持父子工单关联展示。</div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-hd">
+            <span>库存可用性管理</span>
+            <button class="btn" onclick="recommendSubstitute()">替代料推荐</button>
+          </div>
+          <div class="card-bd" id="inventory-panel"></div>
+        </article>
+      </div>
+
+      <div class="grid-2">
+        <article class="card">
+          <div class="card-hd">
+            <span>插单池与优先级</span>
+            <button class="btn warn" onclick="simulateInsertOrder()">沙箱模拟插单</button>
+          </div>
+          <div class="card-bd">
+            <div class="row" style="margin-bottom:8px;">
+              <span class="tag red">战略客户</span><span>></span>
+              <span class="tag warn">旺季热销</span><span>></span>
+              <span class="tag">常规订单</span>
+            </div>
+            <table>
+              <thead><tr><th>插单</th><th>缺料项</th><th>预计延误</th><th>占用产能</th></tr></thead>
+              <tbody id="insert-tbody"></tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-hd">
+            <span>订单变更/撤销管理</span>
+            <button class="btn" onclick="runChangeImpact()">计算影响范围</button>
+          </div>
+          <div class="card-bd">
+            <div class="row" style="margin-bottom:8px;">
+              <select id="change-type">
+                <option value="delivery">交期调整</option>
+                <option value="qty">数量增减</option>
+                <option value="cancel">紧急撤销</option>
+              </select>
+              <input id="change-order" value="SO-20260227-018" />
+              <button class="btn primary" onclick="runChangeImpact()">生成重排建议</button>
+            </div>
+            <div id="change-result" class="muted">等待变更影响分析...</div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="view" id="view-resource">
+      <div class="resource-layout">
+        <aside class="resource-sidebar">
+          <div class="resource-menu">
+            <button class="resource-menu-item active" data-resource-sub="overview" onclick="switchResourceSub('overview', this)">资源总览</button>
+            <button class="resource-menu-item" data-resource-sub="device" onclick="switchResourceSub('device', this)">设备管理</button>
+            <button class="resource-menu-item" data-resource-sub="mold" onclick="switchResourceSub('mold', this)">模具管理</button>
+            <button class="resource-menu-item" data-resource-sub="personnel" onclick="switchResourceSub('personnel', this)">人员管理</button>
+            <button class="resource-menu-item" data-resource-sub="calendar" onclick="switchResourceSub('calendar', this)">日历管理</button>
+            <button class="resource-menu-item" data-resource-sub="outsource" onclick="switchResourceSub('outsource', this)">外协资源</button>
+          </div>
+        </aside>
+
+        <div class="resource-main">
+          <div class="resource-subview active" id="resource-sub-overview">
+            <div class="kpis resource-overview-head">
+              <div class="kpi">
+                <div class="muted">厂区设备总数（含分厂）</div>
+                <div class="v" id="ro-equip-total">--</div>
+                <div class="sub" id="ro-equip-factory">--</div>
+              </div>
+              <div class="kpi">
+                <div class="muted">模具总数</div>
+                <div class="v" id="ro-mold-total">--</div>
+                <div class="sub" id="ro-mold-extra">--</div>
+              </div>
+              <div class="kpi">
+                <div class="muted">值班人员数据</div>
+                <div class="v" id="ro-duty-total">--</div>
+                <div class="sub" id="ro-duty-extra">--</div>
+              </div>
+              <div class="kpi">
+                <div class="muted">早晚班排班与维保窗口</div>
+                <div class="v" id="ro-shift-main">--</div>
+                <div class="sub" id="ro-shift-extra">--</div>
+              </div>
+            </div>
+
+            <div class="grid-3">
+              <article class="card">
+                <div class="card-hd"><span>全要素设备建模</span><button class="btn" onclick="refreshEquipment()">刷新IoT状态</button></div>
+                <div class="card-bd" id="equipment-cards"></div>
+              </article>
+
+              <article class="card">
+                <div class="card-hd"><span>模具与工装档案</span><button class="btn" onclick="simulateMoldTransfer()">模拟调拨</button></div>
+                <div class="card-bd" id="mold-panel"></div>
+              </article>
+
+              <article class="card">
+                <div class="card-hd"><span>人员技能矩阵</span><button class="btn" onclick="checkQualification()">资质校验</button></div>
+                <div class="card-bd">
+                  <table>
+                    <thead><tr><th>工号</th><th>注塑</th><th>焊接</th><th>冷媒加注</th><th>跨厂支援</th></tr></thead>
+                    <tbody id="skill-tbody"></tbody>
+                  </table>
+                </div>
+              </article>
+            </div>
+
+            <div class="grid-2">
+              <article class="card">
+                <div class="card-hd"><span>多层级日历体系</span><button class="btn" onclick="detectCalendarDeviation()">偏差检测</button></div>
+                <div class="card-bd" id="calendar-panel"></div>
+              </article>
+
+              <article class="card">
+                <div class="card-hd"><span>实时状态与外协资源</span><button class="btn" onclick="splitToOutsource()">拆分外协</button></div>
+                <div class="card-bd">
+                  <div id="resource-live" style="margin-bottom:10px;"></div>
+                  <table>
+                    <thead><tr><th>外协厂商</th><th>产能</th><th>质量等级</th><th>交期</th><th>状态</th></tr></thead>
+                    <tbody id="outsource-tbody"></tbody>
+                  </table>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="resource-subview" id="resource-sub-device">
+            <article class="card">
+              <div class="card-hd"><span>设备管理</span><button class="btn primary" onclick="addResourceItem('device')">新增设备</button></div>
+              <div class="card-bd">
+                <div class="row resource-tools">
+                  <select id="resource-device-filter" onchange="onResourceCriteriaChange('device')">
+                    <option value="all">全部状态</option>
+                    <option value="运行">运行</option>
+                    <option value="预警">预警</option>
+                    <option value="检修">检修</option>
+                    <option value="待机">待机</option>
+                  </select>
+                  <input id="resource-device-search" placeholder="搜索设备编码/设备名称/型号" oninput="onResourceCriteriaChange('device')" />
+                  <button class="btn sm" onclick="resetResourceCriteria('device')">重置</button>
+                </div>
+                <table>
+                  <thead><tr><th>设备编码</th><th>设备名称</th><th>型号</th><th>状态</th><th>产能</th><th>操作</th></tr></thead>
+                  <tbody id="resource-device-tbody"></tbody>
+                </table>
+                <div class="resource-pagination" id="resource-device-pagination"></div>
+              </div>
+            </article>
+          </div>
+
+          <div class="resource-subview" id="resource-sub-mold">
+            <article class="card">
+              <div class="card-hd"><span>模具管理</span><button class="btn primary" onclick="addResourceItem('mold')">新增模具</button></div>
+              <div class="card-bd">
+                <div class="row resource-tools">
+                  <select id="resource-mold-filter" onchange="onResourceCriteriaChange('mold')">
+                    <option value="all">全部状态</option>
+                    <option value="在用">在用</option>
+                    <option value="待检">待检</option>
+                    <option value="保养">保养</option>
+                    <option value="封存">封存</option>
+                  </select>
+                  <input id="resource-mold-search" placeholder="搜索模具编号/机台/库位" oninput="onResourceCriteriaChange('mold')" />
+                  <button class="btn sm" onclick="resetResourceCriteria('mold')">重置</button>
+                </div>
+                <table>
+                  <thead><tr><th>模具编号</th><th>一模几穴</th><th>适配机台</th><th>寿命</th><th>库位</th><th>状态</th><th>操作</th></tr></thead>
+                  <tbody id="resource-mold-tbody"></tbody>
+                </table>
+                <div class="resource-pagination" id="resource-mold-pagination"></div>
+              </div>
+            </article>
+          </div>
+
+          <div class="resource-subview" id="resource-sub-personnel">
+            <article class="card">
+              <div class="card-hd"><span>人员管理</span><button class="btn primary" onclick="addResourceItem('personnel')">新增人员</button></div>
+              <div class="card-bd">
+                <div class="row resource-tools">
+                  <select id="resource-personnel-filter" onchange="onResourceCriteriaChange('personnel')">
+                    <option value="all">全部技能</option>
+                    <option value="注塑">注塑</option>
+                    <option value="焊接">焊接</option>
+                    <option value="总装">总装</option>
+                    <option value="冷媒加注">冷媒加注</option>
+                    <option value="钣金">钣金</option>
+                  </select>
+                  <input id="resource-personnel-search" placeholder="搜索工号/姓名/等级" oninput="onResourceCriteriaChange('personnel')" />
+                  <button class="btn sm" onclick="resetResourceCriteria('personnel')">重置</button>
+                </div>
+                <table>
+                  <thead><tr><th>工号</th><th>姓名</th><th>技能</th><th>等级</th><th>证书到期</th><th>操作</th></tr></thead>
+                  <tbody id="resource-personnel-tbody"></tbody>
+                </table>
+                <div class="resource-pagination" id="resource-personnel-pagination"></div>
+              </div>
+            </article>
+          </div>
+
+          <div class="resource-subview" id="resource-sub-calendar">
+            <article class="card">
+              <div class="card-hd"><span>日历管理</span><button class="btn primary" onclick="addResourceItem('calendar')">新增日历</button></div>
+              <div class="card-bd">
+                <div class="row resource-tools">
+                  <select id="resource-calendar-filter" onchange="onResourceCriteriaChange('calendar')">
+                    <option value="all">全部状态</option>
+                    <option value="已对齐">已对齐</option>
+                    <option value="待对齐">待对齐</option>
+                  </select>
+                  <input id="resource-calendar-search" placeholder="搜索工厂/班次/维保窗口" oninput="onResourceCriteriaChange('calendar')" />
+                  <button class="btn sm" onclick="resetResourceCriteria('calendar')">重置</button>
+                </div>
+                <table>
+                  <thead><tr><th>工厂</th><th>班次</th><th>维保窗口</th><th>加班策略</th><th>状态</th><th>操作</th></tr></thead>
+                  <tbody id="resource-calendar-tbody"></tbody>
+                </table>
+                <div class="resource-pagination" id="resource-calendar-pagination"></div>
+              </div>
+            </article>
+          </div>
+
+          <div class="resource-subview" id="resource-sub-outsource">
+            <article class="card">
+              <div class="card-hd"><span>外协资源</span><button class="btn primary" onclick="addResourceItem('outsource')">新增外协</button></div>
+              <div class="card-bd">
+                <div class="row resource-tools">
+                  <select id="resource-outsource-filter" onchange="onResourceCriteriaChange('outsource')">
+                    <option value="all">全部状态</option>
+                    <option value="可用">可用</option>
+                    <option value="备选">备选</option>
+                    <option value="紧张">紧张</option>
+                  </select>
+                  <input id="resource-outsource-search" placeholder="搜索外协厂商/质量等级/交期" oninput="onResourceCriteriaChange('outsource')" />
+                  <button class="btn sm" onclick="resetResourceCriteria('outsource')">重置</button>
+                </div>
+                <table>
+                  <thead><tr><th>外协厂商</th><th>产能</th><th>质量等级</th><th>交期</th><th>状态</th><th>操作</th></tr></thead>
+                  <tbody id="resource-outsource-tbody"></tbody>
+                </table>
+                <div class="resource-pagination" id="resource-outsource-pagination"></div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="view-rule">
+      <div class="grid-2">
+        <article class="card">
+          <div class="card-hd"><span>硬约束规则库</span><button class="btn err" onclick="validateHardRules()">执行硬约束校验</button></div>
+          <div class="card-bd">
+            <ul id="hard-rule-list" class="muted" style="line-height:1.9; padding-left:16px;"></ul>
+            <div id="hard-rule-result" class="muted" style="margin-top:8px;">等待校验...</div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-hd"><span>软约束评分矩阵</span><button class="btn" onclick="recalcSoftScore()">重算评分</button></div>
+          <div class="card-bd">
+            <table>
+              <thead><tr><th>指标</th><th>权重</th><th>当前得分</th></tr></thead>
+              <tbody id="soft-score-tbody"></tbody>
+            </table>
+          </div>
+        </article>
+      </div>
+
+      <div class="grid-2">
+        <article class="card">
+          <div class="card-hd"><span>提前期参数池</span><button class="btn" onclick="togglePeakMode()">旺季压缩切换</button></div>
+          <div class="card-bd" id="leadtime-panel"></div>
+        </article>
+
+        <article class="card">
+          <div class="card-hd"><span>临时复杂规则集</span><button class="btn" onclick="applyComplexRules()">应用规则</button></div>
+          <div class="card-bd">
+            <div class="row">
+              <label><input type="checkbox" id="rule-lock" checked> 锁定关键设备</label>
+              <label><input type="checkbox" id="rule-block"> 封锁维保时段</label>
+              <label><input type="checkbox" id="rule-group" checked> 同批次成组排程</label>
+            </div>
+            <div id="complex-rule-result" class="muted" style="margin-top:8px;">等待应用...</div>
+          </div>
+        </article>
+      </div>
+
+      <div class="grid-2">
+        <article class="card">
+          <div class="card-hd"><span>规则模拟与验证（沙盘）</span><button class="btn warn" onclick="runRuleSandbox()">运行What-If</button></div>
+          <div class="card-bd" id="sandbox-result">等待模拟...</div>
+        </article>
+
+        <article class="card">
+          <div class="card-hd"><span>冲突判定准则</span><button class="btn" onclick="judgeConflict()">冲突判定</button></div>
+          <div class="card-bd" id="conflict-result">等待判定...</div>
+        </article>
+      </div>
+    </section>
+
+    <section class="view" id="view-collab">
+      <div class="collab-layout">
+        <div class="collab-left">
+          <article class="card">
+            <div class="card-hd">
+              <span>排程执行引擎</span>
+              <div class="row">
+                <select id="schedule-mode"><option value="forward">Forward-ASAP</option><option value="backward">Backward-JIT</option></select>
+                <button class="btn primary" onclick="runScheduling()">执行排程</button>
+              </div>
+            </div>
+            <div class="card-bd" id="engine-result">等待排程...</div>
+          </article>
+
+          <article class="card">
+            <div class="card-hd"><span>一键诊断与归因</span><button class="btn" onclick="runDiagnosis()">一键诊断</button></div>
+            <div class="card-bd" id="diag-result">等待诊断...</div>
+          </article>
+
+          <article class="card">
+            <div class="card-hd"><span>自主自愈重排</span><button class="btn ok" onclick="runSelfHealing()">触发自愈</button></div>
+            <div class="card-bd">
+              <div class="progress"><span id="heal-progress" style="width:0%"></span></div>
+              <div id="heal-result" class="muted" style="margin-top:8px;">待触发</div>
+            </div>
+          </article>
+
+        <article class="card">
+          <div class="card-hd"><span>多场景方案对比</span><button class="btn" onclick="buildScenarioCompare()">生成方案对比</button></div>
+          <div class="card-bd">
+            <table>
+              <thead><tr><th>方案</th><th>准时率</th><th>利用率</th><th>成本指数</th></tr></thead>
+              <tbody id="scenario-tbody"></tbody>
+            </table>
+          </div>
+        </article>
+
+        <button class="preplan-btn" onclick="aiPreScheduleShuffle()">AI预排方案</button>
+        <button class="execute-btn" onclick="executePreplan()">执行方案</button>
+
+        </div>
+
+        <article class="card collab-right">
+          <div class="card-hd">
+            <span>可视化交互工作台（甘特图）</span>
+            <div class="row">
+              <select id="gantt-plant-filter">
+                <option value="all">全部分厂</option>
+                <option value="east">东区总装</option>
+                <option value="west">西区总装</option>
+                <option value="inject">注塑分厂</option>
+                <option value="hx">两器分厂</option>
+                <option value="ctrl">控制器分厂</option>
+              </select>
+              <button class="btn" onclick="verifyDraggedPlan()">拖拽后规则校验</button>
+            </div>
+          </div>
+          <div class="card-bd">
+            <div class="lock-strip" id="collab-locks"></div>
+            <div class="muted" style="margin-bottom:8px;">20条产线（ZZW01-ZZW20），25列时间刻度（00:00-24:00）。拖拽任务可换线换时段，左右手柄可拉伸时长，双击任务可编辑名称与持续小时。</div>
+            <div class="gantt-wrap">
+              <table class="gantt-table" id="gantt-table">
+                <thead id="gantt-thead"></thead>
+                <tbody id="gantt-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="view" id="view-monitor">
+      <div class="kpis">
+        <div class="kpi"><div class="muted">全链路准时交付率</div><div class="v" id="m-kpi-otd">94.2%</div></div>
+        <div class="kpi"><div class="muted">设备综合效率(OEE)</div><div class="v" id="m-kpi-oee">88.7%</div></div>
+        <div class="kpi"><div class="muted">跨厂响应周期</div><div class="v" id="m-kpi-cycle">46 min</div></div>
+        <div class="kpi"><div class="muted">旺季产能利用率</div><div class="v" id="m-kpi-peak">91.3%</div></div>
+      </div>
+
+      <div class="grid-2">
+        <article class="card">
+          <div class="card-hd">
+            <span>执行进度看板</span>
+            <div class="row">
+              <select><option>按订单</option><option>按批次</option><option>按机型</option></select>
+              <button class="btn" onclick="refreshFlowBoard()">刷新频率: 5s</button>
+            </div>
+          </div>
+          <div class="card-bd">
+            <div class="flow" id="flow-board"></div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-hd"><span>异常哨兵系统（三级分级）</span><button class="btn" onclick="pushAlerts()">推送告警</button></div>
+          <div class="card-bd">
+            <div id="alert-board"></div>
+            <div class="incident-panel" id="incident-panel">
+              <div class="row" style="justify-content:space-between; margin-bottom:8px;">
+                <b>异常处理工单</b>
+                <span class="tag info" id="incident-level">-</span>
+              </div>
+              <div class="muted" id="incident-text" style="margin-bottom:8px;">请从告警列表点击“处理”</div>
+              <textarea id="incident-feedback" rows="3" placeholder="填写处理反馈，例如：已协调加急物流并调整排程"></textarea>
+              <div class="row" style="justify-content:flex-end; margin-top:8px;">
+                <button class="btn" onclick="closeIncidentTicket()">取消</button>
+                <button class="btn primary" onclick="submitIncidentTicket()">提交闭环</button>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <div class="grid-2">
+        <article class="card">
+          <div class="card-hd"><span>KPI归因分析</span><button class="btn" onclick="refreshAttribution()">更新归因</button></div>
+          <div class="card-bd" id="attribution-panel"></div>
+        </article>
+
+        <article class="card">
+          <div class="card-hd"><span>KPI与绩效看板</span><button class="btn primary" onclick="feedBackToRules()">一键反哺参数</button></div>
+          <div class="card-bd" id="performance-panel"></div>
+        </article>
+      </div>
+    </section>
+
+  </main>
+
+  <button class="ai-assistant-btn" onclick="openAiAssistant()" title="AI排程助理" aria-label="AI排程助理">🤖</button>
+
+  <div class="modal-mask" id="ai-chat-mask">
+    <div class="ai-chat-card" role="dialog" aria-modal="true" aria-labelledby="ai-chat-title">
+      <div class="ai-chat-hd">
+        <span id="ai-chat-title">AI排程助理</span>
+        <button class="btn" onclick="closeAiAssistant()">缩小</button>
+      </div>
+      <div class="ai-chat-body" id="ai-chat-body"></div>
+      <div class="ai-chat-ft">
+        <button class="ai-quick-btn" onclick="sendAiQuickTask(1)">深度自主规划</button>
+        <button class="ai-quick-btn" onclick="sendAiQuickTask(2)">排程优化建议</button>
+        <button class="ai-quick-btn" onclick="sendAiQuickTask(3)">生成当日报告</button>
+        <input class="ai-input" id="ai-chat-input" placeholder="请给AI助手布置一个任务" />
+        <button class="btn primary" onclick="sendAiCustomTask()">发送</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-mask" id="task-modal-mask">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="task-modal-title">
+      <div class="modal-hd">
+        <span id="task-modal-title">任务详情</span>
+        <button class="btn" onclick="closeTaskModal()">关闭</button>
+      </div>
+      <div class="modal-bd">
+        <div class="modal-field"><label>任务编号</label><input id="tm-task-no" disabled /></div>
+        <div class="modal-field"><label>订单号</label><input id="tm-order-no" disabled /></div>
+        <div class="modal-field"><label>产品名称</label><input id="tm-product-name" disabled /></div>
+        <div class="modal-field"><label>数量</label><input id="tm-qty" disabled /></div>
+        <div class="modal-field"><label>开始时间</label><select id="tm-start"></select></div>
+        <div class="modal-field"><label>结束时间</label><select id="tm-end"></select></div>
+        <div class="modal-field"><label>分厂</label><input id="tm-plant" disabled /></div>
+        <div class="modal-field"><label>产线</label><input id="tm-line" disabled /></div>
+        <div class="modal-field"><label>工序</label><input id="tm-process" disabled /></div>
+      <div class="modal-field"><label>生产状态</label><input id="tm-status" disabled /></div>
+      </div>
+      <div class="modal-ft">
+        <button class="btn delete-btn" onclick="deleteTaskModal()">删除</button>
+        <button class="btn primary" onclick="saveTaskModal()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script>
+    function buildInitialGanttTasks() {
+      const products = ["KFR-26GW", "KFR-35GW", "KFR-50GW", "KFR-72GW", "KFR-120LW"];
+      const statuses = ["待产", "生产中", "生产中", "已完成"];
+      const classes = ["a", "b", "c", "d"];
+      const tasks = [];
+      let seq = 1;
+
+      const processByLine = (line) => {
+        if (line <= 4) return "总装";
+        if (line <= 9) return "注塑成型";
+        if (line <= 14) return "钣金加工";
+        return "两器焊接";
+      };
+
+      for (let line = 0; line < 20; line++) {
+        const taskCount = (line % 3) + 1; // 每条线 1~3 条任务
+        const baseStarts = [line % 5, 8 + (line % 6), 16 + (line % 5)];
+        let prevEnd = -1;
+
+        for (let j = 0; j < taskCount; j++) {
+          let duration = j === 2 ? 2 : (2 + ((line + j) % 3)); // 2~4 小时
+          let start = baseStarts[j];
+          start = Math.max(start, prevEnd + 1);
+          if (start + duration > 24) {
+            start = Math.max(0, 24 - duration);
+          }
+          if (start <= prevEnd) {
+            start = prevEnd + 1;
+            if (start + duration > 24) {
+              duration = Math.max(1, 24 - start);
+            }
+          }
+
+          const idStr = String(seq).padStart(4, "0");
+          const taskNo = `TASK-${idStr}`;
+          const orderNo = `ORD-20260301-${String(100 + seq).slice(-3)}`;
+
+          tasks.push({
+            id: `T${seq}`,
+            taskNo,
+            orderNo,
+            productName: products[(line + j) % products.length],
+            qty: 80 + ((line * 17 + j * 23) % 260),
+            process: processByLine(line),
+            status: statuses[(line + j) % statuses.length],
+            line,
+            start,
+            duration,
+            name: `WO-${7000 + seq}`,
+            cls: classes[(line + j) % classes.length]
+          });
+
+          prevEnd = start + duration;
+          seq += 1;
+        }
+      }
+      return tasks;
+    }
+
+    function padNumber(num, length) {
+      return String(num).padStart(length, "0");
+    }
+
+    function buildResourceRecords(count = 100) {
+      const deviceStatus = ["运行", "预警", "检修", "待机"];
+      const moldStatus = ["在用", "待检", "保养", "封存"];
+      const skills = ["注塑", "焊接", "总装", "冷媒加注", "钣金"];
+      const levels = ["L1", "L2", "L3", "L4"];
+      const calendarStatus = ["已对齐", "待对齐"];
+      const outsourceStatus = ["可用", "备选", "紧张"];
+      const factories = ["总装厂", "注塑厂", "两器厂", "控制器厂", "钣金厂"];
+
+      return {
+        devices: Array.from({ length: count }, (_, i) => {
+          const idx = i + 1;
+          return {
+            code: `EQ-${padNumber(idx, 4)}`,
+            name: `${factories[i % factories.length]}设备-${padNumber(idx, 3)}`,
+            model: `MDL-${320 + (i % 12) * 10}`,
+            status: deviceStatus[i % deviceStatus.length],
+            capacity: `${80 + (i % 9) * 10}套/时`
+          };
+        }),
+        molds: Array.from({ length: count }, (_, i) => {
+          const idx = i + 1;
+          return {
+            code: `M-${padNumber(1000 + idx, 4)}`,
+            cavity: `1模${2 + (i % 6)}穴`,
+            machine: `IM-${1600 + (i % 8) * 100}`,
+            life: `${45 + (i * 3) % 55}%`,
+            location: `${factories[i % factories.length]}-库位${padNumber((i % 20) + 1, 2)}`,
+            status: moldStatus[i % moldStatus.length]
+          };
+        }),
+        personnels: Array.from({ length: count }, (_, i) => {
+          const idx = i + 1;
+          const month = padNumber((i % 12) + 1, 2);
+          const day = padNumber((i % 28) + 1, 2);
+          return {
+            empId: `P${padNumber(1000 + idx, 5)}`,
+            name: `员工${padNumber(idx, 3)}`,
+            skill: skills[i % skills.length],
+            level: levels[i % levels.length],
+            certExpiry: `${2026 + (i % 3)}-${month}-${day}`
+          };
+        }),
+        calendars: Array.from({ length: count }, (_, i) => {
+          const idx = i + 1;
+          return {
+            factory: factories[i % factories.length],
+            shift: i % 2 === 0 ? "三班制" : "两班制",
+            maintenance: `周${["一", "二", "三", "四", "五", "六", "日"][i % 7]} ${padNumber(i % 24, 2)}:00-${padNumber((i % 24) + 2, 2)}:00`,
+            overtime: i % 3 === 0 ? "旺季加班" : "按需加班",
+            status: calendarStatus[idx % calendarStatus.length]
+          };
+        }),
+        outsources: Array.from({ length: count }, (_, i) => {
+          const idx = i + 1;
+          return {
+            vendor: `外协厂商-${padNumber(idx, 3)}`,
+            capacity: `${120 + (i % 8) * 20}套/日`,
+            quality: ["A+", "A", "B+", "B"][i % 4],
+            leadTime: `T+${2 + (i % 4)}`,
+            status: outsourceStatus[i % outsourceStatus.length]
+          };
+        })
+      };
+    }
+
+    const state = {
+      peakMode: true,
+      orders: [
+        { id: "SO-20260227-001", src: "ERP", due: "2026-03-01", qty: 280, tag: "旺季", status: "valid" },
+        { id: "SO-20260227-002", src: "经销商", due: "2026-03-02", qty: 180, tag: "战略", status: "valid" },
+        { id: "SO-20260227-003", src: "ERP", due: "2026-03-05", qty: 20, tag: "常规", status: "frozen" },
+        { id: "SO-20260227-004", src: "ERP", due: "2026-03-03", qty: 260, tag: "旺季", status: "valid" }
+      ],
+      inventory: [
+        { mat: "ABS原料", qty: 120, safe: 100, policy: "库存量优先" },
+        { mat: "电机MTR-01", qty: 65, safe: 80, policy: "匹配度优先" },
+        { mat: "冷凝器", qty: 18, safe: 25, policy: "库存量优先" }
+      ],
+      equipment: [
+        { name: "内机总装A线", twin: "EQ-A-01", status: "运行", cert: "持证" },
+        { name: "注塑1号机", twin: "EQ-I-11", status: "预警", cert: "持证" },
+        { name: "两器焊接线", twin: "EQ-H-03", status: "故障", cert: "特种资质" }
+      ],
+      molds: [
+        { id: "M-102", life: 92, loc: "注塑一车间", route: "总装→注塑→总装" },
+        { id: "M-208", life: 41, loc: "总装缓冲库", route: "两器→总装" }
+      ],
+      skills: [
+        { id: "P1006", inject: "L3", weld: "L2", cool: "L1", cross: true },
+        { id: "P2033", inject: "L1", weld: "L3", cool: "L3", cross: false },
+        { id: "P1178", inject: "L2", weld: "L2", cool: "L2", cross: true }
+      ],
+      ganttTasks: buildInitialGanttTasks(),
+      alerts: [
+        { level: 1, text: "停线风险：注塑1号机温度异常，需立即响应" },
+        { level: 2, text: "延误风险：钣金件物流预计晚到1.8小时" },
+        { level: 3, text: "轻微偏差：两器工序节拍较计划慢4%" }
+      ],
+      resourceRecords: buildResourceRecords(100),
+      resourcePage: {
+        device: 1,
+        mold: 1,
+        personnel: 1,
+        calendar: 1,
+        outsource: 1
+      },
+      resourceCriteria: {
+        device: { filter: "all", keyword: "" },
+        mold: { filter: "all", keyword: "" },
+        personnel: { filter: "all", keyword: "" },
+        calendar: { filter: "all", keyword: "" },
+        outsource: { filter: "all", keyword: "" }
+      }
+    };
+
+    function toast(msg) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.classList.add("show");
+      setTimeout(() => t.classList.remove("show"), 3000);
+    }
+
+    function switchView(view) {
+      document.querySelectorAll(".nav-item").forEach(b => b.classList.remove("active"));
+      document.querySelector(`.nav-item[data-view='${view}']`).classList.add("active");
+      document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+      document.getElementById(`view-${view}`).classList.add("active");
+      if (view === "decision") renderDecisionCenter();
+      if (view === "resource") switchResourceSub("overview");
+    }
+
+    function renderOrders() {
+      const f = document.getElementById("order-filter").value;
+      const rows = state.orders.filter(o => f === "all" ? true : o.status === f);
+      document.getElementById("order-tbody").innerHTML = rows.map(o => {
+        const tagCls = o.tag === "旺季" ? "red" : o.tag === "战略" ? "warn" : "";
+        return `<tr>
+          <td>${o.id}</td><td>${o.src}</td><td>${o.due}</td><td>${o.qty}</td>
+          <td><span class='tag ${tagCls}'>${o.tag}</span></td>
+          <td>${o.status === "valid" ? "有效" : "冻结"}</td>
+        </tr>`;
+      }).join("");
+      document.getElementById("kpi-valid-orders").textContent = state.orders.filter(x => x.status === "valid").length;
+      document.getElementById("kpi-peak-orders").textContent = state.orders.filter(x => x.tag === "旺季").length;
+    }
+
+    function renderBomTree() {
+      document.getElementById("bom-tree").innerHTML =
+`父订单 SO-20260227-001 [批次: <span class='tag info'>ECO-26A-771</span>]
+├─ 子工单 WO-8801-I 注塑件 [批次: <span class='tag info'>ECO-26A-771</span>]
+├─ 子工单 WO-8801-S 钣金件 [批次: <span class='tag info'>ECO-26A-771</span>]
+└─ 子工单 WO-8801-H 两器件 [批次: <span class='tag info'>ECO-26A-771</span>]`;
+    }
+
+    function renderInventory() {
+      const html = state.inventory.map((i, idx) => {
+        const pct = Math.max(5, Math.min(100, Math.round(i.qty / i.safe * 100)));
+        const status = pct < 100 ? `<span class='tag red'>短缺</span>` : `<span class='tag ok'>安全</span>`;
+        return `<div style='margin-bottom:10px;'>
+          <div class='row' style='justify-content:space-between; margin-bottom:4px;'>
+            <b>${i.mat}</b><span>${status}</span>
+          </div>
+          <div class='muted'>库存 ${i.qty} / 安全水位 ${i.safe}（${i.policy}）</div>
+          <input type='range' min='40' max='200' value='${i.safe}' oninput='adjustSafe(${idx}, this.value)' style='width:100%; margin-top:6px;' />
+          <div class='progress'><span style='width:${pct}%; background:${pct < 100 ? "#ef4444" : "#10b981"};'></span></div>
+        </div>`;
+      }).join("");
+      document.getElementById("inventory-panel").innerHTML = html;
+      document.getElementById("kpi-shortage").textContent = state.inventory.filter(i => i.qty < i.safe).length;
+    }
+
+    function renderInsertRows() {
+      document.getElementById("insert-tbody").innerHTML = `
+        <tr><td>INS-701 (战略)</td><td>电机MTR-01</td><td>0.5天</td><td>12%</td></tr>
+        <tr><td>INS-702 (旺季)</td><td>冷凝器</td><td>1.2天</td><td>18%</td></tr>
+        <tr><td>INS-703 (常规)</td><td>-</td><td>0天</td><td>5%</td></tr>`;
+    }
+
+    function renderEquipment() {
+      document.getElementById("equipment-cards").innerHTML = state.equipment.map(e => {
+        const c = e.status === "运行" ? "ok" : e.status === "预警" ? "warn" : "red";
+        return `<div style='border:1px solid #334155; border-radius:8px; padding:8px; margin-bottom:8px;'>
+          <div class='row' style='justify-content:space-between;'><b>${e.name}</b><span class='tag ${c}'>${e.status}</span></div>
+          <div class='muted'>孪生编码: ${e.twin} | 资质: ${e.cert}</div>
+        </div>`;
+      }).join("");
+    }
+
+    function renderMolds() {
+      document.getElementById("mold-panel").innerHTML = state.molds.map(m => {
+        return `<div style='margin-bottom:10px;'>
+          <div class='row' style='justify-content:space-between; margin-bottom:4px;'><b>${m.id}</b><span class='tag ${m.life < 45 ? "red" : "warn"}'>寿命${m.life}%</span></div>
+          <div class='progress'><span style='width:${m.life}%; background:${m.life < 45 ? "#ef4444" : "#f59e0b"};'></span></div>
+          <div class='muted' style='margin-top:4px;'>当前位置: ${m.loc} | 轨迹: ${m.route}</div>
+        </div>`;
+      }).join("");
+    }
+
+    function renderSkills() {
+      document.getElementById("skill-tbody").innerHTML = state.skills.map(s => `
+        <tr><td>${s.id}</td><td>${s.inject}</td><td>${s.weld}</td><td>${s.cool}</td><td>${s.cross ? "是（1.5倍工时）" : "否"}</td></tr>
+      `).join("");
+    }
+
+    function renderCalendar() {
+      document.getElementById("calendar-panel").innerHTML = `
+        <div class='row' style='margin-bottom:8px;'>
+          <span class='tag'>总装厂: 三班制</span>
+          <span class='tag'>注塑厂: 两班制</span>
+          <span class='tag warn'>偏差: 2.5小时</span>
+        </div>
+        <div style='padding:8px; border:1px solid #7f1d1d; border-radius:8px; background:#3b1114; color:#fecaca;'>
+          红色高亮时段：2026-03-01 16:00-18:30（跨厂时间窗偏差>2小时）
+        </div>`;
+    }
+
+    function renderResourceLive() {
+      document.getElementById("resource-live").innerHTML = `
+        <div class='row'>
+          <span class='tag ok'>设备在线率 94%</span>
+          <span class='tag warn'>齐套率 88%</span>
+          <span class='tag red'>异常数 2</span>
+        </div>`;
+      document.getElementById("outsource-tbody").innerHTML = `
+        <tr><td>外协A厂</td><td>220套/日</td><td>A</td><td>T+2</td><td><span class='tag ok'>可用</span></td></tr>
+        <tr><td>外协B厂</td><td>160套/日</td><td>B+</td><td>T+3</td><td><span class='tag warn'>备选</span></td></tr>`;
+    }
+
+    function renderResourceOverviewHead() {
+      const setText = (id, text) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = text;
+      };
+
+      const devices = state.resourceRecords.devices || [];
+      const molds = state.resourceRecords.molds || [];
+      const personnels = state.resourceRecords.personnels || [];
+      const calendars = state.resourceRecords.calendars || [];
+
+      const factories = [
+        { key: "总装厂", label: "总装" },
+        { key: "注塑厂", label: "注塑" },
+        { key: "两器厂", label: "两器" },
+        { key: "控制器厂", label: "控制器" },
+        { key: "钣金厂", label: "钣金" }
+      ];
+
+      const factoryCounts = factories.map((f) => ({
+        label: f.label,
+        count: devices.filter(d => String(d.name || "").includes(f.key)).length
+      }));
+      const knownCount = factoryCounts.reduce((sum, i) => sum + i.count, 0);
+      const otherCount = Math.max(0, devices.length - knownCount);
+
+      const equipDetail = factoryCounts.map(i => `${i.label}${i.count}`).join(" | ");
+      setText("ro-equip-total", `${devices.length} 台`);
+      setText("ro-equip-factory", otherCount > 0 ? `${equipDetail} | 其他${otherCount}` : equipDetail);
+
+      const activeMolds = molds.filter(m => ["在用", "保养"].includes(String(m.status || ""))).length;
+      const inspectMolds = molds.filter(m => ["待检", "封存"].includes(String(m.status || ""))).length;
+      setText("ro-mold-total", `${molds.length} 套`);
+      setText("ro-mold-extra", `在产${activeMolds} | 待检/封存${inspectMolds}`);
+
+      const onDuty = Math.round(personnels.length * 0.68);
+      const standby = Math.round(personnels.length * 0.18);
+      const rest = Math.max(0, personnels.length - onDuty - standby);
+      setText("ro-duty-total", `${personnels.length} 人`);
+      setText("ro-duty-extra", `值班${onDuty} | 机动${standby} | 休息${rest}`);
+
+      const maintenanceSlots = Array.from(new Set(calendars.map(c => c.maintenance).filter(Boolean)));
+      const shiftBrief = "早班 08:00-20:00 | 晚班 20:00-08:00";
+      const maintBrief = maintenanceSlots.length
+        ? `维保窗口：${maintenanceSlots.slice(0, 2).join(" / ")}`
+        : "维保窗口：暂无";
+      setText("ro-shift-main", shiftBrief);
+      setText("ro-shift-extra", maintBrief);
+    }
+
+    const RESOURCE_PAGE_SIZE = 20;
+
+    const resourceCrudMeta = {
+      device: {
+        key: "devices",
+        tbody: "resource-device-tbody",
+        pagination: "resource-device-pagination",
+        filterField: "status",
+        searchKeys: ["code", "name", "model", "status", "capacity"],
+        fields: [
+          { key: "code", label: "设备编码" },
+          { key: "name", label: "设备名称" },
+          { key: "model", label: "型号" },
+          { key: "status", label: "状态" },
+          { key: "capacity", label: "产能" }
+        ]
+      },
+      mold: {
+        key: "molds",
+        tbody: "resource-mold-tbody",
+        pagination: "resource-mold-pagination",
+        filterField: "status",
+        searchKeys: ["code", "machine", "location", "status", "cavity"],
+        fields: [
+          { key: "code", label: "模具编号" },
+          { key: "cavity", label: "一模几穴" },
+          { key: "machine", label: "适配机台" },
+          { key: "life", label: "寿命" },
+          { key: "location", label: "库位" },
+          { key: "status", label: "状态" }
+        ]
+      },
+      personnel: {
+        key: "personnels",
+        tbody: "resource-personnel-tbody",
+        pagination: "resource-personnel-pagination",
+        filterField: "skill",
+        searchKeys: ["empId", "name", "skill", "level", "certExpiry"],
+        fields: [
+          { key: "empId", label: "工号" },
+          { key: "name", label: "姓名" },
+          { key: "skill", label: "技能" },
+          { key: "level", label: "等级" },
+          { key: "certExpiry", label: "证书到期" }
+        ]
+      },
+      calendar: {
+        key: "calendars",
+        tbody: "resource-calendar-tbody",
+        pagination: "resource-calendar-pagination",
+        filterField: "status",
+        searchKeys: ["factory", "shift", "maintenance", "overtime", "status"],
+        fields: [
+          { key: "factory", label: "工厂" },
+          { key: "shift", label: "班次" },
+          { key: "maintenance", label: "维保窗口" },
+          { key: "overtime", label: "加班策略" },
+          { key: "status", label: "状态" }
+        ]
+      },
+      outsource: {
+        key: "outsources",
+        tbody: "resource-outsource-tbody",
+        pagination: "resource-outsource-pagination",
+        filterField: "status",
+        searchKeys: ["vendor", "capacity", "quality", "leadTime", "status"],
+        fields: [
+          { key: "vendor", label: "外协厂商" },
+          { key: "capacity", label: "产能" },
+          { key: "quality", label: "质量等级" },
+          { key: "leadTime", label: "交期" },
+          { key: "status", label: "状态" }
+        ]
+      }
+    };
+
+    function switchResourceSub(subId, menuEl) {
+      document.querySelectorAll(".resource-menu-item").forEach(el => el.classList.remove("active"));
+      if (menuEl) {
+        menuEl.classList.add("active");
+      } else {
+        const autoMenu = document.querySelector(`.resource-menu-item[data-resource-sub="${subId}"]`);
+        if (autoMenu) autoMenu.classList.add("active");
+      }
+      document.querySelectorAll(".resource-subview").forEach(el => el.classList.remove("active"));
+      const target = document.getElementById(`resource-sub-${subId}`);
+      if (target) target.classList.add("active");
+    }
+
+    function getResourceCriteria(type) {
+      if (!state.resourceCriteria[type]) {
+        state.resourceCriteria[type] = { filter: "all", keyword: "" };
+      }
+      const filterEl = document.getElementById(`resource-${type}-filter`);
+      const searchEl = document.getElementById(`resource-${type}-search`);
+      if (filterEl) state.resourceCriteria[type].filter = filterEl.value;
+      if (searchEl) state.resourceCriteria[type].keyword = searchEl.value.trim();
+      return state.resourceCriteria[type];
+    }
+
+    function onResourceCriteriaChange(type) {
+      getResourceCriteria(type);
+      state.resourcePage[type] = 1;
+      renderResourceTable(type);
+    }
+
+    function resetResourceCriteria(type) {
+      const filterEl = document.getElementById(`resource-${type}-filter`);
+      const searchEl = document.getElementById(`resource-${type}-search`);
+      if (filterEl) filterEl.value = "all";
+      if (searchEl) searchEl.value = "";
+      state.resourceCriteria[type] = { filter: "all", keyword: "" };
+      state.resourcePage[type] = 1;
+      renderResourceTable(type);
+    }
+
+    function buildResourcePageNumbers(currentPage, totalPages, maxButtons = 5) {
+      if (totalPages <= maxButtons) {
+        return Array.from({ length: totalPages }, (_, i) => i + 1);
+      }
+      let start = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+      let end = start + maxButtons - 1;
+      if (end > totalPages) {
+        end = totalPages;
+        start = end - maxButtons + 1;
+      }
+      return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+    }
+
+    function renderResourceTable(type) {
+      const meta = resourceCrudMeta[type];
+      if (!meta) return;
+      const list = state.resourceRecords[meta.key] || [];
+      const tbody = document.getElementById(meta.tbody);
+      if (!tbody) return;
+      const criteria = getResourceCriteria(type);
+      const keyword = criteria.keyword.toLowerCase();
+      const rows = list
+        .map((item, idx) => ({ item, idx }))
+        .filter(({ item }) => {
+          const filterOk = criteria.filter === "all" || String(item[meta.filterField] ?? "") === criteria.filter;
+          const keywordOk = !keyword || meta.searchKeys.some(k => String(item[k] ?? "").toLowerCase().includes(keyword));
+          return filterOk && keywordOk;
+        });
+
+      const total = rows.length;
+      const totalPages = Math.max(1, Math.ceil(total / RESOURCE_PAGE_SIZE));
+      const page = Math.max(1, Math.min(totalPages, state.resourcePage[type] || 1));
+      state.resourcePage[type] = page;
+      const start = (page - 1) * RESOURCE_PAGE_SIZE;
+      const end = start + RESOURCE_PAGE_SIZE;
+      const pageRows = rows.slice(start, end);
+
+      if (pageRows.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="${meta.fields.length + 1}" class="muted">暂无匹配数据</td></tr>`;
+      } else {
+        tbody.innerHTML = pageRows.map(({ item, idx }) => {
+        const rowIdx = idx;
+        return `
+        <tr>
+          ${meta.fields.map(f => `<td>${item[f.key] ?? ""}</td>`).join("")}
+          <td>
+            <button class="btn sm" onclick="editResourceItem('${type}', ${rowIdx})">编辑</button>
+            <button class="btn sm delete-btn" onclick="deleteResourceItem('${type}', ${rowIdx})">删除</button>
+          </td>
+        </tr>
+      `;
+      }).join("");
+      }
+
+      const pager = document.getElementById(meta.pagination);
+      if (pager) {
+        const prevDisabled = page <= 1 ? "disabled" : "";
+        const nextDisabled = page >= totalPages ? "disabled" : "";
+        const pageNums = buildResourcePageNumbers(page, totalPages);
+        pager.innerHTML = `
+          <div class="resource-page-info">共 ${total} 条，每页 ${RESOURCE_PAGE_SIZE} 条，第 ${page}/${totalPages} 页</div>
+          <div class="resource-page-nav">
+            <button class="btn sm" ${prevDisabled} onclick="changeResourcePage('${type}', ${page - 1})">上一页</button>
+            ${pageNums.map(p => `<button class="btn sm page-btn ${p === page ? "active" : ""}" onclick="changeResourcePage('${type}', ${p})">${p}</button>`).join("")}
+            <button class="btn sm" ${nextDisabled} onclick="changeResourcePage('${type}', ${page + 1})">下一页</button>
+          </div>`;
+      }
+    }
+
+    function changeResourcePage(type, page) {
+      const meta = resourceCrudMeta[type];
+      if (!meta) return;
+      const list = state.resourceRecords[meta.key] || [];
+      const criteria = getResourceCriteria(type);
+      const keyword = criteria.keyword.toLowerCase();
+      const total = list.filter((item) => {
+        const filterOk = criteria.filter === "all" || String(item[meta.filterField] ?? "") === criteria.filter;
+        const keywordOk = !keyword || meta.searchKeys.some(k => String(item[k] ?? "").toLowerCase().includes(keyword));
+        return filterOk && keywordOk;
+      }).length;
+      const totalPages = Math.max(1, Math.ceil(total / RESOURCE_PAGE_SIZE));
+      state.resourcePage[type] = Math.max(1, Math.min(totalPages, page));
+      renderResourceTable(type);
+    }
+
+    function renderResourceManagementTables() {
+      Object.keys(resourceCrudMeta).forEach(type => renderResourceTable(type));
+    }
+
+    function addResourceItem(type) {
+      const meta = resourceCrudMeta[type];
+      if (!meta) return;
+      const row = {};
+      for (const f of meta.fields) {
+        const v = prompt(`请输入${f.label}`);
+        if (v === null) return;
+        row[f.key] = v.trim();
+      }
+      state.resourceRecords[meta.key].push(row);
+      const totalPages = Math.max(1, Math.ceil(state.resourceRecords[meta.key].length / RESOURCE_PAGE_SIZE));
+      state.resourcePage[type] = totalPages;
+      renderResourceTable(type);
+      renderResourceOverviewHead();
+      toast("新增成功");
+    }
+
+    function editResourceItem(type, idx) {
+      const meta = resourceCrudMeta[type];
+      if (!meta) return;
+      const row = state.resourceRecords[meta.key][idx];
+      if (!row) return;
+      const next = { ...row };
+      for (const f of meta.fields) {
+        const v = prompt(`编辑${f.label}`, next[f.key] ?? "");
+        if (v === null) return;
+        next[f.key] = v.trim();
+      }
+      state.resourceRecords[meta.key][idx] = next;
+      renderResourceTable(type);
+      renderResourceOverviewHead();
+      toast("编辑成功");
+    }
+
+    function deleteResourceItem(type, idx) {
+      const meta = resourceCrudMeta[type];
+      if (!meta) return;
+      if (!confirm("确认删除该记录吗？")) return;
+      state.resourceRecords[meta.key].splice(idx, 1);
+      renderResourceTable(type);
+      renderResourceOverviewHead();
+      toast("删除成功");
+    }
+
+    function renderHardRules() {
+      const list = [
+        "两器铜管材质/管径匹配机型（工艺硬约束）",
+        "配套件交付时间需早于总装开工>=2小时（交付硬约束）",
+        "禁止不同批次配套件混线装配（批次硬约束）",
+        "危化品工序需符合安监规范（安全硬约束）"
+      ];
+      document.getElementById("hard-rule-list").innerHTML = list.map(i => `<li>${i}</li>`).join("");
+    }
+
+    function renderSoftScores() {
+      const rows = [
+        ["交付准时率", "40%", 92],
+        ["设备利用率", "30%", 87],
+        ["换产成本", "20%", 78],
+        ["物料齐套率", "10%", 83]
+      ];
+      document.getElementById("soft-score-tbody").innerHTML = rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join("");
+    }
+
+    function renderLeadTime() {
+      const factor = state.peakMode ? 0.8 : 1;
+      document.getElementById("leadtime-panel").innerHTML = `
+        <table>
+          <thead><tr><th>工序</th><th>标准提前期</th><th>当前提前期</th></tr></thead>
+          <tbody>
+            <tr><td>注塑</td><td>10h</td><td>${(10 * factor).toFixed(1)}h</td></tr>
+            <tr><td>钣金</td><td>8h</td><td>${(8 * factor).toFixed(1)}h</td></tr>
+            <tr><td>两器</td><td>12h</td><td>${(12 * factor).toFixed(1)}h</td></tr>
+          </tbody>
+        </table>
+        <div class='muted' style='margin-top:8px;'>模式：${state.peakMode ? "旺季压缩(0.8X)" : "标准模式(1.0X)"}</div>`;
+    }
+
+    function getLineCode(lineIndex) {
+      return `ZZW${String(lineIndex + 1).padStart(2, "0")}`;
+    }
+
+    function getPlantByLine(lineIndex) {
+      if (lineIndex <= 4) return "总装厂";
+      if (lineIndex <= 9) return "注塑厂";
+      if (lineIndex <= 14) return "钣金厂";
+      return "两器厂";
+    }
+
+    function formatHour(hour) {
+      return `${String(hour).padStart(2, "0")}:00`;
+    }
+
+    function renderGanttWorkbench() {
+      const hours = Array.from({ length: 25 }, (_, i) => `${String(i).padStart(2, "0")}:00`);
+      document.getElementById("gantt-thead").innerHTML = `
+        <tr>
+          <th class="gantt-line-col">产线</th>
+          ${hours.map(h => `<th class="gantt-hour-col">${h}</th>`).join("")}
+        </tr>`;
+
+      document.getElementById("gantt-tbody").innerHTML = Array.from({ length: 20 }, (_, lineIdx) => `
+        <tr>
+          <td class="gantt-line-col">${getLineCode(lineIdx)}</td>
+          ${hours.map((_, h) => `<td class="gantt-cell gantt-hour-col" data-line="${lineIdx}" data-hour="${h}"></td>`).join("")}
+        </tr>
+      `).join("");
+
+      state.ganttTasks.forEach(task => {
+        const startCell = document.querySelector(`.gantt-cell[data-line="${task.line}"][data-hour="${task.start}"]`);
+        if (!startCell) return;
+        const el = document.createElement("div");
+        el.className = `gantt-task ${task.cls}`;
+        el.setAttribute("draggable", "true");
+        el.dataset.id = task.id;
+        el.style.width = `calc(${task.duration} * var(--gantt-cell-w) + ${task.duration - 1}px)`;
+        el.innerHTML = `<span class="gantt-resize left"></span><span class="gantt-task-label">${task.name}</span><span class="gantt-resize right"></span>`;
+        el.title = `${task.name} (${getLineCode(task.line)} ${formatHour(task.start)}-${formatHour(task.start + task.duration)})`;
+        startCell.appendChild(el);
+      });
+
+      bindGanttInteractions();
+    }
+
+    function renderFlowBoard() {
+      const data = [
+        ["配套件生产", Math.floor(Math.random()*8 + 84) + "%"],
+        ["物流运输", Math.floor(Math.random()*8 + 88) + "%"],
+        ["总装装配", Math.floor(Math.random()*8 + 86) + "%"],
+        ["整机检测", Math.floor(Math.random()*8 + 90) + "%"]
+      ];
+      document.getElementById("flow-board").innerHTML = data.map(i => `
+        <div class='flow-step'><div class='s'>${i[0]}</div><div class='n'>${i[1]}</div></div>
+      `).join("");
+    }
+
+    function renderAlerts() {
+      document.getElementById("alert-board").innerHTML = state.alerts.map(a => {
+        const cls = a.level === 1 ? "alert-l1" : a.level === 2 ? "alert-l2" : "alert-l3";
+        const txt = a.level === 1 ? "一级(红)" : a.level === 2 ? "二级(黄)" : "三级(蓝)";
+        return `<div class='alert-line ${cls}'><span class='tag'>${txt}</span><span style="flex:1;">${a.text}</span><button class="btn sm" onclick='openIncidentTicket(${a.level}, ${JSON.stringify(a.text)})'>处理</button></div>`;
+      }).join("");
+    }
+
+    function openIncidentTicket(level, text) {
+      const panel = document.getElementById("incident-panel");
+      panel.classList.add("show");
+      document.getElementById("incident-level").textContent = `L${level}`;
+      document.getElementById("incident-text").textContent = text;
+      document.getElementById("incident-feedback").value = "";
+    }
+
+    function closeIncidentTicket() {
+      document.getElementById("incident-panel").classList.remove("show");
+    }
+
+    function submitIncidentTicket() {
+      const feedback = document.getElementById("incident-feedback").value.trim();
+      if (!feedback) {
+        toast("请先填写处理反馈");
+        return;
+      }
+      closeIncidentTicket();
+      toast("异常工单已提交并进入闭环跟踪");
+    }
+
+    function renderAttribution() {
+      const rows = [
+        ["换产耗时", 34],
+        ["物料未齐套", 41],
+        ["设备故障", 25]
+      ];
+      document.getElementById("attribution-panel").innerHTML = rows.map(r => `
+        <div style='margin-bottom:10px;'>
+          <div class='row' style='justify-content:space-between; margin-bottom:4px;'><span>${r[0]}</span><b>${r[1]}%</b></div>
+          <div class='progress'><span style='width:${r[1]}%; background:${r[0] === "物料未齐套" ? "#ef4444" : "#38bdf8"};'></span></div>
+        </div>`).join("");
+    }
+
+    function renderPerformance() {
+      document.getElementById("performance-panel").innerHTML = `
+        <table>
+          <thead><tr><th>维度</th><th>指标</th><th>当前值</th></tr></thead>
+          <tbody>
+            <tr><td>总装端</td><td>整机一次合格率</td><td>98.4%</td></tr>
+            <tr><td>配套端</td><td>配套交付准时率</td><td>93.1%</td></tr>
+            <tr><td>协同端</td><td>跨厂订单响应周期</td><td>46 min</td></tr>
+          </tbody>
+        </table>
+        <div class='muted' style='margin-top:8px;'>支持国产化合规报表导出（静态演示）。</div>`;
+    }
+
+    function renderCollabLocks() {
+      const users = [
+        { name: "王", color: "#2563eb", line: "ZZW03", task: "WO-8801" },
+        { name: "李", color: "#0f766e", line: "ZZW09", task: "WO-9012" },
+        { name: "陈", color: "#7c3aed", line: "ZZW15", task: "WO-6510" }
+      ];
+      document.getElementById("collab-locks").innerHTML = `
+        <div><span class="tag warn">实时协作锁</span> 当前锁定：${users[0].line}/${users[0].task}</div>
+        <div class="avatar-group">
+          ${users.map(u => `<span class="avatar-dot" style="background:${u.color}" title="${u.name} 正在编辑 ${u.line}">${u.name}</span>`).join("")}
+        </div>`;
+    }
+
+    function setRolePermissions(role) {
+      const allowMap = {
+        admin: ["decision", "demand", "resource", "rule", "collab", "monitor"],
+        planner: ["decision", "demand", "resource", "rule", "collab", "monitor"],
+        workshop: ["decision", "resource", "collab", "monitor"]
+      };
+      const allows = allowMap[role] || allowMap.admin;
+      document.querySelectorAll("#nav .nav-item").forEach(btn => {
+        btn.style.display = allows.includes(btn.dataset.view) ? "inline-flex" : "none";
+      });
+      const active = document.querySelector("#nav .nav-item.active");
+      if (!active || active.style.display === "none") {
+        const firstVisible = Array.from(document.querySelectorAll("#nav .nav-item")).find(b => b.style.display !== "none");
+        if (firstVisible) switchView(firstVisible.dataset.view);
+      }
+    }
+
+    function formatDateTime(date) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, "0");
+      const d = String(date.getDate()).padStart(2, "0");
+      const hh = String(date.getHours()).padStart(2, "0");
+      const mm = String(date.getMinutes()).padStart(2, "0");
+      const ss = String(date.getSeconds()).padStart(2, "0");
+      return `${y}-${m}-${d} ${hh}:${mm}:${ss}`;
+    }
+
+    function renderDecisionCenter() {
+      const timeMarks = Array.from({ length: 25 }, (_, i) => `${String(i).padStart(2, "0")}:00`);
+      const timeEl = document.getElementById("decision-gantt-time");
+      if (timeEl) {
+        timeEl.innerHTML = timeMarks.map(t => `<span>${t}</span>`).join("");
+      }
+
+      const oee = (86 + Math.random() * 6).toFixed(1);
+      const wow = (Math.random() * 4 - 2).toFixed(1); // -2.0 ~ +2.0
+      const done = Math.floor(88 + Math.random() * 12);
+      const total = 120;
+      const donePct = (done / total * 100).toFixed(1);
+      const wipIn = Math.floor(18 + Math.random() * 6);
+      const wipOut = Math.floor(12 + Math.random() * 5);
+      const alerts = Math.floor(2 + Math.random() * 3);
+      const solved = Math.floor(Math.random() * (alerts + 1));
+      const unsolved = alerts - solved;
+      const etaHour = 17 + Math.floor(Math.random() * 3);
+      const etaMin = [0, 10, 20, 30, 40, 50][Math.floor(Math.random() * 6)];
+
+      document.getElementById("d-kpi-oee").textContent = `${oee}%`;
+      document.getElementById("d-kpi-oee-wow").innerHTML = wow >= 0
+        ? `较上周 <span style="color:#10b981;">↑ ${Math.abs(wow)}%</span>`
+        : `较上周 <span style="color:#ef4444;">↓ ${Math.abs(wow)}%</span>`;
+      document.getElementById("d-kpi-plan").textContent = `${done}/${total}`;
+      document.getElementById("d-kpi-plan-extra").textContent = `${donePct}% | AI预计 ${String(etaHour).padStart(2, "0")}:${String(etaMin).padStart(2, "0")} 完成`;
+      document.getElementById("d-kpi-wip").textContent = String(wipIn + wipOut);
+      document.getElementById("d-kpi-wip").nextElementSibling.textContent = `内机 ${wipIn} / 外机 ${wipOut}`;
+      document.getElementById("d-kpi-alert").textContent = String(alerts);
+      document.getElementById("d-kpi-alert-extra").textContent = `已解决 ${solved} 条 | 未解决 ${unsolved} 条`;
+
+      const plants = [
+        { name: "东区总装", jobs: [{ s: 1, d: 4, n: "内机组装" }, { s: 8, d: 5, n: "整机联调" }] },
+        { name: "西区总装", jobs: [{ s: 3, d: 4, n: "外机总装" }, { s: 13, d: 4, n: "包装入库" }] },
+        { name: "注塑分厂", jobs: [{ s: 0, d: 6, n: "面板注塑" }, { s: 11, d: 5, n: "外壳注塑" }] },
+        { name: "两器分厂", jobs: [{ s: 5, d: 4, n: "冷凝器焊接" }, { s: 14, d: 4, n: "蒸发器组装" }] },
+        { name: "控制器分厂", jobs: [{ s: 2, d: 5, n: "控制板装配" }, { s: 15, d: 3, n: "程序烧录" }] }
+      ];
+      document.getElementById("decision-gantt-lanes").innerHTML = plants.map((p, idx) => `
+        <div class="decision-gantt-row">
+          <div class="muted">${p.name}</div>
+          <div class="decision-gantt-track">
+            ${p.jobs.map((j, jIdx) => `<div class="decision-gantt-bar p${(idx + jIdx) % 5 + 1}" style="left:${j.s / 24 * 100}%; width:${j.d / 24 * 100}%;">${j.n}</div>`).join("")}
+          </div>
+        </div>
+      `).join("");
+
+      const orders = [
+        { no: "ORD-20260301-011", pct: 92, risk: "低" },
+        { no: "ORD-20260301-018", pct: 76, risk: "中" },
+        { no: "ORD-20260301-025", pct: 64, risk: "高" },
+        { no: "ORD-20260301-031", pct: 88, risk: "低" }
+      ];
+      document.getElementById("decision-order-progress").innerHTML = orders.map(o => `
+        <div>
+          <div class="row" style="justify-content:space-between; margin-bottom:4px;"><span>${o.no}</span><span class="tag ${o.risk === "高" ? "red" : o.risk === "中" ? "warn" : "ok"}">${o.risk}风险</span></div>
+          <div class="progress"><span style="width:${o.pct}%; background:${o.pct >= 90 ? "#10b981" : o.pct >= 80 ? "#f59e0b" : "#ef4444"};"></span></div>
+        </div>
+      `).join("");
+
+      const molds = [
+        { name: "模具M-102", load: 95, pos: "注塑分厂" },
+        { name: "模具M-208", load: 78, pos: "东区总装" },
+        { name: "模具M-315", load: 62, pos: "西区总装" },
+        { name: "模具M-420", load: 88, pos: "两器分厂" }
+      ];
+      document.getElementById("decision-resource-heatmap").innerHTML = molds.map(m => `
+        <div class="heat-item">
+          <div class="row" style="justify-content:space-between;"><b>${m.name}</b><span>${m.load}%</span></div>
+          <div class="progress" style="margin-top:6px;"><span style="width:${m.load}%; background:${m.load >= 90 ? "#ef4444" : m.load >= 80 ? "#f59e0b" : "#10b981"};"></span></div>
+          <div class="muted" style="margin-top:4px;">位置：${m.pos}</div>
+        </div>
+      `).join("");
+
+      const radarLabels = ["换产耗时", "设备负荷", "物料齐套", "交付偏差", "人员瓶颈", "物流时效", "工艺稳定", "外协协同"];
+      const baselineSeries = [58, 62, 54, 59, 50, 55, 53, 48];
+      const currentSeries = baselineSeries.map(v => {
+        const shift = Math.random() * 22 - 4;
+        return Math.max(18, Math.min(80, v + shift));
+      });
+      renderDecisionRadar({
+        labels: radarLabels,
+        series: [
+          { name: "基线", color: "#60a5fa", fill: "rgba(96,165,250,0.12)", values: baselineSeries, role: "baseline" },
+          { name: "当前", color: "#22d3ee", fill: "rgba(34,211,238,0.24)", values: currentSeries, role: "current" }
+        ]
+      });
+    }
+
+    function renderDecisionRadar(config) {
+      const svg = document.getElementById("decision-radar");
+      const legendEl = document.getElementById("decision-radar-legend");
+      if (!svg) return;
+
+      const labels = config?.labels || [];
+      const sourceSeries = config?.series || [];
+      const series = sourceSeries.filter(s => Array.isArray(s.values) && s.values.length === labels.length);
+      if (!labels.length || !series.length) {
+        svg.innerHTML = "";
+        if (legendEl) legendEl.innerHTML = "";
+        return;
+      }
+
+      const cx = 140;
+      const cy = 118;
+      const r = 88;
+      const tickCount = 5;
+      const domainMin = 0;
+      const domainMax = 80;
+      const stepDeg = 360 / labels.length;
+      const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+      const pointAt = (idx, scale) => {
+        const ang = (-90 + idx * stepDeg) * Math.PI / 180;
+        return { x: cx + Math.cos(ang) * r * scale, y: cy + Math.sin(ang) * r * scale };
+      };
+
+      const ringSvg = Array.from({ length: tickCount }, (_, i) => tickCount - i).map(level => {
+        const scale = level / tickCount;
+        const fill = level % 2 === 0 ? "rgba(148,163,184,0.08)" : "transparent";
+        const pts = labels.map((_, idx) => {
+          const p = pointAt(idx, scale);
+          return `${p.x},${p.y}`;
+        }).join(" ");
+        return `<polygon points="${pts}" fill="${fill}" stroke="#334155" stroke-width="1"/>`;
+      }).join("");
+
+      const axisSvg = labels.map((_, idx) => {
+        const p = pointAt(idx, 1);
+        return `<line x1="${cx}" y1="${cy}" x2="${p.x}" y2="${p.y}" stroke="#334155" stroke-width="1"/>`;
+      }).join("");
+
+      const yTickSvg = Array.from({ length: tickCount }, (_, i) => i + 1).map(level => {
+        const scale = level / tickCount;
+        const v = domainMin + (domainMax - domainMin) * scale;
+        return `<text x="${cx + 4}" y="${cy - r * scale - 2}" fill="#64748b" font-size="10">${Math.round(v)}</text>`;
+      }).join("");
+
+      const labelSvg = labels.map((lb, idx) => {
+        const p = pointAt(idx, 1.18);
+        return `<text x="${p.x}" y="${p.y}" fill="#93c5fd" font-size="11" text-anchor="middle">${lb}</text>`;
+      }).join("");
+
+      const seriesSvg = series.map(s => {
+        const points = s.values.map((v, idx) => {
+          const scale = clamp((v - domainMin) / (domainMax - domainMin), 0, 1);
+          const p = pointAt(idx, scale);
+          return `${p.x},${p.y}`;
+        }).join(" ");
+        const dots = s.values.map((v, idx) => {
+          const scale = clamp((v - domainMin) / (domainMax - domainMin), 0, 1);
+          const p = pointAt(idx, scale);
+          return `<circle cx="${p.x}" cy="${p.y}" r="3" fill="${s.color}" stroke="#e2e8f0" stroke-width="0.8"/>`;
+        }).join("");
+        return `<polygon points="${points}" fill="${s.fill}" stroke="${s.color}" stroke-width="2"/>${dots}`;
+      }).join("");
+
+      svg.innerHTML = `${ringSvg}${axisSvg}${yTickSvg}${seriesSvg}${labelSvg}`;
+
+      if (legendEl) {
+        legendEl.innerHTML = series.map(s => `
+          <span class="radar-legend-item">
+            <span class="radar-legend-dot" style="background:${s.color};"></span>${s.name}
+          </span>
+        `).join("");
+      }
+
+      const currentSeries = series.find(s => s.role === "current") || series[series.length - 1];
+      const baselineSeries = series.find(s => s.role === "baseline") || series[0];
+      const maxVal = Math.max(...currentSeries.values);
+      const maxIdx = currentSeries.values.indexOf(maxVal);
+      const delta = maxVal - (baselineSeries.values[maxIdx] ?? 0);
+      document.getElementById("decision-radar-note").textContent =
+        `当前主要瓶颈：${labels[maxIdx]}（当前 ${maxVal.toFixed(1)}，较基线 ${delta >= 0 ? "+" : ""}${delta.toFixed(1)}）`;
+    }
+
+    function bindRuleDrag() {
+      const chips = document.querySelectorAll(".rule-chip");
+      const pool = document.getElementById("rule-pool");
+      const chain = document.getElementById("rule-chain");
+      let dragEl = null;
+      chips.forEach(c => {
+        c.addEventListener("dragstart", () => { dragEl = c; c.classList.add("dragging"); });
+        c.addEventListener("dragend", () => c.classList.remove("dragging"));
+      });
+      [pool, chain].forEach(zone => {
+        zone.addEventListener("dragover", e => e.preventDefault());
+        zone.addEventListener("drop", e => {
+          e.preventDefault();
+          if (dragEl) zone.appendChild(dragEl);
+        });
+      });
+    }
+
+    function bindGanttInteractions() {
+      const tbody = document.getElementById("gantt-tbody");
+      if (!state.ganttUi) state.ganttUi = { draggingTaskId: null, resizing: null };
+
+      const hourCell = tbody.querySelector(".gantt-cell");
+      const hourWidth = hourCell ? hourCell.getBoundingClientRect().width : 56;
+      const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+
+      tbody.querySelectorAll(".gantt-task").forEach(taskEl => {
+        taskEl.addEventListener("dragstart", () => {
+          if (state.ganttUi.resizing) return;
+          state.ganttUi.draggingTaskId = taskEl.dataset.id;
+        });
+        taskEl.addEventListener("dragend", () => {
+          state.ganttUi.draggingTaskId = null;
+        });
+        taskEl.addEventListener("click", (e) => {
+          if (state.ganttUi.resizing) return;
+          if (e.target.classList.contains("gantt-resize")) return;
+          openTaskModal(taskEl.dataset.id);
+        });
+
+        taskEl.querySelectorAll(".gantt-resize").forEach(handle => {
+          handle.addEventListener("mousedown", e => {
+            e.preventDefault();
+            e.stopPropagation();
+            const task = state.ganttTasks.find(t => t.id === taskEl.dataset.id);
+            if (!task) return;
+            const side = handle.classList.contains("left") ? "left" : "right";
+            state.ganttUi.resizing = {
+              taskId: task.id,
+              side,
+              startX: e.clientX,
+              originalStart: task.start,
+              originalDuration: task.duration
+            };
+            taskEl.setAttribute("draggable", "false");
+          });
+        });
+      });
+
+      window.onmousemove = e => {
+        if (!state.ganttUi.resizing) return;
+        const resizing = state.ganttUi.resizing;
+        const task = state.ganttTasks.find(t => t.id === resizing.taskId);
+        if (!task) return;
+        const deltaHours = Math.round((e.clientX - resizing.startX) / hourWidth);
+        const maxByEnd = 25;
+        const maxDuration = 24;
+        if (resizing.side === "right") {
+          const nextDuration = clamp(
+            resizing.originalDuration + deltaHours,
+            1,
+            Math.min(maxDuration, maxByEnd - task.start)
+          );
+          task.duration = nextDuration;
+        } else {
+          const minStart = Math.max(0, resizing.originalStart + resizing.originalDuration - maxDuration);
+          const maxStart = resizing.originalStart + resizing.originalDuration - 1;
+          const nextStart = clamp(resizing.originalStart + deltaHours, minStart, maxStart);
+          const nextDuration = resizing.originalDuration + (resizing.originalStart - nextStart);
+          task.start = nextStart;
+          task.duration = clamp(nextDuration, 1, maxDuration);
+          if (task.start + task.duration > maxByEnd) {
+            task.start = maxByEnd - task.duration;
+          }
+        }
+        renderGanttWorkbench();
+      };
+
+      window.onmouseup = () => {
+        if (!state.ganttUi.resizing) return;
+        const activeTask = document.querySelector(`.gantt-task[data-id="${state.ganttUi.resizing.taskId}"]`);
+        if (activeTask) activeTask.setAttribute("draggable", "true");
+        state.ganttUi.resizing = null;
+      };
+
+      tbody.querySelectorAll(".gantt-cell").forEach(cell => {
+        cell.addEventListener("dragover", e => e.preventDefault());
+        cell.addEventListener("drop", e => {
+          e.preventDefault();
+          if (!state.ganttUi.draggingTaskId) return;
+          const line = Number(cell.dataset.line);
+          const hour = Number(cell.dataset.hour);
+          const task = state.ganttTasks.find(t => t.id === state.ganttUi.draggingTaskId);
+          if (!task) return;
+          task.line = line;
+          task.start = Math.min(hour, 25 - task.duration);
+          state.ganttUi.draggingTaskId = null;
+          renderGanttWorkbench();
+          toast(`任务已移动到 ${getLineCode(task.line)} ${String(task.start).padStart(2, "0")}:00`);
+        });
+      });
+    }
+
+    function openTaskModal(taskId) {
+      const task = state.ganttTasks.find(t => t.id === taskId);
+      if (!task) return;
+      state.ganttUi = state.ganttUi || {};
+      state.ganttUi.activeTaskId = taskId;
+
+      const hourOptions = Array.from({ length: 25 }, (_, i) => `<option value="${i}">${formatHour(i)}</option>`).join("");
+      const startEl = document.getElementById("tm-start");
+      const endEl = document.getElementById("tm-end");
+      startEl.innerHTML = hourOptions;
+      endEl.innerHTML = hourOptions;
+
+      const endHour = Math.min(24, task.start + task.duration);
+      document.getElementById("tm-task-no").value = task.taskNo || task.id;
+      document.getElementById("tm-order-no").value = task.orderNo || "-";
+      document.getElementById("tm-product-name").value = task.productName || task.name;
+      document.getElementById("tm-qty").value = task.qty ?? "-";
+      document.getElementById("tm-start").value = String(task.start);
+      document.getElementById("tm-end").value = String(endHour);
+      document.getElementById("tm-plant").value = getPlantByLine(task.line);
+      document.getElementById("tm-line").value = getLineCode(task.line);
+      document.getElementById("tm-process").value = task.process || "-";
+      document.getElementById("tm-status").value = task.status || "-";
+      document.getElementById("task-modal-mask").classList.add("show");
+    }
+
+    function closeTaskModal() {
+      document.getElementById("task-modal-mask").classList.remove("show");
+      if (state.ganttUi) state.ganttUi.activeTaskId = null;
+    }
+
+    function saveTaskModal() {
+      const taskId = state.ganttUi && state.ganttUi.activeTaskId;
+      if (!taskId) return;
+      const task = state.ganttTasks.find(t => t.id === taskId);
+      if (!task) return;
+
+      const start = Number(document.getElementById("tm-start").value);
+      const end = Number(document.getElementById("tm-end").value);
+      if (!Number.isInteger(start) || !Number.isInteger(end) || end <= start) {
+        toast("结束时间必须大于开始时间");
+        return;
+      }
+      if (!confirm("确认保存本次任务时间修改吗？")) return;
+      task.start = start;
+      task.duration = end - start;
+      renderGanttWorkbench();
+      closeTaskModal();
+      toast(`任务时间已更新为 ${formatHour(start)}-${formatHour(end)}`);
+    }
+
+    function deleteTaskModal() {
+      const taskId = state.ganttUi && state.ganttUi.activeTaskId;
+      if (!taskId) return;
+      const idx = state.ganttTasks.findIndex(t => t.id === taskId);
+      if (idx < 0) return;
+      if (!confirm("确认删除该任务吗？删除后将无法恢复。")) return;
+      state.ganttTasks.splice(idx, 1);
+      renderGanttWorkbench();
+      closeTaskModal();
+      toast("任务已删除");
+    }
+
+    function appendAiMessage(role, text) {
+      const body = document.getElementById("ai-chat-body");
+      const msg = document.createElement("div");
+      msg.className = `ai-msg ${role}`;
+      msg.textContent = text;
+      body.appendChild(msg);
+      body.scrollTop = body.scrollHeight;
+      return msg;
+    }
+
+    function appendAiLoadingMessage() {
+      const msg = appendAiMessage("bot loading", "AI排程助理正在分析中");
+      let dots = 0;
+      const timer = setInterval(() => {
+        dots = (dots + 1) % 4;
+        msg.textContent = `AI排程助理正在分析中${".".repeat(dots)}`;
+      }, 250);
+      return { msg, timer };
+    }
+
+    function appendAiBotReplyWithDelay(text) {
+      const loading = appendAiLoadingMessage();
+      setTimeout(() => {
+        clearInterval(loading.timer);
+        loading.msg.className = "ai-msg bot";
+        loading.msg.textContent = text;
+      }, 1000);
+    }
+
+    function openAiAssistant() {
+      const mask = document.getElementById("ai-chat-mask");
+      const body = document.getElementById("ai-chat-body");
+      body.innerHTML = "";
+      appendAiBotReplyWithDelay("你好，我是AI排程助理，需要我帮你完成什么任务呢？\n1、深度自主规划，使用现有排程任务分析并完善当天所有排程。\n2、帮我分析目前排程可以优化的地方，并给出具体优化建议。\n3、生成一条当天排程的报告，得出排产数据和风险点。");
+      mask.classList.add("show");
+      document.getElementById("ai-chat-input").focus();
+    }
+
+    function closeAiAssistant() {
+      document.getElementById("ai-chat-mask").classList.remove("show");
+    }
+
+    function sendAiQuickTask(type) {
+      const map = {
+        1: "深度自主规划，使用现有排程任务分析并完善当天所有排程。",
+        2: "帮我分析目前排程可以优化的地方，并给出具体优化建议。",
+        3: "生成一条当天排程的报告，得出排产数据和风险点。"
+      };
+      const text = map[type];
+      if (!text) return;
+      appendAiMessage("user", text);
+      if (type === 1) appendAiBotReplyWithDelay("已启动深度自主规划：\n- 已扫描20条产线任务冲突\n- 已补齐空闲时段插排建议\n- 建议优先处理 ZZW06、ZZW12 的瓶颈工序");
+      if (type === 2) appendAiBotReplyWithDelay("优化建议如下：\n1) ZZW09 13:00-18:00 负荷偏高，建议分流到 ZZW10。\n2) ZZW16 与 ZZW18 存在物料等待，可提前调拨。\n3) 建议将两器工序提前 1 小时以降低交付风险。");
+      if (type === 3) appendAiBotReplyWithDelay("当日排程报告：\n- 计划任务数：20条产线，当前有效任务8条\n- 预计平均利用率：89.4%\n- 主要风险点：注塑线负荷集中、两器工序可能晚点、钣金物料补给窗口偏紧");
+    }
+
+    function sendAiCustomTask() {
+      const input = document.getElementById("ai-chat-input");
+      const text = input.value.trim();
+      if (!text) return;
+      appendAiMessage("user", text);
+      input.value = "";
+      appendAiBotReplyWithDelay("任务已接收。我会基于当前排程数据进行分析并给出可执行建议。你也可以直接选择下方三类标准任务。");
+    }
+
+    function syncOrders() {
+      toast("订单同步完成：新增2条有效订单");
+      state.orders.push({ id: "SO-20260227-019", src: "经销商", due: "2026-03-06", qty: 120, tag: "旺季", status: "valid" });
+      renderOrders();
+    }
+
+    function saveRuleChain() {
+      const chain = Array.from(document.querySelectorAll("#rule-chain .rule-chip")).map(x => x.textContent.trim());
+      toast(chain.length ? `规则链已保存（${chain.length}条）` : "请先拖拽配置规则链");
+    }
+
+    function traceBatch() { toast("已溯源：ECO-26A-771 绑定父子工单一致"); }
+
+    function adjustSafe(idx, value) {
+      state.inventory[idx].safe = Number(value);
+      renderInventory();
+    }
+
+    function recommendSubstitute() {
+      toast("替代料推荐：MTR-01 -> MTR-01B（匹配度 94%）");
+    }
+
+    function simulateInsertOrder() {
+      document.getElementById("kpi-insert-impact").textContent = 11;
+      toast("插单沙箱完成：预计延误 1.2 天");
+    }
+
+    function runChangeImpact() {
+      const t = document.getElementById("change-type").value;
+      const o = document.getElementById("change-order").value;
+      const txt = t === "delivery" ? "交期调整影响注塑/钣金2条子工单，建议局部重排" :
+                 t === "qty" ? "数量上调导致冷凝器缺口 42 件，建议触发外协" :
+                 "撤销将释放总装A线 6 小时产能，建议回填旺季订单";
+      document.getElementById("change-result").textContent = `${o}: ${txt}`;
+      toast("变更影响范围已计算");
+    }
+
+    function refreshEquipment() {
+      const idx = Math.floor(Math.random() * state.equipment.length);
+      const pool = ["运行", "预警", "故障"];
+      state.equipment[idx].status = pool[Math.floor(Math.random() * pool.length)];
+      renderEquipment();
+      toast("IoT状态已刷新");
+    }
+
+    function simulateMoldTransfer() {
+      state.molds[0].loc = "总装缓冲库";
+      state.molds[0].route = "注塑→物流→总装";
+      renderMolds();
+      toast("模具跨厂调拨轨迹已更新");
+    }
+
+    function checkQualification() { toast("资质校验通过率 98.3%，1人证书7天后到期"); }
+    function detectCalendarDeviation() { toast("检测到 2 个偏差时段，已生成对齐建议"); }
+    function splitToOutsource() { toast("已拆分 1 道工序至外协A厂，预计缩短 0.8 天"); }
+
+    function validateHardRules() {
+      document.getElementById("hard-rule-result").textContent = "校验完成：3条通过，1条冲突（配套交付提前不足2小时）";
+      toast("硬约束校验完成");
+    }
+
+    function recalcSoftScore() {
+      const rows = Array.from(document.querySelectorAll("#soft-score-tbody tr td:last-child"));
+      rows.forEach(td => td.textContent = Math.floor(Math.random() * 14 + 80));
+      toast("软约束评分已更新");
+    }
+
+    function togglePeakMode() {
+      state.peakMode = !state.peakMode;
+      renderLeadTime();
+      toast(state.peakMode ? "切换到旺季压缩模式" : "切换到标准模式");
+    }
+
+    function applyComplexRules() {
+      const lock = document.getElementById("rule-lock").checked;
+      const block = document.getElementById("rule-block").checked;
+      const group = document.getElementById("rule-group").checked;
+      document.getElementById("complex-rule-result").textContent =
+        `已生效：${lock ? "锁定" : ""}${block ? " 封锁" : ""}${group ? " 成组" : ""} | 覆盖范围：总装+注塑协同链路`;
+      toast("复杂规则已应用");
+    }
+
+    function runRuleSandbox() {
+      document.getElementById("sandbox-result").innerHTML =
+        "模拟结果：准时率 +3.4%，换产成本 -6.2%，冲突点 2→1。<br>冲突点可视化如下（红色闪烁）：<br>" +
+        "<div class='alert-line alert-l1 blink-red' style='margin-top:6px;'>冲突#1：ZZW09 13:00-14:00 时间重叠</div>" +
+        "<div class='alert-line alert-l1 blink-red'>冲突#2：ZZW15 工序间隙不足 1.2h</div>" +
+        "<div class='muted' style='margin-top:6px;'>建议采用『交期优先』消解。</div>";
+      toast("What-If模拟完成");
+    }
+
+    function judgeConflict() {
+      document.getElementById("conflict-result").innerHTML =
+        "判定结果：时间重叠 7 分钟（超出±5分钟），建议：<br>1) 加班 30 分钟；2) 调序后移 1 道工序；3) 启用外协备线。";
+      toast("冲突判定完成");
+    }
+
+    function runScheduling() {
+      const mode = document.getElementById("schedule-mode").value;
+      state.ganttTasks.forEach((task, idx) => {
+        const shift = mode === "forward" ? 0 : (idx % 2);
+        task.start = Math.max(0, Math.min(25 - task.duration, task.start + shift));
+      });
+      renderGanttWorkbench();
+      document.getElementById("engine-result").innerHTML =
+        `排程完成：模式 ${mode === "forward" ? "Forward-ASAP" : "Backward-JIT"}。<br>` +
+        "Agent协商完成，产能分配：总装52% / 注塑21% / 钣金14% / 两器13%。";
+      toast("排程引擎执行完成");
+    }
+
+    function verifyDraggedPlan() { toast("拖拽后校验通过：批次一致、交付提前期满足要求"); }
+
+    function runDiagnosis() {
+      document.getElementById("diag-result").innerHTML =
+        "诊断结论：延误主因=物料未齐套(43%)；瓶颈工序=冷媒加注。<br>建议：启用替代料 + 启用外协A厂 + 调整总装顺序。";
+      toast("归因分析已完成");
+    }
+
+    function runSelfHealing() {
+      const bar = document.getElementById("heal-progress");
+      bar.style.width = "0%";
+      let p = 0;
+      const timer = setInterval(() => {
+        p += 20;
+        bar.style.width = `${p}%`;
+        if (p >= 100) {
+          clearInterval(timer);
+          document.getElementById("heal-result").textContent = "秒级局部重排完成：影响范围仅注塑/总装链路，整体计划风险可控";
+          toast("自愈重排完成");
+        }
+      }, 180);
+    }
+
+    function buildScenarioCompare() {
+      const classByScore = (v) => {
+        if (v < 80) return "red";
+        if (v <= 90) return "warn";
+        return "ok";
+      };
+      const rows = [
+        { name: "成本最优", onTime: 91.8, util: 89.6, cost: "0.86" },
+        { name: "交期最优", onTime: 95.4, util: 87.2, cost: "1.03" },
+        { name: "产能最优", onTime: 93.2, util: 92.1, cost: "0.97" }
+      ];
+      document.getElementById("scenario-tbody").innerHTML = rows.map(r => `
+        <tr>
+          <td>${r.name}</td>
+          <td><span class="tag ${classByScore(r.onTime)}">${r.onTime}%</span></td>
+          <td><span class="tag ${classByScore(r.util)}">${r.util}%</span></td>
+          <td>${r.cost}</td>
+        </tr>`).join("");
+      toast("多场景方案对比已生成");
+    }
+
+    function aiPreScheduleShuffle() {
+      const btn = document.querySelector(".preplan-btn");
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = "AI预排方案加载中...";
+      }
+      toast("AI预排方案计算中，请稍候...");
+      setTimeout(() => {
+      state.ganttTasks.forEach(task => {
+        task.line = Math.floor(Math.random() * 20);
+        task.start = Math.floor(Math.random() * (25 - task.duration));
+      });
+      renderGanttWorkbench();
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = "AI预排方案";
+      }
+      toast("AI预排方案完成：甘特任务方案已随机打乱");
+      }, 2000);
+    }
+
+    function executePreplan() {
+      if (!confirm("确认执行当前预排方案吗？执行后将下发到排程工作台。")) return;
+      toast("方案已执行：当前预排结果已生效");
+    }
+
+    function refreshFlowBoard() { renderFlowBoard(); toast("进度看板已刷新"); }
+    function pushAlerts() { renderAlerts(); toast("分级告警已推送到责任人"); }
+    function refreshAttribution() { renderAttribution(); toast("KPI归因已更新"); }
+
+    function feedBackToRules() {
+      toast("参数反哺成功：交期权重 +3%，换产成本权重 -2%");
+      switchView("rule");
+    }
+
+    function init() {
+      document.querySelectorAll(".nav-item").forEach(n => n.addEventListener("click", () => switchView(n.dataset.view)));
+      document.getElementById("order-filter").addEventListener("change", renderOrders);
+      document.getElementById("role-select").addEventListener("change", (e) => setRolePermissions(e.target.value));
+      document.getElementById("ai-chat-mask").addEventListener("click", (e) => {
+        if (e.target.id === "ai-chat-mask") closeAiAssistant();
+      });
+      document.getElementById("ai-chat-input").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") sendAiCustomTask();
+      });
+      document.getElementById("task-modal-mask").addEventListener("click", (e) => {
+        if (e.target.id === "task-modal-mask") closeTaskModal();
+      });
+
+      renderDecisionCenter();
+      renderOrders();
+      renderBomTree();
+      renderInventory();
+      renderInsertRows();
+
+      renderEquipment();
+      renderMolds();
+      renderSkills();
+      renderCalendar();
+      renderResourceLive();
+      renderResourceOverviewHead();
+      renderResourceManagementTables();
+      switchResourceSub("overview");
+
+      renderHardRules();
+      renderSoftScores();
+      renderLeadTime();
+
+      renderGanttWorkbench();
+      renderCollabLocks();
+      buildScenarioCompare();
+
+      renderFlowBoard();
+      renderAlerts();
+      renderAttribution();
+      renderPerformance();
+
+      bindRuleDrag();
+      document.getElementById("header-date").textContent = formatDateTime(new Date());
+      setInterval(() => {
+        document.getElementById("header-date").textContent = formatDateTime(new Date());
+      }, 1000);
+      setRolePermissions(document.getElementById("role-select").value);
+    }
+
+    document.addEventListener("DOMContentLoaded", init);
+  </script>
+</body>
+</html>

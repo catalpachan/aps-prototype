@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="41px" height="12px" viewBox="0 0 41 12" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>BETA</title>
+    <defs>
+        <linearGradient x1="50%" y1="25.6859458%" x2="50%" y2="79.3510309%" id="linearGradient-1">
+            <stop stop-color="#FFFFFF" offset="0%"></stop>
+            <stop stop-color="#9EEAFC" offset="13.5149549%"></stop>
+            <stop stop-color="#2EB9FB" offset="64.9764557%"></stop>
+            <stop stop-color="#1F5FFB" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="页面-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" font-family="PingFangSC-Semibold, PingFang SC" font-size="16" font-weight="500">
+        <g id="画板备份" transform="translate(-1338.000000, -21.000000)" fill="url(#linearGradient-1)" fill-rule="nonzero">
+            <text id="BETA">
+                <tspan x="1337" y="33">BETA</tspan>
+            </text>
+        </g>
+    </g>
+</svg>

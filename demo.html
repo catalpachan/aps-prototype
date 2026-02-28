@@ -1,0 +1,2861 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GREE-AI-APS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+            color: #e0e6ff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* 导航栏 */
+        .navbar {
+            background: rgba(7, 11, 29, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #2d3a6b;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            background: linear-gradient(90deg, #00d4ff, #00a8ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-tab {
+            padding: 10px 20px;
+            background: rgba(45, 58, 107, 0.3);
+            border: 1px solid #2d3a6b;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            color: #a0b0ff;
+        }
+
+        .nav-tab:hover {
+            background: rgba(0, 212, 255, 0.2);
+            border-color: #00d4ff;
+            color: #fff;
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(90deg, #00a8ff, #00d4ff);
+            color: #0a0e27;
+            font-weight: bold;
+            border-color: transparent;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+
+        /* 主容器 */
+        .container {
+            padding: 20px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        /* 模块区域 */
+        .module {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .module.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 卡片样式 */
+        .card {
+            background: rgba(26, 31, 58, 0.7);
+            border: 1px solid #2d3a6b;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 212, 255, 0.2);
+            border-color: #00d4ff;
+        }
+
+        .card-header {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #00d4ff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #2d3a6b;
+            padding-bottom: 10px;
+        }
+
+        .card-content {
+            color: #c0c8e8;
+            line-height: 1.6;
+        }
+
+        /* 按钮样式 */
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: 13px;
+            margin: 2px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, #00a8ff, #00d4ff);
+            color: #0a0e27;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.5);
+        }
+
+        .btn-secondary {
+            background: rgba(45, 58, 107, 0.5);
+            color: #a0b0ff;
+            border: 1px solid #2d3a6b;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 212, 255, 0.2);
+            color: #fff;
+            border-color: #00d4ff;
+        }
+
+        .btn-danger {
+            background: linear-gradient(90deg, #ff4d6d, #ff758f);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(90deg, #00d9a3, #00ffcc);
+            color: #0a0e27;
+        }
+
+        /* 模块一：全局指挥舱 */
+        .map-container {
+            height: 300px;
+            background: radial-gradient(circle at center, rgba(0, 212, 255, 0.1), transparent);
+            border: 1px solid #00a8ff;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+            cursor: crosshair;
+        }
+
+        .map-node {
+            position: absolute;
+            padding: 8px 12px;
+            background: rgba(0, 168, 255, 0.2);
+            border: 2px solid #00a8ff;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 12px;
+            color: #00d4ff;
+            font-weight: bold;
+        }
+
+        .map-node:hover {
+            background: rgba(0, 212, 255, 0.4);
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.6);
+        }
+
+        .map-node.active {
+            background: rgba(0, 212, 255, 0.6);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 212, 255, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 212, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 212, 255, 0); }
+        }
+
+        .strategy-options {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .strategy-card {
+            flex: 1;
+            padding: 15px;
+            background: rgba(45, 58, 107, 0.3);
+            border: 1px solid #2d3a6b;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .strategy-card:hover {
+            border-color: #00d4ff;
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        .strategy-card.selected {
+            background: rgba(0, 212, 255, 0.2);
+            border-color: #00d4ff;
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .kpi-item {
+            background: rgba(45, 58, 107, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #2d3a6b;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #00ffcc;
+            margin: 5px 0;
+            text-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            color: #a0b0ff;
+        }
+
+        .kpi-factor {
+            font-size: 11px;
+            color: #ff758f;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .alert-box {
+            background: rgba(255, 77, 109, 0.1);
+            border: 1px solid #ff4d6d;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: blink 2s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .alert-icon {
+            width: 20px;
+            height: 20px;
+            background: #ff4d6d;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        /* 模块二：甘特图 */
+        .gantt-toolbar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .gantt-container {
+            background: rgba(16, 22, 58, 0.5);
+            border: 1px solid #2d3a6b;
+            border-radius: 8px;
+            padding: 10px;
+            min-height: 400px;
+            position: relative;
+            overflow-x: auto;
+        }
+
+        .gantt-view {
+            display: none;
+            min-width: 800px;
+        }
+
+        .gantt-view.active {
+            display: block;
+        }
+
+        .gantt-resource {
+            display: flex;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+
+        .resource-label {
+            width: 120px;
+            font-size: 12px;
+            color: #a0b0ff;
+            font-weight: bold;
+        }
+
+        .resource-timeline {
+            flex: 1;
+            height: 30px;
+            background: rgba(45, 58, 107, 0.2);
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gantt-bar {
+            position: absolute;
+            height: 20px;
+            top: 5px;
+            background: linear-gradient(90deg, #00a8ff, #00d4ff);
+            border-radius: 3px;
+            cursor: move;
+            font-size: 10px;
+            color: white;
+            padding: 0 5px;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+            overflow: hidden;
+            transition: all 0.2s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .gantt-bar:hover {
+            filter: brightness(1.2);
+            transform: translateY(-2px);
+            z-index: 10;
+        }
+
+        .gantt-bar.dragging {
+            opacity: 0.7;
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.8);
+        }
+
+        .gantt-bar.critical {
+            background: linear-gradient(90deg, #ff4d6d, #ff758f);
+        }
+
+        .gantt-bar.warning {
+            background: linear-gradient(90deg, #ffb703, #ffd166);
+            color: #0a0e27;
+        }
+
+        .order-timeline {
+            height: 25px;
+            background: rgba(45, 58, 107, 0.2);
+            margin-bottom: 6px;
+            border-radius: 3px;
+            position: relative;
+        }
+
+        .material-timeline {
+            height: 20px;
+            background: rgba(45, 58, 107, 0.2);
+            margin-bottom: 5px;
+            border-radius: 3px;
+            position: relative;
+        }
+
+        /* 右键菜单 */
+        .context-menu {
+            position: fixed;
+            background: rgba(16, 22, 58, 0.98);
+            border: 1px solid #00d4ff;
+            border-radius: 8px;
+            padding: 8px 0;
+            display: none;
+            z-index: 2000;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+        }
+
+        .context-menu-item {
+            padding: 8px 20px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+            color: #c0c8e8;
+        }
+
+        .context-menu-item:hover {
+            background: rgba(0, 212, 255, 0.2);
+            color: #00d4ff;
+        }
+
+        /* 智能收件箱 */
+        .inbox-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .inbox-item {
+            padding: 12px;
+            border-bottom: 1px solid #2d3a6b;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.2s;
+        }
+
+        .inbox-item:hover {
+            background: rgba(0, 212, 255, 0.05);
+        }
+
+        .inbox-item.unread {
+            background: rgba(0, 212, 255, 0.1);
+            border-left: 3px solid #00d4ff;
+        }
+
+        .inbox-badge {
+            background: #ff4d6d;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        /* 模块三：资源驾驶舱 */
+        .resource-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .device-card {
+            background: rgba(45, 58, 107, 0.3);
+            border: 1px solid #2d3a6b;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .device-card:hover {
+            border-color: #00d4ff;
+            transform: translateY(-3px);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .device-3d {
+            width: 80px;
+            height: 80px;
+            margin: 10px auto;
+            background: linear-gradient(135deg, #00a8ff, #00d4ff);
+            border-radius: 8px;
+            transform: perspective(300px) rotateX(15deg) rotateY(15deg);
+            box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #0a0e27;
+            font-weight: bold;
+        }
+
+        .device-status {
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            margin-top: 8px;
+            display: inline-block;
+            font-weight: bold;
+        }
+
+        .status-running { background: #00d9a3; color: #0a0e27; }
+        .status-idle { background: #ffb703; color: #0a0e27; }
+        .status-maintenance { background: #ff4d6d; color: white; }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(45, 58, 107, 0.5);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00d9a3, #00ffcc);
+            transition: width 0.5s ease;
+            border-radius: 4px;
+        }
+
+        .progress-fill.warning {
+            background: linear-gradient(90deg, #ffb703, #ffd166);
+        }
+
+        .progress-fill.critical {
+            background: linear-gradient(90deg, #ff4d6d, #ff758f);
+        }
+
+        /* 模块四：调度中心 */
+        .work-instruction {
+            background: rgba(0, 168, 255, 0.1);
+            border: 1px solid #00a8ff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .instruction-step {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(45, 58, 107, 0.3);
+            border-radius: 6px;
+        }
+
+        .step-number {
+            width: 30px;
+            height: 30px;
+            background: #00a8ff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #0a0e27;
+            margin-right: 15px;
+        }
+
+        .alert-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .alert-btn {
+            padding: 15px;
+            border: 1px solid;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .alert-btn.quality { border-color: #ffd166; color: #ffd166; background: rgba(255, 209, 102, 0.1); }
+        .alert-btn.device { border-color: #ff4d6d; color: #ff4d6d; background: rgba(255, 77, 109, 0.1); }
+        .alert-btn.material { border-color: #00d9a3; color: #00d9a3; background: rgba(0, 217, 163, 0.1); }
+        .alert-btn.tech { border-color: #00a8ff; color: #00a8ff; background: rgba(0, 168, 255, 0.1); }
+
+        .alert-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px currentColor;
+        }
+
+        /* 模块五：执行终端 */
+        .terminal-container {
+            background: #0a0e27;
+            border: 2px solid #00d4ff;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 600px;
+            margin: 0 auto;
+            box-shadow: 0 0 40px rgba(0, 212, 255, 0.3);
+        }
+
+        .task-display {
+            background: rgba(0, 168, 255, 0.1);
+            border: 1px solid #00a8ff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            min-height: 120px;
+        }
+
+        .task-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00d4ff;
+            margin-bottom: 10px;
+        }
+
+        .task-details {
+            font-size: 16px;
+            color: #a0b0ff;
+            line-height: 1.5;
+        }
+
+        .operation-steps {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+        }
+
+        .step {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            background: rgba(45, 58, 107, 0.3);
+            border: 1px solid #2d3a6b;
+            border-radius: 8px;
+            margin: 0 5px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .step.active {
+            background: rgba(0, 212, 255, 0.2);
+            border-color: #00d4ff;
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.4);
+        }
+
+        .step.completed {
+            background: rgba(0, 217, 163, 0.2);
+            border-color: #00d9a3;
+        }
+
+        .voice-panel {
+            background: rgba(45, 58, 107, 0.3);
+            border: 1px solid #2d3a6b;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .voice-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff4d6d, #ff758f);
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(255, 77, 109, 0.4);
+        }
+
+        .voice-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(255, 77, 109, 0.7);
+        }
+
+        .voice-btn.listening {
+            animation: pulse 1s infinite;
+        }
+
+        /* 模块六：仿真实验室 */
+        .sim-builder {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 15px;
+            min-height: 300px;
+        }
+
+        .sim-palette {
+            background: rgba(45, 58, 107, 0.3);
+            border: 1px solid #2d3a6b;
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .sim-item {
+            padding: 8px;
+            margin: 5px 0;
+            background: rgba(0, 168, 255, 0.2);
+            border: 1px solid #00a8ff;
+            border-radius: 4px;
+            cursor: grab;
+            font-size: 12px;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .sim-item:hover {
+            background: rgba(0, 212, 255, 0.3);
+            transform: translateX(5px);
+        }
+
+        .sim-canvas {
+            background: rgba(16, 22, 58, 0.5);
+            border: 2px dashed #2d3a6b;
+            border-radius: 8px;
+            padding: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sim-scenario {
+            position: absolute;
+            padding: 10px;
+            background: rgba(0, 212, 255, 0.2);
+            border: 1px solid #00d4ff;
+            border-radius: 6px;
+            cursor: move;
+            font-size: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .universe-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .universe-card {
+            background: rgba(45, 58, 107, 0.3);
+            border: 1px solid #2d3a6b;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .universe-card:hover {
+            transform: translateY(-5px);
+            border-color: #00d4ff;
+            box-shadow: 0 8px 20px rgba(0, 212, 255, 0.2);
+        }
+
+        .universe-card.best {
+            border-color: #00d9a3;
+            background: rgba(0, 217, 163, 0.1);
+            box-shadow: 0 0 20px rgba(0, 217, 163, 0.3);
+        }
+
+        .ai-suggestion {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(0, 217, 163, 0.1));
+            border: 1px solid #00d4ff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            font-style: italic;
+            color: #00ffcc;
+        }
+
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 3000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: #1a1f3a;
+            border: 2px solid #00d4ff;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 0 40px rgba(0, 212, 255, 0.5);
+        }
+
+        .modal-header {
+            font-size: 20px;
+            font-weight: bold;
+            color: #00d4ff;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #2d3a6b;
+            padding-bottom: 10px;
+        }
+
+        .modal-close {
+            float: right;
+            cursor: pointer;
+            font-size: 24px;
+            color: #ff4d6d;
+            line-height: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #a0b0ff;
+            font-size: 13px;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            background: rgba(45, 58, 107, 0.3);
+            border: 1px solid #2d3a6b;
+            border-radius: 4px;
+            color: #e0e6ff;
+            font-size: 14px;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 0 0 8px rgba(0, 212, 255, 0.3);
+        }
+
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(45, 58, 107, 0.2);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #00a8ff;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00d4ff;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .nav-tabs {
+                flex-wrap: wrap;
+            }
+            
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .sim-builder {
+                grid-template-columns: 1fr;
+            }
+            
+            .universe-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .alert-buttons {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* 加载动画 */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0, 212, 255, 0.3);
+            border-top: 3px solid #00d4ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 浮动操作按钮 */
+        .fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #00a8ff, #00d4ff);
+            border-radius: 50%;
+            border: none;
+            color: #0a0e27;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.5);
+            transition: all 0.3s;
+            z-index: 999;
+        }
+
+        .fab:hover {
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 8px 30px rgba(0, 212, 255, 0.8);
+        }
+
+        /* 通知提示 */
+        .notification {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: rgba(16, 22, 58, 0.98);
+            border: 1px solid #00d4ff;
+            border-radius: 8px;
+            padding: 15px 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transform: translateX(400px);
+            transition: transform 0.3s;
+            z-index: 2000;
+            max-width: 350px;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            border-color: #00d9a3;
+            background: rgba(0, 217, 163, 0.1);
+        }
+
+        .notification.warning {
+            border-color: #ffb703;
+            background: rgba(255, 183, 3, 0.1);
+        }
+
+        .notification.error {
+            border-color: #ff4d6d;
+            background: rgba(255, 77, 109, 0.1);
+        }
+
+        /* 数据表格 */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+
+        .data-table th, .data-table td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #2d3a6b;
+        }
+
+        .data-table th {
+            background: rgba(45, 58, 107, 0.5);
+            color: #00d4ff;
+            font-weight: bold;
+        }
+
+        .data-table tr:hover {
+            background: rgba(0, 212, 255, 0.05);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        .dot-green { background: #00d9a3; }
+        .dot-yellow { background: #ffb703; }
+        .dot-red { background: #ff4d6d; }
+
+        /* 代码高亮模拟 */
+        .code-block {
+            background: #0a0e27;
+            border: 1px solid #2d3a6b;
+            border-radius: 6px;
+            padding: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #00ffcc;
+            overflow-x: auto;
+            margin-top: 10px;
+        }
+
+        /* 统计数字 */
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            background: linear-gradient(90deg, #00d4ff, #00ffcc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
+        }
+
+        /* 进度环 */
+        .progress-ring {
+            width: 60px;
+            height: 60px;
+            margin: 10px auto;
+        }
+
+        .progress-ring circle {
+            fill: none;
+            stroke-width: 4;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        .progress-ring .bg {
+            stroke: rgba(45, 58, 107, 0.5);
+        }
+
+        .progress-ring .progress {
+            stroke: #00d4ff;
+            stroke-dasharray: 157;
+            stroke-dashoffset: 157;
+            transition: stroke-dashoffset 0.5s;
+        }
+
+        .progress-ring .text {
+            stroke: none;
+            fill: #00d4ff;
+            font-size: 14px;
+            font-weight: bold;
+            text-anchor: middle;
+            transform: rotate(0deg);
+            transform-origin: 50% 50%;
+        }
+
+        /* 工具提示 */
+        .tooltip {
+            position: relative;
+            cursor: help;
+        }
+
+        .tooltip::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(16, 22, 58, 0.98);
+            border: 1px solid #00d4ff;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .tooltip:hover::after {
+            opacity: 1;
+        }
+
+        /* 任务状态标签 */
+        .tag {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            margin: 2px;
+        }
+
+        .tag-pending { background: rgba(255, 183, 3, 0.2); color: #ffb703; border: 1px solid #ffb703; }
+        .tag-processing { background: rgba(0, 168, 255, 0.2); color: #00a8ff; border: 1px solid #00a8ff; }
+        .tag-completed { background: rgba(0, 217, 163, 0.2); color: #00d9a3; border: 1px solid #00d9a3; }
+        .tag-delayed { background: rgba(255, 77, 109, 0.2); color: #ff4d6d; border: 1px solid #ff4d6d; }
+
+        /* 动画卡片 */
+        .animated-card {
+            background: linear-gradient(135deg, rgba(0, 168, 255, 0.1), rgba(0, 217, 163, 0.1));
+            border: 1px solid #00a8ff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        /* 响应式网格 */
+        .responsive-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        /* 模拟按钮 */
+        .simulate-btn {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .simulate-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .simulate-btn:active::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        /* 状态指示器 */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: rgba(45, 58, 107, 0.3);
+        }
+
+        .status-indicator .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            animation: blink 1.5s infinite;
+        }
+
+        .status-indicator.active .dot {
+            background: #00d9a3;
+        }
+
+        .status-indicator.warning .dot {
+            background: #ffb703;
+        }
+
+        .status-indicator.error .dot {
+            background: #ff4d6d;
+        }
+
+        /* 电池/容量显示 */
+        .battery {
+            width: 60px;
+            height: 25px;
+            border: 2px solid #2d3a6b;
+            border-radius: 4px;
+            position: relative;
+            background: rgba(45, 58, 107, 0.2);
+            overflow: hidden;
+        }
+
+        .battery::after {
+            content: '';
+            position: absolute;
+            right: -5px;
+            top: 6px;
+            width: 4px;
+            height: 8px;
+            background: #2d3a6b;
+            border-radius: 0 2px 2px 0;
+        }
+
+        .battery-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00d9a3, #00ffcc);
+            transition: width 0.5s;
+            border-radius: 2px;
+        }
+
+        .battery-fill.low {
+            background: linear-gradient(90deg, #ff4d6d, #ff758f);
+        }
+
+        /* 网络图节点 */
+        .network-node {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(0, 168, 255, 0.2);
+            border: 2px solid #00a8ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #00d4ff;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .network-node:hover {
+            transform: scale(1.1);
+            background: rgba(0, 212, 255, 0.4);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.6);
+        }
+
+        .network-node.critical {
+            border-color: #ff4d6d;
+            background: rgba(255, 77, 109, 0.2);
+            animation: pulse 1.5s infinite;
+        }
+
+        .network-connection {
+            position: absolute;
+            height: 2px;
+            background: linear-gradient(90deg, #00a8ff, transparent);
+            transform-origin: left center;
+            opacity: 0.6;
+        }
+
+        /* 3D旋转效果 */
+        .rotate-3d {
+            transform-style: preserve-3d;
+            animation: rotate3d 10s infinite linear;
+        }
+
+        @keyframes rotate3d {
+            0% { transform: perspective(500px) rotateY(0deg) rotateX(0deg); }
+            100% { transform: perspective(500px) rotateY(360deg) rotateX(360deg); }
+        }
+
+        /* 数据流动画 */
+        .data-stream {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00d4ff, transparent);
+            background-size: 200% 100%;
+            animation: stream 2s linear infinite;
+            margin: 5px 0;
+        }
+
+        @keyframes stream {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* 响应式文本 */
+        .responsive-text {
+            font-size: clamp(12px, 2vw, 16px);
+        }
+
+        /* 隐藏类 */
+        .hidden {
+            display: none !important;
+        }
+
+        /* 打印样式 */
+        @media print {
+            body { background: white; color: black; }
+            .navbar, .fab, .context-menu { display: none; }
+            .card { border: 1px solid #ccc; background: white; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <div class="navbar">
+        <div class="logo">GREE-AI-APS</div>
+        <div class="nav-tabs">
+            <div class="nav-tab active" data-module="1">全局指挥舱</div>
+            <div class="nav-tab" data-module="2">计划工作台</div>
+            <div class="nav-tab" data-module="3">资源驾驶舱</div>
+            <div class="nav-tab" data-module="4">智能调度</div>
+            <div class="nav-tab" data-module="5">执行终端</div>
+            <div class="nav-tab" data-module="6">仿真实验室</div>
+        </div>
+    </div>
+
+    <!-- 通知容器 -->
+    <div id="notification-container"></div>
+
+    <!-- 主容器 -->
+    <div class="container">
+        
+        <!-- 模块一：全局指挥舱 -->
+        <div class="module active" id="module-1">
+            <div class="card">
+                <div class="card-header">
+                    产业链态势地图
+                    <button class="btn btn-secondary" onclick="showDrillDown()">🔍 下钻分析</button>
+                </div>
+                <div class="card-content">
+                    <div class="map-container" id="supplyChainMap">
+                        <!-- 供应链节点 -->
+                        <div class="network-node" style="left: 50px; top: 50px;" data-type="supplier" data-tooltip="供应商：钣金/电子件">供应商</div>
+                        <div class="network-node" style="left: 200px; top: 100px;" data-type="factory1" data-tooltip="钣金分厂：产能85%">钣金厂</div>
+                        <div class="network-node" style="left: 200px; top: 180px;" data-type="factory2" data-tooltip="组装分厂：产能92%">组装厂</div>
+                        <div class="network-node" style="left: 350px; top: 140px;" data-type="factory3" data-tooltip="总装分厂：产能78%">总装厂</div>
+                        <div class="network-node" style="left: 500px; top: 140px;" data-type="warehouse" data-tooltip="成品仓库：库存3,240台">仓库</div>
+                        <div class="network-node critical" style="left: 200px; top: 100px;" data-type="bottleneck" data-tooltip="⚠️ 瓶颈预警">⚠️</div>
+                        
+                        <!-- 连接线 -->
+                        <div class="network-connection" style="left: 80px; top: 75px; width: 110px; transform: rotate(15deg);"></div>
+                        <div class="network-connection" style="left: 80px; top: 120px; width: 110px; transform: rotate(-10deg);"></div>
+                        <div class="network-connection" style="left: 230px; top: 125px; width: 110px; transform: rotate(10deg);"></div>
+                        <div class="network-connection" style="left: 380px; top: 145px; width: 110px; transform: rotate(0deg);"></div>
+                        
+                        <div class="data-stream" style="width: 100%; margin-top: 200px;"></div>
+                    </div>
+                    <div style="margin-top: 10px; font-size: 12px; color: #a0b0ff;">
+                        <span class="status-indicator active"><span class="dot"></span>运行正常</span>
+                        <span class="status-indicator warning" style="margin-left: 15px;"><span class="dot"></span>预警状态</span>
+                        <span class="status-indicator error" style="margin-left: 15px;"><span class="dot"></span>异常阻塞</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    战略级"一键排产"
+                    <div>
+                        <button class="btn btn-primary simulate-btn" onclick="generateMPS()">⚡ 生成计划</button>
+                        <button class="btn btn-secondary" onclick="compareVersions()">📊 多版本对比</button>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="strategy-options">
+                        <div class="strategy-card" onclick="selectStrategy(this, 'aggressive')">
+                            <div style="font-size: 20px; margin-bottom: 5px;">🚀</div>
+                            <div style="font-weight: bold; color: #ff758f;">激进策略</div>
+                            <div style="font-size: 12px; color: #a0b0ff; margin-top: 5px;">产能拉满，高库存</div>
+                        </div>
+                        <div class="strategy-card selected" onclick="selectStrategy(this, 'balanced')">
+                            <div style="font-size: 20px; margin-bottom: 5px;">⚖️</div>
+                            <div style="font-weight: bold; color: #00d4ff;">均衡策略</div>
+                            <div style="font-size: 12px; color: #a0b0ff; margin-top: 5px;">推荐：风险可控</div>
+                        </div>
+                        <div class="strategy-card" onclick="selectStrategy(this, 'conservative')">
+                            <div style="font-size: 20px; margin-bottom: 5px;">🛡️</div>
+                            <div style="font-weight: bold; color: #00d9a3;">保守策略</div>
+                            <div style="font-size: 12px; color: #a0b0ff; margin-top: 5px;">安全库存，低风险</div>
+                        </div>
+                    </div>
+                    <div id="mps-result" class="code-block hidden"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">健康度综合仪表盘</div>
+                <div class="card-content">
+                    <div class="kpi-grid">
+                        <div class="kpi-item tooltip" data-tooltip="准时交付率：衡量按时交付能力">
+                            <div class="kpi-label">OTD 准时交付率</div>
+                            <div class="kpi-value" id="otd-value">94.2%</div>
+                            <div class="kpi-factor">主要受钣金分厂制约</div>
+                            <svg class="progress-ring" viewBox="0 0 40 40">
+                                <circle class="bg" cx="20" cy="20" r="18"></circle>
+                                <circle class="progress" cx="20" cy="20" r="18" style="stroke-dashoffset: 11.4;"></circle>
+                                <text class="text" x="20" y="25">94</text>
+                            </svg>
+                        </div>
+                        <div class="kpi-item tooltip" data-tooltip="设备综合效率：性能×质量×可用率">
+                            <div class="kpi-label">OEE 设备综合效率</div>
+                            <div class="kpi-value" id="oee-value">87.5%</div>
+                            <div class="kpi-factor">预测性维护提升中</div>
+                            <svg class="progress-ring" viewBox="0 0 40 40">
+                                <circle class="bg" cx="20" cy="20" r="18"></circle>
+                                <circle class="progress" cx="20" cy="20" r="18" style="stroke-dashoffset: 23.7;"></circle>
+                                <text class="text" x="20" y="25">87</text>
+                            </svg>
+                        </div>
+                        <div class="kpi-item tooltip" data-tooltip="库存周转率：销售成本/平均库存">
+                            <div class="kpi-label">ITO 库存周转率</div>
+                            <div class="kpi-value" id="ito-value">12.3</div>
+                            <div class="kpi-factor">原材料波动影响</div>
+                            <svg class="progress-ring" viewBox="0 0 40 40">
+                                <circle class="bg" cx="20" cy="20" r="18"></circle>
+                                <circle class="progress" cx="20" cy="20" r="18" style="stroke-dashoffset: 47.1;"></circle>
+                                <text class="text" x="20" y="25">12</text>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    瓶颈预警与推演
+                    <button class="btn btn-primary" onclick="enterSimulation()">🧪 进入仿真实验室</button>
+                </div>
+                <div class="card-content">
+                    <div class="alert-box">
+                        <div class="alert-icon">!</div>
+                        <div>
+                            <strong>未来72小时预警</strong><br>
+                            钣金分厂#3冲压机将在18小时后达到产能瓶颈，预计影响24个订单交付
+                        </div>
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <button class="btn btn-secondary" onclick="runWhatIf('capacity')">推演：增加班次</button>
+                        <button class="btn btn-secondary" onclick="runWhatIf('material')">推演：物料替代</button>
+                        <button class="btn btn-secondary" onclick="runWhatIf('process')">推演：工艺优化</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 模块二：计划工作台 -->
+        <div class="module" id="module-2">
+            <div class="card">
+                <div class="card-header">
+                    多视图融合甘特图
+                    <div class="gantt-toolbar">
+                        <button class="btn btn-secondary" onclick="switchGanttView('resource')">资源视图</button>
+                        <button class="btn btn-secondary" onclick="switchGanttView('order')">订单视图</button>
+                        <button class="btn btn-secondary" onclick="switchGanttView('material')">物料视图</button>
+                        <button class="btn btn-primary" onclick="toggleDragMode()">🔄 跨视图拖拽</button>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="gantt-container">
+                        <!-- 资源视图 -->
+                        <div class="gantt-view active" id="view-resource">
+                            <div class="gantt-resource">
+                                <div class="resource-label">钣金冲压机#1</div>
+                                <div class="resource-timeline">
+                                    <div class="gantt-bar" draggable="true" style="left: 0%; width: 25%;" data-order="ORD-001">订单001</div>
+                                    <div class="gantt-bar critical" draggable="true" style="left: 28%; width: 20%;" data-order="ORD-002">订单002</div>
+                                    <div class="gantt-bar" draggable="true" style="left: 50%; width: 30%;" data-order="ORD-003">订单003</div>
+                                </div>
+                            </div>
+                            <div class="gantt-resource">
+                                <div class="resource-label">钣金冲压机#2</div>
+                                <div class="resource-timeline">
+                                    <div class="gantt-bar" draggable="true" style="left: 10%; width: 35%;" data-order="ORD-004">订单004</div>
+                                    <div class="gantt-bar warning" draggable="true" style="left: 50%; width: 25%;" data-order="ORD-005">订单005</div>
+                                </div>
+                            </div>
+                            <div class="gantt-resource">
+                                <div class="resource-label">组装线#A</div>
+                                <div class="resource-timeline">
+                                    <div class="gantt-bar" draggable="true" style="left: 5%; width: 40%;" data-order="ORD-006">订单006</div>
+                                    <div class="gantt-bar" draggable="true" style="left: 50%; width: 35%;" data-order="ORD-007">订单007</div>
+                                </div>
+                            </div>
+                            <div class="gantt-resource">
+                                <div class="resource-label">总装线#B</div>
+                                <div class="resource-timeline">
+                                    <div class="gantt-bar" draggable="true" style="left: 15%; width: 30%;" data-order="ORD-008">订单008</div>
+                                    <div class="gantt-bar critical" draggable="true" style="left: 50%; width: 28%;" data-order="ORD-009">订单009</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 订单视图 -->
+                        <div class="gantt-view" id="view-order">
+                            <div class="gantt-resource">
+                                <div class="resource-label">ORD-001</div>
+                                <div class="order-timeline">
+                                    <div class="gantt-bar" style="left: 0%; width: 15%; background: #00a8ff;">钣金</div>
+                                    <div class="gantt-bar" style="left: 20%; width: 20%; background: #00d9a3;">组装</div>
+                                    <div class="gantt-bar" style="left: 45%; width: 15%; background: #ffd166;">总装</div>
+                                </div>
+                            </div>
+                            <div class="gantt-resource">
+                                <div class="resource-label">ORD-002</div>
+                                <div class="order-timeline">
+                                    <div class="gantt-bar critical" style="left: 5%; width: 18%; background: #ff4d6d;">钣金</div>
+                                    <div class="gantt-bar" style="left: 28%; width: 22%; background: #00d9a3;">组装</div>
+                                    <div class="gantt-bar" style="left: 55%; width: 18%; background: #ffd166;">总装</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 物料视图 -->
+                        <div class="gantt-view" id="view-material">
+                            <div class="gantt-resource">
+                                <div class="resource-label">钣金板材</div>
+                                <div class="material-timeline">
+                                    <div class="gantt-bar" style="left: 0%; width: 25%; background: #00a8ff;">消耗</div>
+                                    <div class="gantt-bar" style="left: 35%; width: 15%; background: #00d9a3;">补给</div>
+                                    <div class="gantt-bar" style="left: 55%; width: 20%; background: #00a8ff;">消耗</div>
+                                </div>
+                            </div>
+                            <div class="gantt-resource">
+                                <div class="resource-label">电子控制器</div>
+                                <div class="material-timeline">
+                                    <div class="gantt-bar warning" style="left: 10%; width: 30%; background: #ffb703;">低库存</div>
+                                    <div class="gantt-bar" style="left: 50%; width: 15%; background: #00d9a3;">补给</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 10px; font-size: 12px; color: #a0b0ff;">
+                        💡 提示：右键任务块可触发局部重排，拖拽调整实时计算影响
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    情境化"一键诊断重排"
+                    <button class="btn btn-primary" onclick="diagnoseAndRearrange()">🔍 诊断并重排</button>
+                </div>
+                <div class="card-content">
+                    <div style="margin-bottom: 10px;">
+                        <strong>选择重排场景：</strong>
+                        <select id="rearrange-scenario" style="margin-left: 10px; padding: 5px; background: rgba(45, 58, 107, 0.5); border: 1px solid #2d3a6b; color: #e0e6ff; border-radius: 4px;">
+                            <option value="min-disturb">最小扰动</option>
+                            <option value="guarantee-delivery">保证交期</option>
+                            <option value="min-changeover">最少换模</option>
+                        </select>
+                    </div>
+                    <div class="code-block" id="rearrange-result">
+                        // 框选受影响区域后，系统将生成优化方案...
+                        // 示例：最小化对其他订单的影响，优先保证关键路径
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    智能收件箱
+                    <div>
+                        <button class="btn btn-secondary" onclick="batchProcess()">批量处理</button>
+                        <button class="btn btn-success" onclick="enableAutoProcess()">🤖 智能体自动处理</button>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="inbox-list" id="inbox-container">
+                        <div class="inbox-item unread">
+                            <div>
+                                <strong>系统建议</strong><br>
+                                <span style="font-size: 12px; color: #a0b0ff;">建议将订单#009提前2小时，避免后续延迟</span>
+                            </div>
+                            <div>
+                                <span class="inbox-badge">新</span>
+                                <button class="btn btn-primary" style="padding: 4px 8px; font-size: 11px;">采纳</button>
+                            </div>
+                        </div>
+                        <div class="inbox-item unread">
+                            <div>
+                                <strong>异常警报</strong><br>
+                                <span style="font-size: 12px; color: #ff758f;">钣金分厂#2设备温度异常，建议检查</span>
+                            </div>
+                            <div>
+                                <span class="inbox-badge">高</span>
+                                <button class="btn btn-danger" style="padding: 4px 8px; font-size: 11px;">处理</button>
+                            </div>
+                        </div>
+                        <div class="inbox-item">
+                            <div>
+                                <strong>协同请求</strong><br>
+                                <span style="font-size: 12px; color: #a0b0ff;">总装分厂申请调拨模具#M-102，预计使用4小时</span>
+                            </div>
+                            <div>
+                                <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;">查看详情</button>
+                            </div>
+                        </div>
+                        <div class="inbox-item">
+                            <div>
+                                <strong>物料齐套提醒</strong><br>
+                                <span style="font-size: 12px; color: #a0b0ff;">关键物料#B-203库存不足，预计24小时后短缺</span>
+                            </div>
+                            <div>
+                                <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;">生成催货单</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 模块三：资源驾驶舱 -->
+        <div class="module" id="module-3">
+            <div class="card">
+                <div class="card-header">设备数字孪生体</div>
+                <div class="card-content">
+                    <div class="resource-grid">
+                        <div class="device-card" onclick="showDeviceDetails('M01')">
+                            <div class="device-3d rotate-3d">M01</div>
+                            <div style="font-weight: bold; margin: 5px 0;">钣金冲压机#1</div>
+                            <div class="device-status status-running">运行中</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 85%;"></div>
+                            </div>
+                            <div style="font-size: 12px; color: #a0b0ff;">OEE: 85% | 预测维护: 168h</div>
+                        </div>
+                        <div class="device-card" onclick="showDeviceDetails('M02')">
+                            <div class="device-3d rotate-3d">M02</div>
+                            <div style="font-weight: bold; margin: 5px 0;">钣金冲压机#2</div>
+                            <div class="device-status status-idle">待机</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill warning" style="width: 45%;"></div>
+                            </div>
+                            <div style="font-size: 12px; color: #a0b0ff;">OEE: 45% | 预测维护: 24h</div>
+                        </div>
+                        <div class="device-card" onclick="showDeviceDetails('A01')">
+                            <div class="device-3d rotate-3d">A01</div>
+                            <div style="font-weight: bold; margin: 5px 0;">组装线#A</div>
+                            <div class="device-status status-running">运行中</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 92%;"></div>
+                            </div>
+                            <div style="font-size: 12px; color: #a0b0ff;">OEE: 92% | 预测维护: 312h</div>
+                        </div>
+                        <div class="device-card" onclick="showDeviceDetails('B01')">
+                            <div class="device-3d rotate-3d">B01</div>
+                            <div style="font-weight: bold; margin: 5px 0;">总装线#B</div>
+                            <div class="device-status status-maintenance">维护中</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill critical" style="width: 78%;"></div>
+                            </div>
+                            <div style="font-size: 12px; color: #a0b0ff;">OEE: 78% | 预测维护: 8h</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">模具全生命周期管理</div>
+                <div class="card-content">
+                    <div class="animated-card">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong>全局模具地图</strong>
+                                <div style="font-size: 12px; color: #a0b0ff; margin-top: 5px;">12套在用，3套维修中，2套待调拨</div>
+                            </div>
+                            <button class="btn btn-primary" onclick="showMoldMap()">🗺️ 查看地图</button>
+                        </div>
+                    </div>
+                    <div class="data-table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>模具ID</th>
+                                    <th>当前位置</th>
+                                    <th>状态</th>
+                                    <th>寿命</th>
+                                    <th>操作</th>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>M-101</td>
+                                    <td>钣金分厂</td>
+                                    <td><span class="tag tag-completed">使用中</span></td>
+                                    <td>85%</td>
+                                    <td><button class="btn btn-secondary" style="padding: 2px 6px; font-size: 11px;">详情</button></td>
+                                </tr>
+                                <tr>
+                                    <td>M-102</td>
+                                    <td>总装分厂</td>
+                                    <td><span class="tag tag-pending">待调拨</span></td>
+                                    <td>92%</td>
+                                    <td><button class="btn btn-primary" style="padding: 2px 6px; font-size: 11px;" onclick="smartDispatch('M-102')">智能调度</button></td>
+                                </tr>
+                                <tr>
+                                    <td>M-103</td>
+                                    <td>维修中心</td>
+                                    <td><span class="tag tag-delayed">维修中</span></td>
+                                    <td>45%</td>
+                                    <td><button class="btn btn-secondary" style="padding: 2px 6px; font-size: 11px;">进度</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">动态物料齐套看板</div>
+                <div class="card-content">
+                    <div style="margin-bottom: 15px;">
+                        <strong>未来7天物料齐套预警</strong>
+                        <button class="btn btn-primary" style="float: right;" onclick="generatePurchaseOrder()">🛒 一键生成催货单</button>
+                    </div>
+                    <div class="responsive-grid">
+                        <div class="card" style="padding: 10px; background: rgba(255, 77, 109, 0.1); border-color: #ff4d6d;">
+                            <div style="font-weight: bold; color: #ff4d6d;">⚠️ 钣金板材A型</div>
+                            <div style="font-size: 12px; color: #a0b0ff; margin: 5px 0;">供应商：宝钢集团</div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div class="battery"><div class="battery-fill low" style="width: 35%;"></div></div>
+                                <span style="font-size: 12px; font-weight: bold; color: #ff4d6d;">35% (短缺风险)</span>
+                            </div>
+                            <div style="font-size: 11px; color: #ff758f; margin-top: 5px;">预计短缺：24小时后</div>
+                        </div>
+                        <div class="card" style="padding: 10px; background: rgba(255, 183, 3, 0.1); border-color: #ffb703;">
+                            <div style="font-weight: bold; color: #ffb703;">⚠️ 电子控制器</div>
+                            <div style="font-size: 12px; color: #a0b0ff; margin: 5px 0;">供应商：华为电子</div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div class="battery"><div class="battery-fill" style="width: 65%;"></div></div>
+                                <span style="font-size: 12px; font-weight: bold; color: #ffb703;">65% (警戒)</span>
+                            </div>
+                            <div style="font-size: 11px; color: #ffd166; margin-top: 5px;">预计短缺：48小时后</div>
+                        </div>
+                        <div class="card" style="padding: 10px; background: rgba(0, 217, 163, 0.1); border-color: #00d9a3;">
+                            <div style="font-weight: bold; color: #00d9a3;">✓ 铜管组件</div>
+                            <div style="font-size: 12px; color: #a0b0ff; margin: 5px 0;">供应商：格力精密</div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div class="battery"><div class="battery-fill" style="width: 88%;"></div></div>
+                                <span style="font-size: 12px; font-weight: bold; color: #00d9a3;">88% (充足)</span>
+                            </div>
+                            <div style="font-size: 11px; color: #00d9a3; margin-top: 5px;">供应稳定</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 模块四：智能调度中心 -->
+        <div class="module" id="module-4">
+            <div class="card">
+                <div class="card-header">电子作业指导书</div>
+                <div class="card-content">
+                    <div class="work-instruction">
+                        <div style="font-size: 16px; font-weight: bold; color: #00d4ff; margin-bottom: 10px;">
+                            任务：ORD-009 钣金成型工序
+                        </div>
+                        <div style="font-size: 12px; color: #a0b0ff; margin-bottom: 15px;">
+                            工位：冲压机#2 | 操作员：张师傅 | 扫码确认开工
+                        </div>
+                        <div class="instruction-step">
+                            <div class="step-number">1</div>
+                            <div>检查模具M-102安装状态，确认定位销紧固</div>
+                        </div>
+                        <div class="instruction-step">
+                            <div class="step-number">2</div>
+                            <div>设置参数：压力120kN，速度30mm/s，温度25℃</div>
+                        </div>
+                        <div class="instruction-step">
+                            <div class="step-number">3</div>
+                            <div>首件检验：尺寸公差±0.1mm，表面无划痕</div>
+                        </div>
+                        <div class="instruction-step">
+                            <div class="step-number">4</div>
+                            <div>批量生产，每20件自检一次，记录数据</div>
+                        </div>
+                        <div style="text-align: center; margin-top: 15px;">
+                            <button class="btn btn-primary" onclick="scanQRCode()">📱 扫码开工</button>
+                            <button class="btn btn-secondary" onclick="viewDrawing()">📄 查看图纸</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">实时安灯系统</div>
+                <div class="card-content">
+                    <div style="text-align: center; padding: 20px;">
+                        <div style="font-size: 14px; color: #a0b0ff; margin-bottom: 15px;">工人可通过终端快速上报异常</div>
+                        <div class="alert-buttons">
+                            <div class="alert-btn quality" onclick="reportAlert('quality')">
+                                <div style="font-size: 24px;">⚠️</div>
+                                <div>质量异常</div>
+                            </div>
+                            <div class="alert-btn device" onclick="reportAlert('device')">
+                                <div style="font-size: 24px;">🔧</div>
+                                <div>设备故障</div>
+                            </div>
+                            <div class="alert-btn material" onclick="reportAlert('material')">
+                                <div style="font-size: 24px;">📦</div>
+                                <div>物料短缺</div>
+                            </div>
+                            <div class="alert-btn tech" onclick="reportAlert('tech')">
+                                <div style="font-size: 24px;">💡</div>
+                                <div>技术问题</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="alert-feedback" class="code-block hidden"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">移动端进度反馈</div>
+                <div class="card-content">
+                    <div class="responsive-grid">
+                        <div class="card" style="padding: 12px; background: rgba(45, 58, 107, 0.2);">
+                            <div style="font-weight: bold; margin-bottom: 8px;">班组长：李明</div>
+                            <div style="font-size: 12px; color: #a0b0ff;">平板在线，实时同步</div>
+                            <div style="margin-top: 8px;">
+                                <button class="btn btn-secondary" style="font-size: 11px; padding: 4px 8px;" onclick="submitProgress()">报工</button>
+                                <button class="btn btn-secondary" style="font-size: 11px; padding: 4px 8px;" onclick="confirmCompletion()">确认完工</button>
+                                <button class="btn btn-secondary" style="font-size: 11px; padding: 4px 8px;" onclick="requestMaterial()">申请物料</button>
+                            </div>
+                        </div>
+                        <div class="card" style="padding: 12px; background: rgba(45, 58, 107, 0.2);">
+                            <div style="font-weight: bold; margin-bottom: 8px;">班组长：王强</div>
+                            <div style="font-size: 12px; color: #a0b0ff;">平板在线，实时同步</div>
+                            <div style="margin-top: 8px;">
+                                <button class="btn btn-secondary" style="font-size: 11px; padding: 4px 8px;" onclick="submitProgress()">报工</button>
+                                <button class="btn btn-secondary" style="font-size: 11px; padding: 4px 8px;" onclick="confirmCompletion()">确认完工</button>
+                                <button class="btn btn-secondary" style="font-size: 11px; padding: 4px 8px;" onclick="requestMaterial()">申请物料</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 15px; font-size: 12px; color: #00d4ff; text-align: center;">
+                        <span class="status-indicator active"><span class="dot"></span>数据实时同步中</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 模块五：执行终端 -->
+        <div class="module" id="module-5">
+            <div class="terminal-container">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div style="font-size: 18px; font-weight: bold; color: #00d4ff;">执行终端 - 工位操作</div>
+                    <div style="font-size: 12px; color: #a0b0ff;">极简交互，专注执行</div>
+                </div>
+
+                <div class="task-display">
+                    <div class="task-title">今日任务 #009</div>
+                    <div class="task-details">
+                        工序：钣金成型<br>
+                        设备：冲压机#2<br>
+                        数量：200件<br>
+                        目标：18:00前完成
+                    </div>
+                </div>
+
+                <div class="operation-steps">
+                    <div class="step active" id="step-scan">
+                        <div style="font-size: 24px; margin-bottom: 5px;">📱</div>
+                        <div style="font-weight: bold;">扫码</div>
+                        <div style="font-size: 11px; color: #a0b0ff;">开工位/物料</div>
+                    </div>
+                    <div class="step" id="step-work">
+                        <div style="font-size: 24px; margin-bottom: 5px;">⚙️</div>
+                        <div style="font-weight: bold;">作业</div>
+                        <div style="font-size: 11px; color: #a0b0ff;">查看指导书</div>
+                    </div>
+                    <div class="step" id="step-report">
+                        <div style="font-size: 24px; margin-bottom: 5px;">✅</div>
+                        <div style="font-weight: bold;">报工</div>
+                        <div style="font-size: 11px; color: #a0b0ff;">完工/报检</div>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin: 20px 0;">
+                    <button class="btn btn-primary" style="width: 100%; padding: 15px; font-size: 16px;" onclick="executeStep()">
+                        <span id="step-btn-text">开始扫码</span>
+                    </button>
+                </div>
+
+                <div class="voice-panel">
+                    <div style="margin-bottom: 10px; font-size: 12px; color: #a0b0ff;">语音助手</div>
+                    <button class="voice-btn" id="voice-btn" onclick="toggleVoice()">🎤</button>
+                    <div id="voice-feedback" style="margin-top: 10px; font-size: 13px; color: #00d4ff; min-height: 20px;"></div>
+                    <div style="margin-top: 10px;">
+                        <button class="btn btn-secondary" style="font-size: 11px;" onclick="voiceCommand('报工10件')">说"报工10件"</button>
+                        <button class="btn btn-secondary" style="font-size: 11px;" onclick="voiceCommand('呼叫支援')">说"呼叫支援"</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 模块六：仿真与优化实验室 -->
+        <div class="module" id="module-6">
+            <div class="card">
+                <div class="card-header">场景构建器</div>
+                <div class="card-content">
+                    <div class="sim-builder">
+                        <div class="sim-palette">
+                            <div style="font-weight: bold; margin-bottom: 8px; color: #00d4ff;">拖拽元素</div>
+                            <div class="sim-item" draggable="true" ondragstart="drag(event)" data-type="customer">+ 新客户</div>
+                            <div class="sim-item" draggable="true" ondragstart="drag(event)" data-type="line">+ 新产线</div>
+                            <div class="sim-item" draggable="true" ondragstart="drag(event)" data-type="process">+ 工艺变更</div>
+                            <div class="sim-item" draggable="true" ondragstart="drag(event)" data-type="pack">+ 包装策略</div>
+                            <div class="sim-item" draggable="true" ondragstart="drag(event)" data-type="shift">+ 班次调整</div>
+                        </div>
+                        <div class="sim-canvas" id="simCanvas" ondrop="drop(event)" ondragover="allowDrop(event)">
+                            <div style="text-align: center; color: #a0b0ff; padding: 50px;">
+                                拖拽左侧元素到此处构建场景
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 15px; text-align: center;">
+                        <button class="btn btn-primary" onclick="runSimulation()">🚀 运行仿真</button>
+                        <button class="btn btn-secondary" onclick="saveScenario()">💾 保存场景</button>
+                        <button class="btn btn-secondary" onclick="clearCanvas()">🗑️ 清空</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">多方案平行宇宙对比</div>
+                <div class="card-content">
+                    <div class="universe-grid">
+                        <div class="universe-card best">
+                            <div style="font-weight: bold; color: #00d9a3;">宇宙A：最优解</div>
+                            <div style="font-size: 12px; color: #a0b0ff; margin: 8px 0;">策略：均衡排产+预测维护</div>
+                            <div class="stat-number">98.5%</div>
+                            <div style="font-size: 11px; color: #00d9a3;">OTD</div>
+                            <div style="margin-top: 8px; font-size: 11px;">💰 现金流：+12%</div>
+                            <div style="font-size: 11px;">⚙️ 负荷：85%</div>
+                        </div>
+                        <div class="universe-card">
+                            <div style="font-weight: bold; color: #00a8ff;">宇宙B：激进版</div>
+                            <div style="font-size: 12px; color: #a0b0ff; margin: 8px 0;">策略：产能拉满</div>
+                            <div class="stat-number">92.1%</div>
+                            <div style="font-size: 11px; color: #ffb703;">OTD</div>
+                            <div style="margin-top: 8px; font-size: 11px;">💰 现金流：+18%</div>
+                            <div style="font-size: 11px;">⚙️ 负荷：95% ⚠️</div>
+                        </div>
+                        <div class="universe-card">
+                            <div style="font-weight: bold; color: #ff4d6d;">宇宙C：保守版</div>
+                            <div style="font-size: 12px; color: #a0b0ff; margin: 8px 0;">策略：安全库存</div>
+                            <div class="stat-number">99.2%</div>
+                            <div style="font-size: 11px; color: #00d9a3;">OTD</div>
+                            <div style="margin-top: 8px; font-size: 11px;">💰 现金流：-5%</div>
+                            <div style="font-size: 11px;">⚙️ 负荷：72%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">AI优化建议</div>
+                <div class="card-content">
+                    <div class="ai-suggestion">
+                        <div style="font-weight: bold; color: #00ffcc; margin-bottom: 8px;">🤖 智能体建议：</div>
+                        <div>基于当前目标"提升钣金线产能15%"，通过500次迭代计算，推荐：</div>
+                        <div class="code-block" style="margin-top: 10px;">
+                            最优参数组合：<br>
+                            • 压力：125kN (+4.2%)<br>
+                            • 速度：35mm/s (+16.7%)<br>
+                            • 换模时间：压缩至12min<br>
+                            • 预期效果：产能+15.3%，OEE维持88%
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <button class="btn btn-success" onclick="applyAIRecommendation()">✅ 应用建议</button>
+                            <button class="btn btn-secondary" onclick="viewAIDetails()">📊 查看推演过程</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 右键菜单 -->
+    <div class="context-menu" id="contextMenu">
+        <div class="context-menu-item" onclick="contextAction('rearrange')">🔄 局部重排</div>
+        <div class="context-menu-item" onclick="contextAction('split')">✂️ 拆分任务</div>
+        <div class="context-menu-item" onclick="contextAction('merge')">🔗 合并任务</div>
+        <div class="context-menu-item" onclick="contextAction('details')">ℹ️ 查看详情</div>
+        <div class="context-menu-item" onclick="contextAction('priority')">⚡ 调整优先级</div>
+    </div>
+
+    <!-- 模态框 -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-close" onclick="closeModal()">&times;</span>
+                <span id="modal-title">标题</span>
+            </div>
+            <div id="modal-body" style="margin-top: 15px;">
+                <!-- 动态内容 -->
+            </div>
+            <div style="margin-top: 20px; text-align: right;">
+                <button class="btn btn-secondary" onclick="closeModal()">关闭</button>
+                <button class="btn btn-primary" id="modal-confirm" onclick="modalConfirm()">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 悬浮操作按钮 -->
+    <button class="fab" onclick="quickHelp()" title="快速帮助">?</button>
+
+    <script>
+        // 全局状态
+        let currentModule = 1;
+        let selectedStrategy = 'balanced';
+        let ganttView = 'resource';
+        let dragMode = false;
+        let currentStep = 0;
+        let voiceListening = false;
+        let selectedTask = null;
+        let autoProcessEnabled = false;
+        let simulationScenarios = [];
+
+        // 模拟数据
+        const devices = {
+            'M01': { name: '钣金冲压机#1', oee: 85, status: '运行中', maint: '168h' },
+            'M02': { name: '钣金冲压机#2', oee: 45, status: '待机', maint: '24h' },
+            'A01': { name: '组装线#A', oee: 92, status: '运行中', maint: '312h' },
+            'B01': { name: '总装线#B', oee: 78, status: '维护中', maint: '8h' }
+        };
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 导航切换
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const module = this.dataset.module;
+                    switchModule(module);
+                });
+            });
+
+            // 甘特图拖拽
+            document.querySelectorAll('.gantt-bar').forEach(bar => {
+                bar.addEventListener('dragstart', handleDragStart);
+                bar.addEventListener('dragend', handleDragEnd);
+                bar.addEventListener('contextmenu', showContextMenu);
+            });
+
+            // 地图点击
+            document.querySelectorAll('.map-node').forEach(node => {
+                node.addEventListener('click', function() {
+                    this.classList.toggle('active');
+                    showNotification(`已选择：${this.textContent}`, 'success');
+                });
+            });
+
+            // 模拟KPI实时更新
+            setInterval(updateKPIs, 3000);
+
+            // 模拟自动处理收件箱
+            setInterval(autoProcessInbox, 5000);
+
+            showNotification('系统初始化完成，欢迎使用APS智能排产系统！', 'success');
+        });
+
+        // 模块切换
+        function switchModule(module) {
+            currentModule = parseInt(module);
+            
+            // 更新导航状态
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.module === module) {
+                    tab.classList.add('active');
+                }
+            });
+
+            // 切换模块内容
+            document.querySelectorAll('.module').forEach(mod => {
+                mod.classList.remove('active');
+            });
+            document.getElementById(`module-${module}`).classList.add('active');
+
+            showNotification(`切换至模块 ${module}: ${getModuleName(module)}`, 'success');
+        }
+
+        function getModuleName(module) {
+            const names = {
+                1: '全局指挥舱',
+                2: '计划工作台',
+                3: '资源驾驶舱',
+                4: '智能调度中心',
+                5: '执行终端',
+                6: '仿真与优化实验室'
+            };
+            return names[module] || '未知模块';
+        }
+
+        // 模块一：全局指挥舱
+        function selectStrategy(element, strategy) {
+            document.querySelectorAll('.strategy-card').forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedStrategy = strategy;
+            showNotification(`已选择策略：${strategy}`, 'success');
+        }
+
+        function generateMPS() {
+            const resultDiv = document.getElementById('mps-result');
+            resultDiv.classList.remove('hidden');
+            
+            const strategies = {
+                'aggressive': '激进策略：产能利用率100%，库存水平高，风险较高',
+                'balanced': '均衡策略：产能利用率85%，库存适中，推荐方案',
+                'conservative': '保守策略：产能利用率70%，库存安全，增长受限'
+            };
+            
+            const plans = {
+                'aggressive': '计划产量：15,000台 | 交付率：92% | 库存周转：8.5',
+                'balanced': '计划产量：12,500台 | 交付率：98% | 库存周转：12.3',
+                'conservative': '计划产量：10,000台 | 交付率：99% | 库存周转：15.2'
+            };
+
+            resultDiv.innerHTML = `// 生成主生产计划（MPS）<br>策略：${strategies[selectedStrategy]}<br><br>计划详情：<br>${plans[selectedStrategy]}<br><br>系统建议：${selectedStrategy === 'balanced' ? '✅ 推荐均衡策略' : '⚠️ 请评估风险'}`;
+            
+            showNotification('MPS主生产计划已生成', 'success');
+        }
+
+        function compareVersions() {
+            showModal('多版本对比', `
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                    <div style="padding: 10px; background: rgba(255, 77, 109, 0.1); border: 1px solid #ff4d6d; border-radius: 6px;">
+                        <strong>激进版</strong><br>OTD: 92%<br>OEE: 90%<br>现金流: +18%
+                    </div>
+                    <div style="padding: 10px; background: rgba(0, 212, 255, 0.1); border: 1px solid #00d4ff; border-radius: 6px;">
+                        <strong>均衡版</strong><br>OTD: 98%<br>OEE: 87%<br>现金流: +12%
+                    </div>
+                    <div style="padding: 10px; background: rgba(0, 217, 163, 0.1); border: 1px solid #00d9a3; border-radius: 6px;">
+                        <strong>保守版</strong><br>OTD: 99%<br>OEE: 82%<br>现金流: -5%
+                    </div>
+                </div>
+                <div style="margin-top: 10px; font-size: 12px; color: #a0b0ff;">
+                    💡 建议：均衡版在风险与收益间取得最佳平衡
+                </div>
+            `);
+        }
+
+        function showDrillDown() {
+            const nodes = ['供应商', '钣金分厂', '组装分厂', '总装分厂', '成品仓库'];
+            const randomNode = nodes[Math.floor(Math.random() * nodes.length)];
+            showModal('下钻分析', `
+                <div style="padding: 15px; background: rgba(0, 168, 255, 0.1); border-radius: 8px;">
+                    <strong>选中节点：${randomNode}</strong><br><br>
+                    <div style="font-size: 12px; color: #a0b0ff;">
+                        状态：正常<br>
+                        在制品：${Math.floor(Math.random() * 500 + 100)} 件<br>
+                        瓶颈指数：${Math.floor(Math.random() * 100)}%<br>
+                        下游等待：${Math.floor(Math.random() * 20 + 5)} 批次
+                    </div>
+                </div>
+            `);
+        }
+
+        function updateKPIs() {
+            // 模拟KPI波动
+            const otd = (94.2 + (Math.random() - 0.5) * 1).toFixed(1);
+            const oee = (87.5 + (Math.random() - 0.5) * 2).toFixed(1);
+            const ito = (12.3 + (Math.random() - 0.5) * 0.5).toFixed(1);
+
+            document.getElementById('otd-value').textContent = otd + '%';
+            document.getElementById('oee-value').textContent = oee + '%';
+            document.getElementById('ito-value').textContent = ito;
+
+            // 更新进度环
+            const otdOffset = 157 - (otd / 100) * 157;
+            const oeeOffset = 157 - (oee / 100) * 157;
+            const itoOffset = 157 - (ito / 15) * 157;
+
+            document.querySelector('#module-1 .kpi-item:nth-child(1) .progress').style.strokeDashoffset = otdOffset;
+            document.querySelector('#module-1 .kpi-item:nth-child(2) .progress').style.strokeDashoffset = oeeOffset;
+            document.querySelector('#module-1 .kpi-item:nth-child(3) .progress').style.strokeDashoffset = itoOffset;
+
+            // 随机显示预警
+            if (Math.random() > 0.9) {
+                const alerts = [
+                    '钣金分厂产能紧张，建议增加班次',
+                    '电子控制器库存低于安全线',
+                    '总装线设备需预防性维护'
+                ];
+                showNotification(alerts[Math.floor(Math.random() * alerts.length)], 'warning');
+            }
+        }
+
+        function runWhatIf(type) {
+            const scenarios = {
+                'capacity': '推演：增加班次 → 产能+25%，人力成本+15%，OTD→96%',
+                'material': '推演：物料替代 → 成本+8%，交期不变，质量风险+2%',
+                'process': '推演：工艺优化 → 产能+12%，OEE→90%，投资回收期6个月'
+            };
+            showModal('What-If推演', `
+                <div style="padding: 15px; background: rgba(0, 212, 255, 0.1); border-radius: 8px;">
+                    <strong>${scenarios[type]}</strong><br><br>
+                    <div style="font-size: 12px; color: #a0b0ff;">
+                        计算中<span class="loading"></span><br>
+                        运行1000次仿真...<br>
+                        置信度：95%<br><br>
+                        <strong>结论：</strong>${type === 'capacity' ? '✅ 推荐' : '⚠️ 需评估'}<br>
+                        ROI：${type === 'capacity' ? '12个月' : type === 'material' ? '8个月' : '6个月'}
+                    </div>
+                </div>
+            `);
+        }
+
+        function enterSimulation() {
+            switchModule(6);
+            showNotification('已切换至仿真实验室', 'success');
+        }
+
+        // 模块二：计划工作台
+        function switchGanttView(view) {
+            ganttView = view;
+            document.querySelectorAll('.gantt-view').forEach(v => v.classList.remove('active'));
+            document.getElementById(`view-${view}`).classList.add('active');
+            
+            document.querySelectorAll('.gantt-toolbar .btn-secondary').forEach(btn => btn.classList.remove('btn-primary'));
+            event.target.classList.add('btn-primary');
+            
+            showNotification(`切换视图：${view}`, 'success');
+        }
+
+        function toggleDragMode() {
+            dragMode = !dragMode;
+            showNotification(dragMode ? '跨视图拖拽已启用' : '拖拽模式已关闭', dragMode ? 'success' : 'warning');
+        }
+
+        function handleDragStart(e) {
+            if (!dragMode) {
+                e.preventDefault();
+                showNotification('请先启用跨视图拖拽模式', 'warning');
+                return;
+            }
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/html', e.target.innerHTML);
+            e.target.classList.add('dragging');
+            selectedTask = e.target.dataset.order;
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+            if (dragMode) {
+                showNotification(`任务 ${selectedTask} 已调整，影响分析中...`, 'success');
+                setTimeout(() => {
+                    showNotification(`影响分析完成：交期风险-2%，设备负载+5%`, 'success');
+                }, 1500);
+            }
+        }
+
+        function showContextMenu(e) {
+            e.preventDefault();
+            const menu = document.getElementById('contextMenu');
+            menu.style.display = 'block';
+            menu.style.left = e.pageX + 'px';
+            menu.style.top = e.pageY + 'px';
+            selectedTask = e.target.dataset.order;
+        }
+
+        // 点击其他地方关闭右键菜单
+        document.addEventListener('click', function() {
+            document.getElementById('contextMenu').style.display = 'none';
+        });
+
+        function contextAction(action) {
+            if (!selectedTask) return;
+            
+            const actions = {
+                'rearrange': `任务 ${selectedTask} 局部重排完成，最小化扰动`,
+                'split': `任务 ${selectedTask} 已拆分为两个子任务`,
+                'merge': `任务 ${selectedTask} 已合并到相邻任务`,
+                'details': `显示任务 ${selectedTask} 详细信息`,
+                'priority': `任务 ${selectedTask} 优先级已提升`
+            };
+            
+            showModal('操作确认', `
+                <div style="padding: 15px;">
+                    <strong>${actions[action]}</strong><br><br>
+                    <div style="font-size: 12px; color: #a0b0ff;">
+                        系统正在重新计算...<span class="loading"></span>
+                    </div>
+                </div>
+            `);
+            
+            setTimeout(() => {
+                closeModal();
+                showNotification('操作完成', 'success');
+            }, 1000);
+        }
+
+        function diagnoseAndRearrange() {
+            const scenario = document.getElementById('rearrange-scenario').value;
+            const scenarioNames = {
+                'min-disturb': '最小扰动',
+                'guarantee-delivery': '保证交期',
+                'min-changeover': '最少换模'
+            };
+            
+            const resultDiv = document.getElementById('rearrange-result');
+            resultDiv.innerHTML = `// 诊断重排方案：${scenarioNames[scenario]}<br><br>分析结果：<br>• 影响订单数：3个<br>• 调整时长：+2.5小时<br>• 换模次数：${scenario === 'min-changeover' ? '0' : '1'}次<br>• 交期风险：${scenario === 'guarantee-delivery' ? '0%' : '5%'}<br><br>✅ 方案已优化，点击确认执行`;
+            
+            showNotification(`已生成${scenarioNames[scenario]}方案`, 'success');
+        }
+
+        function batchProcess() {
+            showModal('批量处理', `
+                <div style="padding: 15px;">
+                    <label><input type="checkbox" checked> 采纳系统建议：订单#009提前2小时</label><br>
+                    <label><input type="checkbox" checked> 处理异常：设备#2温度检查</label><br>
+                    <label><input type="checkbox"> 批准模具调拨：M-102</label><br><br>
+                    <div style="font-size: 12px; color: #a0b0ff;">已选择3项待处理</div>
+                </div>
+            `);
+        }
+
+        function enableAutoProcess() {
+            autoProcessEnabled = !autoProcessEnabled;
+            showNotification(autoProcessEnabled ? '🤖 智能体自动处理已启用' : '智能体自动处理已关闭', 'success');
+        }
+
+        function autoProcessInbox() {
+            if (!autoProcessEnabled) return;
+            
+            // 随机自动处理低风险项
+            if (Math.random() > 0.8) {
+                const inbox = document.getElementById('inbox-container');
+                const items = inbox.querySelectorAll('.inbox-item');
+                if (items.length > 0) {
+                    const item = items[0];
+                    if (!item.querySelector('.inbox-badge') || item.querySelector('.inbox-badge').textContent !== '高') {
+                        item.style.opacity = '0.5';
+                        setTimeout(() => {
+                            item.remove();
+                            showNotification('🤖 智能体已自动处理常规事项', 'success');
+                        }, 1000);
+                    }
+                }
+            }
+        }
+
+        // 模块三：资源驾驶舱
+        function showDeviceDetails(deviceId) {
+            const device = devices[deviceId];
+            showModal('设备详情 - ' + device.name, `
+                <div style="padding: 15px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                        <div><strong>状态：</strong>${device.status}</div>
+                        <div><strong>OEE：</strong>${device.oee}%</div>
+                        <div><strong>预测维护：</strong>${device.maint}</div>
+                        <div><strong>运行时长：</strong>${Math.floor(Math.random() * 100 + 20)}h</div>
+                    </div>
+                    <div style="font-size: 12px; color: #a0b0ff;">
+                        3D孪生体数据流：<br>
+                        • 温度：${(40 + Math.random() * 20).toFixed(1)}°C<br>
+                        • 压力：${(100 + Math.random() * 30).toFixed(1)}kN<br>
+                        • 振动：${(0.5 + Math.random() * 1).toFixed(2)}mm/s<br>
+                        • 声音：${(60 + Math.random() * 20).toFixed(0)}dB
+                    </div>
+                    <div style="margin-top: 10px; padding: 8px; background: rgba(0, 217, 163, 0.1); border-radius: 4px; font-size: 12px;">
+                        💡 AI建议：${device.oee < 80 ? '建议立即维护' : '运行正常，可继续生产'}
+                    </div>
+                </div>
+            `);
+        }
+
+        function showMoldMap() {
+            showModal('模具全局地图', `
+                <div style="padding: 15px; text-align: center;">
+                    <div style="background: rgba(45, 58, 107, 0.3); padding: 20px; border-radius: 8px; margin-bottom: 10px;">
+                        <div style="font-size: 18px; font-weight: bold; color: #00d4ff;">模具调度网络</div>
+                        <div style="font-size: 12px; color: #a0b0ff; margin-top: 10px;">
+                            <span style="margin-right: 15px;">📍 钣金分厂：3套</span>
+                            <span style="margin-right: 15px;">📍 组装分厂：2套</span>
+                            <span>📍 总装分厂：4套</span><br>
+                            <span style="margin-right: 15px;">🔧 维修中：3套</span>
+                            <span>📦 待调拨：2套</span>
+                        </div>
+                    </div>
+                    <div style="font-size: 12px; color: #00d9a3; text-align: left;">
+                        ✅ 智能调度路径计算完成<br>
+                        • 最优路径：维修中心 → 总装分厂<br>
+                        • 预计时间：2.5小时<br>
+                        • 路径成本：¥120
+                    </div>
+                </div>
+            `);
+        }
+
+        function smartDispatch(moldId) {
+            showModal('智能调度推荐', `
+                <div style="padding: 15px;">
+                    <strong>模具 ${moldId} 调拨方案</strong><br><br>
+                    <div style="font-size: 12px; color: #a0b0ff;">
+                        当前位置：总装分厂<br>
+                        目标位置：钣金分厂<br>
+                        调拨原因：紧急订单需求<br><br>
+                        <strong>最优方案：</strong><br>
+                        • 路径：总装 → 物流中心 → 钣金<br>
+                        • 时间：2.8小时<br>
+                        • 成本：¥180<br>
+                        • 影响：总装产能-5%（4小时）<br><br>
+                        <span style="color: #00d9a3;">✅ 系统已生成调拨单</span>
+                    </div>
+                </div>
+            `);
+        }
+
+        function generatePurchaseOrder() {
+            showModal('生成催货单', `
+                <div style="padding: 15px;">
+                    <div style="font-weight: bold; margin-bottom: 10px;">已选中短缺物料：</div>
+                    <label><input type="checkbox" checked> 钣金板材A型 - 需求：50吨</label><br>
+                    <label><input type="checkbox" checked> 电子控制器 - 需求：200件</label><br><br>
+                    <div class="form-group">
+                        <label>紧急程度</label>
+                        <select id="urgency" style="width: 100%; padding: 8px; background: rgba(45, 58, 107, 0.5); border: 1px solid #2d3a6b; color: #e0e6ff; border-radius: 4px;">
+                            <option>紧急（24小时内）</option>
+                            <option>高（48小时内）</option>
+                            <option>普通（72小时内）</option>
+                        </select>
+                    </div>
+                    <div style="font-size: 12px; color: #a0b0ff;">
+                        系统将自动发送至采购系统并通知供应商
+                    </div>
+                </div>
+            `);
+        }
+
+        // 模块四：智能调度中心
+        function scanQRCode() {
+            showModal('扫码开工', `
+                <div style="padding: 15px; text-align: center;">
+                    <div style="font-size: 60px; margin: 20px 0;">📱</div>
+                    <div style="font-size: 14px; color: #a0b0ff;">模拟扫码中...</div>
+                    <div style="margin-top: 15px; font-size: 12px; color: #00d9a3;">
+                        ✅ 扫码成功<br>
+                        工位：冲压机#2<br>
+                        操作员：张师傅<br>
+                        时间：${new Date().toLocaleTimeString()}
+                    </div>
+                </div>
+            `);
+            setTimeout(() => {
+                closeModal();
+                completeStep(0);
+            }, 1500);
+        }
+
+        function viewDrawing() {
+            showModal('查看图纸', `
+                <div style="padding: 15px; text-align: center;">
+                    <div style="background: #0a0e27; padding: 30px; border-radius: 8px; font-family: monospace; color: #00d4ff; font-size: 11px;">
+                        ┌─────────────────────┐<br>
+                        │  钣金件工程图        │<br>
+                        │  零件号：ORD-009     │<br>
+                        │  材料：SPCC 1.2mm    │<br>
+                        │  尺寸：200×150±0.1   │<br>
+                        │  工序：冲压成型      │<br>
+                        └─────────────────────┘<br><br>
+                        [图纸预览模拟区域]
+                    </div>
+                </div>
+            `);
+        }
+
+        function reportAlert(type) {
+            const types = {
+                'quality': '质量异常',
+                'device': '设备故障',
+                'material': '物料短缺',
+                'tech': '技术问题'
+            };
+            
+            const feedback = document.getElementById('alert-feedback');
+            feedback.classList.remove('hidden');
+            feedback.innerHTML = `上报类型：${types[type]}<br>时间：${new Date().toLocaleTimeString()}<br>触发智能体流程...<br><br>✅ 已通知：<br>• 质量工程师<br>• 设备主管<br>• 物流调度员`;
+            
+            // 模拟流程触发
+            setTimeout(() => {
+                showNotification(`${types[type]}已上报，相关智能体已激活`, 'success');
+            }, 1000);
+        }
+
+        function submitProgress() {
+            showModal('报工提交', `
+                <div style="padding: 15px;">
+                    <div class="form-group">
+                        <label>完工数量</label>
+                        <input type="number" value="50" style="width: 100%; padding: 8px; background: rgba(45, 58, 107, 0.5); border: 1px solid #2d3a6b; color: #e0e6ff; border-radius: 4px;">
+                    </div>
+                    <div class="form-group">
+                        <label>合格率 (%)</label>
+                        <input type="number" value="98" style="width: 100%; padding: 8px; background: rgba(45, 58, 107, 0.5); border: 1px solid #2d3a6b; color: #e0e6ff; border-radius: 4px;">
+                    </div>
+                    <div class="form-group">
+                        <label>备注</label>
+                        <textarea rows="2" style="width: 100%; padding: 8px; background: rgba(45, 58, 107, 0.5); border: 1px solid #2d3a6b; color: #e0e6ff; border-radius: 4px;">生产顺利，质量稳定</textarea>
+                    </div>
+                </div>
+            `);
+        }
+
+        function confirmCompletion() {
+            showNotification('完工确认已提交，数据同步至计划层', 'success');
+        }
+
+        function requestMaterial() {
+            showModal('物料申请', `
+                <div style="padding: 15px;">
+                    <div class="form-group">
+                        <label>物料编码</label>
+                        <input type="text" placeholder="如：B-203" style="width: 100%; padding: 8px; background: rgba(45, 58, 107, 0.5); border: 1px solid #2d3a6b; color: #e0e6ff; border-radius: 4px;">
+                    </div>
+                    <div class="form-group">
+                        <label>申请数量</label>
+                        <input type="number" placeholder="如：100" style="width: 100%; padding: 8px; background: rgba(45, 58, 107, 0.5); border: 1px solid #2d3a6b; color: #e0e6ff; border-radius: 4px;">
+                    </div>
+                    <div style="font-size: 12px; color: #a0b0ff;">
+                        系统将自动检查库存并生成领料单
+                    </div>
+                </div>
+            `);
+        }
+
+        // 模块五：执行终端
+        function executeStep() {
+            const steps = ['开始扫码', '查看指导书', '完成报工', '任务完成'];
+            const stepElements = ['step-scan', 'step-work', 'step-report'];
+            
+            if (currentStep < 3) {
+                // 完成当前步骤
+                completeStep(currentStep);
+                currentStep++;
+                
+                // 更新按钮文本
+                if (currentStep < 3) {
+                    document.getElementById('step-btn-text').textContent = steps[currentStep];
+                } else {
+                    document.getElementById('step-btn-text').textContent = '任务完成，开始下一个';
+                    currentStep = 0;
+                }
+            } else {
+                // 重置
+                resetSteps();
+                document.getElementById('step-btn-text').textContent = '开始扫码';
+                currentStep = 0;
+                showNotification('任务完成！准备接收新任务', 'success');
+            }
+        }
+
+        function completeStep(index) {
+            const stepIds = ['step-scan', 'step-work', 'step-report'];
+            const element = document.getElementById(stepIds[index]);
+            element.classList.remove('active');
+            element.classList.add('completed');
+            
+            if (index === 0) {
+                showNotification('扫码完成，进入作业环节', 'success');
+            } else if (index === 1) {
+                showNotification('作业完成，准备报工', 'success');
+            } else if (index === 2) {
+                showNotification('报工完成，任务结算', 'success');
+            }
+        }
+
+        function resetSteps() {
+            ['step-scan', 'step-work', 'step-report'].forEach(id => {
+                const el = document.getElementById(id);
+                el.classList.remove('completed', 'active');
+            });
+            document.getElementById('step-scan').classList.add('active');
+        }
+
+        function toggleVoice() {
+            voiceListening = !voiceListening;
+            const btn = document.getElementById('voice-btn');
+            const feedback = document.getElementById('voice-feedback');
+            
+            if (voiceListening) {
+                btn.classList.add('listening');
+                feedback.textContent = '正在聆听... 请说话';
+                showNotification('语音助手已激活', 'success');
+                
+                // 模拟语音识别
+                setTimeout(() => {
+                    if (voiceListening) {
+                        feedback.textContent = '识别到："报工10件"';
+                        voiceCommand('报工10件');
+                        toggleVoice();
+                    }
+                }, 3000);
+            } else {
+                btn.classList.remove('listening');
+                feedback.textContent = '';
+                showNotification('语音助手已关闭', 'warning');
+            }
+        }
+
+        function voiceCommand(command) {
+            const feedback = document.getElementById('voice-feedback');
+            feedback.textContent = `执行语音指令："${command}"`;
+            
+            if (command.includes('报工')) {
+                showNotification('语音报工：数量10件已记录', 'success');
+            } else if (command.includes('呼叫支援')) {
+                showNotification('已呼叫支援，工程师正在赶来', 'success');
+            } else if (command.includes('查询标准')) {
+                feedback.textContent += ' → 标准：压力120kN，速度30mm/s';
+            }
+        }
+
+        // 模块六：仿真实验室
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+
+        function drag(ev) {
+            ev.dataTransfer.setData("type", ev.target.dataset.type);
+            ev.dataTransfer.setData("text", ev.target.textContent);
+        }
+
+        function drop(ev) {
+            ev.preventDefault();
+            const type = ev.dataTransfer.getData("type");
+            const text = ev.dataTransfer.getData("text");
+            
+            const canvas = document.getElementById('simCanvas');
+            
+            // 清除提示文字
+            if (canvas.querySelector('div[style*="text-align: center"]')) {
+                canvas.innerHTML = '';
+            }
+            
+            // 创建场景元素
+            const scenario = document.createElement('div');
+            scenario.className = 'sim-scenario';
+            scenario.textContent = text;
+            scenario.style.left = (ev.offsetX - 40) + 'px';
+            scenario.style.top = (ev.offsetY - 15) + 'px';
+            scenario.dataset.type = type;
+            
+            // 添加颜色区分
+            const colors = {
+                'customer': '#00a8ff',
+                'line': '#00d9a3',
+                'process': '#ffb703',
+                'pack': '#ff4d6d',
+                'shift': '#ffd166'
+            };
+            scenario.style.borderColor = colors[type] || '#00a8ff';
+            scenario.style.background = (colors[type] || '#00a8ff') + '33';
+            
+            canvas.appendChild(scenario);
+            simulationScenarios.push({ type, text, x: ev.offsetX, y: ev.offsetY });
+            
+            showNotification(`已添加场景：${text}`, 'success');
+        }
+
+        function runSimulation() {
+            if (simulationScenarios.length === 0) {
+                showNotification('请先添加仿真场景元素', 'warning');
+                return;
+            }
+            
+            showModal('运行仿真', `
+                <div style="padding: 15px; text-align: center;">
+                    <div style="font-size: 14px; color: #00d4ff; margin-bottom: 15px;">
+                        正在运行多方案仿真...
+                    </div>
+                    <div class="loading"></div>
+                    <div style="font-size: 12px; color: #a0b0ff; margin-top: 15px;">
+                        场景元素：${simulationScenarios.length}个<br>
+                        模拟周期：30天<br>
+                        计算迭代：10,000次<br>
+                        预计时间：3秒
+                    </div>
+                </div>
+            `);
+            
+            setTimeout(() => {
+                closeModal();
+                showNotification('仿真完成！请查看平行宇宙对比', 'success');
+                // 自动滚动到对比区域
+                document.querySelectorAll('.universe-card').forEach(card => {
+                    card.style.animation = 'pulse 1s 3';
+                });
+            }, 3000);
+        }
+
+        function saveScenario() {
+            if (simulationScenarios.length === 0) {
+                showNotification('没有场景可保存', 'warning');
+                return;
+            }
+            
+            const name = `场景_${new Date().toLocaleTimeString().replace(/:/g, '')}`;
+            showModal('保存场景', `
+                <div style="padding: 15px;">
+                    <div class="form-group">
+                        <label>场景名称</label>
+                        <input type="text" value="${name}" style="width: 100%; padding: 8px; background: rgba(45, 58, 107, 0.5); border: 1px solid #2d3a6b; color: #e0e6ff; border-radius: 4px;">
+                    </div>
+                    <div style="font-size: 12px; color: #a0b0ff;">
+                        包含 ${simulationScenarios.length} 个场景元素<br>
+                        已保存至本地存储
+                    </div>
+                </div>
+            `);
+        }
+
+        function clearCanvas() {
+            const canvas = document.getElementById('simCanvas');
+            canvas.innerHTML = '<div style="text-align: center; color: #a0b0ff; padding: 50px;">拖拽左侧元素到此处构建场景</div>';
+            simulationScenarios = [];
+            showNotification('画布已清空', 'success');
+        }
+
+        function applyAIRecommendation() {
+            showModal('应用AI优化参数', `
+                <div style="padding: 15px;">
+                    <strong>确认应用以下参数？</strong><br><br>
+                    <div class="code-block">
+                        压力：125kN (+4.2%)<br>
+                        速度：35mm/s (+16.7%)<br>
+                        换模时间：12min<br>
+                        预期产能：+15.3%
+                    </div>
+                    <div style="margin-top: 10px; font-size: 12px; color: #a0b0ff;">
+                        系统将自动更新工艺参数并通知生产现场
+                    </div>
+                </div>
+            `);
+        }
+
+        function viewAIDetails() {
+            showModal('AI推演过程', `
+                <div style="padding: 15px;">
+                    <div style="font-size: 12px; color: #a0b0ff; font-family: monospace;">
+                        > 开始优化迭代...<br>
+                        > 目标：提升产能15%<br>
+                        > 约束：OEE≥85%，成本≤10%<br><br>
+                        > 迭代1：压力120kN → OEE:88%, 产能:+8%<br>
+                        > 迭代2：压力125kN → OEE:87%, 产能:+12%<br>
+                        > 迭代3：压力125kN, 速度+ → OEE:86%, 产能:+15%<br>
+                        > 迭代4：压力125kN, 速度+, 换模- → OEE:88%, 产能:+15.3%<br><br>
+                        ✅ 找到最优解（迭代4）<br>
+                        收敛速度：快<br>
+                        置信度：96%
+                    </div>
+                </div>
+            `);
+        }
+
+        // 通用功能
+        function showNotification(message, type = 'success') {
+            const container = document.getElementById('notification-container');
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            
+            container.appendChild(notification);
+            
+            // 触发显示动画
+            setTimeout(() => notification.classList.add('show'), 10);
+            
+            // 自动隐藏
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        function showModal(title, content) {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-body').innerHTML = content;
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+
+        function modalConfirm() {
+            const title = document.getElementById('modal-title').textContent;
+            showNotification(`${title} - 已确认`, 'success');
+            closeModal();
+        }
+
+        function quickHelp() {
+            showModal('快速帮助', `
+                <div style="padding: 15px;">
+                    <div style="font-size: 12px; color: #a0b0ff; line-height: 1.8;">
+                        <strong>操作指南：</strong><br>
+                        • 左侧导航切换模块<br>
+                        • 点击卡片进行交互<br>
+                        • 甘特图右键菜单操作<br>
+                        • 拖拽元素构建场景<br>
+                        • 语音助手支持指令<br><br>
+                        <strong>常用功能：</strong><br>
+                        • 一键排产：生成MPS计划<br>
+                        • 智能诊断：自动分析瓶颈<br>
+                        • 实时安灯：异常快速上报<br>
+                        • 仿真对比：多方案分析<br><br>
+                        <strong>快捷键：</strong><br>
+                        • Ctrl+S：保存当前视图<br>
+                        • Ctrl+P：打印报告<br>
+                        • F1：显示帮助
+                    </div>
+                </div>
+            `);
+        }
+
+        // 键盘快捷键
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                showNotification('当前视图已保存', 'success');
+            } else if (e.ctrlKey && e.key === 'p') {
+                e.preventDefault();
+                showNotification('准备打印报告...', 'success');
+                window.print();
+            } else if (e.key === 'F1') {
+                e.preventDefault();
+                quickHelp();
+            }
+        });
+
+        // 模拟实时数据流
+        setInterval(() => {
+            if (Math.random() > 0.85) {
+                const events = [
+                    { msg: '订单#012已完成质检', type: 'success' },
+                    { msg: '设备M02维护完成，恢复运行', type: 'success' },
+                    { msg: '新订单到达：#013，紧急', type: 'warning' },
+                    { msg: '物料B-203库存预警', type: 'warning' }
+                ];
+                const event = events[Math.floor(Math.random() * events.length)];
+                showNotification(event.msg, event.type);
+            }
+        }, 8000);
+
+        // 页面关闭前确认
+        window.addEventListener('beforeunload', function(e) {
+            if (currentModule === 2 || currentModule === 6) {
+                e.preventDefault();
+                e.returnValue = '您有未保存的更改，确定要离开吗？';
+            }
+        });
+    </script>
+</body>
+</html>

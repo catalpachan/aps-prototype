@@ -1,0 +1,255 @@
+/* 基础数据页面样式 - 左侧边栏布局 */
+.basic-data-layout {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 20px;
+    height: 100%;
+}
+
+.basic-data-sidebar {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 16px;
+    border: 1px solid var(--border);
+}
+
+.sidebar-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.sidebar-item {
+    padding: 10px 12px;
+    border-radius: 6px;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.sidebar-item:hover {
+    background: rgba(255,255,255,0.05);
+    color: var(--text-main);
+}
+
+.sidebar-item.active {
+    background: var(--primary);
+    color: white;
+}
+
+.basic-data-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.data-management-section {
+    display: none;
+}
+
+.data-management-section.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+.management-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.management-table th {
+    background: #222;
+    color: var(--text-dim);
+    font-weight: 600;
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+}
+
+.management-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #2a2a2a;
+    color: #ccc;
+}
+
+.management-table tr:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.management-table tr:nth-child(even) {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+/* 排产调整功能样式 */
+.schedule-adjustment {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.adjustment-controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.adjustment-btn {
+    padding: 8px 12px;
+    font-size: 12px;
+}
+
+.drag-container {
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    min-height: 100px;
+    background: rgba(255,255,255,0.02);
+}
+
+.drag-item {
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 8px 12px;
+    margin-bottom: 6px;
+    cursor: move;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+}
+
+.drag-item:hover {
+    border-color: var(--primary);
+}
+
+/* AI排产优化样式 */
+.ai-params-compact {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.compact-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.compact-form-group label {
+    font-size: 11px;
+    color: var(--text-dim);
+    font-weight: 600;
+}
+
+.compact-select {
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    color: white;
+    padding: 8px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    width: 100%;
+}
+
+/* 多级导航菜单样式 */
+.nav-with-dropdown {
+    position: relative;
+}
+
+.nav-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    min-width: 160px;
+    box-shadow: var(--shadow);
+    display: none;
+    z-index: 1000;
+}
+
+.nav-dropdown-item {
+    padding: 8px 12px;
+    color: var(--text-dim);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.nav-dropdown-item:hover {
+    background: rgba(255,255,255,0.05);
+    color: var(--text-main);
+}
+
+.nav-with-dropdown:hover .nav-dropdown {
+    display: block;
+}
+
+/* 响应式调整 */
+@media (max-width: 1200px) {
+    .dashboard-layout {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto;
+    }
+    
+    .dashboard-info-col {
+        grid-row: auto;
+        grid-column: 1 / -1;
+    }
+    
+    .dashboard-table-col {
+        grid-row: auto;
+        grid-column: 1 / -1;
+    }
+    
+    .ai-prod-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .basic-data-layout {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+    }
+    
+    .basic-data-sidebar {
+        grid-row: 1;
+        grid-column: 1 / -1;
+    }
+    
+    .basic-data-content {
+        grid-row: 2;
+        grid-column: 1 / -1;
+    }
+    
+    .sidebar-menu {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+    
+    .sidebar-item {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateX(-10px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease;
+}
