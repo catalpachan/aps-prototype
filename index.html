@@ -1322,24 +1322,30 @@
       position: fixed;
       right: 20px;
       bottom: 20px;
-      width: 58px;
-      height: 58px;
-      border: 1px solid #3b82f6;
+      width: 64px;
+      height: 64px;
+      border: none;
       border-radius: 999px;
       padding: 0;
-      color: #e0f2fe;
-      font-size: 24px;
-      background: linear-gradient(135deg, #0b1f57 0%, #1d4ed8 45%, #38bdf8 100%);
-      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.35), inset 0 0 12px rgba(125, 211, 252, 0.25);
+      background: transparent;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.35);
       cursor: pointer;
       z-index: 110;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
+      overflow: hidden;
+      transition: transform var(--dur-fast) var(--ease-soft), filter var(--dur-fast) var(--ease-soft), box-shadow var(--dur-fast) var(--ease-soft);
     }
 
     .ai-assistant-btn:hover {
-      filter: brightness(1.08);
+      filter: brightness(1.05);
+      transform: translateY(-1px);
+      box-shadow: 0 12px 26px rgba(15, 23, 42, 0.45);
+    }
+
+    .ai-assistant-icon {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: contain;
     }
 
     .preplan-btn {
@@ -2053,12 +2059,26 @@
       line-height: 1.5;
       max-width: 88%;
       white-space: pre-wrap;
+      position: relative;
     }
 
     .ai-msg.bot {
       background: #132443;
       border: 1px solid #2a4c82;
       color: #dbeafe;
+      padding-left: 44px;
+    }
+
+    .ai-msg.bot::before {
+      content: "";
+      position: absolute;
+      left: 12px;
+      top: 10px;
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      background: #0b1224 url("AI助手.svg") center / 16px 16px no-repeat;
+      border: 1px solid #3b82f6;
     }
 
     .ai-msg.loading {
@@ -2071,6 +2091,26 @@
       background: #1f2937;
       border: 1px solid #4b5563;
       color: #f8fafc;
+      padding-right: 44px;
+    }
+
+    .ai-msg.user::after {
+      content: "U";
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: #dbeafe;
+      background: linear-gradient(135deg, #334155, #64748b);
+      border: 1px solid #94a3b8;
     }
 
     .ai-msg.ai-starter-options {
@@ -2079,6 +2119,11 @@
       padding: 0;
       margin-top: -2px;
       max-width: 100%;
+    }
+
+    .ai-msg.ai-starter-options::before,
+    .ai-msg.ai-starter-options::after {
+      display: none;
     }
 
     .ai-task-options-grid {
@@ -2118,17 +2163,11 @@
       outline-offset: 2px;
     }
 
-    .ai-task-option-no {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 22px;
-      height: 22px;
-      border-radius: 999px;
-      border: 1px solid rgba(191, 219, 254, 0.45);
-      background: rgba(147, 197, 253, 0.14);
-      font-size: 11px;
-      font-weight: 700;
+    .ai-task-option-icon {
+      width: 24px;
+      height: 24px;
+      display: block;
+      object-fit: contain;
       margin: 0 auto 7px;
     }
 
@@ -3014,7 +3053,9 @@
 
   </main>
 
-  <button class="ai-assistant-btn" onclick="openAiAssistant()" title="AI排程助理" aria-label="AI排程助理">🤖</button>
+  <button class="ai-assistant-btn" onclick="openAiAssistant()" title="AI排程助理" aria-label="AI排程助理">
+    <img class="ai-assistant-icon" src="AI助手.svg" alt="" aria-hidden="true" />
+  </button>
 
   <div class="modal-mask" id="ai-chat-mask">
     <div class="ai-chat-card" role="dialog" aria-modal="true" aria-labelledby="ai-chat-title">
@@ -5436,18 +5477,21 @@
         {
           type: 1,
           title: "深度自主规划",
+          icon: "深度自主规划.svg",
           text: "深度自主规划，使用现有排程任务分析并完善当天所有排程。",
           desc: "基于当前排程与资源约束，自动补齐全天排程。"
         },
         {
           type: 2,
           title: "排程优化建议",
+          icon: "排程优化建议.svg",
           text: "帮我分析目前排程可以优化的地方，并给出具体优化建议。",
           desc: "识别产线瓶颈与等待时段，输出可执行优化建议。"
         },
         {
           type: 3,
           title: "生成当日报告",
+          icon: "生成当日报告.svg",
           text: "生成一条当天排程的报告，得出排产数据和风险点。",
           desc: "汇总当日排产关键数据、风险点与改进关注项。"
         }
@@ -5466,13 +5510,13 @@
       wrap.className = "ai-msg bot ai-starter-options";
       const grid = document.createElement("div");
       grid.className = "ai-task-options-grid";
-      getAiQuickTaskItems().forEach((item, index) => {
+      getAiQuickTaskItems().forEach((item) => {
         const card = document.createElement("button");
         card.type = "button";
         card.className = "ai-task-option-card";
         card.setAttribute("aria-label", item.title);
         card.innerHTML = `
-          <span class="ai-task-option-no">${index + 1}</span>
+          <img class="ai-task-option-icon" src="${item.icon}" alt="" aria-hidden="true" />
           <div class="ai-task-option-title">${item.title}</div>
           <div class="ai-task-option-desc">${item.desc}</div>
         `;

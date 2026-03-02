@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="48px" height="48px" viewBox="0 0 48 48" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>深度自主规划</title>
+    <defs>
+        <linearGradient x1="8.78150478%" y1="2.59695291%" x2="87.5542964%" y2="97.4030471%" id="linearGradient-1">
+            <stop stop-color="#2561E7" offset="0%"></stop>
+            <stop stop-color="#033DBF" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="深度自主规划" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="编组" transform="translate(5.000000, 3.000000)">
+            <rect id="矩形" fill="#A4C0FF" x="4" y="0" width="30" height="9" rx="2"></rect>
+            <rect id="矩形" fill="url(#linearGradient-1)" x="0" y="5" width="38" height="37" rx="4"></rect>
+            <path d="M14.0640646,15.2330328 C13.9310202,15.0875248 13.7486433,15.0037443 13.5570558,15.0001225 C13.3654683,14.9965006 13.1803643,15.0733342 13.0424655,15.2137202 L10.0152379,18.2961226 L8.81831491,17.1119515 L8.76196079,17.061637 C8.45597114,16.8142116 8.01977895,16.8638618 7.7708388,17.1744527 C7.52189865,17.4850436 7.54791361,17.9471523 7.82995036,18.2244625 L9.41653555,19.7938704 L9.47337134,19.8446932 C9.63328217,19.9732748 9.83172573,20.0215565 10.0205361,19.9910628 C10.2358377,20.0261305 10.4636625,19.958028 10.6322432,19.786247 L14.0457615,16.3109843 L14.0963357,16.2540628 C14.3352538,15.9553232 14.321315,15.5143125 14.0640646,15.2330328 Z" id="路径" stroke="#FFFFFF" stroke-width="0.5" fill="#FFFFFF" fill-rule="nonzero"></path>
+            <rect id="矩形" fill="#FFFFFF" x="18" y="16" width="13" height="3" rx="1.5"></rect>
+            <rect id="矩形" fill="#FFFFFF" x="18" y="27.5" width="13" height="3" rx="1.5"></rect>
+            <circle id="椭圆形" fill="#FFFFFF" cx="11" cy="29" r="3"></circle>
+        </g>
+    </g>
+</svg>

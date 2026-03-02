@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="48px" height="48px" viewBox="0 0 48 48" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>排程优化建议</title>
+    <defs>
+        <linearGradient x1="24.5538882%" y1="0%" x2="73.1840299%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#2561E7" offset="0%"></stop>
+            <stop stop-color="#033DBF" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="排程优化建议" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="编组" transform="translate(6.000000, 3.000000)">
+            <rect id="矩形" fill="url(#linearGradient-1)" x="0" y="0" width="33" height="42" rx="4"></rect>
+            <rect id="矩形" fill="#FFFFFF" x="4" y="10" width="21" height="3" rx="1.5"></rect>
+            <rect id="矩形" fill="#FFFFFF" x="4" y="17.5" width="12" height="3" rx="1.5"></rect>
+            <path d="M38.6762634,24.2208106 L36.5267467,21.5377728 C36.0403112,20.9239981 35.15556,20.8204345 34.5431666,21.3055868 L22.1081358,31.0393384 C21.9272315,31.1804813 21.7827283,31.3636826 21.6869122,31.5733661 L20.13732,34.9271633 C19.9042991,35.4275223 19.9715341,36.0180482 20.3109152,36.4518511 C20.6448805,36.8828678 21.1931259,37.0832433 21.7226524,36.9678199 L25.6872598,36.1319505 C25.9002072,36.087017 26.1001706,35.9934795 26.2718671,35.858487 L38.4465051,26.2924253 C38.7504854,26.051615 38.9464062,25.6978379 38.9905338,25.3100647 C39.0346615,24.9222915 38.9233222,24.5328062 38.6813692,24.2285501 L38.6762634,24.2208106 Z" id="路径" fill="#A4C0FF" fill-rule="nonzero"></path>
+        </g>
+    </g>
+</svg>

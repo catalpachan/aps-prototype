@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="48px" height="48px" viewBox="0 0 48 48" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>生成当日报告</title>
+    <defs>
+        <linearGradient x1="24.5538882%" y1="0%" x2="73.1840299%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#2561E7" offset="0%"></stop>
+            <stop stop-color="#033DBF" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="生成当日报告" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="编组" transform="translate(6.000000, 3.000000)">
+            <path d="M7,0 L27.1018679,0 C27.6731435,-1.119731e-15 28.2171516,0.244295595 28.5966865,0.671272322 L35.4948186,8.43167097 C35.8202429,8.79777322 36,9.27057032 36,9.76039864 L36,38 C36,40.209139 34.209139,42 32,42 L7,42 C4.790861,42 3,40.209139 3,38 L3,4 C3,1.790861 4.790861,4.05812251e-16 7,0 Z" id="矩形" fill="url(#linearGradient-1)"></path>
+            <rect id="矩形" fill="#FFFFFF" x="9" y="10" width="21" height="3" rx="1.5"></rect>
+            <rect id="矩形" fill="#FFFFFF" x="9" y="17.5" width="12" height="3" rx="1.5"></rect>
+            <rect id="矩形" fill="#A4C0FF" x="0" y="29" width="13" height="13" rx="2"></rect>
+        </g>
+    </g>
+</svg>
