@@ -23,7 +23,16 @@
     box-sizing: border-box; 
     margin: 0; 
     padding: 0; 
-    outline: none; 
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible {
+    outline: 2px solid #60a5fa;
+    outline-offset: 2px;
 }
 
 body {
@@ -186,6 +195,7 @@ header {
     padding: 8px 12px; 
     cursor: pointer; 
     border-radius: 6px; 
+    border: 1px solid transparent;
     color: var(--text-dim);
     font-weight: 600; 
     transition: all 0.2s; 
@@ -199,7 +209,8 @@ header {
 }
 
 .nav-item.active { 
-    background: var(--primary); 
+    background: #1a3570; 
+    border-color: #2a4d9a;
     color: white; 
 }
 
@@ -1054,6 +1065,11 @@ header {
 }
 
 .forgot-password {
+    background: none;
+    border: 0;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
     color: var(--primary);
     text-decoration: none;
     transition: opacity 0.2s;

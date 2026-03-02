@@ -21,18 +21,18 @@
                     <label for="username">用户名</label>
                     <div class="form-input-group">
                         <i>👤</i>
-                        <input type="text" id="username" placeholder="请输入用户名" required>
+                        <input type="text" id="username" name="username" placeholder="请输入用户名" required autocomplete="username" spellcheck="false" aria-describedby="usernameError">
                     </div>
-                    <div class="error-message" id="usernameError">用户名不能为空</div>
+                    <div class="error-message" id="usernameError" role="status" aria-live="polite">用户名不能为空</div>
                 </div>
                 
                 <div class="form-group">
                     <label for="password">密码</label>
                     <div class="form-input-group">
                         <i>🔒</i>
-                        <input type="password" id="password" placeholder="请输入密码" required>
+                        <input type="password" id="password" name="password" placeholder="请输入密码" required autocomplete="current-password" aria-describedby="passwordError">
                     </div>
-                    <div class="error-message" id="passwordError">密码不能为空</div>
+                    <div class="error-message" id="passwordError" role="status" aria-live="polite">密码不能为空</div>
                 </div>
                 
                 <div class="remember-forgot">
@@ -40,7 +40,7 @@
                         <input type="checkbox" id="rememberMe">
                         <span>记住我</span>
                     </label>
-                    <a href="#" class="forgot-password" onclick="forgotPassword()">忘记密码？</a>
+                    <button type="button" class="forgot-password" onclick="forgotPassword()">忘记密码？</button>
                 </div>
                 
                 <button type="submit" class="btn primary login-btn" id="loginBtn">
@@ -66,46 +66,55 @@
             // 重置错误信息
             document.getElementById('usernameError').classList.remove('show');
             document.getElementById('passwordError').classList.remove('show');
+            document.getElementById('username').setAttribute('aria-invalid', 'false');
+            document.getElementById('password').setAttribute('aria-invalid', 'false');
             
             // 验证用户名
             if (!username) {
                 document.getElementById('usernameError').classList.add('show');
+                document.getElementById('username').setAttribute('aria-invalid', 'true');
                 isValid = false;
             }
             
             // 验证密码
             if (!password) {
                 document.getElementById('passwordError').classList.add('show');
+                document.getElementById('password').setAttribute('aria-invalid', 'true');
                 isValid = false;
             }
-            
-            if (isValid) {
-                // 模拟登录过程
-                const loginBtn = document.getElementById('loginBtn');
-                const originalText = loginBtn.innerHTML;
-                
-                loginBtn.innerHTML = '<span>登录中...</span>';
-                loginBtn.disabled = true;
-                
-                // 模拟API调用延迟
-                setTimeout(() => {
-                    // 检查是否记住登录状态
-                    const rememberMe = document.getElementById('rememberMe').checked;
-                    
-                    if (rememberMe) {
-                        localStorage.setItem('mimo_username', username);
-                    } else {
-                        localStorage.removeItem('mimo_username');
-                    }
-                    
-                    // 存储登录状态
-                    sessionStorage.setItem('mimo_logged_in', 'true');
-                    sessionStorage.setItem('mimo_user', username);
-                    
-                    // 跳转到主页面
-                    window.location.href = 'index.html';
-                }, 1500);
+
+            if (!isValid) {
+                if (!username) {
+                    document.getElementById('username').focus();
+                } else if (!password) {
+                    document.getElementById('password').focus();
+                }
+                return;
             }
+            
+            // 模拟登录过程
+            const loginBtn = document.getElementById('loginBtn');
+            loginBtn.innerHTML = '<span>登录中...</span>';
+            loginBtn.disabled = true;
+            
+            // 模拟API调用延迟
+            setTimeout(() => {
+                // 检查是否记住登录状态
+                const rememberMe = document.getElementById('rememberMe').checked;
+                
+                if (rememberMe) {
+                    localStorage.setItem('mimo_username', username);
+                } else {
+                    localStorage.removeItem('mimo_username');
+                }
+                
+                // 存储登录状态
+                sessionStorage.setItem('mimo_logged_in', 'true');
+                sessionStorage.setItem('mimo_user', username);
+                
+                // 跳转到主页面
+                window.location.href = 'index.html';
+            }, 1500);
         });
         
         // 忘记密码

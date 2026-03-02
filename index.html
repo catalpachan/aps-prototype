@@ -116,8 +116,8 @@
     }
 
     .nav-item.active {
-      background: var(--brand);
-      border-color: var(--brand);
+      background: #1a3570;
+      border-color: #2a4d9a;
       color: #fff;
     }
 
@@ -159,10 +159,54 @@
       gap: 14px;
     }
 
+    /* Demand/Resource/Rule 使用瀑布流式双列，固定上下间距并让模块自然贴合 */
+    #view-demand.active,
+    #view-rule.active,
+    #view-monitor.active {
+      display: block;
+      column-count: 2;
+      column-gap: 14px;
+    }
+
+    #view-demand > .kpis {
+      column-span: all;
+      margin-bottom: 14px;
+    }
+
+    #view-demand > .grid-2,
+    #view-rule > .grid-2,
+    #view-monitor > .grid-2 {
+      display: contents;
+    }
+
+    #view-demand article.card,
+    #view-rule article.card,
+    #view-monitor article.card {
+      display: inline-block;
+      width: 100%;
+      margin: 0 0 14px;
+      vertical-align: top;
+      break-inside: avoid;
+    }
+
+    #view-monitor > .kpis {
+      column-span: all;
+      margin-bottom: 14px;
+    }
+
+    #view-collab.active {
+      display: flex;
+      flex-direction: column;
+    }
+
     .grid-3 {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
       gap: 14px;
+    }
+
+    #view-decision .grid-3 {
+      align-items: start;
     }
 
     .card {
@@ -252,7 +296,7 @@
     .btn::after,
     .preplan-btn::after,
     .execute-btn::after,
-    .ai-quick-btn::after,
+    .ai-task-option-card::after,
     .resource-menu-item::after {
       content: "";
       position: absolute;
@@ -271,7 +315,7 @@
     .btn.ripple-on::after,
     .preplan-btn.ripple-on::after,
     .execute-btn.ripple-on::after,
-    .ai-quick-btn.ripple-on::after,
+    .ai-task-option-card.ripple-on::after,
     .resource-menu-item.ripple-on::after {
       animation: ripple 620ms var(--ease-out);
     }
@@ -1167,6 +1211,30 @@
       display: block;
     }
 
+    #resource-sub-overview.active {
+      display: block;
+      column-count: 2;
+      column-gap: 14px;
+    }
+
+    #resource-sub-overview > .grid-3,
+    #resource-sub-overview > .grid-2 {
+      display: contents;
+    }
+
+    #resource-sub-overview article.card {
+      display: inline-block;
+      width: 100%;
+      margin: 0 0 14px;
+      vertical-align: top;
+      break-inside: avoid;
+    }
+
+    #resource-sub-overview > .resource-overview-head {
+      column-span: all;
+      margin-bottom: 14px;
+    }
+
     .settings-subview {
       display: none;
     }
@@ -1290,6 +1358,15 @@
       filter: brightness(1.08);
     }
 
+    .preplan-btn.compact {
+      width: auto;
+      margin-top: 0;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      box-shadow: none;
+    }
+
     .execute-btn {
       width: 100%;
       border: 1px solid #22c55e;
@@ -1307,8 +1384,30 @@
       filter: brightness(1.08);
     }
 
+    .execute-btn.compact {
+      width: auto;
+      margin-top: 0;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      box-shadow: none;
+    }
+
     .collab-right {
       min-width: 0;
+      height: 770px;
+      position: sticky;
+      top: 76px;
+      align-self: start;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .collab-right .card-bd {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
     }
 
     .gantt-wrap {
@@ -1317,6 +1416,11 @@
       overflow: auto;
       max-height: 620px;
       background: #0d1525;
+    }
+
+    .collab-right .gantt-wrap {
+      flex: 1;
+      max-height: none;
     }
 
     .gantt-table {
@@ -1356,9 +1460,6 @@
       background: #101a2d;
       color: #a6b7d8;
       font-weight: 600;
-      position: sticky !important;
-      left: 0;
-      z-index: 3;
       padding: 0 6px !important;
     }
 
@@ -1399,6 +1500,11 @@
       transform: translateY(-1px);
       box-shadow: 0 10px 18px rgba(2, 6, 23, 0.35);
       filter: brightness(1.06);
+    }
+
+    .gantt-task:focus-visible {
+      outline: 2px solid #93c5fd;
+      outline-offset: 2px;
     }
 
     .gantt-task-label {
@@ -1593,6 +1699,49 @@
       justify-content: center;
       padding: 0 8px;
       border: 1px solid rgba(255, 255, 255, 0.18);
+      cursor: pointer;
+      user-select: none;
+      transition: transform var(--dur-fast) var(--ease-soft), box-shadow var(--dur-fast) var(--ease-soft), filter var(--dur-fast) var(--ease-soft);
+    }
+
+    .decision-gantt-bar:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 14px rgba(2, 6, 23, 0.3);
+      filter: brightness(1.05);
+    }
+
+    .decision-gantt-bar:focus-visible {
+      outline: 2px solid #93c5fd;
+      outline-offset: 2px;
+    }
+
+    .decision-gantt-bar-label {
+      pointer-events: none;
+      max-width: calc(100% - 14px);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      padding: 0 7px;
+    }
+
+    .decision-gantt-resize {
+      position: absolute;
+      top: 0;
+      width: 7px;
+      height: 100%;
+      cursor: ew-resize;
+      z-index: 2;
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .decision-gantt-resize.left {
+      left: 0;
+      border-radius: 6px 0 0 6px;
+    }
+
+    .decision-gantt-resize.right {
+      right: 0;
+      border-radius: 0 6px 6px 0;
     }
 
     .decision-gantt-bar.p1 { background: linear-gradient(90deg, #1d4ed8, #2563eb); }
@@ -1613,6 +1762,91 @@
       border: 1px solid #334155;
       border-radius: 8px;
       background: #111b2d;
+    }
+
+    .decision-shortage-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .decision-shortage-legend {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #94a3b8;
+      font-size: 11px;
+      margin-bottom: 2px;
+      flex-wrap: wrap;
+    }
+
+    .decision-shortage-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
+      display: inline-block;
+      margin-right: 4px;
+      vertical-align: middle;
+    }
+
+    .decision-shortage-item {
+      padding: 10px;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      background: linear-gradient(160deg, #10192b 0%, #0f172a 100%);
+    }
+
+    .decision-shortage-name {
+      font-weight: 700;
+      color: #e2e8f0;
+      font-size: 12px;
+    }
+
+    .decision-shortage-task {
+      margin-top: 2px;
+      color: #94a3b8;
+      font-size: 11px;
+    }
+
+    .decision-shortage-metrics {
+      margin-top: 7px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      font-size: 11px;
+      color: #cbd5e1;
+    }
+
+    .decision-shortage-metric b {
+      color: #e2e8f0;
+      font-size: 12px;
+      display: block;
+      margin-top: 2px;
+    }
+
+    .decision-shortage-track {
+      margin-top: 8px;
+      height: 10px;
+      border-radius: 999px;
+      background: #1f2937;
+      border: 1px solid #334155;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .decision-shortage-stock {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, #0ea5e9, #22d3ee);
+    }
+
+    .decision-shortage-gap {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, #f59e0b, #ef4444);
     }
 
     .radar-wrap {
@@ -1838,6 +2072,78 @@
       color: #f8fafc;
     }
 
+    .ai-msg.ai-starter-options {
+      background: transparent;
+      border: none;
+      padding: 0;
+      margin-top: -2px;
+      max-width: 100%;
+    }
+
+    .ai-task-options-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .ai-task-option-card {
+      text-align: center;
+      background: linear-gradient(155deg, #10254d 0%, #122d5e 50%, #0e2044 100%);
+      border: 1px solid #2a4c82;
+      color: #dbeafe;
+      border-radius: 10px;
+      padding: 10px 10px 9px;
+      min-height: 104px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: transform var(--dur-fast) var(--ease-soft), box-shadow var(--dur-fast) var(--ease-soft), filter var(--dur-fast) var(--ease-soft), border-color var(--dur-fast) var(--ease-soft);
+    }
+
+    .ai-task-option-card:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.07);
+      border-color: #3b82f6;
+      box-shadow: 0 10px 18px rgba(15, 23, 42, 0.35);
+    }
+
+    .ai-task-option-card:focus-visible {
+      outline: 2px solid #93c5fd;
+      outline-offset: 2px;
+    }
+
+    .ai-task-option-no {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      border: 1px solid rgba(191, 219, 254, 0.45);
+      background: rgba(147, 197, 253, 0.14);
+      font-size: 11px;
+      font-weight: 700;
+      margin: 0 auto 7px;
+    }
+
+    .ai-task-option-title {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 5px;
+      color: #eff6ff;
+    }
+
+    .ai-task-option-desc {
+      font-size: 12px;
+      line-height: 1.45;
+      color: #cbd5e1;
+    }
+
     .ai-chat-ft {
       border-top: 1px solid #2b4572;
       padding: 10px 12px;
@@ -1847,19 +2153,15 @@
       flex-wrap: wrap;
     }
 
-    .ai-quick-btn {
-      background: #10254d;
-      border: 1px solid #2a4c82;
-      color: #bfdbfe;
-      border-radius: 8px;
-      padding: 6px 8px;
-      font-size: 12px;
-      cursor: pointer;
-    }
-
     .ai-input {
       flex: 1;
       min-width: 260px;
+    }
+
+    @media (max-width: 960px) {
+      .ai-task-options-grid {
+        grid-template-columns: 1fr;
+      }
     }
 
     .settings-form-grid {
@@ -1926,16 +2228,25 @@
       header { flex-wrap: wrap; }
       .header-meta { width: 100%; }
       .collab-layout { grid-template-columns: 1fr; }
+      .collab-right {
+        position: static;
+        top: auto;
+        height: auto;
+      }
       .resource-layout { grid-template-columns: 1fr; }
       .resource-sidebar { position: static; max-height: none; }
       .settings-form-grid { grid-template-columns: 1fr; }
+      #view-demand.active,
+      #view-rule.active,
+      #view-monitor.active,
+      #resource-sub-overview.active { column-count: 1; }
     }
   </style>
 </head>
 <body>
   <header>
     <div class="brand-block">
-      <img class="header-logo" src="1c5703c9-aca0-43d1-9843-9d502cb66fd0.png" alt="APS Logo" />
+      <img class="header-logo" src="1c5703c9-aca0-43d1-9843-9d502cb66fd0.png" alt="APS Logo" width="130" height="40" />
       <div class="brand-text">
         <div class="logo">格力计划排程智能体</div>
         <div class="sub-title">Gree Advanced Intelligence Planning System</div>
@@ -2009,7 +2320,7 @@
         </article>
 
         <article class="card">
-          <div class="card-hd"><span>关键资源热力图（模具）</span></div>
+          <div class="card-hd"><span>关键资源缺料预测图</span></div>
           <div class="card-bd" id="decision-resource-heatmap"></div>
         </article>
 
@@ -2463,9 +2774,6 @@
           </div>
         </article>
 
-        <button class="preplan-btn" onclick="aiPreScheduleShuffle()">AI预排方案</button>
-        <button class="execute-btn" onclick="executePreplan()">执行方案</button>
-
         </div>
 
         <article class="card collab-right">
@@ -2481,6 +2789,8 @@
                 <option value="ctrl">控制器分厂</option>
               </select>
               <button class="btn" onclick="verifyDraggedPlan()">拖拽后规则校验</button>
+              <button class="preplan-btn compact" onclick="aiPreScheduleShuffle()">AI预排方案</button>
+              <button class="execute-btn compact" onclick="executePreplan()">执行方案</button>
             </div>
           </div>
           <div class="card-bd">
@@ -2575,11 +2885,11 @@
               <div class="card-bd">
                 <div class="settings-form-grid">
                   <div class="modal-field">
-                    <label>公告标题</label>
+                    <label for="settings-ann-title">公告标题</label>
                     <input id="settings-ann-title" value="V3.6 预发布说明" />
                   </div>
                   <div class="modal-field" style="grid-column: 1 / -1;">
-                    <label>公告内容</label>
+                    <label for="settings-ann-content">公告内容</label>
                     <textarea id="settings-ann-content" rows="3">新增系统设置中心，补齐账号、权限、审计、统计与基础配置入口。</textarea>
                   </div>
                 </div>
@@ -2665,7 +2975,7 @@
               <div class="card-bd settings-form">
                 <div class="settings-form-grid">
                   <div class="modal-field">
-                    <label>系统时区</label>
+                    <label for="settings-timezone">系统时区</label>
                     <select id="settings-timezone">
                       <option value="Asia/Shanghai">Asia/Shanghai (UTC+8)</option>
                       <option value="UTC">UTC (UTC+0)</option>
@@ -2673,11 +2983,11 @@
                     </select>
                   </div>
                   <div class="modal-field">
-                    <label>会话超时（分钟）</label>
+                    <label for="settings-timeout">会话超时（分钟）</label>
                     <input id="settings-timeout" type="number" value="30" min="5" max="180" />
                   </div>
                   <div class="modal-field">
-                    <label>告警推送渠道</label>
+                    <label for="settings-notify">告警推送渠道</label>
                     <select id="settings-notify">
                       <option value="system+mail">系统站内 + 邮件</option>
                       <option value="system">仅系统站内</option>
@@ -2685,7 +2995,7 @@
                     </select>
                   </div>
                   <div class="modal-field">
-                    <label>自动备份周期</label>
+                    <label for="settings-backup">自动备份周期</label>
                     <select id="settings-backup">
                       <option value="daily">每天</option>
                       <option value="weekly">每周</option>
@@ -2713,9 +3023,6 @@
       </div>
       <div class="ai-chat-body" id="ai-chat-body"></div>
       <div class="ai-chat-ft">
-        <button class="ai-quick-btn" onclick="sendAiQuickTask(1)">深度自主规划</button>
-        <button class="ai-quick-btn" onclick="sendAiQuickTask(2)">排程优化建议</button>
-        <button class="ai-quick-btn" onclick="sendAiQuickTask(3)">生成当日报告</button>
         <input class="ai-input" id="ai-chat-input" placeholder="请给AI助手布置一个任务" />
         <button class="btn primary" onclick="sendAiCustomTask()">发送</button>
       </div>
@@ -2729,16 +3036,16 @@
         <button class="btn" onclick="closeTaskModal()">关闭</button>
       </div>
       <div class="modal-bd">
-        <div class="modal-field"><label>任务编号</label><input id="tm-task-no" disabled /></div>
-        <div class="modal-field"><label>订单号</label><input id="tm-order-no" disabled /></div>
-        <div class="modal-field"><label>产品名称</label><input id="tm-product-name" disabled /></div>
-        <div class="modal-field"><label>数量</label><input id="tm-qty" disabled /></div>
-        <div class="modal-field"><label>开始时间</label><select id="tm-start"></select></div>
-        <div class="modal-field"><label>结束时间</label><select id="tm-end"></select></div>
-        <div class="modal-field"><label>分厂</label><input id="tm-plant" disabled /></div>
-        <div class="modal-field"><label>产线</label><input id="tm-line" disabled /></div>
-        <div class="modal-field"><label>工序</label><input id="tm-process" disabled /></div>
-      <div class="modal-field"><label>生产状态</label><input id="tm-status" disabled /></div>
+        <div class="modal-field"><label for="tm-task-no">任务编号</label><input id="tm-task-no" disabled /></div>
+        <div class="modal-field"><label for="tm-order-no">订单号</label><input id="tm-order-no" disabled /></div>
+        <div class="modal-field"><label for="tm-product-name">产品名称</label><input id="tm-product-name" disabled /></div>
+        <div class="modal-field"><label for="tm-qty">数量</label><input id="tm-qty" disabled /></div>
+        <div class="modal-field"><label for="tm-start">开始时间</label><select id="tm-start"></select></div>
+        <div class="modal-field"><label for="tm-end">结束时间</label><select id="tm-end"></select></div>
+        <div class="modal-field"><label for="tm-plant">分厂</label><input id="tm-plant" disabled /></div>
+        <div class="modal-field"><label for="tm-line">产线</label><input id="tm-line" disabled /></div>
+        <div class="modal-field"><label for="tm-process">工序</label><input id="tm-process" disabled /></div>
+      <div class="modal-field"><label for="tm-status">生产状态</label><input id="tm-status" disabled /></div>
       </div>
       <div class="modal-ft">
         <button class="btn delete-btn" onclick="deleteTaskModal()">删除</button>
@@ -2754,15 +3061,15 @@
         <button class="btn" onclick="closeBomOrderReadonlyModal()">关闭</button>
       </div>
       <div class="modal-bd">
-        <div class="modal-field"><label>类型</label><input id="bom-modal-type" disabled /></div>
-        <div class="modal-field"><label>编码</label><input id="bom-modal-code" disabled /></div>
-        <div class="modal-field"><label>名称</label><input id="bom-modal-name" disabled /></div>
-        <div class="modal-field"><label>数量</label><input id="bom-modal-qty" disabled /></div>
-        <div class="modal-field"><label>分厂</label><input id="bom-modal-factory" disabled /></div>
-        <div class="modal-field"><label>工序</label><input id="bom-modal-process" disabled /></div>
-        <div class="modal-field"><label>能效批次</label><input id="bom-modal-batch" disabled /></div>
-        <div class="modal-field"><label>上级订单</label><input id="bom-modal-parent" disabled /></div>
-        <div class="modal-field" style="grid-column: 1 / -1;"><label>父订单</label><input id="bom-modal-root" disabled /></div>
+        <div class="modal-field"><label for="bom-modal-type">类型</label><input id="bom-modal-type" disabled /></div>
+        <div class="modal-field"><label for="bom-modal-code">编码</label><input id="bom-modal-code" disabled /></div>
+        <div class="modal-field"><label for="bom-modal-name">名称</label><input id="bom-modal-name" disabled /></div>
+        <div class="modal-field"><label for="bom-modal-qty">数量</label><input id="bom-modal-qty" disabled /></div>
+        <div class="modal-field"><label for="bom-modal-factory">分厂</label><input id="bom-modal-factory" disabled /></div>
+        <div class="modal-field"><label for="bom-modal-process">工序</label><input id="bom-modal-process" disabled /></div>
+        <div class="modal-field"><label for="bom-modal-batch">能效批次</label><input id="bom-modal-batch" disabled /></div>
+        <div class="modal-field"><label for="bom-modal-parent">上级订单</label><input id="bom-modal-parent" disabled /></div>
+        <div class="modal-field" style="grid-column: 1 / -1;"><label for="bom-modal-root">父订单</label><input id="bom-modal-root" disabled /></div>
       </div>
       <div class="modal-ft">
         <span class="muted" style="margin-right:auto;">仅查看，不可编辑</span>
@@ -2802,7 +3109,7 @@
     </div>
   </div>
 
-  <div id="toast"></div>
+  <div id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
   <script>
     function buildInitialGanttTasks() {
@@ -2861,6 +3168,32 @@
           seq += 1;
         }
       }
+      return tasks;
+    }
+
+    function buildInitialDecisionTasks() {
+      const plants = [
+        { name: "东区总装", jobs: [{ s: 1, d: 4, n: "内机组装" }, { s: 8, d: 5, n: "整机联调" }] },
+        { name: "西区总装", jobs: [{ s: 3, d: 4, n: "外机总装" }, { s: 13, d: 4, n: "包装入库" }] },
+        { name: "注塑分厂", jobs: [{ s: 0, d: 6, n: "面板注塑" }, { s: 11, d: 5, n: "外壳注塑" }] },
+        { name: "两器分厂", jobs: [{ s: 5, d: 4, n: "冷凝器焊接" }, { s: 14, d: 4, n: "蒸发器组装" }] },
+        { name: "控制器分厂", jobs: [{ s: 2, d: 5, n: "控制板装配" }, { s: 15, d: 3, n: "程序烧录" }] }
+      ];
+      const tasks = [];
+      let seq = 1;
+      plants.forEach((plant, line) => {
+        plant.jobs.forEach((job, jobIdx) => {
+          tasks.push({
+            id: `DG${seq}`,
+            line,
+            start: job.s,
+            duration: job.d,
+            name: job.n,
+            cls: `p${(line + jobIdx) % 5 + 1}`
+          });
+          seq += 1;
+        });
+      });
       return tasks;
     }
 
@@ -3183,6 +3516,9 @@
         { id: "P1178", inject: "L2", weld: "L2", cool: "L2", cross: true }
       ],
       ganttTasks: buildInitialGanttTasks(),
+      decisionPlants: ["东区总装", "西区总装", "注塑分厂", "两器分厂", "控制器分厂"],
+      decisionTasks: buildInitialDecisionTasks(),
+      decisionUi: { resizing: null, listenersBound: false },
       alerts: [
         { level: 1, text: "停线风险：注塑1号机温度异常，需立即响应" },
         { level: 2, text: "延误风险：钣金件物流预计晚到1.8小时" },
@@ -3226,7 +3562,7 @@
 
     function applyStaggerIn(container) {
       if (!container || prefersReducedMotion) return;
-      const targets = container.querySelectorAll(".kpi, .card, .flow-step, .heat-item, .alert-line, .resource-menu-item");
+      const targets = container.querySelectorAll(".kpi, .card, .flow-step, .heat-item, .decision-shortage-item, .alert-line, .resource-menu-item");
       targets.forEach((el, idx) => {
         el.classList.remove("stagger-in");
         el.style.setProperty("--stagger-delay", `${Math.min(idx, 14) * 42}ms`);
@@ -3236,7 +3572,7 @@
 
     function setupMicroInteractions() {
       document.addEventListener("pointerdown", (e) => {
-        const target = e.target.closest(".btn, .preplan-btn, .execute-btn, .ai-quick-btn, .resource-menu-item");
+        const target = e.target.closest(".btn, .preplan-btn, .execute-btn, .ai-task-option-card, .resource-menu-item");
         if (!target || prefersReducedMotion) return;
         const rect = target.getBoundingClientRect();
         target.style.setProperty("--ripple-x", `${e.clientX - rect.left}px`);
@@ -3361,11 +3697,11 @@
       document.getElementById("bom-modal-batch").value = node.batch || "-";
       document.getElementById("bom-modal-parent").value = parentText;
       document.getElementById("bom-modal-root").value = rootText;
-      document.getElementById("bom-order-modal-mask").classList.add("show");
+      openModalMask("bom-order-modal-mask", ".modal-ft .btn");
     }
 
     function closeBomOrderReadonlyModal() {
-      document.getElementById("bom-order-modal-mask").classList.remove("show");
+      closeModalMask("bom-order-modal-mask");
     }
 
     function renderBomTree() {
@@ -3606,6 +3942,84 @@
       formFields: []
     };
 
+    const modalStack = [];
+    let modalLastActiveElement = null;
+
+    function getFocusableElements(container) {
+      if (!container) return [];
+      const selector = [
+        "button:not([disabled])",
+        "[href]",
+        "input:not([disabled])",
+        "select:not([disabled])",
+        "textarea:not([disabled])",
+        "[tabindex]:not([tabindex='-1'])"
+      ].join(",");
+      return Array.from(container.querySelectorAll(selector))
+        .filter(el => !el.hasAttribute("hidden") && el.offsetParent !== null);
+    }
+
+    function openModalMask(maskId, initialFocusSelector) {
+      const mask = document.getElementById(maskId);
+      if (!mask || mask.classList.contains("show")) return;
+      if (modalStack.length === 0 && document.activeElement instanceof HTMLElement) {
+        modalLastActiveElement = document.activeElement;
+      }
+      mask.classList.add("show");
+      mask.setAttribute("aria-hidden", "false");
+      modalStack.push(maskId);
+      const dialog = mask.querySelector("[role='dialog'], .modal-card, .ai-chat-card");
+      const preferred = initialFocusSelector ? mask.querySelector(initialFocusSelector) : null;
+      const focusables = getFocusableElements(dialog || mask);
+      const target = preferred || focusables[0] || dialog || mask;
+      if (target instanceof HTMLElement) target.focus();
+    }
+
+    function closeModalMask(maskId) {
+      const mask = document.getElementById(maskId);
+      if (!mask || !mask.classList.contains("show")) return;
+      mask.classList.remove("show");
+      mask.setAttribute("aria-hidden", "true");
+      const idx = modalStack.lastIndexOf(maskId);
+      if (idx >= 0) modalStack.splice(idx, 1);
+      if (modalStack.length > 0) {
+        const topMask = document.getElementById(modalStack[modalStack.length - 1]);
+        if (topMask) {
+          const dialog = topMask.querySelector("[role='dialog'], .modal-card, .ai-chat-card");
+          const focusables = getFocusableElements(dialog || topMask);
+          const fallback = focusables[0] || dialog || topMask;
+          if (fallback instanceof HTMLElement) fallback.focus();
+        }
+        return;
+      }
+      if (modalLastActiveElement instanceof HTMLElement) {
+        modalLastActiveElement.focus();
+      }
+      modalLastActiveElement = null;
+    }
+
+    function trapFocusInModalMask(maskId, e) {
+      if (e.key !== "Tab") return;
+      const mask = document.getElementById(maskId);
+      if (!mask || !mask.classList.contains("show")) return;
+      const dialog = mask.querySelector("[role='dialog'], .modal-card, .ai-chat-card") || mask;
+      const focusables = getFocusableElements(dialog);
+      if (focusables.length === 0) {
+        e.preventDefault();
+        if (dialog instanceof HTMLElement) dialog.focus();
+        return;
+      }
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+
     function hasShownModal(maskId) {
       const el = document.getElementById(maskId);
       return !!(el && el.classList.contains("show"));
@@ -3644,11 +4058,11 @@
       document.getElementById("confirm-modal-message").textContent = message;
       document.getElementById("confirm-modal-submit").textContent = confirmText;
       modalUiState.confirmAction = onConfirm;
-      document.getElementById("confirm-modal-mask").classList.add("show");
+      openModalMask("confirm-modal-mask", "#confirm-modal-submit");
     }
 
     function closeConfirmModal() {
-      document.getElementById("confirm-modal-mask").classList.remove("show");
+      closeModalMask("confirm-modal-mask");
       modalUiState.confirmAction = null;
     }
 
@@ -3684,8 +4098,10 @@
         wrap.className = "modal-field";
         if (field.fullRow) wrap.style.gridColumn = "1 / -1";
 
+        const controlId = `form-field-${field.key}`;
         const label = document.createElement("label");
         label.textContent = field.label || field.key;
+        label.htmlFor = controlId;
 
         let control;
         if (field.type === "select") {
@@ -3707,7 +4123,7 @@
           if (field.placeholder) control.placeholder = field.placeholder;
         }
 
-        control.id = `form-field-${field.key}`;
+        control.id = controlId;
         const initial = initialValues[field.key] ?? field.value ?? "";
         control.value = String(initial);
         if (field.required) control.required = true;
@@ -3717,8 +4133,9 @@
         fieldsEl.appendChild(wrap);
       });
 
-      document.getElementById("form-modal-mask").classList.add("show");
       const firstField = fields[0];
+      const firstSelector = firstField ? `#form-field-${firstField.key}` : null;
+      openModalMask("form-modal-mask", firstSelector);
       if (firstField) {
         const firstEl = document.getElementById(`form-field-${firstField.key}`);
         if (firstEl) firstEl.focus();
@@ -3726,7 +4143,7 @@
     }
 
     function closeFormModal() {
-      document.getElementById("form-modal-mask").classList.remove("show");
+      closeModalMask("form-modal-mask");
       modalUiState.formAction = null;
       modalUiState.formFields = [];
       setFormModalError("");
@@ -4070,10 +4487,14 @@
         const el = document.createElement("div");
         el.className = `gantt-task ${task.cls}`;
         el.setAttribute("draggable", "true");
+        el.setAttribute("role", "button");
+        el.setAttribute("tabindex", "0");
         el.dataset.id = task.id;
         el.style.width = `calc(${task.duration} * var(--gantt-cell-w) + ${task.duration - 1}px)`;
         el.innerHTML = `<span class="gantt-resize left"></span><span class="gantt-task-label">${task.name}</span><span class="gantt-resize right"></span>`;
-        el.title = `${task.name} (${getLineCode(task.line)} ${formatHour(task.start)}-${formatHour(task.start + task.duration)})`;
+        const taskDesc = `${task.name} (${getLineCode(task.line)} ${formatHour(task.start)}-${formatHour(task.start + task.duration)})`;
+        el.title = taskDesc;
+        el.setAttribute("aria-label", `查看任务详情：${taskDesc}`);
         startCell.appendChild(el);
       });
 
@@ -4408,13 +4829,181 @@
       return `${y}-${m}-${d} ${hh}:${mm}:${ss}`;
     }
 
-    function renderDecisionCenter() {
+    function renderDecisionGantt() {
       const timeMarks = Array.from({ length: 25 }, (_, i) => `${String(i).padStart(2, "0")}:00`);
       const timeEl = document.getElementById("decision-gantt-time");
       if (timeEl) {
         timeEl.innerHTML = timeMarks.map(t => `<span>${t}</span>`).join("");
       }
 
+      const plants = state.decisionPlants || [];
+      const tasks = state.decisionTasks || [];
+      const lanesEl = document.getElementById("decision-gantt-lanes");
+      if (!lanesEl) return;
+
+      lanesEl.innerHTML = plants.map((plantName, line) => {
+        const lineTasks = tasks
+          .filter(t => t.line === line)
+          .sort((a, b) => a.start - b.start);
+        return `
+          <div class="decision-gantt-row">
+            <div class="muted">${plantName}</div>
+            <div class="decision-gantt-track">
+              ${lineTasks.map(task => `
+                <div class="decision-gantt-bar ${task.cls || "p1"}" data-id="${task.id}" role="button" tabindex="0"
+                     style="left:${task.start / 24 * 100}%; width:${task.duration / 24 * 100}%;">
+                  <span class="decision-gantt-resize left"></span>
+                  <span class="decision-gantt-bar-label">${task.name}</span>
+                  <span class="decision-gantt-resize right"></span>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      bindDecisionGanttInteractions();
+    }
+
+    function bindDecisionGanttInteractions() {
+      const lanesEl = document.getElementById("decision-gantt-lanes");
+      if (!lanesEl) return;
+      if (!state.decisionUi) state.decisionUi = { resizing: null, listenersBound: false };
+
+      lanesEl.querySelectorAll(".decision-gantt-bar").forEach(taskEl => {
+        taskEl.addEventListener("click", (e) => {
+          if (state.decisionUi.resizing) return;
+          if (e.target.classList.contains("decision-gantt-resize")) return;
+          openDecisionTaskEditor(taskEl.dataset.id);
+        });
+        taskEl.addEventListener("keydown", (e) => {
+          if (state.decisionUi.resizing) return;
+          if (e.key !== "Enter" && e.key !== " ") return;
+          e.preventDefault();
+          openDecisionTaskEditor(taskEl.dataset.id);
+        });
+
+        taskEl.querySelectorAll(".decision-gantt-resize").forEach(handle => {
+          handle.addEventListener("mousedown", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const task = state.decisionTasks.find(t => t.id === taskEl.dataset.id);
+            if (!task) return;
+            const track = taskEl.closest(".decision-gantt-track");
+            const trackWidth = track ? track.getBoundingClientRect().width : 0;
+            state.decisionUi.resizing = {
+              taskId: task.id,
+              side: handle.classList.contains("left") ? "left" : "right",
+              startX: e.clientX,
+              hourWidth: trackWidth > 0 ? trackWidth / 24 : 20,
+              originalStart: task.start,
+              originalDuration: task.duration
+            };
+          });
+        });
+      });
+
+      if (!state.decisionUi.listenersBound) {
+        window.addEventListener("mousemove", handleDecisionResizeMove);
+        window.addEventListener("mouseup", handleDecisionResizeEnd);
+        state.decisionUi.listenersBound = true;
+      }
+    }
+
+    function handleDecisionResizeMove(e) {
+      const ui = state.decisionUi;
+      if (!ui || !ui.resizing) return;
+      const resizing = ui.resizing;
+      const task = state.decisionTasks.find(t => t.id === resizing.taskId);
+      if (!task) return;
+
+      const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+      const hourWidth = Math.max(4, resizing.hourWidth || 20);
+      const deltaHours = Math.round((e.clientX - resizing.startX) / hourWidth);
+      const maxByEnd = 24;
+      const maxDuration = 24;
+
+      if (resizing.side === "right") {
+        task.duration = clamp(
+          resizing.originalDuration + deltaHours,
+          1,
+          Math.min(maxDuration, maxByEnd - task.start)
+        );
+      } else {
+        const minStart = Math.max(0, resizing.originalStart + resizing.originalDuration - maxDuration);
+        const maxStart = resizing.originalStart + resizing.originalDuration - 1;
+        const nextStart = clamp(resizing.originalStart + deltaHours, minStart, maxStart);
+        const nextDuration = resizing.originalDuration + (resizing.originalStart - nextStart);
+        task.start = nextStart;
+        task.duration = clamp(nextDuration, 1, maxDuration);
+        if (task.start + task.duration > maxByEnd) {
+          task.start = maxByEnd - task.duration;
+        }
+      }
+
+      renderDecisionGantt();
+    }
+
+    function handleDecisionResizeEnd() {
+      if (!state.decisionUi || !state.decisionUi.resizing) return;
+      state.decisionUi.resizing = null;
+    }
+
+    function openDecisionTaskEditor(taskId) {
+      const task = state.decisionTasks.find(t => t.id === taskId);
+      if (!task) return;
+
+      const hourOptions = Array.from({ length: 25 }, (_, i) => ({
+        value: String(i),
+        label: formatHour(i)
+      }));
+      const currentEnd = Math.min(24, task.start + task.duration);
+      openFormModal({
+        title: "编辑今日计划任务",
+        submitText: "保存",
+        fields: [
+          { key: "name", label: "任务名称", required: true, placeholder: "请输入任务名称" },
+          {
+            key: "line",
+            label: "所属分厂",
+            required: true,
+            type: "select",
+            options: state.decisionPlants.map((name, idx) => ({ value: String(idx), label: name }))
+          },
+          { key: "start", label: "开始时间", required: true, type: "select", options: hourOptions },
+          { key: "end", label: "结束时间", required: true, type: "select", options: hourOptions }
+        ],
+        initialValues: {
+          name: task.name,
+          line: String(task.line),
+          start: String(task.start),
+          end: String(currentEnd)
+        },
+        onSubmit: (form) => {
+          const name = form.name.trim();
+          const start = Number(form.start);
+          const end = Number(form.end);
+          const maxLine = Math.max(0, (state.decisionPlants || []).length - 1);
+          const line = Math.max(0, Math.min(maxLine, Number(form.line)));
+          if (!name) {
+            setFormModalError("任务名称不能为空");
+            return false;
+          }
+          if (!Number.isInteger(start) || !Number.isInteger(end) || start < 0 || end > 24 || end <= start) {
+            setFormModalError("结束时间必须大于开始时间");
+            return false;
+          }
+          task.name = name;
+          task.line = line;
+          task.start = start;
+          task.duration = end - start;
+          renderDecisionGantt();
+          toast(`任务已更新为 ${formatHour(start)}-${formatHour(end)}`);
+        }
+      });
+    }
+
+    function renderDecisionCenter() {
       const oee = (86 + Math.random() * 6).toFixed(1);
       const wow = (Math.random() * 4 - 2).toFixed(1); // -2.0 ~ +2.0
       const done = Math.floor(88 + Math.random() * 12);
@@ -4439,49 +5028,65 @@
       document.getElementById("d-kpi-wip-extra").textContent = `内机 ${wipIn} / 外机 ${wipOut}`;
       document.getElementById("d-kpi-alert").textContent = String(alerts);
       document.getElementById("d-kpi-alert-extra").textContent = `已解决 ${solved} 条 | 未解决 ${unsolved} 条`;
-
-      const plants = [
-        { name: "东区总装", jobs: [{ s: 1, d: 4, n: "内机组装" }, { s: 8, d: 5, n: "整机联调" }] },
-        { name: "西区总装", jobs: [{ s: 3, d: 4, n: "外机总装" }, { s: 13, d: 4, n: "包装入库" }] },
-        { name: "注塑分厂", jobs: [{ s: 0, d: 6, n: "面板注塑" }, { s: 11, d: 5, n: "外壳注塑" }] },
-        { name: "两器分厂", jobs: [{ s: 5, d: 4, n: "冷凝器焊接" }, { s: 14, d: 4, n: "蒸发器组装" }] },
-        { name: "控制器分厂", jobs: [{ s: 2, d: 5, n: "控制板装配" }, { s: 15, d: 3, n: "程序烧录" }] }
-      ];
-      document.getElementById("decision-gantt-lanes").innerHTML = plants.map((p, idx) => `
-        <div class="decision-gantt-row">
-          <div class="muted">${p.name}</div>
-          <div class="decision-gantt-track">
-            ${p.jobs.map((j, jIdx) => `<div class="decision-gantt-bar p${(idx + jIdx) % 5 + 1}" style="left:${j.s / 24 * 100}%; width:${j.d / 24 * 100}%;">${j.n}</div>`).join("")}
-          </div>
-        </div>
-      `).join("");
+      renderDecisionGantt();
 
       const orders = [
-        { no: "ORD-20260301-011", pct: 92, risk: "低" },
-        { no: "ORD-20260301-018", pct: 76, risk: "中" },
-        { no: "ORD-20260301-025", pct: 64, risk: "高" },
-        { no: "ORD-20260301-031", pct: 88, risk: "低" }
+        { no: "ORD-20260301-011", model: "KFR-35GW", pct: 92, eta: "17:20", risk: "低" },
+        { no: "ORD-20260301-018", model: "KFR-50GW", pct: 76, eta: "18:10", risk: "中" },
+        { no: "ORD-20260301-025", model: "KFR-72GW", pct: 64, eta: "19:40", risk: "高" },
+        { no: "ORD-20260301-031", model: "KFR-26GW", pct: 88, eta: "17:50", risk: "低" }
       ];
       document.getElementById("decision-order-progress").innerHTML = orders.map(o => `
         <div>
           <div class="row" style="justify-content:space-between; margin-bottom:4px;"><span>${o.no}</span><span class="tag ${o.risk === "高" ? "red" : o.risk === "中" ? "warn" : "ok"}">${o.risk}风险</span></div>
+          <div class="row muted" style="justify-content:space-between; margin-bottom:4px;"><span>机型：${o.model}</span><span>计划完成：${o.eta}</span></div>
+          <div class="row muted" style="justify-content:space-between; margin-bottom:4px;"><span>生产进度</span><span>${o.pct}%</span></div>
           <div class="progress"><span style="width:${o.pct}%; background:${o.pct >= 90 ? "#10b981" : o.pct >= 80 ? "#f59e0b" : "#ef4444"};"></span></div>
         </div>
       `).join("");
 
-      const molds = [
-        { name: "模具M-102", load: 95, pos: "注塑分厂" },
-        { name: "模具M-208", load: 78, pos: "东区总装" },
-        { name: "模具M-315", load: 62, pos: "西区总装" },
-        { name: "模具M-420", load: 88, pos: "两器分厂" }
+      const resourceForecast = [
+        { resource: "注塑机 IM-1600 / ABS粒子", plant: "注塑分厂", order: "ORD-20260301-042", model: "KFR-72GW Pro", need: 1280, stock: 760, unit: "kg", deadline: "14:40", eta: "供应链预计 16:10 到料" },
+        { resource: "两器焊接线 HX-03 / 铜管组件", plant: "两器分厂", order: "ORD-20260301-037", model: "KFR-120LW", need: 930, stock: 640, unit: "套", deadline: "15:20", eta: "供应链预计 15:55 到料" }
       ];
-      document.getElementById("decision-resource-heatmap").innerHTML = molds.map(m => `
-        <div class="heat-item">
-          <div class="row" style="justify-content:space-between;"><b>${m.name}</b><span>${m.load}%</span></div>
-          <div class="progress" style="margin-top:6px;"><span style="width:${m.load}%; background:${m.load >= 90 ? "#ef4444" : m.load >= 80 ? "#f59e0b" : "#10b981"};"></span></div>
-          <div class="muted" style="margin-top:4px;">位置：${m.pos}</div>
+      document.getElementById("decision-resource-heatmap").innerHTML = `
+        <div class="decision-shortage-wrap">
+          <div class="decision-shortage-legend">
+            <span><i class="decision-shortage-dot" style="background:linear-gradient(90deg, #0ea5e9, #22d3ee);"></i>在手库存</span>
+            <span><i class="decision-shortage-dot" style="background:linear-gradient(90deg, #f59e0b, #ef4444);"></i>缺料缺口</span>
+            <span class="muted">基于订单排产 + 供应链平台预测</span>
+          </div>
+          ${resourceForecast.map(item => {
+            const gap = Math.max(0, item.need - item.stock);
+            const stockPct = Math.max(0, Math.min(100, item.stock / item.need * 100));
+            const gapPct = Math.max(0, Math.min(100 - stockPct, gap / item.need * 100));
+            const risk = gap === 0 ? "低" : (gap / item.need >= 0.2 ? "高" : "中");
+            const riskCls = risk === "高" ? "red" : risk === "中" ? "warn" : "ok";
+            return `
+              <div class="decision-shortage-item">
+                <div class="row" style="justify-content:space-between; gap:8px;">
+                  <span class="decision-shortage-name">${item.resource}</span>
+                  <span class="tag ${riskCls}">${risk}风险</span>
+                </div>
+                <div class="decision-shortage-task">当前排产：${item.order} · ${item.model} · ${item.plant}</div>
+                <div class="decision-shortage-metrics">
+                  <div class="decision-shortage-metric">排产需求<b>${item.need}${item.unit}</b></div>
+                  <div class="decision-shortage-metric">在手库存<b>${item.stock}${item.unit}</b></div>
+                  <div class="decision-shortage-metric">预计缺口<b>${gap}${item.unit}</b></div>
+                </div>
+                <div class="decision-shortage-track">
+                  <span class="decision-shortage-stock" style="width:${stockPct}%;"></span>
+                  ${gap > 0 ? `<span class="decision-shortage-gap" style="left:${stockPct}%; width:${gapPct}%;"></span>` : ""}
+                </div>
+                <div class="row muted" style="justify-content:space-between; margin-top:6px;">
+                  <span>补料截止：${item.deadline} 前</span>
+                  <span>${item.eta}</span>
+                </div>
+              </div>
+            `;
+          }).join("")}
         </div>
-      `).join("");
+      `;
 
       const radarLabels = ["换产耗时", "设备负荷", "物料齐套", "交付偏差", "人员瓶颈", "物流时效", "工艺稳定", "外协协同"];
       const baselineSeries = [58, 62, 54, 59, 50, 55, 53, 48];
@@ -4623,6 +5228,12 @@
           if (e.target.classList.contains("gantt-resize")) return;
           openTaskModal(taskEl.dataset.id);
         });
+        taskEl.addEventListener("keydown", (e) => {
+          if (state.ganttUi.resizing) return;
+          if (e.key !== "Enter" && e.key !== " ") return;
+          e.preventDefault();
+          openTaskModal(taskEl.dataset.id);
+        });
 
         taskEl.querySelectorAll(".gantt-resize").forEach(handle => {
           handle.addEventListener("mousedown", e => {
@@ -4720,11 +5331,11 @@
       document.getElementById("tm-line").value = getLineCode(task.line);
       document.getElementById("tm-process").value = task.process || "-";
       document.getElementById("tm-status").value = task.status || "-";
-      document.getElementById("task-modal-mask").classList.add("show");
+      openModalMask("task-modal-mask", "#tm-start");
     }
 
     function closeTaskModal() {
-      document.getElementById("task-modal-mask").classList.remove("show");
+      closeModalMask("task-modal-mask");
       if (state.ganttUi) state.ganttUi.activeTaskId = null;
     }
 
@@ -4792,36 +5403,88 @@
       return { msg, timer };
     }
 
-    function appendAiBotReplyWithDelay(text) {
+    function appendAiBotReplyWithDelay(text, onDone) {
       const loading = appendAiLoadingMessage();
       setTimeout(() => {
         clearInterval(loading.timer);
         loading.msg.className = "ai-msg bot";
         loading.msg.textContent = text;
+        if (typeof onDone === "function") onDone();
       }, 1000);
     }
 
+    function getAiQuickTaskItems() {
+      return [
+        {
+          type: 1,
+          title: "深度自主规划",
+          text: "深度自主规划，使用现有排程任务分析并完善当天所有排程。",
+          desc: "基于当前排程与资源约束，自动补齐全天排程。"
+        },
+        {
+          type: 2,
+          title: "排程优化建议",
+          text: "帮我分析目前排程可以优化的地方，并给出具体优化建议。",
+          desc: "识别产线瓶颈与等待时段，输出可执行优化建议。"
+        },
+        {
+          type: 3,
+          title: "生成当日报告",
+          text: "生成一条当天排程的报告，得出排产数据和风险点。",
+          desc: "汇总当日排产关键数据、风险点与改进关注项。"
+        }
+      ];
+    }
+
+    function removeAiStarterCards() {
+      document.querySelectorAll(".ai-starter-options").forEach((node) => node.remove());
+    }
+
+    function appendAiStarterCards() {
+      const body = document.getElementById("ai-chat-body");
+      if (!body) return;
+      removeAiStarterCards();
+      const wrap = document.createElement("div");
+      wrap.className = "ai-msg bot ai-starter-options";
+      const grid = document.createElement("div");
+      grid.className = "ai-task-options-grid";
+      getAiQuickTaskItems().forEach((item, index) => {
+        const card = document.createElement("button");
+        card.type = "button";
+        card.className = "ai-task-option-card";
+        card.setAttribute("aria-label", item.title);
+        card.innerHTML = `
+          <span class="ai-task-option-no">${index + 1}</span>
+          <div class="ai-task-option-title">${item.title}</div>
+          <div class="ai-task-option-desc">${item.desc}</div>
+        `;
+        card.addEventListener("click", () => sendAiQuickTask(item.type));
+        grid.appendChild(card);
+      });
+      wrap.appendChild(grid);
+      body.appendChild(wrap);
+      body.scrollTop = body.scrollHeight;
+    }
+
     function openAiAssistant() {
-      const mask = document.getElementById("ai-chat-mask");
       const body = document.getElementById("ai-chat-body");
       body.innerHTML = "";
-      appendAiBotReplyWithDelay("你好，我是AI排程助理，需要我帮你完成什么任务呢？\n1、深度自主规划，使用现有排程任务分析并完善当天所有排程。\n2、帮我分析目前排程可以优化的地方，并给出具体优化建议。\n3、生成一条当天排程的报告，得出排产数据和风险点。");
-      mask.classList.add("show");
-      document.getElementById("ai-chat-input").focus();
+      appendAiBotReplyWithDelay(
+        "你好，我是AI排程助理，需要我帮你完成什么任务呢？\n1、深度自主规划，使用现有排程任务分析并完善当天所有排程。\n2、帮我分析目前排程可以优化的地方，并给出具体优化建议。\n3、生成一条当天排程的报告，得出排产数据和风险点。",
+        appendAiStarterCards
+      );
+      openModalMask("ai-chat-mask", "#ai-chat-input");
     }
 
     function closeAiAssistant() {
-      document.getElementById("ai-chat-mask").classList.remove("show");
+      closeModalMask("ai-chat-mask");
     }
 
     function sendAiQuickTask(type) {
-      const map = {
-        1: "深度自主规划，使用现有排程任务分析并完善当天所有排程。",
-        2: "帮我分析目前排程可以优化的地方，并给出具体优化建议。",
-        3: "生成一条当天排程的报告，得出排产数据和风险点。"
-      };
-      const text = map[type];
+      const task = getAiQuickTaskItems().find(item => item.type === type);
+      const text = task?.text;
       if (!text) return;
+      removeAiStarterCards();
       appendAiMessage("user", text);
       if (type === 1) appendAiBotReplyWithDelay("已启动深度自主规划：\n- 已扫描20条产线任务冲突\n- 已补齐空闲时段插排建议\n- 建议优先处理 ZZW06、ZZW12 的瓶颈工序");
       if (type === 2) appendAiBotReplyWithDelay("优化建议如下：\n1) ZZW09 13:00-18:00 负荷偏高，建议分流到 ZZW10。\n2) ZZW16 与 ZZW18 存在物料等待，可提前调拨。\n3) 建议将两器工序提前 1 小时以降低交付风险。");
@@ -5212,6 +5875,13 @@
       document.querySelectorAll(".nav-item").forEach(n => n.addEventListener("click", () => switchView(n.dataset.view)));
       document.getElementById("order-filter").addEventListener("change", renderOrders);
       document.getElementById("role-select").addEventListener("change", (e) => setRolePermissions(e.target.value));
+      ["ai-chat-mask", "task-modal-mask", "bom-order-modal-mask", "confirm-modal-mask", "form-modal-mask"].forEach(maskId => {
+        const mask = document.getElementById(maskId);
+        if (!mask) return;
+        mask.setAttribute("aria-hidden", "true");
+        mask.setAttribute("tabindex", "-1");
+        mask.addEventListener("keydown", (e) => trapFocusInModalMask(maskId, e));
+      });
       document.getElementById("ai-chat-mask").addEventListener("click", (e) => {
         if (e.target.id === "ai-chat-mask") closeAiAssistant();
       });

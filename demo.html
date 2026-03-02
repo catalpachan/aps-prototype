@@ -239,6 +239,15 @@
             background: rgba(0, 212, 255, 0.1);
         }
 
+        .strategy-card:focus-visible,
+        .device-card:focus-visible,
+        .alert-btn:focus-visible,
+        .context-menu-item:focus-visible,
+        [role="button"]:focus-visible {
+            outline: 2px solid #00d4ff;
+            outline-offset: 2px;
+        }
+
         .strategy-card.selected {
             background: rgba(0, 212, 255, 0.2);
             border-color: #00d4ff;
@@ -828,6 +837,9 @@
 
         .modal-close {
             float: right;
+            background: none;
+            border: 0;
+            padding: 0;
             cursor: pointer;
             font-size: 24px;
             color: #ff4d6d;
@@ -1322,7 +1334,7 @@
     </div>
 
     <!-- 通知容器 -->
-    <div id="notification-container"></div>
+    <div id="notification-container" role="status" aria-live="polite" aria-atomic="true"></div>
 
     <!-- 主容器 -->
     <div class="container">
@@ -1994,10 +2006,10 @@
     </div>
 
     <!-- 模态框 -->
-    <div class="modal" id="modal">
-        <div class="modal-content">
+    <div class="modal" id="modal" aria-hidden="true">
+        <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modal-title" tabindex="-1">
             <div class="modal-header">
-                <span class="modal-close" onclick="closeModal()">&times;</span>
+                <button type="button" class="modal-close" onclick="closeModal()" aria-label="关闭弹窗">&times;</button>
                 <span id="modal-title">标题</span>
             </div>
             <div id="modal-body" style="margin-top: 15px;">
@@ -2024,6 +2036,69 @@
         let selectedTask = null;
         let autoProcessEnabled = false;
         let simulationScenarios = [];
+        let modalReturnFocus = null;
+        let modalFieldIdSeq = 0;
+
+        function promoteOnclickElements(root = document) {
+            const interactiveTags = new Set(['A', 'BUTTON', 'INPUT', 'SELECT', 'TEXTAREA', 'LABEL', 'SUMMARY', 'OPTION']);
+            root.querySelectorAll('[onclick]').forEach(el => {
+                if (!(el instanceof HTMLElement)) return;
+                if (interactiveTags.has(el.tagName)) return;
+                if (!el.hasAttribute('role')) el.setAttribute('role', 'button');
+                if (!el.hasAttribute('tabindex')) el.tabIndex = 0;
+                if (el.dataset.kbdBound === 'true') return;
+                el.addEventListener('keydown', function(ev) {
+                    if (ev.key !== 'Enter' && ev.key !== ' ') return;
+                    ev.preventDefault();
+                    this.click();
+                });
+                el.dataset.kbdBound = 'true';
+            });
+        }
+
+        function wireModalLabels(container) {
+            if (!container) return;
+            container.querySelectorAll('label').forEach(label => {
+                if (!(label instanceof HTMLLabelElement) || label.htmlFor) return;
+                const group = label.closest('.form-group') || label.parentElement;
+                if (!group) return;
+                const control = group.querySelector('input, select, textarea');
+                if (!control) return;
+                if (!control.id) {
+                    modalFieldIdSeq += 1;
+                    control.id = `demo-modal-field-${modalFieldIdSeq}`;
+                }
+                label.htmlFor = control.id;
+            });
+        }
+
+        function getModalFocusableElements() {
+            const dialog = document.querySelector('#modal .modal-content');
+            if (!dialog) return [];
+            return Array.from(dialog.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'))
+                .filter(el => el instanceof HTMLElement && !el.hasAttribute('disabled') && el.offsetParent !== null);
+        }
+
+        function trapModalFocus(e) {
+            const modal = document.getElementById('modal');
+            if (!modal || modal.style.display !== 'flex' || e.key !== 'Tab') return;
+            const focusables = getModalFocusableElements();
+            const dialog = modal.querySelector('.modal-content');
+            if (focusables.length === 0) {
+                e.preventDefault();
+                if (dialog instanceof HTMLElement) dialog.focus();
+                return;
+            }
+            const first = focusables[0];
+            const last = focusables[focusables.length - 1];
+            if (e.shiftKey && document.activeElement === first) {
+                e.preventDefault();
+                last.focus();
+            } else if (!e.shiftKey && document.activeElement === last) {
+                e.preventDefault();
+                first.focus();
+            }
+        }
 
         // 模拟数据
         const devices = {
@@ -2035,6 +2110,8 @@
 
         // 初始化
         document.addEventListener('DOMContentLoaded', function() {
+            promoteOnclickElements(document);
+
             // 导航切换
             document.querySelectorAll('.nav-tab').forEach(tab => {
                 tab.addEventListener('click', function() {
@@ -2063,6 +2140,14 @@
 
             // 模拟自动处理收件箱
             setInterval(autoProcessInbox, 5000);
+
+            const modal = document.getElementById('modal');
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) closeModal();
+                });
+                modal.addEventListener('keydown', trapModalFocus);
+            }
 
             showNotification('系统初始化完成，欢迎使用APS智能排产系统！', 'success');
         });
@@ -2225,8 +2310,9 @@
             document.querySelectorAll('.gantt-view').forEach(v => v.classList.remove('active'));
             document.getElementById(`view-${view}`).classList.add('active');
             
-            document.querySelectorAll('.gantt-toolbar .btn-secondary').forEach(btn => btn.classList.remove('btn-primary'));
-            event.target.classList.add('btn-primary');
+            document.querySelectorAll('.gantt-toolbar .btn').forEach(btn => btn.classList.remove('btn-primary'));
+            const currentBtn = document.querySelector(`.gantt-toolbar [onclick*="switchGanttView('${view}')"]`);
+            if (currentBtn) currentBtn.classList.add('btn-primary');
             
             showNotification(`切换视图：${view}`, 'success');
         }
@@ -2781,13 +2867,33 @@
         }
 
         function showModal(title, content) {
+            if (document.activeElement instanceof HTMLElement) {
+                modalReturnFocus = document.activeElement;
+            }
             document.getElementById('modal-title').textContent = title;
             document.getElementById('modal-body').innerHTML = content;
-            document.getElementById('modal').style.display = 'flex';
+            const modal = document.getElementById('modal');
+            modal.style.display = 'flex';
+            modal.setAttribute('aria-hidden', 'false');
+            promoteOnclickElements(document.getElementById('modal-body'));
+            wireModalLabels(document.getElementById('modal-body'));
+            const focusables = getModalFocusableElements();
+            if (focusables.length > 0) {
+                focusables[0].focus();
+            } else {
+                const dialog = modal.querySelector('.modal-content');
+                if (dialog instanceof HTMLElement) dialog.focus();
+            }
         }
 
         function closeModal() {
-            document.getElementById('modal').style.display = 'none';
+            const modal = document.getElementById('modal');
+            modal.style.display = 'none';
+            modal.setAttribute('aria-hidden', 'true');
+            if (modalReturnFocus instanceof HTMLElement) {
+                modalReturnFocus.focus();
+            }
+            modalReturnFocus = null;
         }
 
         function modalConfirm() {
@@ -2822,6 +2928,12 @@
 
         // 键盘快捷键
         document.addEventListener('keydown', function(e) {
+            const modal = document.getElementById('modal');
+            if (e.key === 'Escape' && modal && modal.style.display === 'flex') {
+                e.preventDefault();
+                closeModal();
+                return;
+            }
             if (e.ctrlKey && e.key === 's') {
                 e.preventDefault();
                 showNotification('当前视图已保存', 'success');
