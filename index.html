@@ -292,6 +292,7 @@
     .btn.ok { background: var(--ok); border-color: var(--ok); color: #04140f; font-weight: 600; }
     .btn.warn { background: var(--warn); border-color: var(--warn); color: #1a1203; font-weight: 600; }
     .btn.err { background: var(--err); border-color: var(--err); }
+    .btn.txt-white { color: #fff !important; }
 
     .btn::after,
     .preplan-btn::after,
@@ -2418,7 +2419,7 @@
         <article class="card">
           <div class="card-hd">
             <span>插单池与优先级</span>
-            <button class="btn warn" onclick="simulateInsertOrder()">沙箱模拟插单</button>
+            <button class="btn warn txt-white" onclick="simulateInsertOrder()">沙箱模拟插单</button>
           </div>
           <div class="card-bd">
             <div class="row" style="margin-bottom:8px;">
@@ -2706,7 +2707,7 @@
 
       <div class="grid-2">
         <article class="card">
-          <div class="card-hd"><span>规则模拟与验证（沙盘）</span><button class="btn warn" onclick="runRuleSandbox()">运行What-If</button></div>
+          <div class="card-hd"><span>规则模拟与验证（沙盘）</span><button class="btn warn txt-white" onclick="runRuleSandbox()">运行What-If</button></div>
           <div class="card-bd" id="sandbox-result">
             <div class="rule-result-empty">
               <b>等待模拟</b>
@@ -2757,7 +2758,7 @@
           </article>
 
           <article class="card">
-            <div class="card-hd"><span>自主自愈重排</span><button class="btn ok" onclick="runSelfHealing()">触发自愈</button></div>
+            <div class="card-hd"><span>自主自愈重排</span><button class="btn ok txt-white" onclick="runSelfHealing()">触发自愈</button></div>
             <div class="card-bd">
               <div class="progress"><span id="heal-progress" style="width:0%"></span></div>
               <div id="heal-result" class="muted" style="margin-top:8px;">待触发</div>
@@ -4983,6 +4984,8 @@
           const name = form.name.trim();
           const start = Number(form.start);
           const end = Number(form.end);
+          const nextDuration = end - start;
+          const previousDuration = task.duration;
           const maxLine = Math.max(0, (state.decisionPlants || []).length - 1);
           const line = Math.max(0, Math.min(maxLine, Number(form.line)));
           if (!name) {
@@ -4993,12 +4996,27 @@
             setFormModalError("结束时间必须大于开始时间");
             return false;
           }
-          task.name = name;
-          task.line = line;
-          task.start = start;
-          task.duration = end - start;
-          renderDecisionGantt();
-          toast(`任务已更新为 ${formatHour(start)}-${formatHour(end)}`);
+          const applyTaskUpdate = () => {
+            task.name = name;
+            task.line = line;
+            task.start = start;
+            task.duration = nextDuration;
+            renderDecisionGantt();
+            toast(`任务已保存：${formatHour(start)}-${formatHour(end)}`);
+          };
+          if (nextDuration !== previousDuration) {
+            openConfirmModal({
+              title: "二次确认",
+              message: `任务长度将从 ${previousDuration} 小时调整为 ${nextDuration} 小时，确认保存吗？`,
+              confirmText: "确认保存",
+              onConfirm: () => {
+                applyTaskUpdate();
+                closeFormModal();
+              }
+            });
+            return false;
+          }
+          applyTaskUpdate();
         }
       });
     }
