@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>协同中心 - 格力计划排程智能体</title>
+  <link rel="stylesheet" href="common.css" />
+  <style>
+    .collab-layout { display: grid; grid-template-columns: 420px 1fr; gap: 14px; min-height: 660px; }
+    .collab-left { display: flex; flex-direction: column; gap: 14px; }
+    .collab-result-empty { border: 1px dashed #3b4c67; border-radius: 10px; background: linear-gradient(160deg, #0f1a2d 0%, #0f172a 100%); padding: 12px; color: #94a3b8; display: flex; flex-direction: column; gap: 6px; line-height: 1.6; }
+    .collab-result-empty b { color: #cbd5e1; font-size: 13px; font-weight: 700; }
+    .collab-result { border: 1px solid #334155; border-radius: 10px; background: linear-gradient(160deg, #10192b 0%, #0f172a 100%); padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+    .collab-metric-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .collab-metric-item { border: 1px solid #2f3d55; border-radius: 8px; padding: 8px; background: #111c2f; }
+    .collab-metric-bar { height: 6px; border-radius: 999px; background: #223147; overflow: hidden; margin-top: 6px; }
+    .collab-metric-fill { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #38bdf8 0%, #2563eb 100%); }
+    .collab-right { min-width: 0; height: 770px; position: sticky; top: 76px; align-self: start; display: flex; flex-direction: column; }
+    .collab-right .card-bd { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+    .gantt-wrap { border: 1px solid #334155; border-radius: 8px; overflow: auto; max-height: 620px; background: #0d1525; }
+    .collab-right .gantt-wrap { flex: 1; max-height: none; }
+    .gantt-table { border-collapse: collapse; width: max-content; min-width: 100%; table-layout: fixed; --gantt-cell-w: 56px; }
+    .gantt-table th, .gantt-table td { border: 1px solid #2b3548; padding: 0; text-align: center; height: 30px; white-space: nowrap; overflow: visible; position: relative; }
+    .gantt-table th { background: #172033; color: #c9d5e9; font-size: 11px; font-weight: 600; position: sticky; top: 0; z-index: 4; padding: 4px 2px; height: 32px; }
+    .gantt-line-col { min-width: 92px; width: 92px; background: #101a2d; color: #a6b7d8; font-weight: 600; padding: 0 6px !important; }
+    .gantt-task { position: absolute; left: 1px; top: 3px; height: 22px; border-radius: 6px; color: #fff; font-size: 11px; display: flex; align-items: center; justify-content: center; padding: 0 8px; cursor: grab; z-index: 5; border: 1px solid rgba(255, 255, 255, 0.18); box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35); user-select: none; touch-action: none; }
+    .gantt-task:hover { transform: translateY(-1px); box-shadow: 0 8px 14px rgba(0,0,0,0.3); filter: brightness(1.05); }
+    .gantt-task:active { cursor: grabbing; }
+    .gantt-task-label { pointer-events: none; padding: 0 8px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+    .gantt-resize-handle { position: absolute; top: 0; width: 8px; height: 100%; z-index: 6; }
+    .gantt-resize-handle.left { left: 0; cursor: ew-resize; }
+    .gantt-resize-handle.right { right: 0; cursor: ew-resize; }
+    .gantt-resize-handle:hover { background: rgba(255,255,255,0.18); }
+    .gantt-task.a { background: linear-gradient(90deg, #2563eb, #1d4ed8); }
+    .gantt-task.b { background: linear-gradient(90deg, #0f766e, #0d9488); }
+    .gantt-task.c { background: linear-gradient(90deg, #b45309, #d97706); }
+    .gantt-task.d { background: linear-gradient(90deg, #7c3aed, #9333ea); }
+    .task-editor-status { border: 1px solid #334155; border-radius: 8px; padding: 8px 10px; font-size: 12px; line-height: 1.45; background: #111b2d; color: #cbd5e1; }
+    .task-editor-status.ok { border-color: #1f6a48; background: rgba(34, 197, 94, 0.12); color: #bbf7d0; }
+    .task-editor-status.error { border-color: #7f1d1d; background: rgba(239, 68, 68, 0.12); color: #fecaca; }
+    .task-editor-preview { font-size: 12px; color: #93c5fd; margin-top: 2px; }
+    .lock-strip { display: flex; align-items: center; justify-content: space-between; gap: 8px; border: 1px solid #334155; border-radius: 8px; padding: 8px; background: #111a2a; margin-bottom: 8px; font-size: 12px; }
+    .preplan-btn { border: 1px solid #3b82f6; border-radius: 8px; padding: 6px 10px; color: #dbeafe; font-weight: 700; background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 55%, #38bdf8 100%); cursor: pointer; font-size: 12px; }
+    .execute-btn { border: 1px solid #22c55e; border-radius: 8px; padding: 6px 10px; color: #dcfce7; font-weight: 700; background: linear-gradient(135deg, #166534 0%, #16a34a 55%, #4ade80 100%); cursor: pointer; font-size: 12px; }
+    @media (max-width: 960px) { .collab-layout { grid-template-columns: 1fr; } .collab-right { position: static; height: auto; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand-block">
+      <img class="header-logo" src="1c5703c9-aca0-43d1-9843-9d502cb66fd0.png" alt="APS Logo" width="143" height="44" />
+      
+    </div>
+    <nav class="nav" id="nav">
+      <a href="decision.html" class="nav-item">决策中心</a>
+      <a href="collab.html" class="nav-item active">协同中心</a>
+      <a href="demand.html" class="nav-item">需求中心</a>
+      <a href="resource.html" class="nav-item">资源中心</a>
+      <a href="rule.html" class="nav-item">规则中心</a>
+      <a href="monitor.html" class="nav-item">监控中心</a>
+      <a href="report.html" class="nav-item">报表中心</a>
+      <a href="settings.html" class="nav-item">系统设置</a>
+    </nav>
+    <div class="header-meta" id="header-meta">
+      <span id="header-date">2026-02-28 08:56:33</span> |
+      <select id="hq-select" class="role-select" aria-label="基地切换">
+        <option>珠海格力总部</option>
+        <option>金湾基地</option>
+        <option>武汉基地</option>
+        <option>洛阳基地</option>
+      </select>
+      | 
+      <div class="user-dropdown" id="user-dropdown">
+        <div class="user-dropdown-toggle" onclick="toggleUserDropdown()">
+          <div class="avatar">张</div>
+          <span class="name">张伟</span>
+          <span class="arrow">▼</span>
+        </div>
+        <div class="user-dropdown-menu">
+          <a href="settings.html" class="user-dropdown-item">👤 用户信息</a>
+          <a href="login.html" class="user-dropdown-item logout">🚪 退出</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="app">
+    <section class="view" id="view-collab">
+      <div class="collab-layout">
+        <div class="collab-left">
+          <article class="card">
+            <div class="card-hd">
+              <span>排程执行引擎</span>
+              <div class="row"><select id="schedule-mode" aria-label="排程模式"><option value="forward">Forward-ASAP</option><option value="backward">Backward-JIT</option></select><button class="btn primary" onclick="runScheduling()">执行排程</button></div>
+            </div>
+            <div class="card-bd" id="engine-result">
+              <div class="collab-result-empty"><b>等待执行排程</b><span>点击右上角"执行排程"后，将展示模式、产能分配与执行摘要。</span></div>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card-hd"><span>一键诊断与归因</span><button class="btn" onclick="runDiagnosis()">一键诊断</button></div>
+            <div class="card-bd" id="diag-result">
+              <div class="collab-result-empty"><b>等待诊断分析</b><span>点击"一键诊断"后，将展示主因占比、瓶颈工序与执行建议。</span></div>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card-hd"><span>自主自愈重排</span><button class="btn ok txt-white" onclick="runSelfHealing()">触发自愈</button></div>
+            <div class="card-bd"><div class="progress"><span id="heal-progress" style="width:0%"></span></div><div id="heal-result" class="muted" style="margin-top:8px;">待触发</div></div>
+          </article>
+
+          <article class="card">
+            <div class="card-hd"><span>多场景方案对比</span><button class="btn" onclick="buildScenarioCompare()">生成方案对比</button></div>
+            <div class="card-bd">
+              <table>
+                <thead><tr><th>方案</th><th>准时率</th><th>利用率</th><th>成本指数</th></tr></thead>
+                <tbody id="scenario-tbody"></tbody>
+              </table>
+            </div>
+          </article>
+        </div>
+
+        <article class="card collab-right">
+          <div class="card-hd">
+            <span>可视化交互工作台（甘特图）</span>
+            <div class="row">
+              <select id="gantt-plant-filter" aria-label="分厂筛选"><option value="all">全部分厂</option><option value="east">东区总装</option><option value="west">西区总装</option><option value="inject">注塑分厂</option><option value="hx">两器分厂</option><option value="ctrl">控制器分厂</option></select>
+              <button class="btn" onclick="verifyDraggedPlan()">拖拽后规则校验</button>
+              <button class="preplan-btn" onclick="aiPreScheduleShuffle()">AI预排方案</button>
+              <button class="execute-btn" onclick="executePreplan()">执行方案</button>
+            </div>
+          </div>
+          <div class="card-bd">
+            <div class="lock-strip" id="collab-locks"></div>
+            <div class="muted" style="margin-bottom:8px;">20条产线（ZZW01-ZZW20），25列时间刻度（00:00-24:00）。拖拽任务可换线换时段。</div>
+            <div class="gantt-wrap">
+              <table class="gantt-table" id="gantt-table">
+                <thead id="gantt-thead"></thead>
+                <tbody id="gantt-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal-mask" id="task-editor-mask" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-hd">
+        <span>编辑排程任务时间</span>
+        <button type="button" class="btn sm" id="task-edit-close">关闭</button>
+      </div>
+      <div class="modal-bd single-col">
+        <div class="row" style="justify-content:space-between;gap:10px;">
+          <div><div class="muted">任务名称</div><div id="task-edit-name" style="font-weight:700;color:#e2e8f0;"></div></div>
+          <div><div class="muted">所在产线</div><div id="task-edit-line" style="font-weight:700;color:#e2e8f0;"></div></div>
+        </div>
+        <div class="row" style="gap:10px;">
+          <div class="modal-field" style="min-width:160px;flex:1;">
+            <label for="task-edit-start">开始时间</label>
+            <select id="task-edit-start" aria-label="任务开始时间"></select>
+          </div>
+          <div class="modal-field" style="min-width:160px;flex:1;">
+            <label for="task-edit-end">结束时间</label>
+            <select id="task-edit-end" aria-label="任务结束时间"></select>
+          </div>
+        </div>
+        <div class="task-editor-preview" id="task-edit-preview"></div>
+        <div class="task-editor-status" id="task-edit-status">请选择开始与结束时间。</div>
+      </div>
+      <div class="modal-ft">
+        <button type="button" class="btn" id="task-edit-cancel">取消</button>
+        <button type="button" class="btn primary" id="task-edit-save">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+  <script src="common.js"></script>
+  <script>
+    function renderLocks() {
+      const locks = state.locks || [];
+      document.getElementById('collab-locks').innerHTML = `
+        <span>锁定状态: ${locks.length}条产线已锁定</span>
+        <span class="muted">最后更新: ${formatClockTime()}</span>
+      `;
+    }
+
+    function renderScenarioCompare() {
+      const tbody = document.getElementById('scenario-tbody');
+      const scenarios = [
+        { name: "成本最优", onTime: 91.8, util: 89.6, cost: "0.86" },
+        { name: "交期最优", onTime: 95.4, util: 87.2, cost: "1.03" },
+        { name: "产能最优", onTime: 93.2, util: 92.1, cost: "0.97" }
+      ];
+      tbody.innerHTML = scenarios.map(s => `
+        <tr><td>${s.name}</td><td><span class="tag ${s.onTime >= 90 ? 'ok' : s.onTime >= 80 ? 'warn' : 'red'}">${s.onTime}%</span></td><td><span class="tag ${s.util >= 90 ? 'ok' : s.util >= 80 ? 'warn' : 'red'}">${s.util}%</span></td><td>${s.cost}</td></tr>
+      `).join('');
+    }
+
+    const GANTT_CELL_W = 56;
+    const GANTT_TOTAL_COLS = 25;
+    const GANTT_LINE_TOTAL = 20;
+    const GANTT_ROW_H = 30;
+    let ganttPointerCtx = null;
+    let ganttRafPending = false;
+    const taskEditorState = { taskIndex: -1, lastFocusedEl: null };
+
+    function clamp(val, min, max) {
+      return Math.min(max, Math.max(min, val));
+    }
+
+    function sanitizeTask(task) {
+      task.start = clamp(Math.round(task.start || 0), 0, GANTT_TOTAL_COLS - 1);
+      task.duration = clamp(Math.round(task.duration || 1), 1, GANTT_TOTAL_COLS);
+      task.line = clamp(Math.round(task.line || 0), 0, GANTT_LINE_TOTAL - 1);
+      if (task.start + task.duration > GANTT_TOTAL_COLS) {
+        task.start = GANTT_TOTAL_COLS - task.duration;
+      }
+    }
+
+    function lineMatchesFilter(line, filter) {
+      if (!filter || filter === 'all') return true;
+      if (filter === 'east') return line >= 0 && line <= 3;
+      if (filter === 'west') return line >= 4 && line <= 7;
+      if (filter === 'inject') return line >= 8 && line <= 11;
+      if (filter === 'hx') return line >= 12 && line <= 15;
+      if (filter === 'ctrl') return line >= 16 && line <= 19;
+      return true;
+    }
+
+    function scheduleGanttRerender() {
+      if (ganttRafPending) return;
+      ganttRafPending = true;
+      requestAnimationFrame(() => {
+        ganttRafPending = false;
+        renderGanttWorkbench();
+      });
+    }
+
+    function toHourLabel(hour) {
+      return `${String(hour).padStart(2, '0')}:00`;
+    }
+
+    function getTaskEditorElements() {
+      return {
+        mask: document.getElementById('task-editor-mask'),
+        name: document.getElementById('task-edit-name'),
+        line: document.getElementById('task-edit-line'),
+        start: document.getElementById('task-edit-start'),
+        end: document.getElementById('task-edit-end'),
+        preview: document.getElementById('task-edit-preview'),
+        status: document.getElementById('task-edit-status'),
+        save: document.getElementById('task-edit-save')
+      };
+    }
+
+    function buildTaskEditorOptions() {
+      const { start, end } = getTaskEditorElements();
+      if (!start || !end) return;
+      if (!start.options.length) {
+        let startHtml = '';
+        for (let h = 0; h <= 24; h++) {
+          startHtml += `<option value="${h}">${toHourLabel(h)}</option>`;
+        }
+        start.innerHTML = startHtml;
+      }
+      if (!end.options.length) {
+        let endHtml = '';
+        for (let h = 1; h <= 25; h++) {
+          endHtml += `<option value="${h}">${toHourLabel(h)}</option>`;
+        }
+        end.innerHTML = endHtml;
+      }
+    }
+
+    function findTaskConflict(taskIndex, line, start, end) {
+      const tasks = state.ganttTasks || [];
+      return tasks.find((task, idx) => {
+        if (idx === taskIndex || task.line !== line) return false;
+        sanitizeTask(task);
+        const otherStart = task.start;
+        const otherEnd = task.start + task.duration;
+        return start < otherEnd && otherStart < end;
+      });
+    }
+
+    function validateTaskEditor() {
+      const { start, end, preview, status, save } = getTaskEditorElements();
+      const task = state.ganttTasks?.[taskEditorState.taskIndex];
+      if (!task || !start || !end || !status || !save || !preview) {
+        return false;
+      }
+
+      const startHour = Number(start.value);
+      const endHour = Number(end.value);
+      preview.textContent = `预览：${toHourLabel(startHour)} - ${toHourLabel(endHour)}`;
+      status.className = 'task-editor-status';
+
+      if (!Number.isInteger(startHour) || !Number.isInteger(endHour) || endHour <= startHour) {
+        status.textContent = '时间无效：结束时间必须晚于开始时间。';
+        status.classList.add('error');
+        save.disabled = true;
+        return false;
+      }
+      if (startHour < 0 || endHour > GANTT_TOTAL_COLS) {
+        status.textContent = '时间范围无效：需满足 00:00 到 25:00。';
+        status.classList.add('error');
+        save.disabled = true;
+        return false;
+      }
+
+      const conflict = findTaskConflict(taskEditorState.taskIndex, task.line, startHour, endHour);
+      if (conflict) {
+        status.textContent = `冲突：与 ${conflict.name}（${toHourLabel(conflict.start)}-${toHourLabel(conflict.start + conflict.duration)}）重叠。`;
+        status.classList.add('error');
+        save.disabled = true;
+        return false;
+      }
+
+      status.textContent = '校验通过：时间段可用，可保存。';
+      status.classList.add('ok');
+      save.disabled = false;
+      return true;
+    }
+
+    function openTaskEditor(taskIndex) {
+      const task = state.ganttTasks?.[taskIndex];
+      if (!task) return;
+      sanitizeTask(task);
+      buildTaskEditorOptions();
+
+      const els = getTaskEditorElements();
+      taskEditorState.taskIndex = taskIndex;
+      taskEditorState.lastFocusedEl = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      if (els.name) els.name.textContent = task.name;
+      if (els.line) els.line.textContent = `ZZW${String(task.line + 1).padStart(2, '0')}`;
+      if (els.start) els.start.value = String(task.start);
+      if (els.end) els.end.value = String(task.start + task.duration);
+      validateTaskEditor();
+
+      if (els.mask) {
+        els.mask.classList.add('show');
+        els.mask.setAttribute('aria-hidden', 'false');
+      }
+      setTimeout(() => els.start?.focus(), 0);
+    }
+
+    function closeTaskEditor() {
+      const { mask } = getTaskEditorElements();
+      if (mask) {
+        mask.classList.remove('show');
+        mask.setAttribute('aria-hidden', 'true');
+      }
+      if (taskEditorState.lastFocusedEl) {
+        taskEditorState.lastFocusedEl.focus();
+      }
+      taskEditorState.lastFocusedEl = null;
+      taskEditorState.taskIndex = -1;
+    }
+
+    function saveTaskEditor() {
+      const task = state.ganttTasks?.[taskEditorState.taskIndex];
+      const { start, end } = getTaskEditorElements();
+      if (!task || !start || !end) return;
+      if (!validateTaskEditor()) return;
+
+      task.start = Number(start.value);
+      task.duration = Number(end.value) - Number(start.value);
+      sanitizeTask(task);
+      renderGanttWorkbench();
+      closeTaskEditor();
+      toast(`任务时间已修改：${task.name}（${toHourLabel(task.start)}-${toHourLabel(task.start + task.duration)}）`);
+    }
+
+    function startTaskPointerInteraction(e, taskIndex) {
+      const task = state.ganttTasks?.[taskIndex];
+      if (!task) return;
+      sanitizeTask(task);
+
+      const resizeHandle = e.target.closest('.gantt-resize-handle');
+      const mode = resizeHandle?.dataset.resize || 'move';
+      ganttPointerCtx = {
+        pointerId: e.pointerId,
+        mode,
+        taskIndex,
+        startX: e.clientX,
+        startY: e.clientY,
+        baseStart: task.start,
+        baseDuration: task.duration,
+        baseLine: task.line,
+        changed: false
+      };
+      e.preventDefault();
+    }
+
+    function onTaskPointerMove(e) {
+      if (!ganttPointerCtx || e.pointerId !== ganttPointerCtx.pointerId) return;
+      const task = state.ganttTasks?.[ganttPointerCtx.taskIndex];
+      if (!task) return;
+
+      const dxCols = Math.round((e.clientX - ganttPointerCtx.startX) / GANTT_CELL_W);
+      const dyRows = Math.round((e.clientY - ganttPointerCtx.startY) / GANTT_ROW_H);
+
+      if (ganttPointerCtx.mode === 'move') {
+        task.start = clamp(ganttPointerCtx.baseStart + dxCols, 0, GANTT_TOTAL_COLS - ganttPointerCtx.baseDuration);
+        task.duration = ganttPointerCtx.baseDuration;
+        task.line = clamp(ganttPointerCtx.baseLine + dyRows, 0, GANTT_LINE_TOTAL - 1);
+      } else if (ganttPointerCtx.mode === 'left') {
+        const fixedEnd = ganttPointerCtx.baseStart + ganttPointerCtx.baseDuration;
+        const newStart = clamp(ganttPointerCtx.baseStart + dxCols, 0, fixedEnd - 1);
+        task.start = newStart;
+        task.duration = fixedEnd - newStart;
+      } else if (ganttPointerCtx.mode === 'right') {
+        const newEnd = clamp(ganttPointerCtx.baseStart + ganttPointerCtx.baseDuration + dxCols, ganttPointerCtx.baseStart + 1, GANTT_TOTAL_COLS);
+        task.start = ganttPointerCtx.baseStart;
+        task.duration = newEnd - ganttPointerCtx.baseStart;
+      }
+
+      sanitizeTask(task);
+      ganttPointerCtx.changed = ganttPointerCtx.changed
+        || task.start !== ganttPointerCtx.baseStart
+        || task.duration !== ganttPointerCtx.baseDuration
+        || task.line !== ganttPointerCtx.baseLine;
+      scheduleGanttRerender();
+    }
+
+    function onTaskPointerUp(e) {
+      if (!ganttPointerCtx || e.pointerId !== ganttPointerCtx.pointerId) return;
+      const task = state.ganttTasks?.[ganttPointerCtx.taskIndex];
+      const changed = ganttPointerCtx.changed;
+      ganttPointerCtx = null;
+      if (task && changed) {
+        toast(`任务已更新：${task.name}（${String(task.start).padStart(2, '0')}:00-${String(task.start + task.duration).padStart(2, '0')}:00）`);
+      }
+    }
+
+    function renderGanttWorkbench() {
+      const thead = document.getElementById('gantt-thead');
+      const tbody = document.getElementById('gantt-tbody');
+      const filter = document.getElementById('gantt-plant-filter')?.value || 'all';
+      
+      // Render header
+      let headerHtml = '<tr><th class="gantt-line-col">产线</th>';
+      for (let h = 0; h < GANTT_TOTAL_COLS; h++) {
+        headerHtml += `<th style="width:${GANTT_CELL_W}px;">${String(h).padStart(2, '0')}</th>`;
+      }
+      headerHtml += '</tr>';
+      thead.innerHTML = headerHtml;
+      
+      // Render body
+      let bodyHtml = '';
+      for (let line = 0; line < GANTT_LINE_TOTAL; line++) {
+        const lineName = `ZZW${String(line + 1).padStart(2, '0')}`;
+        const hidden = lineMatchesFilter(line, filter) ? '' : ' style="display:none;"';
+        bodyHtml += `<tr${hidden}><td class="gantt-line-col">${lineName}</td>`;
+        for (let h = 0; h < GANTT_TOTAL_COLS; h++) {
+          bodyHtml += `<td></td>`;
+        }
+        bodyHtml += '</tr>';
+      }
+      tbody.innerHTML = bodyHtml;
+      
+      // Render tasks
+      const tasks = state.ganttTasks || [];
+      tasks.forEach((task, index) => {
+        sanitizeTask(task);
+        if (!lineMatchesFilter(task.line, filter)) return;
+        const row = tbody.rows[task.line];
+        if (!row) return;
+        const cell = row.cells[task.start + 1];
+        if (!cell) return;
+        
+        const taskDiv = document.createElement('div');
+        taskDiv.className = `gantt-task ${task.cls}`;
+        taskDiv.style.left = '1px';
+        taskDiv.style.width = `${task.duration * GANTT_CELL_W - 2}px`;
+        taskDiv.title = `${task.name}: ${task.start}:00 - ${task.start + task.duration}:00`;
+        taskDiv.innerHTML = `<span class="gantt-task-label">${task.name}</span><span class="gantt-resize-handle left" data-resize="left"></span><span class="gantt-resize-handle right" data-resize="right"></span>`;
+        taskDiv.tabIndex = 0;
+        taskDiv.setAttribute('role', 'button');
+        taskDiv.setAttribute('aria-label', `${task.name}，开始${task.start}点，结束${task.start + task.duration}点`);
+        taskDiv.addEventListener('pointerdown', (e) => startTaskPointerInteraction(e, index));
+        taskDiv.addEventListener('dblclick', () => openTaskEditor(index));
+        taskDiv.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') openTaskEditor(index);
+        });
+        cell.appendChild(taskDiv);
+      });
+    }
+
+    function runScheduling() {
+      const mode = document.getElementById('schedule-mode').value;
+      document.getElementById('engine-result').innerHTML = `
+        <div class="collab-result">
+          <div class="row" style="justify-content:space-between;"><span class="tag ok">执行完成</span><span class="muted">${formatClockTime()}</span></div>
+          <div>排程模式: ${mode === 'forward' ? 'Forward-ASAP' : 'Backward-JIT'}</div>
+          <div>共安排 48 个工单，覆盖 20 条产线</div>
+          <div>预计完成时间: 22:30</div>
+        </div>`;
+      toast('排程引擎执行完成');
+    }
+
+    function runDiagnosis() {
+      document.getElementById('diag-result').innerHTML = `
+        <div class="collab-result">
+          <div class="row" style="justify-content:space-between;"><span class="tag warn">诊断完成</span><span class="muted">${formatClockTime()}</span></div>
+          <div class="collab-metric-grid">
+            <div class="collab-metric-item"><div class="muted">物料短缺</div><div style="font-weight:700;">35%</div><div class="collab-metric-bar"><span class="collab-metric-fill" style="width:35%"></span></div></div>
+            <div class="collab-metric-item"><div class="muted">设备瓶颈</div><div style="font-weight:700;">45%</div><div class="collab-metric-bar"><span class="collab-metric-fill" style="width:45%"></span></div></div>
+          </div>
+          <div style="margin-top:8px;"><div class="muted">当前瓶颈工序</div><div style="color:#fca5a5;font-weight:700;">冷媒加注（ZZW12）</div></div>
+        </div>`;
+      toast('归因分析已完成');
+    }
+
+    function runSelfHealing() {
+      const bar = document.getElementById('heal-progress');
+      bar.style.width = '0%';
+      let p = 0;
+      const timer = setInterval(() => {
+        p += 20;
+        bar.style.width = `${p}%`;
+        if (p >= 100) {
+          clearInterval(timer);
+          document.getElementById('heal-result').textContent = '秒级局部重排完成：影响范围仅注塑/总装链路，整体计划风险可控';
+          toast('自愈重排完成');
+        }
+      }, 180);
+    }
+
+    function buildScenarioCompare() {
+      renderScenarioCompare();
+      toast('多场景方案对比已生成');
+    }
+
+    function verifyDraggedPlan() {
+      toast('拖拽后校验通过：批次一致、交付提前期满足要求');
+    }
+
+    function aiPreScheduleShuffle() {
+      toast('AI预排方案计算中，请稍候...');
+      setTimeout(() => {
+        (state.ganttTasks || []).forEach((task) => {
+          task.start = clamp(Math.floor(Math.random() * (GANTT_TOTAL_COLS - 2)), 0, GANTT_TOTAL_COLS - 1);
+          task.duration = clamp(Math.floor(Math.random() * 4) + 1, 1, 6);
+          task.line = clamp(task.line + Math.floor(Math.random() * 3) - 1, 0, GANTT_LINE_TOTAL - 1);
+          sanitizeTask(task);
+        });
+        renderGanttWorkbench();
+        toast('AI预排方案完成：甘特任务方案已随机打乱');
+      }, 2000);
+    }
+
+    function executePreplan() {
+      toast('方案已执行：当前预排结果已生效');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderLocks();
+      renderScenarioCompare();
+      renderGanttWorkbench();
+      buildTaskEditorOptions();
+      document.getElementById('task-edit-start')?.addEventListener('change', validateTaskEditor);
+      document.getElementById('task-edit-end')?.addEventListener('change', validateTaskEditor);
+      document.getElementById('task-edit-save')?.addEventListener('click', saveTaskEditor);
+      document.getElementById('task-edit-cancel')?.addEventListener('click', closeTaskEditor);
+      document.getElementById('task-edit-close')?.addEventListener('click', closeTaskEditor);
+      document.getElementById('task-editor-mask')?.addEventListener('click', (e) => {
+        if (e.target.id === 'task-editor-mask') closeTaskEditor();
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && document.getElementById('task-editor-mask')?.classList.contains('show')) {
+          closeTaskEditor();
+        }
+      });
+      document.getElementById('gantt-plant-filter')?.addEventListener('change', renderGanttWorkbench);
+      document.addEventListener('pointermove', onTaskPointerMove);
+      document.addEventListener('pointerup', onTaskPointerUp);
+      document.addEventListener('pointercancel', onTaskPointerUp);
+    });
+  </script>
+</body>
+</html>

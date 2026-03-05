@@ -1,0 +1,2618 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>决策中心 - 格力计划排程智能体</title>
+  <link rel="stylesheet" href="common.css" />
+  <style>
+    /* AI协作工作台样式 */
+    .ai-workbench {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .ai-suggestions-panel {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .ai-suggestion-item {
+      background: #111b2d;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 10px;
+      position: relative;
+      transition: all var(--dur-fast);
+    }
+
+    .ai-suggestion-item:hover {
+      border-color: #2563eb;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+    }
+
+    .ai-suggestion-item.pending {
+      border-left: 3px solid #f59e0b;
+    }
+
+    .ai-suggestion-item.approved {
+      border-left: 3px solid #22c55e;
+      opacity: 0.8;
+    }
+
+    .ai-suggestion-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .ai-suggestion-type {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+
+    .ai-suggestion-type.optimize {
+      background: rgba(37, 99, 235, 0.2);
+      color: #60a5fa;
+    }
+
+    .ai-suggestion-type.warning {
+      background: rgba(245, 158, 11, 0.2);
+      color: #fbbf24;
+    }
+
+    .ai-suggestion-type.urgent {
+      background: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+    }
+
+    .ai-confidence {
+      font-size: 11px;
+      color: #64748b;
+    }
+
+    .ai-confidence-bar {
+      display: inline-block;
+      width: 40px;
+      height: 4px;
+      background: #334155;
+      border-radius: 2px;
+      margin-left: 6px;
+      vertical-align: middle;
+      overflow: hidden;
+    }
+
+    .ai-confidence-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #22c55e, #10b981);
+      border-radius: 2px;
+    }
+
+    .ai-suggestion-content {
+      font-size: 13px;
+      color: #e2e8f0;
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+
+    .ai-suggestion-reason {
+      font-size: 11px;
+      color: #94a3b8;
+      background: #0f1a2d;
+      padding: 8px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+
+    .ai-suggestion-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .ai-suggestion-actions button {
+      flex: 1;
+      padding: 6px 12px;
+      font-size: 12px;
+      border-radius: 6px;
+      border: 1px solid #334155;
+      background: #1e293b;
+      color: #e2e8f0;
+      cursor: pointer;
+      transition: all var(--dur-fast);
+    }
+
+    .ai-suggestion-actions button:hover {
+      background: #2563eb;
+      border-color: #2563eb;
+    }
+
+    .ai-suggestion-actions button.reject:hover {
+      background: #ef4444;
+      border-color: #ef4444;
+    }
+
+    /* 排产员待办工作区 */
+    .planner-todo {
+      background: #111b2d;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .todo-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .todo-stat {
+      text-align: center;
+      padding: 10px;
+      background: #0f1a2d;
+      border-radius: 8px;
+    }
+
+    .todo-stat-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: #38bdf8;
+    }
+
+    .todo-stat-label {
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 2px;
+    }
+
+    .todo-list {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .todo-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      background: #0f1a2d;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all var(--dur-fast);
+    }
+
+    .todo-item:hover {
+      background: #1e293b;
+    }
+
+    .todo-item.urgent {
+      border-left: 3px solid #ef4444;
+    }
+
+    .todo-item.warning {
+      border-left: 3px solid #f59e0b;
+    }
+
+    .todo-item.normal {
+      border-left: 3px solid #22c55e;
+    }
+
+    .todo-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    .todo-item.urgent .todo-icon { background: rgba(239, 68, 68, 0.2); }
+    .todo-item.warning .todo-icon { background: rgba(245, 158, 11, 0.2); }
+    .todo-item.normal .todo-icon { background: rgba(34, 197, 94, 0.2); }
+
+    .todo-content {
+      flex: 1;
+    }
+
+    .todo-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #e2e8f0;
+      margin-bottom: 2px;
+    }
+
+    .todo-meta {
+      font-size: 11px;
+      color: #64748b;
+    }
+
+    /* 场景对比面板 */
+    .scenario-compare {
+      background: #111b2d;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .scenario-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 12px;
+    }
+
+    .scenario-tab {
+      padding: 8px 16px;
+      background: #0f1a2d;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #94a3b8;
+      cursor: pointer;
+      transition: all var(--dur-fast);
+    }
+
+    .scenario-tab:hover {
+      background: #1e293b;
+    }
+
+    .scenario-tab.active {
+      background: linear-gradient(135deg, #1e3a8a, #2563eb);
+      border-color: #2563eb;
+      color: #fff;
+    }
+
+    .scenario-tab.ai-recommended::after {
+      content: "AI推荐";
+      font-size: 9px;
+      background: #22c55e;
+      color: #fff;
+      padding: 2px 6px;
+      border-radius: 10px;
+      margin-left: 6px;
+    }
+
+    .scenario-metrics {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+    }
+
+    .scenario-metric {
+      text-align: center;
+      padding: 12px;
+      background: #0f1a2d;
+      border-radius: 8px;
+    }
+
+    .scenario-metric-value {
+      font-size: 18px;
+      font-weight: 700;
+      color: #38bdf8;
+    }
+
+    .scenario-metric-value.positive {
+      color: #22c55e;
+    }
+
+    .scenario-metric-value.negative {
+      color: #ef4444;
+    }
+
+    .scenario-metric-label {
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 4px;
+    }
+
+    .scenario-metric-delta {
+      font-size: 10px;
+      margin-top: 2px;
+    }
+
+    /* 智能优先级面板 */
+    .priority-panel {
+      background: #111b2d;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .priority-legend {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 12px;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+
+    .priority-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .priority-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .priority-dot.p0 { background: #ef4444; }
+    .priority-dot.p1 { background: #f59e0b; }
+    .priority-dot.p2 { background: #3b82f6; }
+    .priority-dot.p3 { background: #22c55e; }
+
+    .decision-gantt-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 300px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .decision-gantt-row {
+      display: grid;
+      grid-template-columns: 96px 1fr;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .decision-gantt-time {
+      display: grid;
+      grid-template-columns: 96px 1fr;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .decision-time-track {
+      display: grid;
+      grid-template-columns: repeat(25, 1fr);
+      font-size: 10px;
+      color: #93c5fd;
+      border: 1px solid #2d3a51;
+      border-radius: 8px;
+      background: #0f1a2d;
+      overflow: hidden;
+    }
+
+    .decision-time-track span {
+      text-align: center;
+      padding: 4px 0;
+      border-right: 1px solid #24334f;
+    }
+
+    .decision-time-track span:last-child {
+      border-right: none;
+    }
+
+    .decision-gantt-track {
+      background: #0f1a2d;
+      border: 1px solid #2d3a51;
+      border-radius: 8px;
+      height: 36px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .decision-gantt-bar {
+      position: absolute;
+      top: 4px;
+      height: 26px;
+      border-radius: 6px;
+      color: #e0f2fe;
+      font-size: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 8px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      cursor: pointer;
+      user-select: none;
+      transition: all var(--dur-fast);
+      overflow: hidden;
+    }
+
+    .decision-gantt-bar:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(2, 6, 23, 0.4);
+      filter: brightness(1.08);
+      z-index: 10;
+    }
+
+    .decision-gantt-bar-label {
+      pointer-events: none;
+      max-width: calc(100% - 14px);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* 优先级颜色 */
+    .decision-gantt-bar.priority-0 { background: linear-gradient(90deg, #dc2626, #ef4444); border-color: #ef4444; }
+    .decision-gantt-bar.priority-1 { background: linear-gradient(90deg, #d97706, #f59e0b); border-color: #f59e0b; }
+    .decision-gantt-bar.priority-2 { background: linear-gradient(90deg, #2563eb, #3b82f6); border-color: #3b82f6; }
+    .decision-gantt-bar.priority-3 { background: linear-gradient(90deg, #059669, #22c55e); border-color: #22c55e; }
+
+    .priority-badge {
+      position: absolute;
+      top: 2px;
+      right: 4px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 0 4px rgba(0,0,0,0.3);
+    }
+
+    .progress-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .progress-item {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .progress-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .progress-item-title {
+      font-weight: 600;
+      color: #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .progress-priority {
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 600;
+    }
+
+    .progress-priority.p0 { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+    .progress-priority.p1 { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+    .progress-priority.p2 { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+    .progress-priority.p3 { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+
+    .progress-item-meta {
+      font-size: 11px;
+      color: #94a3b8;
+    }
+
+    .progress-bar-bg {
+      height: 8px;
+      background: #273245;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #38bdf8, #2563eb);
+      transition: width var(--dur-mid) var(--ease-out);
+    }
+
+    .plan-extra-progress {
+      width: 56px;
+      height: 6px;
+      flex: 0 0 56px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: #1f2a3d;
+      border: 1px solid #30425f;
+      box-shadow: inset 0 1px 2px rgba(3, 8, 20, 0.45);
+    }
+
+    .plan-extra-progress > span {
+      display: block;
+      height: 100%;
+      width: 76.7%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #22c55e 0%, #38bdf8 100%);
+      transition: width var(--dur-mid) var(--ease-out);
+    }
+
+    .radar-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 0 2px;
+    }
+
+    .radar-legend {
+      margin-top: 4px;
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      font-size: 12px;
+      color: #cbd5e1;
+    }
+
+    .radar-legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .radar-legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+    }
+
+    .radar-note {
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .heat-item {
+      margin-bottom: 10px;
+      padding: 8px;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      background: #111b2d;
+    }
+
+    .heat-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .heat-item-title {
+      font-weight: 600;
+      color: #e2e8f0;
+      font-size: 12px;
+    }
+
+    .heat-item-shortage {
+      color: #fca5a5;
+      font-size: 11px;
+    }
+
+    .heat-bar-bg {
+      height: 6px;
+      background: #1f2937;
+      border-radius: 999px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .heat-bar-stock {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, #0ea5e9, #22d3ee);
+      border-radius: 999px;
+    }
+
+    .heat-bar-gap {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, #f59e0b, #ef4444);
+    }
+
+    .heat-legend {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+      font-size: 11px;
+      color: #94a3b8;
+    }
+
+    .heat-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .heat-legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+    }
+
+    /* 预测分析面板 */
+    .prediction-panel {
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      border: 1px solid #4338ca;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .prediction-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #334155;
+    }
+
+    .prediction-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .prediction-title {
+      flex: 1;
+    }
+
+    .prediction-title h4 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #e2e8f0;
+      margin-bottom: 2px;
+    }
+
+    .prediction-title span {
+      font-size: 11px;
+      color: #64748b;
+    }
+
+    .prediction-timeline {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .prediction-point {
+      flex: 1;
+      text-align: center;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      border: 1px solid transparent;
+      transition: all var(--dur-fast);
+    }
+
+    .prediction-point:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: #4f46e5;
+    }
+
+    .prediction-point.risk {
+      border-color: #ef4444;
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    .prediction-time {
+      font-size: 11px;
+      color: #64748b;
+      margin-bottom: 4px;
+    }
+
+    .prediction-status {
+      font-size: 12px;
+      font-weight: 600;
+      color: #22c55e;
+    }
+
+    .prediction-point.risk .prediction-status {
+      color: #ef4444;
+    }
+
+    /* ========== KPI Dashboard Styles ========== */
+    .kpi-dashboard {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .kpi-card {
+      position: relative;
+      border-radius: 16px;
+      padding: 20px;
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+    }
+
+    .kpi-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .kpi-card-bg {
+      position: absolute;
+      inset: 0;
+      opacity: 0.15;
+      transition: opacity 0.3s;
+    }
+
+    .kpi-card:hover .kpi-card-bg {
+      opacity: 0.25;
+    }
+
+    .kpi-card-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* OEE Card - Blue Gradient */
+    .kpi-oee {
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+    .kpi-oee .kpi-card-bg {
+      background: radial-gradient(circle at top right, #3b82f6 0%, transparent 70%);
+    }
+    .kpi-oee .kpi-icon {
+      background: rgba(59, 130, 246, 0.2);
+      color: #60a5fa;
+    }
+
+    /* Plan Card - Green Gradient */
+    .kpi-plan {
+      background: linear-gradient(135deg, #0f172a 0%, #065f46 100%);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+    .kpi-plan .kpi-card-bg {
+      background: radial-gradient(circle at top right, #22c55e 0%, transparent 70%);
+    }
+    .kpi-plan .kpi-icon {
+      background: rgba(34, 197, 94, 0.2);
+      color: #4ade80;
+    }
+
+    /* WIP Card - Orange Gradient */
+    .kpi-wip {
+      background: linear-gradient(135deg, #0f172a 0%, #7c2d12 100%);
+      border: 1px solid rgba(251, 146, 60, 0.3);
+    }
+    .kpi-wip .kpi-card-bg {
+      background: radial-gradient(circle at top right, #f97316 0%, transparent 70%);
+    }
+    .kpi-wip .kpi-icon {
+      background: rgba(251, 146, 60, 0.2);
+      color: #fb923c;
+    }
+
+    /* AI Card - Purple Gradient */
+    .kpi-ai {
+      background: linear-gradient(135deg, #0f172a 0%, #581c87 100%);
+      border: 1px solid rgba(192, 132, 252, 0.3);
+    }
+    .kpi-ai .kpi-card-bg {
+      background: radial-gradient(circle at top right, #a855f7 0%, transparent 70%);
+    }
+    .kpi-ai .kpi-icon {
+      background: rgba(168, 85, 247, 0.2);
+      color: #c084fc;
+    }
+
+    .kpi-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .kpi-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      backdrop-filter: blur(10px);
+    }
+
+    .kpi-trend {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .kpi-trend.up {
+      background: rgba(34, 197, 94, 0.15);
+      color: #4ade80;
+    }
+
+    .kpi-trend.down {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+    }
+
+    .kpi-trend.stable {
+      background: rgba(148, 163, 184, 0.15);
+      color: #94a3b8;
+    }
+
+    .trend-arrow {
+      font-size: 14px;
+    }
+
+    .kpi-badge {
+      padding: 6px 12px;
+      background: linear-gradient(135deg, #f59e0b, #f97316);
+      color: white;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+    }
+
+    .kpi-value {
+      font-size: 36px;
+      font-weight: 800;
+      color: #f8fafc;
+      line-height: 1.2;
+      margin-bottom: 6px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .kpi-unit {
+      font-size: 18px;
+      font-weight: 500;
+      color: #94a3b8;
+      margin-left: 4px;
+    }
+
+    .kpi-label {
+      font-size: 14px;
+      color: #94a3b8;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    .kpi-sub {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    .kpi-sub .sub-item.ok {
+      color: #4ade80;
+    }
+
+    .kpi-sub .sub-divider {
+      color: #334155;
+    }
+
+    .kpi-progress {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .kpi-progress-bar {
+      flex: 1;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .kpi-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #22c55e, #4ade80);
+      border-radius: 3px;
+      transition: width 0.6s ease;
+    }
+
+    .kpi-progress-text {
+      font-size: 12px;
+      font-weight: 600;
+      color: #4ade80;
+    }
+
+    @media (max-width: 1200px) {
+      .kpi-dashboard {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .ai-workbench {
+        grid-template-columns: 1fr;
+      }
+      .scenario-metrics {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .kpi-dashboard {
+        grid-template-columns: 1fr;
+      }
+      .kpi-value {
+        font-size: 28px;
+      }
+      .scenario-metrics {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .prediction-timeline {
+        flex-wrap: wrap;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand-block">
+      <img class="header-logo" src="1c5703c9-aca0-43d1-9843-9d502cb66fd0.png" alt="APS Logo" width="143" height="44" />
+    </div>
+    <nav class="nav" id="nav">
+      <a href="decision.html" class="nav-item active">决策中心</a>
+      <a href="collab.html" class="nav-item">协同中心</a>
+      <a href="demand.html" class="nav-item">需求中心</a>
+      <a href="resource.html" class="nav-item">资源中心</a>
+      <a href="rule.html" class="nav-item">规则中心</a>
+      <a href="monitor.html" class="nav-item">监控中心</a>
+      <a href="report.html" class="nav-item">报表中心</a>
+      <a href="settings.html" class="nav-item">系统设置</a>
+    </nav>
+    <div class="header-meta" id="header-meta">
+      <span id="header-date">2026-02-28 08:56:33</span> |
+      <select id="hq-select" class="role-select" aria-label="基地切换">
+        <option>珠海格力总部</option>
+        <option>金湾基地</option>
+        <option>武汉基地</option>
+        <option>洛阳基地</option>
+      </select>
+      | 
+      <div class="user-dropdown" id="user-dropdown">
+        <div class="user-dropdown-toggle" onclick="toggleUserDropdown()">
+          <div class="avatar">张</div>
+          <span class="name">张伟</span>
+          <span class="arrow">▼</span>
+        </div>
+        <div class="user-dropdown-menu">
+          <a href="settings.html" class="user-dropdown-item">👤 用户信息</a>
+          <a href="login.html" class="user-dropdown-item logout">🚪 退出</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="app">
+    <section class="view" id="view-decision">
+      <!-- KPI指标 -->
+      <div class="kpi-dashboard">
+        <div class="kpi-card kpi-oee">
+          <div class="kpi-card-bg"></div>
+          <div class="kpi-card-content">
+            <div class="kpi-card-header">
+              <div class="kpi-icon">⚙️</div>
+              <div class="kpi-trend up">
+                <span class="trend-arrow">↑</span>
+                <span class="trend-value">1.2%</span>
+              </div>
+            </div>
+            <div class="kpi-value" id="d-kpi-oee">88.4%</div>
+            <div class="kpi-label">实时产能 (OEE)</div>
+            <div class="kpi-sub">较上周同期</div>
+          </div>
+        </div>
+        
+        <div class="kpi-card kpi-plan">
+          <div class="kpi-card-bg"></div>
+          <div class="kpi-card-content">
+            <div class="kpi-card-header">
+              <div class="kpi-icon">📊</div>
+              <div class="kpi-trend up">
+                <span class="trend-arrow">↑</span>
+                <span class="trend-value">5.3%</span>
+              </div>
+            </div>
+            <div class="kpi-value" id="d-kpi-plan">92<span class="kpi-unit">/120</span></div>
+            <div class="kpi-label">今日计划完成</div>
+            <div class="kpi-progress">
+              <div class="kpi-progress-bar">
+                <div class="kpi-progress-fill" style="width:76.7%"></div>
+              </div>
+              <span class="kpi-progress-text">76.7%</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="kpi-card kpi-wip">
+          <div class="kpi-card-bg"></div>
+          <div class="kpi-card-content">
+            <div class="kpi-card-header">
+              <div class="kpi-icon">🏭</div>
+              <div class="kpi-trend stable">
+                <span class="trend-arrow">→</span>
+                <span class="trend-value">平稳</span>
+              </div>
+            </div>
+            <div class="kpi-value" id="d-kpi-wip">34</div>
+            <div class="kpi-label">在制订单 (WIP)</div>
+            <div class="kpi-sub">
+              <span class="sub-item">内机 20</span>
+              <span class="sub-divider">|</span>
+              <span class="sub-item">外机 14</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="kpi-card kpi-ai">
+          <div class="kpi-card-bg"></div>
+          <div class="kpi-card-content">
+            <div class="kpi-card-header">
+              <div class="kpi-icon">🤖</div>
+              <div class="kpi-badge">3 新</div>
+            </div>
+            <div class="kpi-value" id="d-kpi-ai-pending">3</div>
+            <div class="kpi-label">AI建议待确认</div>
+            <div class="kpi-sub">
+              <span class="sub-item ok">已采纳 12</span>
+              <span class="sub-divider">|</span>
+              <span class="sub-item">已拒绝 2</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 计划员操作工具栏 -->
+      <div class="planner-toolbar" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);border: 1px solid #334155;border-radius: 12px;padding: 16px 20px;margin-bottom: 16px;">
+        <div style="display: flex;align-items: center;justify-content: space-between;flex-wrap: wrap;gap: 16px;">
+          <!-- 排产日期选择 -->
+          <div style="display: flex;align-items: center;gap: 12px;">
+            <div style="display: flex;align-items: center;gap: 8px;">
+              <span style="font-size: 20px;">📅</span>
+              <span style="font-weight: 600;color: #e2e8f0;">排产日期:</span>
+            </div>
+            <input type="date" id="schedule-date" aria-label="排程日期" value="2026-02-28" 
+              style="padding: 8px 12px;background: #0f172a;border: 1px solid #334155;border-radius: 6px;color: #e2e8f0;font-size: 14px;cursor: pointer;"
+              onchange="onScheduleDateChange(this.value)" />
+            <select id="schedule-shift" aria-label="排程班次" 
+              style="padding: 8px 12px;background: #0f172a;border: 1px solid #334155;border-radius: 6px;color: #e2e8f0;font-size: 14px;cursor: pointer;"
+              onchange="onScheduleShiftChange(this.value)">
+              <option value="day">白班 (08:00-20:00)</option>
+              <option value="night">夜班 (20:00-08:00)</option>
+              <option value="full">全天 (24H)</option>
+            </select>
+            <span id="schedule-status-badge" class="tag" style="background: rgba(34, 197, 94, 0.2);color: #4ade80;padding: 6px 12px;">✓ 已排产</span>
+          </div>
+          
+          <!-- 快捷操作按钮 -->
+          <div style="display: flex;align-items: center;gap: 10px;">
+            <button class="btn" onclick="openPreScheduleModal()">🔮 一键预排</button>
+            <button class="btn primary" onclick="runAIReschedule()">🤖 AI智能重排</button>
+            <button class="btn ok" onclick="confirmAndPublishSchedule()">✓ 确认发布</button>
+          </div>
+        </div>
+        
+        <!-- 计划员工作流指引 -->
+        <div style="margin-top: 16px;padding-top: 16px;border-top: 1px solid #334155;">
+          <div style="display: flex;align-items: center;gap: 8px;margin-bottom: 12px;">
+            <span style="font-size: 14px;color: #94a3b8;">👤 计划员操作流程</span>
+            <span style="font-size: 12px;color: #64748b;">（按步骤执行）</span>
+          </div>
+          <div class="workflow-steps" style="display: flex;align-items: center;gap: 8px;">
+            <div class="workflow-step active" data-step="1" style="display: flex;align-items: center;gap: 8px;padding: 8px 14px;background: linear-gradient(135deg, #1e3a8a, #2563eb);border-radius: 20px;font-size: 12px;color: #fff;">
+              <span style="width: 18px;height: 18px;background: rgba(255,255,255,0.2);border-radius: 50%;display: flex;align-items: center;justify-content: center;font-size: 10px;font-weight: 600;">1</span>
+              <span>选择日期</span>
+            </div>
+            <span style="color: #475569;">→</span>
+            <div class="workflow-step" data-step="2" style="display: flex;align-items: center;gap: 8px;padding: 8px 14px;background: #0f172a;border: 1px solid #334155;border-radius: 20px;font-size: 12px;color: #94a3b8;">
+              <span style="width: 18px;height: 18px;background: #334155;border-radius: 50%;display: flex;align-items: center;justify-content: center;font-size: 10px;font-weight: 600;">2</span>
+              <span>一键预排</span>
+            </div>
+            <span style="color: #475569;">→</span>
+            <div class="workflow-step" data-step="3" style="display: flex;align-items: center;gap: 8px;padding: 8px 14px;background: #0f172a;border: 1px solid #334155;border-radius: 20px;font-size: 12px;color: #94a3b8;">
+              <span style="width: 18px;height: 18px;background: #334155;border-radius: 50%;display: flex;align-items: center;justify-content: center;font-size: 10px;font-weight: 600;">3</span>
+              <span>查看结果</span>
+            </div>
+            <span style="color: #475569;">→</span>
+            <div class="workflow-step" data-step="4" style="display: flex;align-items: center;gap: 8px;padding: 8px 14px;background: #0f172a;border: 1px solid #334155;border-radius: 20px;font-size: 12px;color: #94a3b8;">
+              <span style="width: 18px;height: 18px;background: #334155;border-radius: 50%;display: flex;align-items: center;justify-content: center;font-size: 10px;font-weight: 600;">4</span>
+              <span>确认发布</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI协作工作台 -->
+      <div class="ai-workbench">
+        <div class="ai-suggestions-panel">
+          <div class="card-hd" style="margin-bottom:12px;padding:0;border:none;">
+            <span>🤖 AI智能建议中心</span>
+            <div class="row">
+              <button class="btn sm" onclick="refreshAISuggestions()">刷新建议</button>
+              <button class="btn sm primary" onclick="batchApproveAI()">一键采纳</button>
+            </div>
+          </div>
+          <div id="ai-suggestions-list">
+            <!-- AI建议动态生成 -->
+          </div>
+        </div>
+
+        <div class="planner-todo">
+          <div class="card-hd" style="margin-bottom:12px;padding:0;border:none;">
+            <span>📋 排产员待办</span>
+            <span class="muted" style="font-size:11px;">今日工作流</span>
+          </div>
+          <div class="todo-stats">
+            <div class="todo-stat">
+              <div class="todo-stat-value" id="todo-urgent">2</div>
+              <div class="todo-stat-label">紧急</div>
+            </div>
+            <div class="todo-stat">
+              <div class="todo-stat-value" id="todo-pending" style="color:#f59e0b;">5</div>
+              <div class="todo-stat-label">待处理</div>
+            </div>
+            <div class="todo-stat">
+              <div class="todo-stat-value" id="todo-done" style="color:#22c55e;">8</div>
+              <div class="todo-stat-label">已完成</div>
+            </div>
+          </div>
+          <div class="todo-list" id="todo-list">
+            <!-- 待办事项动态生成 -->
+          </div>
+        </div>
+      </div>
+
+      <!-- 场景对比 -->
+      <div class="scenario-compare">
+        <div class="card-hd" style="margin-bottom:12px;padding:0;border:none;">
+          <span>📊 What-If 场景对比分析</span>
+          <button class="btn sm" onclick="generateNewScenario()">➕ 新建场景</button>
+        </div>
+        <div class="scenario-tabs" id="scenario-tabs">
+          <button class="scenario-tab active" onclick="switchScenario(0)">当前方案</button>
+          <button class="scenario-tab ai-recommended" onclick="switchScenario(1)">AI优化方案</button>
+          <button class="scenario-tab" onclick="switchScenario(2)">交期优先</button>
+          <button class="scenario-tab" onclick="switchScenario(3)">成本优先</button>
+        </div>
+        <div class="scenario-metrics" id="scenario-metrics">
+          <!-- 指标动态生成 -->
+        </div>
+      </div>
+
+      <!-- 预测性分析 -->
+      <div class="prediction-panel">
+        <div class="prediction-header">
+          <div class="prediction-icon">🔮</div>
+          <div class="prediction-title">
+            <h4>AI预测性排程分析</h4>
+            <span>基于历史数据与实时状态的未来4小时产能预测</span>
+          </div>
+          <button class="btn" onclick="showPredictionDetail()">查看详情</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:12px;">
+          <div style="flex:1;">
+            <div style="font-size:12px;color:#94a3b8;margin-bottom:6px;">预测置信度</div>
+            <div style="height:8px;background:#1e293b;border-radius:4px;overflow:hidden;">
+              <div style="width:87%;height:100%;background:linear-gradient(90deg,#4f46e5,#7c3aed);border-radius:4px;"></div>
+            </div>
+          </div>
+          <div style="font-size:24px;font-weight:700;color:#7c3aed;">87%</div>
+        </div>
+        <div class="prediction-timeline" id="prediction-timeline">
+          <!-- 预测时间线动态生成 -->
+        </div>
+      </div>
+
+      <!-- 协同甘特图 -->
+      <article class="card">
+        <div class="card-hd">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <span>各分厂协同甘特图（AI智能排序）</span>
+            <div class="priority-legend">
+              <div class="priority-legend-item">
+                <span class="priority-dot p0"></span>
+                <span>紧急插单</span>
+              </div>
+              <div class="priority-legend-item">
+                <span class="priority-dot p1"></span>
+                <span>高优先级</span>
+              </div>
+              <div class="priority-legend-item">
+                <span class="priority-dot p2"></span>
+                <span>普通</span>
+              </div>
+              <div class="priority-legend-item">
+                <span class="priority-dot p3"></span>
+                <span>低优先级</span>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <button class="btn" onclick="showScheduleResult()">📊 排产结果</button>
+            <button class="btn" onclick="openPreScheduleModal()">🔮 一键预排</button>
+            <button class="btn primary" onclick="runAIReschedule()">🤖 AI智能重排</button>
+            <button class="btn ok" onclick="runScheduleDiagnosis()">🔍 排产诊断</button>
+            <button class="btn" onclick="renderDecisionCenter()">刷新</button>
+          </div>
+        </div>
+        <div class="card-bd">
+          <div class="decision-gantt-time" style="margin-bottom:8px;">
+            <div class="muted">时间刻度</div>
+            <div class="decision-time-track" id="decision-gantt-time"></div>
+          </div>
+          <div class="decision-gantt-wrap" id="decision-gantt-lanes"></div>
+        </div>
+      </article>
+
+      <!-- 排产结果面板 -->
+      <article class="card" id="schedule-result-panel">
+        <div class="card-hd">
+          <span>排产执行结果</span>
+          <div class="row">
+            <button class="btn" onclick="exportScheduleReport('excel')">📊 导出Excel</button>
+            <button class="btn" onclick="exportScheduleReport('pdf')">📄 导出PDF</button>
+            <button class="btn" onclick="hideScheduleResult()">收起</button>
+          </div>
+        </div>
+        <div class="card-bd">
+          <div class="grid-4" style="margin-bottom:16px;">
+            <div class="kpi" style="background:#0f1a2d;padding:12px;border-radius:8px;">
+              <div class="muted">已排产订单</div>
+              <div class="v" id="schedule-total-orders">45</div>
+              <div class="muted">计划内 42 / 插单 3</div>
+            </div>
+            <div class="kpi" style="background:#0f1a2d;padding:12px;border-radius:8px;">
+              <div class="muted">排产达成率</div>
+              <div class="v" id="schedule-achievement">94.2%</div>
+              <div class="muted">较昨日 ↑ 2.1%</div>
+            </div>
+            <div class="kpi" style="background:#0f1a2d;padding:12px;border-radius:8px;">
+              <div class="muted">平均设备利用率</div>
+              <div class="v" id="schedule-utilization">87.6%</div>
+              <div class="muted">目标 85%</div>
+            </div>
+            <div class="kpi" style="background:#0f1a2d;padding:12px;border-radius:8px;">
+              <div class="muted">预计完成时间</div>
+              <div class="v" id="schedule-completion">18:45</div>
+              <div class="muted">正常</div>
+            </div>
+          </div>
+          <h4 style="margin-bottom:10px;color:#94a3b8;">今日排产订单明细（AI智能优先级排序）</h4>
+          <div style="max-height:300px;overflow:auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>优先级</th>
+                  <th>订单号</th>
+                  <th>产品型号</th>
+                  <th>工序</th>
+                  <th>产线</th>
+                  <th>计划开始</th>
+                  <th>计划结束</th>
+                  <th>数量</th>
+                  <th>AI评分</th>
+                  <th>状态</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="schedule-orders-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </article>
+
+      <!-- 底部面板 -->
+      <div class="grid-3">
+        <article class="card">
+          <div class="card-hd">
+            <span>关键订单生产进度</span>
+            <span class="tag" style="background:rgba(37,99,235,0.2);color:#60a5fa;">AI实时监控</span>
+          </div>
+          <div class="card-bd progress-list" id="decision-order-progress"></div>
+        </article>
+
+        <article class="card">
+          <div class="card-hd"><span>关键资源缺料预测图</span></div>
+          <div class="card-bd" id="decision-resource-heatmap">
+            <div class="heat-legend">
+              <div class="heat-legend-item">
+                <span class="heat-legend-dot" style="background: linear-gradient(90deg, #0ea5e9, #22d3ee);"></span>
+                <span>现有库存</span>
+              </div>
+              <div class="heat-legend-item">
+                <span class="heat-legend-dot" style="background: linear-gradient(90deg, #f59e0b, #ef4444);"></span>
+                <span>缺口数量</span>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-hd">
+            <span>动态瓶颈雷达图</span>
+            <span class="muted" style="font-size:11px;">AI每5分钟更新</span>
+          </div>
+          <div class="card-bd">
+            <div class="radar-wrap">
+              <svg id="decision-radar" width="280" height="240" viewBox="0 0 280 240"></svg>
+            </div>
+            <div class="radar-legend" id="decision-radar-legend"></div>
+            <div class="radar-note" id="decision-radar-note"></div>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <script src="common.js"></script>
+  <script>
+    // ========== AI建议系统 ==========
+    const aiSuggestions = [
+      {
+        id: 1,
+        type: 'optimize',
+        typeText: '优化建议',
+        confidence: 94,
+        content: '建议将 SO-20260227-018 订单从东区总装调整至西区总装',
+        reason: 'AI分析：东区总装当前负载92%，西区仅76%。调整后可减少等待时间35分钟，提升整体OEE 2.1%。历史类似调整成功率96%。',
+        status: 'pending'
+      },
+      {
+        id: 2,
+        type: 'warning',
+        typeText: '风险预警',
+        confidence: 87,
+        content: '注塑分厂模具 M-1002 寿命即将耗尽',
+        reason: 'AI预测：基于当前生产节奏，模具剩余寿命约4小时。建议提前调度备用模具，避免产线停机。预计影响3个订单交期。',
+        status: 'pending'
+      },
+      {
+        id: 3,
+        type: 'urgent',
+        typeText: '紧急插单',
+        confidence: 91,
+        content: '战略客户订单 SO-20260227-035 申请加急插单',
+        reason: 'AI评估：该客户为A+级战略客户，本月已贡献营收12%。插单将导致2个普通订单延后2小时，但整体影响可控。建议批准。',
+        status: 'pending'
+      }
+    ];
+
+    let approvedSuggestions = [];
+    let rejectedSuggestions = [];
+
+    function renderAISuggestions() {
+      const container = document.getElementById('ai-suggestions-list');
+      container.innerHTML = aiSuggestions.map(s => `
+        <div class="ai-suggestion-item ${s.status}" id="ai-suggestion-${s.id}">
+          <div class="ai-suggestion-header">
+            <span class="ai-suggestion-type ${s.type}">${s.typeText}</span>
+            <span class="ai-confidence">
+              置信度
+              <span class="ai-confidence-bar">
+                <span class="ai-confidence-fill" style="width:${s.confidence}%"></span>
+              </span>
+              ${s.confidence}%
+            </span>
+          </div>
+          <div class="ai-suggestion-content">${s.content}</div>
+          <div class="ai-suggestion-reason">${s.reason}</div>
+          ${s.status === 'pending' ? `
+            <div class="ai-suggestion-actions">
+              <button onclick="approveSuggestion(${s.id})">✓ 采纳建议</button>
+              <button onclick="showAlternative(${s.id})">查看替代方案</button>
+              <button class="reject" onclick="rejectSuggestion(${s.id})">✗ 拒绝</button>
+            </div>
+          ` : s.status === 'approved' ? `
+            <div style="font-size:12px;color:#22c55e;display:flex;align-items:center;gap:6px;">
+              <span>✓</span> 已采纳并执行
+            </div>
+          ` : `
+            <div style="font-size:12px;color:#64748b;display:flex;align-items:center;gap:6px;">
+              <span>✗</span> 已拒绝
+            </div>
+          `}
+        </div>
+      `).join('');
+
+      // Update KPI
+      const pendingCount = aiSuggestions.filter(s => s.status === 'pending').length;
+      const pendingEl = document.getElementById('d-kpi-ai-pending');
+      if (pendingEl) pendingEl.textContent = pendingCount;
+      
+      const aiExtraEl = document.getElementById('d-kpi-ai-extra');
+      if (aiExtraEl) aiExtraEl.textContent = `已采纳 ${approvedSuggestions.length} / 已拒绝 ${rejectedSuggestions.length}`;
+    }
+
+    function approveSuggestion(id) {
+      const suggestion = aiSuggestions.find(s => s.id === id);
+      if (suggestion) {
+        suggestion.status = 'approved';
+        approvedSuggestions.push(suggestion);
+        toast(`✅ 已采纳AI建议: ${suggestion.content}`);
+        renderAISuggestions();
+        
+        // Simulate effect
+        setTimeout(() => {
+          toast('🤖 AI正在自动调整排程...');
+          renderDecisionGanttLanes();
+        }, 1000);
+      }
+    }
+
+    function rejectSuggestion(id) {
+      const suggestion = aiSuggestions.find(s => s.id === id);
+      if (suggestion) {
+        suggestion.status = 'rejected';
+        rejectedSuggestions.push(suggestion);
+        toast(`已拒绝AI建议，将反馈给AI学习系统`);
+        renderAISuggestions();
+      }
+    }
+
+    function showAlternative(id) {
+      const suggestion = aiSuggestions.find(s => s.id === id);
+      toast(`🤖 AI正在生成替代方案...`);
+      setTimeout(() => {
+        alert(`AI替代方案:\n\n原建议: ${suggestion.content}\n\n替代方案: 分阶段执行，先完成50%订单，剩余部分延至明日首班。可减少对现有排程影响60%。`);
+      }, 800);
+    }
+
+    function refreshAISuggestions() {
+      toast('🤖 AI正在分析最新数据...');
+      setTimeout(() => {
+        // Add a new suggestion
+        aiSuggestions.push({
+          id: Date.now(),
+          type: 'optimize',
+          typeText: '优化建议',
+          confidence: Math.floor(85 + Math.random() * 12),
+          content: '检测到两器分厂产能富余，建议承接西区总装转移任务',
+          reason: 'AI分析：两器分厂当前负载仅68%，可承接200套产能。可减少跨厂物流成本15%。',
+          status: 'pending'
+        });
+        renderAISuggestions();
+      }, 1000);
+    }
+
+    function batchApproveAI() {
+      const pending = aiSuggestions.filter(s => s.status === 'pending');
+      if (pending.length === 0) {
+        toast('没有待确认的AI建议');
+        return;
+      }
+      if (confirm(`确定一键采纳 ${pending.length} 条AI建议吗？`)) {
+        pending.forEach(s => {
+          s.status = 'approved';
+          approvedSuggestions.push(s);
+        });
+        toast(`✅ 已批量采纳 ${pending.length} 条AI建议`);
+        renderAISuggestions();
+      }
+    }
+
+    // ========== 排产员待办 ==========
+    const todoItems = [
+      { id: 1, type: 'urgent', icon: '🔴', title: '设备故障: 东区ZZW05停机', meta: '需立即调整排程', time: '2分钟前' },
+      { id: 2, type: 'urgent', icon: '📋', title: '审批: 战略客户插单申请', meta: 'SO-20260227-035', time: '15分钟前' },
+      { id: 3, type: 'warning', icon: '⚠️', title: '物料预警: 压缩机库存不足', meta: '缺口180件', time: '32分钟前' },
+      { id: 4, type: 'normal', icon: '📊', title: '生成今日排程报告', meta: '每日例行任务', time: '待处理' },
+      { id: 5, type: 'normal', icon: '🔄', title: '同步ERP系统订单状态', meta: '15条待同步', time: '待处理' }
+    ];
+
+    function renderTodoList() {
+      const container = document.getElementById('todo-list');
+      container.innerHTML = todoItems.map(item => `
+        <div class="todo-item ${item.type}" onclick="handleTodo(${item.id})">
+          <div class="todo-icon">${item.icon}</div>
+          <div class="todo-content">
+            <div class="todo-title">${item.title}</div>
+            <div class="todo-meta">${item.meta} · ${item.time}</div>
+          </div>
+        </div>
+      `).join('');
+
+      // Update stats
+      document.getElementById('todo-urgent').textContent = todoItems.filter(i => i.type === 'urgent').length;
+      document.getElementById('todo-pending').textContent = todoItems.length;
+    }
+
+    function handleTodo(id) {
+      const item = todoItems.find(t => t.id === id);
+      if (item) {
+        if (item.id === 1) {
+          runScheduleDiagnosis();
+        } else if (item.id === 2) {
+          showScheduleResult();
+        } else {
+          toast(`正在处理: ${item.title}`);
+        }
+      }
+    }
+
+    // ========== 场景对比 ==========
+    const scenarios = [
+      { name: '当前方案', metrics: { oee: 88.4, delivery: 92.5, cost: 100, balance: 85 } },
+      { name: 'AI优化方案', metrics: { oee: 91.2, delivery: 94.8, cost: 97, balance: 91 }, ai: true },
+      { name: '交期优先', metrics: { oee: 85.6, delivery: 98.2, cost: 105, balance: 78 } },
+      { name: '成本优先', metrics: { oee: 89.1, delivery: 89.5, cost: 92, balance: 88 } }
+    ];
+
+    let currentScenario = 0;
+
+    function renderScenarioMetrics() {
+      const container = document.getElementById('scenario-metrics');
+      const scenario = scenarios[currentScenario];
+      const baseline = scenarios[0].metrics;
+      
+      const metrics = [
+        { label: 'OEE产能', value: scenario.metrics.oee, unit: '%', delta: scenario.metrics.oee - baseline.oee },
+        { label: '准时交付率', value: scenario.metrics.delivery, unit: '%', delta: scenario.metrics.delivery - baseline.delivery },
+        { label: '换产成本', value: scenario.metrics.cost, unit: '分', delta: scenario.metrics.cost - baseline.cost, inverse: true },
+        { label: '负载均衡', value: scenario.metrics.balance, unit: '分', delta: scenario.metrics.balance - baseline.balance },
+        { label: '综合评分', value: Math.floor((scenario.metrics.oee + scenario.metrics.delivery + (100 - Math.abs(scenario.metrics.cost - 100)) + scenario.metrics.balance) / 4), unit: '分', delta: 0 }
+      ];
+
+      container.innerHTML = metrics.map(m => {
+        const deltaClass = m.delta > 0 ? 'positive' : m.delta < 0 ? 'negative' : '';
+        const deltaText = m.delta > 0 ? `+${m.delta}` : m.delta;
+        const showDelta = currentScenario !== 0;
+        
+        return `
+          <div class="scenario-metric">
+            <div class="scenario-metric-value ${deltaClass}">${m.value}${m.unit}</div>
+            <div class="scenario-metric-label">${m.label}</div>
+            ${showDelta ? `<div class="scenario-metric-delta ${deltaClass}">${deltaText} vs当前</div>` : '<div class="scenario-metric-delta">基准方案</div>'}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function switchScenario(index) {
+      currentScenario = index;
+      document.querySelectorAll('.scenario-tab').forEach((tab, i) => {
+        tab.classList.toggle('active', i === index);
+      });
+      renderScenarioMetrics();
+      toast(`已切换至: ${scenarios[index].name}`);
+      
+      if (scenarios[index].ai) {
+        setTimeout(() => toast('🤖 此方案由AI基于多目标优化算法生成'), 500);
+      }
+    }
+
+    function generateNewScenario() {
+      const name = prompt('请输入场景名称:', '自定义场景');
+      if (name) {
+        scenarios.push({
+          name,
+          metrics: {
+            oee: 85 + Math.random() * 10,
+            delivery: 88 + Math.random() * 10,
+            cost: 90 + Math.random() * 20,
+            balance: 80 + Math.random() * 15
+          }
+        });
+        
+        const tabsContainer = document.getElementById('scenario-tabs');
+        const newTab = document.createElement('button');
+        newTab.className = 'scenario-tab';
+        newTab.textContent = name;
+        newTab.onclick = () => switchScenario(scenarios.length - 1);
+        tabsContainer.appendChild(newTab);
+        
+        switchScenario(scenarios.length - 1);
+      }
+    }
+
+    // ========== 预测性分析 ==========
+    function renderPredictionTimeline() {
+      const container = document.getElementById('prediction-timeline');
+      const hours = ['10:00', '12:00', '14:00', '16:00'];
+      const statuses = [
+        { text: '正常运行', risk: false },
+        { text: '产能瓶颈', risk: true },
+        { text: '物料预警', risk: true },
+        { text: '正常完成', risk: false }
+      ];
+      
+      container.innerHTML = hours.map((h, i) => `
+        <div class="prediction-point ${statuses[i].risk ? 'risk' : ''}">
+          <div class="prediction-time">${h}</div>
+          <div class="prediction-status">${statuses[i].text}</div>
+        </div>
+      `).join('');
+    }
+
+    function showPredictionDetail() {
+      const modal = document.createElement('div');
+      modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:200;display:flex;align-items:center;justify-content:center;';
+      modal.innerHTML = `
+        <div style="background:#0b1220;border:1px solid #4338ca;border-radius:12px;width:700px;max-height:80vh;overflow:auto;padding:24px;">
+          <h3 style="margin-bottom:16px;display:flex;align-items:center;gap:10px;">
+            <span style="font-size:24px;">🔮</span> AI预测性分析详情
+          </h3>
+          <div style="margin-bottom:20px;">
+            <div style="font-size:13px;color:#94a3b8;margin-bottom:8px;">预测模型说明</div>
+            <div style="background:#0f172a;padding:12px;border-radius:8px;font-size:12px;line-height:1.6;">
+              基于LSTM神经网络模型，结合历史30天排程数据、实时设备状态、物料供应情况，
+              预测未来4小时产能趋势。模型准确率87.3%，每5分钟自动更新。
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div style="background:#0f172a;padding:16px;border-radius:8px;border-left:3px solid #ef4444;">
+              <div style="font-weight:600;color:#ef4444;margin-bottom:8px;">⚠️ 12:00 产能瓶颈预警</div>
+              <div style="font-size:12px;color:#94a3b8;line-height:1.5;">
+                预测东区总装将在12:00遭遇产能瓶颈，原因：设备检修+人员换班重叠。
+                建议：提前30分钟启动西区总装支援，或调整SO-20260227-020订单至下午班次。
+              </div>
+            </div>
+            <div style="background:#0f172a;padding:16px;border-radius:8px;border-left:3px solid #f59e0b;">
+              <div style="font-weight:600;color:#f59e0b;margin-bottom:8px;">📦 14:00 物料供应预警</div>
+              <div style="font-size:12px;color:#94a3b8;line-height:1.5;">
+                压缩机供应商交货延迟概率65%。影响订单：3个。
+                建议：启用安全库存200件，或联系备用供应商。
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px;">
+            <button class="btn" onclick="this.closest('.modal').remove()">关闭</button>
+            <button class="btn primary" onclick="toast('已生成应对预案');this.closest('.modal').remove();">生成应对预案</button>
+          </div>
+        </div>
+      `;
+      modal.className = 'modal';
+      document.body.appendChild(modal);
+      modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+    }
+
+    // ========== 甘特图功能 ==========
+    function renderDecisionGanttTime() {
+      const container = document.getElementById('decision-gantt-time');
+      let html = '';
+      for (let i = 0; i <= 24; i++) {
+        html += `<span>${String(i).padStart(2, '0')}</span>`;
+      }
+      container.innerHTML = html;
+    }
+
+    function renderDecisionGanttLanes() {
+      const container = document.getElementById('decision-gantt-lanes');
+      const plants = ['东区总装', '西区总装', '注塑分厂', '两器分厂', '控制器分厂'];
+      const tasks = state.decisionTasks || [];
+      const products = ['KFR-26GW', 'KFR-35GW', 'KFR-50GW', 'KFR-72GW', 'KFR-120LW'];
+      
+      // AI智能优先级计算
+      const priorities = [0, 1, 2, 3]; // 0=紧急, 1=高, 2=普通, 3=低
+      
+      let html = '';
+      plants.forEach((plant, lineIdx) => {
+        html += '<div class="decision-gantt-row">';
+        html += `<div style="font-weight:600;color:#a6b7d8;font-size:12px;">${plant}</div>`;
+        html += '<div class="decision-gantt-track">';
+        
+        const lineTasks = tasks.filter(t => t.line === lineIdx);
+        lineTasks.forEach((task, idx) => {
+          const left = (task.start / 24) * 100;
+          const width = (task.duration / 24) * 100;
+          const product = products[(lineIdx + idx) % products.length];
+          
+          // AI计算优先级 (基于交期紧迫度、客户等级、资源状况)
+          const priority = priorities[(lineIdx + idx) % priorities.length];
+          const orderNo = `SO-20260227-${String(100 + lineIdx * 10 + idx).padStart(3,'0')}`;
+          const qty = 80 + ((lineIdx * 17 + idx * 23) % 260);
+          
+          html += `
+            <div class="decision-gantt-bar priority-${priority}" 
+                 style="left:${left}%;width:${width}%;"
+                 onclick="showTaskDetail('${task.id}', '${task.name}', '${orderNo}', '${product}', ${task.start}, ${task.duration}, ${qty}, ${priority})"
+                 title="订单: ${orderNo} | 产品: ${product} | 任务: ${task.name} | 优先级: ${['紧急','高','普通','低'][priority]} | 时间: ${task.start}:00-${task.start + task.duration}:00 | 数量: ${qty}套">
+              <span class="decision-gantt-bar-label">${orderNo}</span>
+              <span class="priority-badge"></span>
+            </div>
+          `;
+        });
+        
+        html += '</div></div>';
+      });
+      container.innerHTML = html;
+    }
+
+    function showTaskDetail(taskId, taskName, orderNo, product, start, duration, qty, priority) {
+      const aiScore = Math.floor(75 + Math.random() * 20);
+      const modal = document.createElement('div');
+      modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:200;display:flex;align-items:center;justify-content:center;';
+      modal.innerHTML = `
+        <div style="background:#0b1220;border:1px solid #334155;border-radius:12px;width:520px;padding:24px;">
+          <h3 style="margin-bottom:16px;display:flex;align-items:center;gap:10px;">
+            📋 排产任务详情
+            <span class="progress-priority p${priority}">${['紧急插单','高优先级','普通','低优先级'][priority]}</span>
+          </h3>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+            <div style="background:#111b2d;padding:12px;border-radius:8px;">
+              <div style="font-size:11px;color:#64748b;">订单号</div>
+              <div style="font-weight:600;color:#38bdf8;">${orderNo}</div>
+            </div>
+            <div style="background:#111b2d;padding:12px;border-radius:8px;">
+              <div style="font-size:11px;color:#64748b;">产品型号</div>
+              <div style="font-weight:600;">${product}</div>
+            </div>
+            <div style="background:#111b2d;padding:12px;border-radius:8px;">
+              <div style="font-size:11px;color:#64748b;">任务名称</div>
+              <div style="font-weight:600;">${taskName}</div>
+            </div>
+            <div style="background:#111b2d;padding:12px;border-radius:8px;">
+              <div style="font-size:11px;color:#64748b;">计划产量</div>
+              <div style="font-weight:600;color:#22c55e;">${qty} 套</div>
+            </div>
+            <div style="background:#111b2d;padding:12px;border-radius:8px;">
+              <div style="font-size:11px;color:#64748b;">开始时间</div>
+              <div style="font-weight:600;">${String(start).padStart(2,'0')}:00</div>
+            </div>
+            <div style="background:#111b2d;padding:12px;border-radius:8px;">
+              <div style="font-size:11px;color:#64748b;">结束时间</div>
+              <div style="font-weight:600;">${String(start + duration).padStart(2,'0')}:00</div>
+            </div>
+          </div>
+          <div style="background:linear-gradient(135deg,#1e3a8a,#2563eb);padding:12px;border-radius:8px;margin-bottom:16px;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+              <span style="font-size:18px;">🤖</span>
+              <span style="font-weight:600;">AI智能评分</span>
+              <span style="margin-left:auto;font-size:20px;font-weight:700;">${aiScore}分</span>
+            </div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.8);line-height:1.5;">
+              AI评估：该任务排程合理，资源匹配度良好。建议按计划执行，如需调整请考虑对下游工序的影响。
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;justify-content:flex-end;">
+            <button class="btn" onclick="this.closest('.modal').remove()">关闭</button>
+            <button class="btn" onclick="askAIAboutTask('${orderNo}')">询问AI</button>
+            <button class="btn primary" onclick="adjustTask('${taskId}', ${start}, ${duration});this.closest('.modal').remove();">调整时间</button>
+          </div>
+        </div>
+      `;
+      modal.className = 'modal';
+      document.body.appendChild(modal);
+      modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+    }
+
+    function askAIAboutTask(orderNo) {
+      toggleAIAssistant();
+      setTimeout(() => {
+        addAIMessage('user', `分析一下订单 ${orderNo} 的排程情况`);
+        setTimeout(() => {
+          addAIMessage('ai', `订单 ${orderNo} 分析结果：<br><br>✅ 排程合理性：优秀（92分）<br>📍 当前状态：正常生产中<br>⏱️ 预计按时完成<br>💡 AI建议：无需调整，建议关注物料齐套情况。`);
+        }, 800);
+      }, 300);
+    }
+
+    function renderDecisionOrderProgress() {
+      const container = document.getElementById('decision-order-progress');
+      const orders = [
+        { name: 'SO-20260227-018', progress: 78, status: '生产中', priority: 0 },
+        { name: 'SO-20260227-019', progress: 45, status: '生产中', priority: 1 },
+        { name: 'SO-20260227-020', progress: 92, status: '待入库', priority: 2 },
+        { name: 'SO-20260227-021', progress: 30, status: '生产中', priority: 1 },
+        { name: 'SO-20260227-022', progress: 100, status: '已完成', priority: 3 }
+      ];
+      
+      container.innerHTML = orders.map(o => `
+        <div class="progress-item">
+          <div class="progress-item-header">
+            <span class="progress-item-title">
+              ${o.name}
+              <span class="progress-priority p${o.priority}">${['紧急','高','普通','低'][o.priority]}</span>
+            </span>
+            <span class="progress-item-meta">${o.progress}% · ${o.status}</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" style="width:${o.progress}%"></div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderDecisionResourceHeatmap() {
+      const container = document.getElementById('decision-resource-heatmap');
+      const inventory = state.inventory || [];
+      
+      let html = `
+        <div class="heat-legend">
+          <div class="heat-legend-item">
+            <span class="heat-legend-dot" style="background: linear-gradient(90deg, #0ea5e9, #22d3ee);"></span>
+            <span>现有库存</span>
+          </div>
+          <div class="heat-legend-item">
+            <span class="heat-legend-dot" style="background: linear-gradient(90deg, #f59e0b, #ef4444);"></span>
+            <span>缺口数量</span>
+          </div>
+        </div>
+      `;
+      
+      html += inventory.map(item => {
+        const total = Math.max(item.stock, item.required);
+        const stockPct = (item.stock / total) * 100;
+        const gapPct = ((item.required - item.stock) / total) * 100;
+        const hasShortage = item.required > item.stock;
+        
+        return `
+          <div class="heat-item">
+            <div class="heat-item-header">
+              <span class="heat-item-title">${item.name}</span>
+              <span class="heat-item-shortage">${hasShortage ? `缺口 ${item.required - item.stock}` : '充足'}</span>
+            </div>
+            <div class="heat-bar-bg">
+              <div class="heat-bar-stock" style="left:0;width:${stockPct}%"></div>
+              ${hasShortage ? `<div class="heat-bar-gap" style="left:${stockPct}%;width:${gapPct}%"></div>` : ''}
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:11px;color:#94a3b8;">
+              <span>库存: ${item.stock}</span>
+              <span>需求: ${item.required}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+      
+      container.innerHTML = html;
+    }
+
+    function renderDecisionRadar() {
+      const svg = document.getElementById('decision-radar');
+      const legend = document.getElementById('decision-radar-legend');
+      const note = document.getElementById('decision-radar-note');
+      
+      const indicators = ['产能', '质量', '交付', '成本', '库存'];
+      const currentValues = [88, 92, 85, 78, 90];
+      const targetValues = [90, 95, 90, 85, 85];
+      
+      const centerX = 140;
+      const centerY = 120;
+      const radius = 80;
+      const angleStep = (Math.PI * 2) / indicators.length;
+      
+      let svgHtml = '';
+      
+      for (let r = 20; r <= radius; r += 20) {
+        svgHtml += `<circle cx="${centerX}" cy="${centerY}" r="${r}" fill="none" stroke="#334155" stroke-width="1" stroke-dasharray="4,4"/>`;
+      }
+      
+      indicators.forEach((ind, i) => {
+        const angle = i * angleStep - Math.PI / 2;
+        const x = centerX + Math.cos(angle) * radius;
+        const y = centerY + Math.sin(angle) * radius;
+        const labelX = centerX + Math.cos(angle) * (radius + 20);
+        const labelY = centerY + Math.sin(angle) * (radius + 20);
+        
+        svgHtml += `<line x1="${centerX}" y1="${centerY}" x2="${x}" y2="${y}" stroke="#334155" stroke-width="1"/>`;
+        svgHtml += `<text x="${labelX}" y="${labelY}" text-anchor="middle" dominant-baseline="middle" fill="#94a3b8" font-size="12">${ind}</text>`;
+      });
+      
+      let currentPoints = '';
+      currentValues.forEach((val, i) => {
+        const angle = i * angleStep - Math.PI / 2;
+        const r = (val / 100) * radius;
+        const x = centerX + Math.cos(angle) * r;
+        const y = centerY + Math.sin(angle) * r;
+        currentPoints += `${x},${y} `;
+      });
+      svgHtml += `<polygon points="${currentPoints}" fill="rgba(56, 189, 248, 0.2)" stroke="#38bdf8" stroke-width="2"/>`;
+      
+      let targetPoints = '';
+      targetValues.forEach((val, i) => {
+        const angle = i * angleStep - Math.PI / 2;
+        const r = (val / 100) * radius;
+        const x = centerX + Math.cos(angle) * r;
+        const y = centerY + Math.sin(angle) * r;
+        targetPoints += `${x},${y} `;
+      });
+      svgHtml += `<polygon points="${targetPoints}" fill="none" stroke="#f59e0b" stroke-width="2" stroke-dasharray="4,4"/>`;
+      
+      svg.innerHTML = svgHtml;
+      
+      legend.innerHTML = `
+        <div class="radar-legend-item">
+          <span class="radar-legend-dot" style="background:#38bdf8"></span>
+          <span>当前水平</span>
+        </div>
+        <div class="radar-legend-item">
+          <span class="radar-legend-dot" style="background:#f59e0b;border-style:dashed"></span>
+          <span>目标水平</span>
+        </div>
+      `;
+      
+      note.textContent = '综合评分: 86.6/100 · 质量指标达标 · 成本待优化';
+    }
+
+    function renderDecisionCenter() {
+      const oee = (86 + Math.random() * 6).toFixed(1);
+      const wow = (Math.random() * 4 - 2).toFixed(1);
+      const done = Math.floor(88 + Math.random() * 12);
+      const total = 120;
+      const donePct = (done / total * 100).toFixed(1);
+
+      // 安全更新DOM元素
+      const oeeEl = document.getElementById('d-kpi-oee');
+      if (oeeEl) oeeEl.textContent = oee + '%';
+      
+      const wowEl = document.getElementById('d-kpi-oee-wow');
+      if (wowEl) wowEl.textContent = `较上周 ${parseFloat(wow) >= 0 ? '↑' : '↓'} ${Math.abs(wow)}%`;
+      
+      const planEl = document.getElementById('d-kpi-plan');
+      if (planEl) planEl.textContent = `${done}/${total}`;
+      
+      const planExtraText = document.getElementById('d-kpi-plan-extra-text');
+      if (planExtraText) planExtraText.textContent = `${donePct}% | AI预计 ${18}:${String(Math.floor(Math.random() * 60)).padStart(2,'0')} 完成`;
+      
+      const planExtraBar = document.getElementById('d-kpi-plan-extra-bar');
+      if (planExtraBar) planExtraBar.style.width = donePct + '%';
+      
+      const wip = Math.floor(30 + Math.random() * 20);
+      const wipEl = document.getElementById('d-kpi-wip');
+      if (wipEl) wipEl.textContent = wip;
+      
+      const wipExtra = document.getElementById('d-kpi-wip-extra');
+      if (wipExtra) wipExtra.textContent = `内机 ${Math.floor(wip/2)} / 外机 ${wip - Math.floor(wip/2)}`;
+
+      renderDecisionGanttTime();
+      renderDecisionGanttLanes();
+      renderDecisionOrderProgress();
+      renderDecisionResourceHeatmap();
+      renderDecisionRadar();
+      renderAISuggestions();
+      renderTodoList();
+      renderScenarioMetrics();
+      renderPredictionTimeline();
+      
+      // 默认显示排产结果
+      showScheduleResult();
+      
+      toast('决策中心数据已刷新');
+    }
+
+    // ========== 排产功能 ==========
+    function showScheduleResult() {
+      document.getElementById('schedule-result-panel').style.display = 'block';
+      renderScheduleOrders();
+      document.getElementById('schedule-total-orders').textContent = '45';
+      document.getElementById('schedule-achievement').textContent = (94 + Math.random() * 4).toFixed(1) + '%';
+      document.getElementById('schedule-utilization').textContent = (85 + Math.random() * 8).toFixed(1) + '%';
+      const hour = 18 + Math.floor(Math.random() * 3);
+      const minute = Math.floor(Math.random() * 60);
+      document.getElementById('schedule-completion').textContent = `${hour}:${String(minute).padStart(2,'0')}`;
+      document.getElementById('schedule-result-panel').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function hideScheduleResult() {
+      document.getElementById('schedule-result-panel').style.display = 'none';
+    }
+
+    function renderScheduleOrders() {
+      const tbody = document.getElementById('schedule-orders-tbody');
+      const plants = ['东区总装', '西区总装', '注塑分厂', '两器分厂', '控制器分厂'];
+      const products = ['KFR-26GW', 'KFR-35GW', 'KFR-50GW', 'KFR-72GW'];
+      const processes = ['总装', '注塑成型', '钣金加工', '两器焊接'];
+      const priorities = [0, 1, 2, 3];
+      const priorityNames = ['紧急', '高', '普通', '低'];
+      const priorityClasses = ['err', 'warn', '', 'ok'];
+      
+      let html = '';
+      for (let i = 0; i < 15; i++) {
+        const task = state.decisionTasks?.[i] || { start: 8, duration: 4, name: `WO-${7000+i}`, id: `DG${i}` };
+        const orderNo = `SO-20260227-${String(100 + i).padStart(3,'0')}`;
+        const product = products[i % products.length];
+        const plant = plants[i % plants.length];
+        const process = processes[i % processes.length];
+        const startHour = task.start;
+        const endHour = task.start + task.duration;
+        const qty = 80 + (i * 37) % 260;
+        const priority = priorities[i % priorities.length];
+        const aiScore = Math.floor(75 + Math.random() * 20);
+        
+        html += `
+          <tr>
+            <td><span class="tag ${priorityClasses[priority]}">${priorityNames[priority]}</span></td>
+            <td>${orderNo}</td>
+            <td>${product}</td>
+            <td>${process}</td>
+            <td>${plant}</td>
+            <td>${String(startHour).padStart(2,'0')}:00</td>
+            <td>${String(endHour).padStart(2,'0')}:00</td>
+            <td>${qty}</td>
+            <td><span style="color:${aiScore >= 90 ? '#22c55e' : aiScore >= 80 ? '#3b82f6' : '#f59e0b'};font-weight:600;">${aiScore}</span></td>
+            <td><span class="tag ${i % 3 === 0 ? 'ok' : i % 3 === 1 ? 'warn' : 'err'}">${['正常','预警','延期'][i % 3]}</span></td>
+            <td>
+              <button class="btn sm" onclick="adjustTask('${task.id}', ${startHour}, ${task.duration})">调整</button>
+            </td>
+          </tr>
+        `;
+      }
+      tbody.innerHTML = html;
+    }
+
+    function adjustTask(taskId, currentStart, currentDuration) {
+      const newStart = prompt(`调整任务开始时间（当前 ${currentStart}:00）:`, currentStart);
+      if (newStart === null) return;
+      
+      const newDuration = prompt(`调整任务持续时间（当前 ${currentDuration}小时）:`, currentDuration);
+      if (newDuration === null) return;
+      
+      adjustSchedule(taskId, parseInt(newStart), parseInt(newDuration));
+      renderScheduleOrders();
+      renderDecisionGanttLanes();
+      toast('✅ 任务调整已保存，AI正在重新评估排程合理性...');
+    }
+
+    function runAIReschedule() {
+      toast('🤖 AI正在分析最优排程方案...');
+      setTimeout(() => {
+        // Simulate AI optimization
+        if (state.decisionTasks) {
+          state.decisionTasks.forEach(task => {
+            // AI optimizes based on priority and resource availability
+            task.start = Math.floor(Math.random() * 20);
+            task.duration = 2 + Math.floor(Math.random() * 4);
+          });
+        }
+        renderDecisionGanttLanes();
+        renderScheduleOrders();
+        
+        // Show AI report
+        const improvements = [
+          'OEE预计提升 2.3%',
+          '换产次数减少 15%',
+          '准时交付率提升 3.1%',
+          '设备利用率提升至 91.2%'
+        ];
+        
+        const modal = document.createElement('div');
+        modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:200;display:flex;align-items:center;justify-content:center;';
+        modal.innerHTML = `
+          <div style="background:#0b1220;border:1px solid #2563eb;border-radius:12px;width:500px;padding:24px;">
+            <h3 style="margin-bottom:16px;display:flex;align-items:center;gap:10px;">
+              <span style="font-size:24px;">🤖</span> AI智能重排完成
+            </h3>
+            <div style="background:#0f172a;padding:16px;border-radius:8px;margin-bottom:16px;">
+              <div style="font-size:13px;color:#94a3b8;margin-bottom:12px;">优化效果预测</div>
+              ${improvements.map(imp => `
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:13px;color:#e2e8f0;">
+                  <span style="color:#22c55e;">✓</span> ${imp}
+                </div>
+              `).join('')}
+            </div>
+            <div style="font-size:12px;color:#64748b;margin-bottom:16px;">
+              AI基于多目标优化算法，综合考虑了设备负载、交期要求、换产成本等因素生成此方案。
+            </div>
+            <div style="display:flex;gap:10px;justify-content:flex-end;">
+              <button class="btn" onclick="this.closest('.modal').remove()">取消</button>
+              <button class="btn" onclick="this.closest('.modal').remove();toast('已导出方案对比报告')">导出对比</button>
+              <button class="btn primary" onclick="this.closest('.modal').remove();toast('✅ 已应用AI优化方案')">应用方案</button>
+            </div>
+          </div>
+        `;
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+      }, 1500);
+    }
+
+    function runScheduleDiagnosis() {
+      const result = diagnoseSchedule();
+      
+      if (result.ok) {
+        toast('✅ ' + result.message);
+      } else {
+        const issuesHtml = result.issues.map((issue, idx) => 
+          `<div style="padding:8px 12px;margin-bottom:8px;background:#1e293b;border-radius:6px;border-left:3px solid #ef4444;">
+            <span style="color:#ef4444;font-weight:600;">#${idx + 1}</span> ${issue}
+           </div>`
+        ).join('');
+        
+        const modal = document.createElement('div');
+        modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:200;display:flex;align-items:center;justify-content:center;';
+        modal.innerHTML = `
+          <div style="background:#0b1220;border:1px solid #334155;border-radius:12px;width:600px;max-height:80vh;overflow:auto;padding:24px;">
+            <h3 style="margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+              <span style="color:#ef4444;">⚠️</span> 排产诊断报告
+            </h3>
+            <div style="margin-bottom:16px;color:#94a3b8;">发现 ${result.issues.length} 个问题：</div>
+            ${issuesHtml}
+            <div style="background:#0f172a;padding:12px;border-radius:8px;margin:16px 0;">
+              <div style="font-size:12px;color:#64748b;margin-bottom:8px;">🤖 AI分析建议</div>
+              <div style="font-size:13px;color:#e2e8f0;line-height:1.5;">
+                建议优先处理物料短缺问题，并考虑启用备用设备。AI预测如不处理，可能导致今日交付率下降5%。
+              </div>
+            </div>
+            <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px;">
+              <button class="btn" onclick="this.closest('.modal').remove()">关闭</button>
+              <button class="btn primary" onclick="runAIReschedule();this.closest('.modal').remove();">🤖 AI一键修复</button>
+            </div>
+          </div>
+        `;
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+        modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+      }
+    }
+
+    // 导出排程报告功能
+    function exportScheduleReport(format) {
+      const baseName = `排程报告_${new Date().toISOString().slice(0,10)}_${document.getElementById('hq-select').value}`;
+      
+      if (format === 'excel') {
+        // 生成CSV内容
+        const headers = ['订单号', '产品型号', '工序', '产线', '计划开始', '计划结束', '数量', '状态'];
+        const rows = [];
+        const tbody = document.getElementById('schedule-orders-tbody');
+        if (tbody) {
+          tbody.querySelectorAll('tr').forEach(tr => {
+            const cells = tr.querySelectorAll('td');
+            if (cells.length >= 8) {
+              rows.push([
+                cells[0]?.textContent || '',
+                cells[1]?.textContent || '',
+                cells[2]?.textContent || '',
+                cells[3]?.textContent || '',
+                cells[4]?.textContent || '',
+                cells[5]?.textContent || '',
+                cells[6]?.textContent || '',
+                cells[7]?.textContent?.trim() || ''
+              ]);
+            }
+          });
+        }
+        
+        let csvContent = '\uFEFF' + headers.join(',') + '\n';
+        rows.forEach(row => {
+          csvContent += row.map(cell => `"${cell}"`).join(',') + '\n';
+        });
+        
+        // 添加统计信息
+        csvContent += '\n\n统计信息\n';
+        csvContent += `已排产订单,${document.getElementById('schedule-total-orders')?.textContent || '45'}\n`;
+        csvContent += `排产达成率,${document.getElementById('schedule-achievement')?.textContent || '94%'}\n`;
+        csvContent += `设备利用率,${document.getElementById('schedule-utilization')?.textContent || '87%'}\n`;
+        csvContent += `预计完成时间,${document.getElementById('schedule-completion')?.textContent || '18:45'}\n`;
+        
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `${baseName}.csv`;
+        link.click();
+        toast('Excel报告导出成功！');
+        
+      } else if (format === 'pdf') {
+        // 模拟PDF导出（实际项目中使用jsPDF等库）
+        const printContent = `
+排程报告 - ${document.getElementById('hq-select').value}
+生成时间: ${new Date().toLocaleString('zh-CN')}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+统计概览
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+已排产订单: ${document.getElementById('schedule-total-orders')?.textContent || '45'}
+排产达成率: ${document.getElementById('schedule-achievement')?.textContent || '94%'}
+设备利用率: ${document.getElementById('schedule-utilization')?.textContent || '87%'}
+预计完成时间: ${document.getElementById('schedule-completion')?.textContent || '18:45'}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+订单明细
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${document.getElementById('schedule-orders-tbody')?.innerText || '暂无数据'}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+格力APS智能排程系统
+`;
+        
+        const blob = new Blob([printContent], { type: 'text/plain;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `${baseName}.txt`;
+        link.click();
+        toast('PDF报告导出成功！(演示版为TXT格式)');
+      }
+    }
+
+    // ========== 一键预排功能 ==========
+    function openPreScheduleModal() {
+      const modal = document.createElement('div');
+      modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:200;display:flex;align-items:center;justify-content:center;';
+      modal.innerHTML = `
+        <div style="background:#0b1220;border:1px solid #334155;border-radius:12px;width:600px;max-height:85vh;overflow:auto;padding:24px;">
+          <h3 style="margin-bottom:20px;display:flex;align-items:center;gap:10px;">
+            <span style="font-size:24px;">🔮</span> 一键预排参数配置
+          </h3>
+          
+          <div style="margin-bottom:20px;">
+            <div style="font-size:13px;color:#94a3b8;margin-bottom:12px;font-weight:600;">📅 排程时间范围</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+              <div>
+                <label style="display:block;font-size:12px;color:#64748b;margin-bottom:4px;">开始时间</label>
+                <input type="datetime-local" id="pre-start-time" value="2026-02-28T08:00" style="width:100%;padding:8px 12px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#e2e8f0;" />
+              </div>
+              <div>
+                <label style="display:block;font-size:12px;color:#64748b;margin-bottom:4px;">结束时间</label>
+                <input type="datetime-local" id="pre-end-time" value="2026-03-01T08:00" style="width:100%;padding:8px 12px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#e2e8f0;" />
+              </div>
+            </div>
+          </div>
+          
+          <div style="margin-bottom:20px;">
+            <div style="font-size:13px;color:#94a3b8;margin-bottom:12px;font-weight:600;">🎯 排程策略</div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+              <label style="display:flex;align-items:center;gap:8px;padding:12px;background:#0f172a;border:2px solid #2563eb;border-radius:8px;cursor:pointer;">
+                <input type="radio" name="pre-strategy" value="balanced" checked style="accent-color:#2563eb;" />
+                <span style="font-size:13px;">⚖️ 均衡模式</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;padding:12px;background:#0f172a;border:1px solid #334155;border-radius:8px;cursor:pointer;">
+                <input type="radio" name="pre-strategy" value="delivery" style="accent-color:#2563eb;" />
+                <span style="font-size:13px;">🚚 交期优先</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;padding:12px;background:#0f172a;border:1px solid #334155;border-radius:8px;cursor:pointer;">
+                <input type="radio" name="pre-strategy" value="efficiency" style="accent-color:#2563eb;" />
+                <span style="font-size:13px;">⚡ 效率优先</span>
+              </label>
+            </div>
+          </div>
+          
+          <div style="margin-bottom:20px;">
+            <div style="font-size:13px;color:#94a3b8;margin-bottom:12px;font-weight:600;">⚙️ 约束条件</div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                <input type="checkbox" checked style="accent-color:#2563eb;" />
+                <span style="font-size:13px;color:#e2e8f0;">考虑物料齐套约束</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                <input type="checkbox" checked style="accent-color:#2563eb;" />
+                <span style="font-size:13px;color:#e2e8f0;">考虑设备产能约束</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                <input type="checkbox" checked style="accent-color:#2563eb;" />
+                <span style="font-size:13px;color:#e2e8f0;">考虑人员技能约束</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                <input type="checkbox" style="accent-color:#2563eb;" />
+                <span style="font-size:13px;color:#e2e8f0;">允许跨基地调拨</span>
+              </label>
+            </div>
+          </div>
+          
+          <div style="background:#0f172a;padding:16px;border-radius:8px;margin-bottom:20px;">
+            <div style="font-size:13px;color:#94a3b8;margin-bottom:8px;">📊 预估排程规模</div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;text-align:center;">
+              <div>
+                <div style="font-size:20px;font-weight:700;color:#38bdf8;">45</div>
+                <div style="font-size:11px;color:#64748b;">待排订单</div>
+              </div>
+              <div>
+                <div style="font-size:20px;font-weight:700;color:#38bdf8;">8</div>
+                <div style="font-size:11px;color:#64748b;">可用产线</div>
+              </div>
+              <div>
+                <div style="font-size:20px;font-weight:700;color:#38bdf8;">24h</div>
+                <div style="font-size:11px;color:#64748b;">排程 horizon</div>
+              </div>
+            </div>
+          </div>
+          
+          <div style="display:flex;gap:12px;justify-content:flex-end;">
+            <button class="btn" onclick="this.closest('.modal').remove()">取消</button>
+            <button class="btn" onclick="previewPreSchedule()">👁️ 预览效果</button>
+            <button class="btn primary" onclick="runPreSchedule();this.closest('.modal').remove();">🚀 执行预排</button>
+          </div>
+        </div>
+      `;
+      modal.className = 'modal';
+      document.body.appendChild(modal);
+      modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+    }
+
+    function previewPreSchedule() {
+      toast('正在生成预排效果预览...');
+      setTimeout(() => {
+        showPreScheduleResult();
+      }, 1500);
+    }
+
+    function runPreSchedule() {
+      toast('🚀 一键预排启动中...');
+      
+      // 显示进度
+      let progress = 0;
+      const progressInterval = setInterval(() => {
+        progress += 10;
+        if (progress <= 100) {
+          toast(`预排计算中... ${progress}%`);
+        }
+      }, 200);
+      
+      setTimeout(() => {
+        clearInterval(progressInterval);
+        showPreScheduleResult();
+      }, 2500);
+    }
+
+    function showPreScheduleResult() {
+      const modal = document.createElement('div');
+      modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:201;display:flex;align-items:center;justify-content:center;';
+      
+      const strategies = ['balanced', 'delivery', 'efficiency'];
+      const strategyNames = { balanced: '⚖️ 均衡模式', delivery: '🚚 交期优先', efficiency: '⚡ 效率优先' };
+      const results = strategies.map(s => ({
+        strategy: s,
+        name: strategyNames[s],
+        oee: (85 + Math.random() * 8).toFixed(1),
+        delivery: (90 + Math.random() * 8).toFixed(1),
+        cost: (100 + Math.random() * 20).toFixed(0),
+        time: (18 + Math.random() * 3).toFixed(1) + 'h'
+      }));
+      
+      // 找出推荐方案
+      const bestResult = results.reduce((best, r) => parseFloat(r.oee) > parseFloat(best.oee) ? r : best);
+      
+      modal.innerHTML = `
+        <div style="background:#0b1220;border:1px solid #334155;border-radius:12px;width:700px;max-height:85vh;overflow:auto;padding:24px;">
+          <h3 style="margin-bottom:20px;display:flex;align-items:center;gap:10px;">
+            <span style="font-size:24px;">📊</span> 预排结果对比
+          </h3>
+          
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;">
+            ${results.map(r => `
+              <div style="border:2px solid ${r.strategy === bestResult.strategy ? '#2563eb' : '#334155'};border-radius:10px;padding:16px;background:${r.strategy === bestResult.strategy ? 'linear-gradient(135deg,#1e3a8a22,#2563eb22)' : '#111b2d'};">
+                <div style="font-size:14px;font-weight:600;color:#e2e8f0;margin-bottom:12px;">${r.name}</div>
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                  <div style="display:flex;justify-content:space-between;font-size:12px;">
+                    <span style="color:#64748b;">OEE</span>
+                    <span style="color:#22c55e;font-weight:600;">${r.oee}%</span>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;font-size:12px;">
+                    <span style="color:#64748b;">准时交付</span>
+                    <span style="color:#22c55e;font-weight:600;">${r.delivery}%</span>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;font-size:12px;">
+                    <span style="color:#64748b;">换产成本</span>
+                    <span style="color:#e2e8f0;">¥${r.cost}万</span>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;font-size:12px;">
+                    <span style="color:#64748b;">排程耗时</span>
+                    <span style="color:#e2e8f0;">${r.time}</span>
+                  </div>
+                </div>
+                ${r.strategy === bestResult.strategy ? '<div style="margin-top:12px;padding:6px 10px;background:#2563eb;color:#fff;font-size:11px;border-radius:4px;text-align:center;">🤖 AI推荐</div>' : ''}
+              </div>
+            `).join('')}
+          </div>
+          
+          <div style="background:#0f172a;padding:16px;border-radius:8px;margin-bottom:20px;">
+            <div style="font-size:13px;color:#94a3b8;margin-bottom:12px;font-weight:600;">📈 关键指标对比</div>
+            <table style="width:100%;font-size:12px;">
+              <thead>
+                <tr style="border-bottom:1px solid #334155;">
+                  <th style="text-align:left;padding:8px;color:#64748b;">指标</th>
+                  <th style="text-align:center;padding:8px;color:#64748b;">⚖️ 均衡</th>
+                  <th style="text-align:center;padding:8px;color:#64748b;">🚚 交期</th>
+                  <th style="text-align:center;padding:8px;color:#64748b;">⚡ 效率</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="border-bottom:1px solid #1e293b;">
+                  <td style="padding:8px;color:#e2e8f0;">设备利用率</td>
+                  <td style="text-align:center;padding:8px;color:#22c55e;">87.2%</td>
+                  <td style="text-align:center;padding:8px;color:#22c55e;">85.6%</td>
+                  <td style="text-align:center;padding:8px;color:#22c55e;">91.3%</td>
+                </tr>
+                <tr style="border-bottom:1px solid #1e293b;">
+                  <td style="padding:8px;color:#e2e8f0;">平均等待时间</td>
+                  <td style="text-align:center;padding:8px;color:#e2e8f0;">12min</td>
+                  <td style="text-align:center;padding:8px;color:#22c55e;">8min</td>
+                  <td style="text-align:center;padding:8px;color:#f59e0b;">15min</td>
+                </tr>
+                <tr>
+                  <td style="padding:8px;color:#e2e8f0;">物料齐套率</td>
+                  <td style="text-align:center;padding:8px;color:#22c55e;">96.5%</td>
+                  <td style="text-align:center;padding:8px;color:#22c55e;">94.2%</td>
+                  <td style="text-align:center;padding:8px;color:#22c55e;">97.8%</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <div style="display:flex;gap:12px;justify-content:flex-end;">
+            <button class="btn" onclick="this.closest('.modal').remove()">关闭</button>
+            <button class="btn" onclick="exportPreScheduleReport()">📥 导出对比报告</button>
+            <button class="btn primary" onclick="applyPreSchedule('${bestResult.strategy}');this.closest('.modal').remove();">✅ 应用推荐方案</button>
+          </div>
+        </div>
+      `;
+      modal.className = 'modal';
+      document.body.appendChild(modal);
+      modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+    }
+
+    function applyPreSchedule(strategy) {
+      toast(`正在应用${strategy === 'balanced' ? '均衡' : strategy === 'delivery' ? '交期优先' : '效率优先'}方案...`);
+      setTimeout(() => {
+        // 更新甘特图数据
+        state.decisionTasks.forEach(task => {
+          task.start = Math.floor(Math.random() * 16) + 8;
+          task.duration = Math.floor(Math.random() * 4) + 2;
+        });
+        renderDecisionGanttLanes();
+        toast('✅ 预排方案已应用！甘特图已更新');
+      }, 1000);
+    }
+
+    function exportPreScheduleReport() {
+      const content = `
+预排结果对比报告
+生成时间: ${new Date().toLocaleString('zh-CN')}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+方案对比
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚖️ 均衡模式: OEE 87.2%, 准时交付 94.5%
+🚚 交期优先: OEE 85.6%, 准时交付 97.2%
+⚡ 效率优先: OEE 91.3%, 准时交付 92.1%
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+推荐方案: ⚡ 效率优先
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+`;
+      const blob = new Blob([content], { type: 'text/plain;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `预排对比报告_${new Date().toISOString().slice(0,10)}.txt`;
+      link.click();
+      toast('预排报告导出成功！');
+    }
+
+    // ========== 计划员排产日期操作 ==========
+    let currentScheduleDate = '2026-02-28';
+    let currentScheduleShift = 'day';
+    let workflowStep = 1;
+
+    function onScheduleDateChange(date) {
+      currentScheduleDate = date;
+      toast(`📅 已切换排产日期: ${date}`);
+      updateWorkflowStep(1);
+      
+      // 模拟加载该日期的排产数据
+      setTimeout(() => {
+        renderDecisionCenter();
+        showScheduleResult();
+        
+        // 更新状态标签
+        const statusBadge = document.getElementById('schedule-status-badge');
+        if (statusBadge) {
+          // 随机状态：已排产或未排产
+          const isScheduled = Math.random() > 0.3;
+          if (isScheduled) {
+            statusBadge.textContent = '✓ 已排产';
+            statusBadge.style.cssText = 'background: rgba(34, 197, 94, 0.2);color: #4ade80;padding: 6px 12px;';
+          } else {
+            statusBadge.textContent = '⚠ 未排产';
+            statusBadge.style.cssText = 'background: rgba(245, 158, 11, 0.2);color: #fbbf24;padding: 6px 12px;';
+          }
+        }
+      }, 500);
+    }
+
+    function onScheduleShiftChange(shift) {
+      currentScheduleShift = shift;
+      const shiftNames = { day: '白班', night: '夜班', full: '全天' };
+      toast(`⏰ 已切换班次: ${shiftNames[shift]}`);
+      renderDecisionCenter();
+    }
+
+    function updateWorkflowStep(step) {
+      workflowStep = step;
+      document.querySelectorAll('.workflow-step').forEach((el, idx) => {
+        const stepNum = idx + 1;
+        if (stepNum <= step) {
+          el.style.cssText = 'display: flex;align-items: center;gap: 8px;padding: 8px 14px;background: linear-gradient(135deg, #1e3a8a, #2563eb);border-radius: 20px;font-size: 12px;color: #fff;';
+          el.querySelector('span:first-child').style.cssText = 'width: 18px;height: 18px;background: rgba(255,255,255,0.2);border-radius: 50%;display: flex;align-items: center;justify-content: center;font-size: 10px;font-weight: 600;';
+        } else {
+          el.style.cssText = 'display: flex;align-items: center;gap: 8px;padding: 8px 14px;background: #0f172a;border: 1px solid #334155;border-radius: 20px;font-size: 12px;color: #94a3b8;';
+          el.querySelector('span:first-child').style.cssText = 'width: 18px;height: 18px;background: #334155;border-radius: 50%;display: flex;align-items: center;justify-content: center;font-size: 10px;font-weight: 600;';
+        }
+      });
+    }
+
+    function confirmAndPublishSchedule() {
+      if (workflowStep < 3) {
+        toast('⚠️ 请先完成预排并查看结果');
+        return;
+      }
+      
+      const date = document.getElementById('schedule-date').value;
+      const shift = document.getElementById('schedule-shift');
+      const shiftText = shift.options[shift.selectedIndex].text;
+      
+      if (confirm(`确认发布排产计划?\n\n📅 日期: ${date}\n⏰ 班次: ${shiftText}\n📋 订单数: 45个\n\n发布后车间将收到正式生产指令。`)) {
+        toast('🚀 正在发布排产计划...');
+        
+        setTimeout(() => {
+          updateWorkflowStep(4);
+          
+          // 更新状态
+          const statusBadge = document.getElementById('schedule-status-badge');
+          if (statusBadge) {
+            statusBadge.textContent = '✓ 已发布';
+            statusBadge.style.cssText = 'background: rgba(34, 197, 94, 0.2);color: #4ade80;padding: 6px 12px;';
+          }
+          
+          toast('✅ 排产计划已成功发布！车间已收到生产指令');
+          
+          // 添加到待办完成
+          todoItems.unshift({
+            id: Date.now(),
+            type: 'normal',
+            icon: '✅',
+            title: `已发布 ${date} 排产计划`,
+            meta: '45个订单已下达车间',
+            time: '刚刚'
+          });
+          renderTodoList();
+        }, 1500);
+      }
+    }
+
+    // 覆盖原有一键预排函数，添加工作流步骤更新
+    const originalOpenPreScheduleModal = openPreScheduleModal;
+    openPreScheduleModal = function() {
+      originalOpenPreScheduleModal();
+      updateWorkflowStep(2);
+    };
+
+    // 覆盖原有显示排产结果函数，添加工作流步骤更新
+    const originalShowScheduleResult = showScheduleResult;
+    showScheduleResult = function() {
+      originalShowScheduleResult();
+      updateWorkflowStep(3);
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // 初始化数据
+      if (typeof init === 'function') {
+        init();
+      }
+      
+      // 设置默认日期为今天
+      const today = new Date().toISOString().split('T')[0];
+      const dateInput = document.getElementById('schedule-date');
+      if (dateInput) {
+        dateInput.value = today;
+        currentScheduleDate = today;
+      }
+      renderDecisionCenter();
+    });
+  </script>
+</body>
+</html>

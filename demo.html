@@ -1262,6 +1262,11 @@
             box-shadow: 0 0 20px rgba(0, 212, 255, 0.6);
         }
 
+        .network-node.active {
+            background: rgba(0, 212, 255, 0.6);
+            animation: pulse 1.5s infinite;
+        }
+
         .network-node.critical {
             border-color: #ff4d6d;
             background: rgba(255, 77, 109, 0.2);
@@ -2128,7 +2133,7 @@
             });
 
             // 地图点击
-            document.querySelectorAll('.map-node').forEach(node => {
+            document.querySelectorAll('.network-node').forEach(node => {
                 node.addEventListener('click', function() {
                     this.classList.toggle('active');
                     showNotification(`已选择：${this.textContent}`, 'success');

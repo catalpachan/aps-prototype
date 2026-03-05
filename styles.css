@@ -1005,18 +1005,17 @@ header {
 }
 
 .login-logo {
-    font-size: 28px;
-    font-weight: 800;
-    color: var(--text-main);
     margin-bottom: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
 }
 
-.login-logo span {
-    color: var(--primary);
+.login-logo img {
+    width: min(260px, 100%);
+    height: auto;
+    display: block;
+    object-fit: contain;
 }
 
 .login-subtitle {
@@ -1084,6 +1083,8 @@ header {
     padding: 12px;
     font-size: 14px;
     font-weight: 600;
+    justify-content: center;
+    text-align: center;
 }
 
 .login-footer {

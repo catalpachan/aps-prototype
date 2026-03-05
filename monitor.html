@@ -1,0 +1,1616 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>监控中心 - 格力计划排程智能体</title>
+  <link rel="stylesheet" href="common.css" />
+  <style>
+    .flow { display: grid; grid-template-columns: repeat(4, minmax(130px, 1fr)); gap: 10px; }
+    .flow-step { --ring-color: var(--info); border: 1px solid #334155; background: linear-gradient(165deg, #0f1a2d 0%, #141f35 100%); border-radius: 10px; padding: 12px 10px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .flow-ring-wrap { position: relative; width: 92px; height: 92px; display: grid; place-items: center; }
+    .flow-ring { width: 92px; height: 92px; transform: rotate(-90deg); }
+    .flow-ring-bg { fill: none; stroke: #243248; stroke-width: 8; }
+    .flow-ring-bar { fill: none; stroke: var(--ring-color); stroke-width: 8; stroke-linecap: round; }
+    .flow-ring-value { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: 800; font-size: 20px; color: #e2e8f0; }
+    .flow-ring-value small { margin-left: 1px; font-size: 11px; color: #94a3b8; font-weight: 600; }
+    .alert-line { display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 8px; margin-bottom: 6px; border: 1px solid transparent; }
+    .alert-l1 { background: #3a1016; border-color: #7f1d1d; }
+    .alert-l2 { background: #3a2609; border-color: #854d0e; }
+    .alert-l3 { background: #102a40; border-color: #0c4a6e; }
+    .blink-red { animation: blinkRed 1s steps(1, end) infinite; }
+    @keyframes blinkRed { 0%, 50% { box-shadow: 0 0 0 0 rgba(239,68,68,0.2); border-color: #7f1d1d; } 51%, 100% { box-shadow: 0 0 0 3px rgba(239,68,68,0.35); border-color: #ef4444; } }
+    .incident-panel { margin-top: 10px; border: 1px solid #334155; border-radius: 8px; padding: 10px; background: #101b2d; display: none; }
+    .incident-panel.show { display: block; }
+    .heat-item { margin-bottom: 10px; padding: 8px; border: 1px solid #334155; border-radius: 8px; background: #111b2d; }
+    .heat-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .heat-item-title { font-weight: 600; color: #e2e8f0; }
+    .heat-item-value { font-weight: 700; }
+    .heat-item-value.ok { color: #86efac; }
+    .heat-item-value.warn { color: #fcd34d; }
+    @media (max-width: 920px) { .flow { grid-template-columns: repeat(2, minmax(130px, 1fr)); } }
+
+    /* ========== 数字孪生面板样式 ========== */
+    .digital-twin-panel {
+      margin-bottom: 16px;
+    }
+
+    .twin-container {
+      background: linear-gradient(135deg, #050a12 0%, #0a1020 50%, #050810 100%);
+      min-height: 620px;
+      position: relative;
+      overflow: hidden;
+      border-radius: 12px;
+    }
+
+    .twin-top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      background: linear-gradient(90deg, rgba(15, 25, 45, 0.95), rgba(10, 18, 35, 0.95));
+      border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+    }
+
+    .twin-plant-info {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .plant-icon {
+      font-size: 32px;
+      filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.5));
+    }
+
+    .plant-name {
+      font-size: 18px;
+      font-weight: 700;
+      color: #e2e8f0;
+      text-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
+    }
+
+    .plant-status {
+      font-size: 13px;
+      color: #4ade80;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .plant-status::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: #4ade80;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7); }
+      50% { opacity: 0.8; box-shadow: 0 0 0 8px rgba(74, 222, 128, 0); }
+    }
+
+    .twin-live-stats {
+      display: flex;
+      gap: 32px;
+    }
+
+    .live-stat {
+      text-align: center;
+      padding: 8px 16px;
+      background: rgba(15, 23, 42, 0.6);
+      border-radius: 12px;
+      border: 1px solid rgba(59, 130, 246, 0.15);
+    }
+
+    .live-stat .stat-value {
+      font-size: 26px;
+      font-weight: 800;
+      color: #38bdf8;
+      text-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+    }
+
+    .live-stat .stat-value.warning { color: #fbbf24; text-shadow: 0 0 15px rgba(251, 191, 36, 0.4); }
+    .live-stat .stat-value.error { color: #ef4444; text-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
+    .live-stat .stat-value.success { color: #4ade80; text-shadow: 0 0 15px rgba(74, 222, 128, 0.4); }
+
+    .live-stat .stat-label {
+      font-size: 12px;
+      color: #64748b;
+      margin-top: 2px;
+    }
+
+    .twin-time {
+      text-align: right;
+      padding: 8px 16px;
+      background: rgba(15, 23, 42, 0.6);
+      border-radius: 12px;
+      border: 1px solid rgba(168, 85, 247, 0.2);
+    }
+
+    .twin-time .time-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: #e2e8f0;
+      font-family: 'Courier New', monospace;
+      letter-spacing: 2px;
+    }
+
+    .twin-time .time-label {
+      font-size: 11px;
+      color: #a855f7;
+    }
+
+    .twin-main-area {
+      display: grid;
+      grid-template-columns: 200px 1fr 260px;
+      gap: 0;
+      height: calc(100% - 120px);
+    }
+
+    /* 左侧边栏 */
+    .twin-sidebar {
+      background: rgba(10, 15, 25, 0.9);
+      border-right: 1px solid rgba(59, 130, 246, 0.15);
+      padding: 14px;
+      overflow-y: auto;
+    }
+
+    .sidebar-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #94a3b8;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(59, 130, 246, 0.15);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .production-line-item {
+      padding: 12px;
+      background: rgba(30, 41, 59, 0.4);
+      border: 1px solid rgba(59, 130, 246, 0.1);
+      border-radius: 10px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .production-line-item:hover {
+      background: rgba(37, 99, 235, 0.15);
+      border-color: rgba(59, 130, 246, 0.4);
+      transform: translateX(4px);
+    }
+
+    .production-line-item.active {
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.25), rgba(59, 130, 246, 0.15));
+      border-color: #3b82f6;
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+    }
+
+    .production-line-item .line-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: #e2e8f0;
+      margin-bottom: 6px;
+    }
+
+    .production-line-item .line-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+    }
+
+    .production-line-item .line-oee {
+      margin-top: 6px;
+      font-size: 11px;
+      color: #38bdf8;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      animation: statusPulse 2s infinite;
+    }
+
+    .status-dot.running { background: #22c55e; box-shadow: 0 0 8px rgba(34, 197, 94, 0.6); }
+    .status-dot.warning { background: #f59e0b; box-shadow: 0 0 8px rgba(245, 158, 11, 0.6); }
+    .status-dot.error { background: #ef4444; box-shadow: 0 0 8px rgba(239, 68, 68, 0.6); }
+    .status-dot.idle { background: #64748b; animation: none; }
+
+    @keyframes statusPulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(0.9); }
+    }
+
+    /* 中央工厂视图 */
+    .twin-factory-view {
+      position: relative;
+      background: radial-gradient(ellipse at center, #0a1525 0%, #050a12 100%);
+      overflow: hidden;
+    }
+
+    .factory-svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* 设备样式 */
+    .equipment-group {
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .equipment-group:hover {
+      filter: brightness(1.2);
+    }
+
+    .equipment-rect {
+      rx: 6;
+      stroke-width: 2;
+      transition: all 0.3s;
+    }
+
+    .equipment-rect.running {
+      fill: url(#runningGrad);
+      stroke: #22c55e;
+      filter: url(#glow);
+    }
+
+    .equipment-rect.warning {
+      fill: url(#warningGrad);
+      stroke: #f59e0b;
+      animation: blinkWarning 1.5s infinite;
+    }
+
+    .equipment-rect.error {
+      fill: url(#errorGrad);
+      stroke: #ef4444;
+      animation: blinkError 0.8s infinite;
+    }
+
+    .equipment-rect.idle {
+      fill: url(#idleGrad);
+      stroke: #475569;
+      opacity: 0.7;
+    }
+
+    @keyframes blinkWarning {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    @keyframes blinkError {
+      0%, 100% { opacity: 1; stroke-width: 2; }
+      50% { opacity: 0.8; stroke-width: 3; }
+    }
+
+    .equipment-label {
+      font-size: 10px;
+      fill: #fff;
+      text-anchor: middle;
+      pointer-events: none;
+      font-weight: 600;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    }
+
+    /* 物料流转动画 */
+    .material-particle {
+      filter: url(#glow);
+    }
+
+    /* 设备详情弹窗 */
+    .equipment-popup {
+      position: absolute;
+      background: rgba(10, 15, 25, 0.98);
+      border: 1px solid rgba(59, 130, 246, 0.5);
+      border-radius: 14px;
+      padding: 14px;
+      min-width: 220px;
+      z-index: 100;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(59, 130, 246, 0.15);
+      backdrop-filter: blur(10px);
+    }
+
+    .popup-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+    }
+
+    .popup-title {
+      font-weight: 700;
+      color: #e2e8f0;
+      font-size: 14px;
+    }
+
+    .popup-status {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-weight: 600;
+    }
+
+    .popup-status.running {
+      background: rgba(34, 197, 94, 0.2);
+      color: #4ade80;
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .popup-status.warning {
+      background: rgba(245, 158, 11, 0.2);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .popup-status.error {
+      background: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .popup-status.idle {
+      background: rgba(100, 116, 139, 0.2);
+      color: #94a3b8;
+      border: 1px solid rgba(100, 116, 139, 0.3);
+    }
+
+    .popup-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 12px;
+    }
+
+    .popup-label {
+      color: #64748b;
+    }
+
+    .popup-value {
+      color: #e2e8f0;
+      font-weight: 600;
+    }
+
+    .popup-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    /* 右侧数据面板 */
+    .twin-data-panel {
+      background: rgba(10, 15, 25, 0.9);
+      border-left: 1px solid rgba(59, 130, 246, 0.15);
+      padding: 14px;
+      overflow-y: auto;
+    }
+
+    .data-panel-section {
+      margin-bottom: 18px;
+    }
+
+    .section-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #94a3b8;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(59, 130, 246, 0.15);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .metric-item {
+      margin-bottom: 14px;
+    }
+
+    .metric-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+
+    .metric-header span:first-child {
+      color: #94a3b8;
+    }
+
+    .metric-value {
+      color: #38bdf8;
+      font-weight: 700;
+    }
+
+    .metric-value.good {
+      color: #4ade80;
+    }
+
+    .metric-bar {
+      height: 6px;
+      background: rgba(30, 41, 59, 0.8);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .metric-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #3b82f6, #38bdf8);
+      border-radius: 3px;
+      transition: width 0.5s ease;
+    }
+
+    .metric-bar.good .metric-fill {
+      background: linear-gradient(90deg, #22c55e, #4ade80);
+    }
+
+    /* WIP分布 */
+    .wip-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      background: rgba(30, 41, 59, 0.4);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      border: 1px solid rgba(59, 130, 246, 0.1);
+    }
+
+    .wip-color {
+      width: 4px;
+      height: 28px;
+      border-radius: 2px;
+    }
+
+    .wip-info {
+      flex: 1;
+    }
+
+    .wip-name {
+      font-size: 12px;
+      color: #e2e8f0;
+      font-weight: 500;
+    }
+
+    .wip-count {
+      font-size: 10px;
+      color: #64748b;
+    }
+
+    .wip-value {
+      font-size: 16px;
+      font-weight: 700;
+      color: #38bdf8;
+    }
+
+    /* 实时告警 */
+    .alert-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px;
+      background: rgba(30, 41, 59, 0.4);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      border-left: 3px solid;
+    }
+
+    .alert-item.warning {
+      border-color: #f59e0b;
+      background: rgba(245, 158, 11, 0.08);
+    }
+
+    .alert-item.error {
+      border-color: #ef4444;
+      background: rgba(239, 68, 68, 0.08);
+    }
+
+    .alert-icon {
+      font-size: 16px;
+    }
+
+    .alert-content {
+      flex: 1;
+    }
+
+    .alert-title {
+      font-size: 12px;
+      color: #e2e8f0;
+      font-weight: 500;
+    }
+
+    .alert-time {
+      font-size: 10px;
+      color: #64748b;
+      margin-top: 2px;
+    }
+
+    /* 底部时间轴 */
+    .twin-timeline {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 14px 20px;
+      background: linear-gradient(0deg, rgba(5, 10, 18, 0.98), rgba(5, 10, 18, 0.9));
+      border-top: 1px solid rgba(59, 130, 246, 0.15);
+    }
+
+    .timeline-label {
+      font-size: 12px;
+      color: #64748b;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .timeline-bar {
+      height: 10px;
+      background: rgba(30, 41, 59, 0.8);
+      border-radius: 5px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .timeline-progress {
+      height: 100%;
+      background: linear-gradient(90deg, #22c55e, #38bdf8, #a855f7);
+      border-radius: 5px;
+      transition: width 1s ease;
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+    }
+
+    .timeline-markers {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+
+    .marker {
+      position: absolute;
+      width: 2px;
+      height: 100%;
+      background: #475569;
+    }
+
+    .marker.current {
+      background: #f59e0b;
+      width: 3px;
+      box-shadow: 0 0 12px rgba(245, 158, 11, 0.6);
+    }
+
+    .timeline-time {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 8px;
+      font-size: 11px;
+      color: #64748b;
+    }
+
+    /* 顶部KPI看板 */
+    .monitor-kpis {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .monitor-kpi-card {
+      background: linear-gradient(135deg, rgba(15, 25, 45, 0.9), rgba(10, 18, 35, 0.9));
+      border: 1px solid rgba(59, 130, 246, 0.15);
+      border-radius: 12px;
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .monitor-kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #3b82f6, #38bdf8);
+    }
+
+    .monitor-kpi-card.warning::before {
+      background: linear-gradient(90deg, #f59e0b, #fbbf24);
+    }
+
+    .monitor-kpi-card.success::before {
+      background: linear-gradient(90deg, #22c55e, #4ade80);
+    }
+
+    .monitor-kpi-label {
+      font-size: 12px;
+      color: #64748b;
+      margin-bottom: 8px;
+    }
+
+    .monitor-kpi-value {
+      font-size: 28px;
+      font-weight: 800;
+      color: #e2e8f0;
+    }
+
+    .monitor-kpi-trend {
+      font-size: 11px;
+      margin-top: 6px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .monitor-kpi-trend.up { color: #4ade80; }
+    .monitor-kpi-trend.down { color: #f87171; }
+
+    /* 全屏模式（fallback） */
+    .twin-fullscreen {
+      overflow: hidden;
+    }
+
+    .twin-fullscreen .digital-twin-panel {
+      position: fixed;
+      inset: 0;
+      margin: 0;
+      z-index: 9999;
+      border-radius: 0;
+      border: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .twin-fullscreen .digital-twin-panel .card-hd {
+      border-radius: 0;
+      position: relative;
+      z-index: 2;
+      flex-shrink: 0;
+    }
+
+    .twin-fullscreen .digital-twin-panel .card-bd {
+      padding: 0 !important;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .twin-fullscreen .digital-twin-panel .twin-container {
+      min-height: 100%;
+      height: 100%;
+      border-radius: 0;
+    }
+
+    .twin-fullscreen .digital-twin-panel .twin-main-area {
+      height: calc(100% - 120px);
+    }
+
+    /* 全屏模式（原生 Fullscreen API） */
+    #digital-twin-panel:fullscreen,
+    #digital-twin-panel:-webkit-full-screen {
+      width: 100vw;
+      height: 100vh;
+      margin: 0;
+      border: 0;
+      border-radius: 0;
+      display: flex;
+      flex-direction: column;
+      background: #0b1220;
+    }
+
+    #digital-twin-panel:fullscreen .card-hd,
+    #digital-twin-panel:-webkit-full-screen .card-hd {
+      border-radius: 0;
+      flex-shrink: 0;
+    }
+
+    #digital-twin-panel:fullscreen .card-bd,
+    #digital-twin-panel:-webkit-full-screen .card-bd {
+      padding: 0 !important;
+      flex: 1;
+      min-height: 0;
+    }
+
+    #digital-twin-panel:fullscreen .twin-container,
+    #digital-twin-panel:-webkit-full-screen .twin-container {
+      min-height: 100%;
+      height: 100%;
+      border-radius: 0;
+    }
+
+    @media (max-width: 1200px) {
+      .twin-main-area {
+        grid-template-columns: 180px 1fr 220px;
+      }
+      .twin-live-stats {
+        gap: 16px;
+      }
+      .live-stat {
+        padding: 6px 10px;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .twin-main-area {
+        grid-template-columns: 1fr;
+      }
+      .twin-sidebar, .twin-data-panel {
+        display: none;
+      }
+      .twin-live-stats {
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .monitor-kpis {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand-block">
+      <img class="header-logo" src="1c5703c9-aca0-43d1-9843-9d502cb66fd0.png" alt="APS Logo" width="130" height="40" />
+      
+    </div>
+    <nav class="nav" id="nav">
+      <a href="decision.html" class="nav-item">决策中心</a>
+      <a href="collab.html" class="nav-item">协同中心</a>
+      <a href="demand.html" class="nav-item">需求中心</a>
+      <a href="resource.html" class="nav-item">资源中心</a>
+      <a href="rule.html" class="nav-item">规则中心</a>
+      <a href="monitor.html" class="nav-item active">监控中心</a>
+      <a href="report.html" class="nav-item">报表中心</a>
+      <a href="settings.html" class="nav-item">系统设置</a>
+    </nav>
+    <div class="header-meta" id="header-meta">
+      <span id="header-date">2026-02-28 08:56:33</span> |
+      <select id="hq-select" class="role-select">
+        <option>珠海格力总部</option>
+        <option>金湾基地</option>
+        <option>武汉基地</option>
+        <option>洛阳基地</option>
+      </select>
+      | 
+      <div class="user-dropdown" id="user-dropdown">
+        <div class="user-dropdown-toggle" onclick="toggleUserDropdown()">
+          <div class="avatar">张</div>
+          <span class="name">张伟</span>
+          <span class="arrow">▼</span>
+        </div>
+        <div class="user-dropdown-menu">
+          <a href="settings.html" class="user-dropdown-item">👤 用户信息</a>
+          <a href="login.html" class="user-dropdown-item logout">🚪 退出</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="app">
+    <section class="view" id="view-monitor">
+      <!-- 数字孪生生产监控面板 -->
+      <article class="card digital-twin-panel" id="digital-twin-panel">
+        <div class="card-hd">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <span style="font-size:18px;">🏭 数字孪生生产监控</span>
+            <span class="tag" style="background:rgba(168,85,247,0.2);color:#c084fc;border:1px solid rgba(168,85,247,0.3);">实时同步</span>
+          </div>
+          <div class="row">
+            <select id="twin-view-mode" onchange="switchTwinView(this.value)" style="padding:6px 12px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#e2e8f0;">
+              <option value="overview">全景视图</option>
+              <option value="production">生产线视图</option>
+              <option value="material">物料流转</option>
+              <option value="quality">质量监控</option>
+            </select>
+            <button class="btn" id="twin-fullscreen-btn" type="button" aria-pressed="false" onclick="toggleTwinFullscreen()">⛶ 全屏</button>
+            <button class="btn" onclick="refreshTwinData()">🔄 刷新</button>
+          </div>
+        </div>
+        <div class="card-bd" style="padding:0;">
+          <div class="twin-container" id="twin-container">
+            <!-- 工厂布局画布 -->
+            <div class="twin-canvas" id="twin-canvas">
+              <!-- 顶部信息栏 -->
+              <div class="twin-top-bar">
+                <div class="twin-plant-info">
+                  <span class="plant-icon">🏭</span>
+                  <div>
+                    <div class="plant-name">珠海格力总装基地</div>
+                    <div class="plant-status">生产中 · 正常运行</div>
+                  </div>
+                </div>
+                <div class="twin-live-stats">
+                  <div class="live-stat">
+                    <span class="stat-value" id="twin-active-machines">42</span>
+                    <span class="stat-label">运行设备</span>
+                  </div>
+                  <div class="live-stat">
+                    <span class="stat-value warning" id="twin-warning-count">3</span>
+                    <span class="stat-label">预警设备</span>
+                  </div>
+                  <div class="live-stat">
+                    <span class="stat-value error" id="twin-error-count">1</span>
+                    <span class="stat-label">故障设备</span>
+                  </div>
+                  <div class="live-stat">
+                    <span class="stat-value success" id="twin-output">1,247</span>
+                    <span class="stat-label">今日产量</span>
+                  </div>
+                </div>
+                <div class="twin-time">
+                  <div class="time-value" id="twin-time">--:--:--</div>
+                  <div class="time-label">系统时间</div>
+                </div>
+              </div>
+              
+              <!-- 主画布区域 -->
+              <div class="twin-main-area">
+                <!-- 左侧产线列表 -->
+                <div class="twin-sidebar">
+                  <div class="sidebar-title">📊 生产线列表</div>
+                  <div class="production-lines-list" id="production-lines-list">
+                    <!-- 动态生成 -->
+                  </div>
+                </div>
+                
+                <!-- 中央工厂布局 -->
+                <div class="twin-factory-view" id="twin-factory-view">
+                  <svg class="factory-svg" id="factory-svg" viewBox="0 0 900 420">
+                    <!-- 背景网格 -->
+                    <defs>
+                      <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse">
+                        <path d="M 30 0 L 0 0 0 30" fill="none" stroke="rgba(59,130,246,0.08)" stroke-width="0.5"/>
+                      </pattern>
+                      <linearGradient id="runningGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" style="stop-color:#166534"/>
+                        <stop offset="100%" style="stop-color:#22c55e"/>
+                      </linearGradient>
+                      <linearGradient id="warningGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" style="stop-color:#92400e"/>
+                        <stop offset="100%" style="stop-color:#f59e0b"/>
+                      </linearGradient>
+                      <linearGradient id="errorGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" style="stop-color:#991b1b"/>
+                        <stop offset="100%" style="stop-color:#ef4444"/>
+                      </linearGradient>
+                      <linearGradient id="idleGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" style="stop-color:#334155"/>
+                        <stop offset="100%" style="stop-color:#475569"/>
+                      </linearGradient>
+                      <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                        <feMerge>
+                          <feMergeNode in="coloredBlur"/>
+                          <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                      </filter>
+                    </defs>
+                    <rect width="900" height="420" fill="url(#grid)"/>
+                    
+                    <!-- 产线区域标签 -->
+                    <text x="150" y="25" fill="#64748b" font-size="12" text-anchor="middle" font-weight="600">内机生产线</text>
+                    <text x="450" y="25" fill="#64748b" font-size="12" text-anchor="middle" font-weight="600">外机生产线</text>
+                    <text x="750" y="25" fill="#64748b" font-size="12" text-anchor="middle" font-weight="600">钣金分厂</text>
+                    <text x="150" y="225" fill="#64748b" font-size="12" text-anchor="middle" font-weight="600">两器分厂</text>
+                    <text x="450" y="225" fill="#64748b" font-size="12" text-anchor="middle" font-weight="600">注塑分厂</text>
+                    <text x="750" y="225" fill="#64748b" font-size="12" text-anchor="middle" font-weight="600">仓库区域</text>
+                    
+                    <!-- 区域分隔线 -->
+                    <line x1="300" y1="40" x2="300" y2="195" stroke="rgba(59,130,246,0.15)" stroke-width="1" stroke-dasharray="5,5"/>
+                    <line x1="600" y1="40" x2="600" y2="195" stroke="rgba(59,130,246,0.15)" stroke-width="1" stroke-dasharray="5,5"/>
+                    <line x1="300" y1="240" x2="300" y2="395" stroke="rgba(59,130,246,0.15)" stroke-width="1" stroke-dasharray="5,5"/>
+                    <line x1="600" y1="240" x2="600" y2="395" stroke="rgba(59,130,246,0.15)" stroke-width="1" stroke-dasharray="5,5"/>
+                    <line x1="20" y1="210" x2="880" y2="210" stroke="rgba(59,130,246,0.15)" stroke-width="1" stroke-dasharray="5,5"/>
+                    
+                    <!-- 设备和产线将动态生成 -->
+                    <g id="factory-equipment"></g>
+                    
+                    <!-- 物料流转动画层 -->
+                    <g id="material-flow"></g>
+                  </svg>
+                  
+                  <!-- 设备详情弹窗 -->
+                  <div class="equipment-popup" id="equipment-popup" style="display:none;">
+                    <div class="popup-header">
+                      <span class="popup-title" id="popup-title">设备名称</span>
+                      <span class="popup-status" id="popup-status">运行中</span>
+                    </div>
+                    <div class="popup-content">
+                      <div class="popup-row">
+                        <span class="popup-label">当前订单</span>
+                        <span class="popup-value" id="popup-order">-</span>
+                      </div>
+                      <div class="popup-row">
+                        <span class="popup-label">当前产量</span>
+                        <span class="popup-value" id="popup-output">-</span>
+                      </div>
+                      <div class="popup-row">
+                        <span class="popup-label">设备OEE</span>
+                        <span class="popup-value" id="popup-oee">-</span>
+                      </div>
+                      <div class="popup-row">
+                        <span class="popup-label">运行时长</span>
+                        <span class="popup-value" id="popup-runtime">-</span>
+                      </div>
+                    </div>
+                    <div class="popup-actions">
+                      <button class="btn sm" onclick="showEquipmentDetail()">详情</button>
+                      <button class="btn sm" onclick="reportEquipmentIssue()" style="background:rgba(239,68,68,0.2);border-color:#ef4444;color:#f87171;">报障</button>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- 右侧实时数据 -->
+                <div class="twin-data-panel">
+                  <div class="data-panel-section">
+                    <div class="section-title">📊 实时生产指标</div>
+                    <div class="realtime-metrics" id="realtime-metrics">
+                      <div class="metric-item">
+                        <div class="metric-header">
+                          <span>产线效率</span>
+                          <span class="metric-value">92.3%</span>
+                        </div>
+                        <div class="metric-bar">
+                          <div class="metric-fill" style="width:92.3%"></div>
+                        </div>
+                      </div>
+                      <div class="metric-item">
+                        <div class="metric-header">
+                          <span>良品率</span>
+                          <span class="metric-value good">98.7%</span>
+                        </div>
+                        <div class="metric-bar good">
+                          <div class="metric-fill" style="width:98.7%"></div>
+                        </div>
+                      </div>
+                      <div class="metric-item">
+                        <div class="metric-header">
+                          <span>设备利用率</span>
+                          <span class="metric-value">87.6%</span>
+                        </div>
+                        <div class="metric-bar">
+                          <div class="metric-fill" style="width:87.6%"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="data-panel-section">
+                    <div class="section-title">📦 WIP在制品分布</div>
+                    <div class="wip-distribution" id="wip-distribution">
+                      <!-- 动态生成 -->
+                    </div>
+                  </div>
+                  
+                  <div class="data-panel-section">
+                    <div class="section-title">⚠️ 实时告警</div>
+                    <div class="live-alerts" id="live-alerts">
+                      <!-- 动态生成 -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- 底部时间轴 -->
+              <div class="twin-timeline">
+                <div class="timeline-label">
+                  <span>📈 生产进度时间轴</span>
+                  <span style="color:#38bdf8;">当前班次进度</span>
+                </div>
+                <div class="timeline-bar">
+                  <div class="timeline-progress" id="timeline-progress" style="width:45%"></div>
+                  <div class="timeline-markers">
+                    <div class="marker" style="left:0%" title="08:00 开班"></div>
+                    <div class="marker" style="left:33%" title="12:00 午休"></div>
+                    <div class="marker current" style="left:45%" title="当前"></div>
+                    <div class="marker" style="left:67%" title="16:00 换班"></div>
+                    <div class="marker" style="left:100%" title="20:00 交班"></div>
+                  </div>
+                </div>
+                <div class="timeline-time">
+                  <span>08:00</span>
+                  <span>12:00</span>
+                  <span id="current-time-marker">10:45</span>
+                  <span>16:00</span>
+                  <span>20:00</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- 底部监控面板 -->
+      <div class="grid-2">
+        <article class="card">
+          <div class="card-hd"><span>执行进度看板</span><div class="row"><select><option>按订单</option><option>按批次</option><option>按机型</option></select><button class="btn" onclick="refreshFlowBoard()">刷新频率: 5s</button></div></div>
+          <div class="card-bd"><div class="flow" id="flow-board"></div></div>
+        </article>
+
+        <article class="card">
+          <div class="card-hd"><span>异常哨兵系统（三级分级）</span><button class="btn" onclick="pushAlerts()">推送告警</button></div>
+          <div class="card-bd">
+            <div id="alert-board"></div>
+            <div class="incident-panel" id="incident-panel">
+              <div class="row" style="justify-content:space-between; margin-bottom:8px;"><b>异常处理工单</b><span class="tag info" id="incident-level">-</span></div>
+              <div class="muted" id="incident-text">请从告警列表点击"处理"</div>
+              <textarea id="incident-feedback" rows="3" placeholder="填写处理反馈，例如：已协调加急物流并调整排程"></textarea>
+              <div class="row" style="justify-content:flex-end; margin-top:8px;"><button class="btn" onclick="closeIncidentTicket()">取消</button><button class="btn primary" onclick="submitIncidentTicket()">提交闭环</button></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-hd"><span>KPI归因分析</span><button class="btn" onclick="refreshAttribution()">更新归因</button></div>
+          <div class="card-bd" id="attribution-panel"></div>
+        </article>
+
+        <article class="card">
+          <div class="card-hd"><span>KPI与绩效看板</span><button class="btn primary" onclick="feedBackToRules()">一键反哺参数</button></div>
+          <div class="card-bd" id="performance-panel"></div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+  <script src="common.js"></script>
+  <script>
+    // ========== 数字孪生生产监控数据 ==========
+    const twinEquipment = [
+      // 内机生产线
+      { id: 'NJ-01', name: '内机线A', x: 30, y: 50, width: 80, height: 38, area: 'indoor', status: 'running', order: 'SO-20260227-018', output: 156, oee: 92.3, runtime: '3h 25m' },
+      { id: 'NJ-02', name: '内机线B', x: 120, y: 50, width: 80, height: 38, area: 'indoor', status: 'running', order: 'SO-20260227-019', output: 142, oee: 88.7, runtime: '3h 18m' },
+      { id: 'NJ-03', name: '内机线C', x: 30, y: 100, width: 80, height: 38, area: 'indoor', status: 'warning', order: 'SO-20260227-020', output: 98, oee: 75.2, runtime: '2h 45m' },
+      { id: 'NJ-04', name: '内机线D', x: 120, y: 100, width: 80, height: 38, area: 'indoor', status: 'running', order: 'SO-20260227-021', output: 167, oee: 91.8, runtime: '3h 30m' },
+      { id: 'NJ-05', name: '内机线E', x: 210, y: 50, width: 80, height: 38, area: 'indoor', status: 'idle', order: '-', output: 0, oee: 0, runtime: '-' },
+      
+      // 外机生产线
+      { id: 'WJ-01', name: '外机线A', x: 330, y: 50, width: 80, height: 38, area: 'outdoor', status: 'running', order: 'SO-20260227-022', output: 189, oee: 94.1, runtime: '3h 42m' },
+      { id: 'WJ-02', name: '外机线B', x: 420, y: 50, width: 80, height: 38, area: 'outdoor', status: 'running', order: 'SO-20260227-023', output: 178, oee: 89.5, runtime: '3h 35m' },
+      { id: 'WJ-03', name: '外机线C', x: 330, y: 100, width: 80, height: 38, area: 'outdoor', status: 'error', order: 'SO-20260227-024', output: 45, oee: 32.1, runtime: '1h 12m' },
+      { id: 'WJ-04', name: '外机线D', x: 420, y: 100, width: 80, height: 38, area: 'outdoor', status: 'running', order: 'SO-20260227-025', output: 165, oee: 87.3, runtime: '3h 20m' },
+      { id: 'WJ-05', name: '外机线E', x: 510, y: 50, width: 80, height: 38, area: 'outdoor', status: 'warning', order: 'SO-20260227-026', output: 112, oee: 72.8, runtime: '2h 55m' },
+      
+      // 钣金分厂
+      { id: 'BJ-01', name: '钣金线A', x: 630, y: 50, width: 80, height: 38, area: 'sheet', status: 'running', order: 'MO-20260227-001', output: 234, oee: 91.2, runtime: '4h 05m' },
+      { id: 'BJ-02', name: '钣金线B', x: 720, y: 50, width: 80, height: 38, area: 'sheet', status: 'running', order: 'MO-20260227-002', output: 256, oee: 93.5, runtime: '4h 12m' },
+      { id: 'BJ-03', name: '钣金线C', x: 810, y: 50, width: 80, height: 38, area: 'sheet', status: 'running', order: 'MO-20260227-003', output: 198, oee: 85.6, runtime: '3h 48m' },
+      { id: 'BJ-04', name: '冲压机', x: 630, y: 100, width: 60, height: 38, area: 'sheet', status: 'running', order: 'MO-20260227-004', output: 312, oee: 88.9, runtime: '4h 00m' },
+      { id: 'BJ-05', name: '焊接站', x: 700, y: 100, width: 60, height: 38, area: 'sheet', status: 'idle', order: '-', output: 0, oee: 0, runtime: '-' },
+      
+      // 两器分厂
+      { id: 'LQ-01', name: '换热器A', x: 30, y: 255, width: 80, height: 38, area: 'heatex', status: 'running', order: 'HO-20260227-001', output: 89, oee: 86.4, runtime: '3h 15m' },
+      { id: 'LQ-02', name: '换热器B', x: 120, y: 255, width: 80, height: 38, area: 'heatex', status: 'running', order: 'HO-20260227-002', output: 95, oee: 90.2, runtime: '3h 28m' },
+      { id: 'LQ-03', name: '弯管机', x: 210, y: 255, width: 60, height: 38, area: 'heatex', status: 'warning', order: 'HO-20260227-003', output: 67, oee: 68.5, runtime: '2h 30m' },
+      { id: 'LQ-04', name: '焊接站', x: 30, y: 310, width: 60, height: 38, area: 'heatex', status: 'running', order: 'HO-20260227-004', output: 78, oee: 82.1, runtime: '3h 05m' },
+      
+      // 注塑分厂
+      { id: 'ZS-01', name: '注塑机A', x: 330, y: 255, width: 70, height: 38, area: 'injection', status: 'running', order: 'IP-20260227-001', output: 445, oee: 92.8, runtime: '4h 15m' },
+      { id: 'ZS-02', name: '注塑机B', x: 410, y: 255, width: 70, height: 38, area: 'injection', status: 'running', order: 'IP-20260227-002', output: 423, oee: 89.3, runtime: '4h 08m' },
+      { id: 'ZS-03', name: '注塑机C', x: 490, y: 255, width: 70, height: 38, area: 'injection', status: 'error', order: 'IP-20260227-003', output: 156, oee: 45.2, runtime: '1h 45m' },
+      { id: 'ZS-04', name: '注塑机D', x: 330, y: 310, width: 70, height: 38, area: 'injection', status: 'running', order: 'IP-20260227-004', output: 478, oee: 94.5, runtime: '4h 22m' },
+      { id: 'ZS-05', name: '模具站', x: 410, y: 310, width: 60, height: 38, area: 'injection', status: 'warning', order: '-', output: 0, oee: 0, runtime: '-' },
+      
+      // 仓库区域
+      { id: 'WH-01', name: '原料仓', x: 630, y: 255, width: 80, height: 50, area: 'warehouse', status: 'running', order: '-', output: 0, oee: 0, runtime: '-' },
+      { id: 'WH-02', name: '成品仓', x: 720, y: 255, width: 80, height: 50, area: 'warehouse', status: 'running', order: '-', output: 0, oee: 0, runtime: '-' },
+      { id: 'WH-03', name: 'AGV调度', x: 810, y: 255, width: 80, height: 50, area: 'warehouse', status: 'running', order: '-', output: 0, oee: 0, runtime: '-' },
+      { id: 'WH-04', name: '质检站', x: 630, y: 315, width: 80, height: 50, area: 'warehouse', status: 'running', order: '-', output: 0, oee: 0, runtime: '-' },
+    ];
+
+    const productionLines = [
+      { id: 'indoor', name: '内机生产线', count: 5, running: 3, warning: 1, error: 0, idle: 1, oee: 87.5 },
+      { id: 'outdoor', name: '外机生产线', count: 5, running: 3, warning: 1, error: 1, idle: 0, oee: 85.2 },
+      { id: 'sheet', name: '钣金分厂', count: 5, running: 4, warning: 0, error: 0, idle: 1, oee: 89.8 },
+      { id: 'heatex', name: '两器分厂', count: 4, running: 3, warning: 1, error: 0, idle: 0, oee: 81.8 },
+      { id: 'injection', name: '注塑分厂', count: 5, running: 3, warning: 1, error: 1, idle: 0, oee: 80.4 },
+      { id: 'warehouse', name: '仓库区域', count: 4, running: 4, warning: 0, error: 0, idle: 0, oee: 95.0 },
+    ];
+
+    const wipDistribution = [
+      { name: '内机装配', count: 156, color: '#3b82f6' },
+      { name: '外机装配', count: 142, color: '#22c55e' },
+      { name: '钣金加工', count: 89, color: '#f59e0b' },
+      { name: '注塑成型', count: 67, color: '#a855f7' },
+      { name: '两器制作', count: 45, color: '#ef4444' },
+    ];
+
+    const liveAlerts = [
+      { type: 'warning', icon: '⚠️', title: '模具M-1002寿命预警', time: '2分钟前' },
+      { type: 'error', icon: '🔴', title: '外机线C停机故障', time: '5分钟前' },
+      { type: 'warning', icon: '📦', title: '压缩机库存不足', time: '12分钟前' },
+    ];
+
+    let twinAnimationFrame = null;
+    let materialParticles = [];
+
+    // ========== 数字孪生初始化 ==========
+    function initDigitalTwin() {
+      renderProductionLinesList();
+      renderFactoryEquipment();
+      renderWIPDistribution();
+      renderLiveAlerts();
+      startTwinAnimations();
+      updateTwinTime();
+      setInterval(updateTwinTime, 1000);
+      setInterval(updateTwinData, 5000);
+    }
+
+    function renderProductionLinesList() {
+      const container = document.getElementById('production-lines-list');
+      container.innerHTML = productionLines.map(line => `
+        <div class="production-line-item" onclick="focusProductionLine('${line.id}')">
+          <div class="line-name">${line.name}</div>
+          <div class="line-status">
+            <span class="status-dot ${getStatusByMajority(line)}"></span>
+            <span style="color:#94a3b8;">${line.running}运行</span>
+            ${line.warning > 0 ? `<span style="color:#fbbf24;"> · ${line.warning}预警</span>` : ''}
+            ${line.error > 0 ? `<span style="color:#f87171;"> · ${line.error}故障</span>` : ''}
+          </div>
+          <div class="line-oee">OEE: ${line.oee}%</div>
+        </div>
+      `).join('');
+    }
+
+    function getStatusByMajority(line) {
+      if (line.error > 0) return 'error';
+      if (line.warning > 0) return 'warning';
+      if (line.running > 0) return 'running';
+      return 'idle';
+    }
+
+    function renderFactoryEquipment() {
+      const svg = document.getElementById('factory-equipment');
+      let html = '';
+      
+      twinEquipment.forEach(eq => {
+        html += `
+          <g class="equipment-group" id="eq-${eq.id}" 
+             onmouseover="showEquipmentPopup(event, '${eq.id}')" 
+             onmouseout="hideEquipmentPopup()">
+            <rect class="equipment-rect ${eq.status}" 
+                  x="${eq.x}" y="${eq.y}" 
+                  width="${eq.width}" height="${eq.height}" />
+            <text class="equipment-label" 
+                  x="${eq.x + eq.width/2}" y="${eq.y + eq.height/2 + 4}">
+              ${eq.name}
+            </text>
+          </g>
+        `;
+      });
+      
+      svg.innerHTML = html;
+    }
+
+    function showEquipmentPopup(event, eqId) {
+      const eq = twinEquipment.find(e => e.id === eqId);
+      if (!eq) return;
+      
+      const popup = document.getElementById('equipment-popup');
+      const factoryView = document.getElementById('twin-factory-view');
+      const rect = factoryView.getBoundingClientRect();
+      
+      document.getElementById('popup-title').textContent = eq.name;
+      document.getElementById('popup-status').textContent = getStatusText(eq.status);
+      document.getElementById('popup-status').className = `popup-status ${eq.status}`;
+      document.getElementById('popup-order').textContent = eq.order;
+      document.getElementById('popup-output').textContent = eq.output + ' 件';
+      document.getElementById('popup-oee').textContent = eq.oee + '%';
+      document.getElementById('popup-runtime').textContent = eq.runtime;
+      
+      // 计算弹窗位置
+      let left = event.clientX - rect.left + 10;
+      let top = event.clientY - rect.top + 10;
+      
+      // 防止超出边界
+      if (left + 230 > rect.width) left = rect.width - 240;
+      if (top + 200 > rect.height) top = rect.height - 210;
+      
+      popup.style.left = left + 'px';
+      popup.style.top = top + 'px';
+      popup.style.display = 'block';
+    }
+
+    function hideEquipmentPopup() {
+      document.getElementById('equipment-popup').style.display = 'none';
+    }
+
+    function getStatusText(status) {
+      const statusMap = {
+        running: '运行中',
+        warning: '预警',
+        error: '故障',
+        idle: '空闲'
+      };
+      return statusMap[status] || status;
+    }
+
+    function renderWIPDistribution() {
+      const container = document.getElementById('wip-distribution');
+      const maxCount = Math.max(...wipDistribution.map(w => w.count));
+      
+      container.innerHTML = wipDistribution.map(wip => `
+        <div class="wip-item">
+          <div class="wip-color" style="background:${wip.color}"></div>
+          <div class="wip-info">
+            <div class="wip-name">${wip.name}</div>
+            <div class="wip-count">占比 ${Math.round(wip.count / wipDistribution.reduce((a,b) => a+b.count, 0) * 100)}%</div>
+          </div>
+          <div class="wip-value">${wip.count}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderLiveAlerts() {
+      const container = document.getElementById('live-alerts');
+      container.innerHTML = liveAlerts.map(alert => `
+        <div class="alert-item ${alert.type}">
+          <span class="alert-icon">${alert.icon}</span>
+          <div class="alert-content">
+            <div class="alert-title">${alert.title}</div>
+            <div class="alert-time">${alert.time}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function startTwinAnimations() {
+      animateMaterialFlow();
+    }
+
+    function animateMaterialFlow() {
+      const svg = document.getElementById('material-flow');
+      
+      // 生成新的物料粒子
+      if (Math.random() < 0.08) {
+        const paths = [
+          { from: { x: 670, y: 280 }, to: { x: 70, y: 70 }, duration: 3000 },
+          { from: { x: 670, y: 280 }, to: { x: 410, y: 70 }, duration: 3500 },
+          { from: { x: 70, y: 70 }, to: { x: 760, y: 280 }, duration: 4000 },
+          { from: { x: 410, y: 70 }, to: { x: 760, y: 280 }, duration: 3800 },
+          { from: { x: 380, y: 275 }, to: { x: 410, y: 70 }, duration: 2500 },
+          { from: { x: 70, y: 275 }, to: { x: 70, y: 70 }, duration: 2200 },
+        ];
+        
+        const path = paths[Math.floor(Math.random() * paths.length)];
+        const particle = {
+          id: Date.now() + Math.random(),
+          ...path,
+          startTime: Date.now()
+        };
+        materialParticles.push(particle);
+      }
+      
+      // 更新粒子位置
+      let particleHtml = '';
+      const now = Date.now();
+      const colors = ['#38bdf8', '#22c55e', '#f59e0b', '#a855f7'];
+      
+      materialParticles = materialParticles.filter((p, idx) => {
+        const elapsed = now - p.startTime;
+        const progress = Math.min(elapsed / p.duration, 1);
+        
+        if (progress >= 1) return false;
+        
+        const x = p.from.x + (p.to.x - p.from.x) * progress;
+        const y = p.from.y + (p.to.y - p.from.y) * progress;
+        
+        particleHtml += `<circle cx="${x}" cy="${y}" r="4" fill="${colors[idx % colors.length]}" filter="url(#glow)"/>`;
+        return true;
+      });
+      
+      svg.innerHTML = particleHtml;
+      
+      twinAnimationFrame = requestAnimationFrame(animateMaterialFlow);
+    }
+
+    function updateTwinTime() {
+      const timeEl = document.getElementById('twin-time');
+      const now = new Date();
+      timeEl.textContent = now.toLocaleTimeString('zh-CN', { hour12: false });
+      
+      // 更新时间轴进度
+      const hours = now.getHours();
+      const minutes = now.getMinutes();
+      const workStart = 8;
+      const workEnd = 20;
+      const totalMinutes = (workEnd - workStart) * 60;
+      const currentMinutes = (hours - workStart) * 60 + minutes;
+      const progress = Math.max(0, Math.min(100, (currentMinutes / totalMinutes) * 100));
+      
+      const timelineProgress = document.getElementById('timeline-progress');
+      if (timelineProgress) {
+        timelineProgress.style.width = progress + '%';
+      }
+      const currentTimeMarker = document.getElementById('current-time-marker');
+      if (currentTimeMarker) {
+        currentTimeMarker.textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+      }
+    }
+
+    function updateTwinData() {
+      // 模拟实时数据更新
+      const activeMachines = twinEquipment.filter(e => e.status === 'running').length;
+      const warningCount = twinEquipment.filter(e => e.status === 'warning').length;
+      const errorCount = twinEquipment.filter(e => e.status === 'error').length;
+      
+      const activeEl = document.getElementById('twin-active-machines');
+      if (activeEl) activeEl.textContent = activeMachines;
+      
+      const warningEl = document.getElementById('twin-warning-count');
+      if (warningEl) warningEl.textContent = warningCount;
+      
+      const errorEl = document.getElementById('twin-error-count');
+      if (errorEl) errorEl.textContent = errorCount;
+      
+      // 随机更新产量
+      const outputEl = document.getElementById('twin-output');
+      if (outputEl) {
+        const currentOutput = parseInt(outputEl.textContent.replace(',', ''));
+        outputEl.textContent = (currentOutput + Math.floor(Math.random() * 5)).toLocaleString();
+      }
+      
+      // 随机改变设备状态
+      if (Math.random() < 0.1) {
+        const randomIdx = Math.floor(Math.random() * twinEquipment.length);
+        const eq = twinEquipment[randomIdx];
+        const statuses = ['running', 'running', 'running', 'warning', 'idle'];
+        if (eq.status !== 'error') {
+          eq.status = statuses[Math.floor(Math.random() * statuses.length)];
+        }
+        renderFactoryEquipment();
+      }
+    }
+
+    function switchTwinView(mode) {
+      toast(`已切换到${mode === 'overview' ? '全景视图' : mode === 'production' ? '生产线视图' : mode === 'material' ? '物料流转视图' : '质量监控视图'}`);
+    }
+
+    function getFullscreenElementCompat() {
+      return document.fullscreenElement
+        || document.webkitFullscreenElement
+        || document.mozFullScreenElement
+        || document.msFullscreenElement
+        || null;
+    }
+
+    function isDigitalTwinNativeFullscreen() {
+      return getFullscreenElementCompat() === document.getElementById('digital-twin-panel');
+    }
+
+    function isDigitalTwinFullscreen() {
+      return isDigitalTwinNativeFullscreen() || document.body.classList.contains('twin-fullscreen');
+    }
+
+    function updateTwinFullscreenButton() {
+      const btn = document.getElementById('twin-fullscreen-btn');
+      if (!btn) return;
+      const active = isDigitalTwinFullscreen();
+      btn.innerHTML = active ? '🡽 退出全屏' : '⛶ 全屏';
+      btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+      btn.title = active ? '退出全屏' : '进入全屏';
+    }
+
+    async function requestFullscreenCompat(el) {
+      if (el.requestFullscreen) return el.requestFullscreen();
+      if (el.webkitRequestFullscreen) return el.webkitRequestFullscreen();
+      if (el.mozRequestFullScreen) return el.mozRequestFullScreen();
+      if (el.msRequestFullscreen) return el.msRequestFullscreen();
+      throw new Error('Fullscreen API not supported');
+    }
+
+    async function exitFullscreenCompat() {
+      if (document.exitFullscreen) return document.exitFullscreen();
+      if (document.webkitExitFullscreen) return document.webkitExitFullscreen();
+      if (document.mozCancelFullScreen) return document.mozCancelFullScreen();
+      if (document.msExitFullscreen) return document.msExitFullscreen();
+      throw new Error('Exit fullscreen API not supported');
+    }
+
+    async function toggleTwinFullscreen() {
+      const panel = document.getElementById('digital-twin-panel');
+      if (!panel) return;
+      const active = isDigitalTwinFullscreen();
+
+      try {
+        if (active) {
+          if (isDigitalTwinNativeFullscreen()) {
+            await exitFullscreenCompat();
+          } else {
+            document.body.classList.remove('twin-fullscreen');
+          }
+        } else {
+          document.body.classList.remove('twin-fullscreen');
+          await requestFullscreenCompat(panel);
+        }
+      } catch (err) {
+        // Fallback when native fullscreen is blocked or unsupported.
+        document.body.classList.toggle('twin-fullscreen', !active);
+      }
+
+      updateTwinFullscreenButton();
+      toast(isDigitalTwinFullscreen() ? '已进入全屏模式' : '已退出全屏模式');
+    }
+
+    function refreshTwinData() {
+      toast('🔄 正在刷新数字孪生数据...');
+      renderFactoryEquipment();
+      renderProductionLinesList();
+      renderWIPDistribution();
+      renderLiveAlerts();
+    }
+
+    function focusProductionLine(lineId) {
+      document.querySelectorAll('.production-line-item').forEach(el => {
+        el.classList.remove('active');
+      });
+      event.currentTarget.classList.add('active');
+      
+      const line = productionLines.find(l => l.id === lineId);
+      if (line) {
+        toast(`📍 已定位到 ${line.name}`);
+      }
+    }
+
+    function showEquipmentDetail() {
+      toast('📱 打开设备详情页面');
+    }
+
+    function reportEquipmentIssue() {
+      toast('🔧 已提交设备报障工单');
+    }
+
+    // ========== 原有监控功能 ==========
+    function renderFlowBoard() {
+      const container = document.getElementById('flow-board');
+      const flowData = state.flowData || [];
+      const colors = ['#38bdf8', '#f59e0b', '#22c55e', '#a855f7'];
+      
+      container.innerHTML = flowData.map((item, i) => {
+        const dashArray = 264;
+        const dashOffset = dashArray - (item.value / 100) * dashArray;
+        return `
+          <div class="flow-step">
+            <div class="flow-ring-wrap">
+              <svg class="flow-ring" viewBox="0 0 100 100">
+                <circle class="flow-ring-bg" cx="50" cy="50" r="42"></circle>
+                <circle class="flow-ring-bar" cx="50" cy="50" r="42" stroke-dasharray="${dashArray}" stroke-dashoffset="${dashOffset}" style="stroke:${colors[i % colors.length]}"></circle>
+              </svg>
+              <div class="flow-ring-value">${item.value}<small>%</small></div>
+            </div>
+            <div style="font-size:12px;color:#cbd5e1;font-weight:600;">${item.name}</div>
+            <div style="font-size:11px;color:#94a3b8;">计划: ${item.planned} / 完成: ${item.actual}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderAlerts() {
+      const container = document.getElementById('alert-board');
+      const alerts = state.alerts || [];
+      
+      container.innerHTML = alerts.map((alert, i) => {
+        const levelClass = alert.level === 1 ? 'alert-l1 blink-red' : alert.level === 2 ? 'alert-l2' : 'alert-l3';
+        const tagClass = alert.level === 1 ? 'err' : alert.level === 2 ? 'warn' : 'info';
+        return `
+          <div class="alert-line ${levelClass} ${i === 0 ? 'blink-red' : ''}">
+            <span class="tag ${tagClass}">L${alert.level}</span>
+            <span style="flex:1;">${alert.title}</span>
+            <button class="btn sm" onclick="openIncident('L${alert.level}', '${alert.title}')">处理</button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderAttribution() {
+      const container = document.getElementById('attribution-panel');
+      const attribution = state.attribution || [];
+      
+      container.innerHTML = attribution.map(item => `
+        <div class="heat-item">
+          <div class="heat-item-header">
+            <span class="heat-item-title">${item.name}</span>
+            <span class="heat-item-value ${item.type}">${item.value > 0 ? '+' : ''}${item.value}%</span>
+          </div>
+          <div class="muted" style="font-size:12px;">${item.desc}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderPerformance() {
+      const container = document.getElementById('performance-panel');
+      const performance = state.performance || [];
+      
+      container.innerHTML = `
+        <table>
+          <thead><tr><th>指标</th><th>目标</th><th>实际</th><th>达成率</th></tr></thead>
+          <tbody>
+            ${performance.map(p => {
+              const rate = (p.actual / p.target * 100).toFixed(1);
+              const tagClass = rate >= 95 ? 'ok' : rate >= 80 ? 'warn' : 'red';
+              return `<tr><td>${p.name}</td><td>${p.target}%</td><td>${p.actual}%</td><td><span class="tag ${tagClass}">${rate}%</span></td></tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    function refreshFlowBoard() {
+      toast('进度看板已刷新');
+    }
+
+    function pushAlerts() {
+      toast('分级告警已推送到责任人');
+    }
+
+    function openIncident(level, text) {
+      document.getElementById('incident-level').textContent = level;
+      document.getElementById('incident-text').textContent = text;
+      document.getElementById('incident-panel').classList.add('show');
+    }
+
+    function closeIncidentTicket() {
+      document.getElementById('incident-panel').classList.remove('show');
+      document.getElementById('incident-feedback').value = '';
+    }
+
+    function submitIncidentTicket() {
+      const feedback = document.getElementById('incident-feedback').value;
+      if (!feedback) { toast('请填写处理反馈'); return; }
+      document.getElementById('incident-panel').classList.remove('show');
+      document.getElementById('incident-feedback').value = '';
+      toast('异常工单已闭环');
+    }
+
+    function refreshAttribution() {
+      toast('KPI归因已更新');
+    }
+
+    function feedBackToRules() {
+      toast('参数反哺成功：交期权重 +3%，换产成本权重 -2%');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // 初始化数据
+      if (typeof init === 'function') {
+        init();
+      }
+      
+      // 初始化数字孪生面板
+      initDigitalTwin();
+      
+      // 初始化原有监控面板
+      renderFlowBoard();
+      renderAlerts();
+      renderAttribution();
+      renderPerformance();
+
+      updateTwinFullscreenButton();
+      ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'].forEach((evt) => {
+        document.addEventListener(evt, () => {
+          document.body.classList.remove('twin-fullscreen');
+          updateTwinFullscreenButton();
+        });
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && document.body.classList.contains('twin-fullscreen') && !isDigitalTwinNativeFullscreen()) {
+          document.body.classList.remove('twin-fullscreen');
+          updateTwinFullscreenButton();
+          toast('已退出全屏模式');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

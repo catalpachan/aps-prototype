@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>报表中心 - 格力计划排程智能体</title>
+  <link rel="stylesheet" href="common.css" />
+  <style>
+    .report-layout { display: grid; grid-template-columns: 240px 1fr; gap: 14px; align-items: start; }
+    .report-sidebar { position: sticky; top: 76px; max-height: calc(100vh - 100px); }
+    .report-menu { display: flex; flex-direction: column; gap: 8px; }
+    .report-menu-item { width: 100%; text-align: left; background: #172235; color: #dbeafe; border: 1px solid #334155; border-radius: 8px; padding: 10px 12px; font-size: 13px; cursor: pointer; transition: all var(--dur-fast) var(--ease-soft); display: flex; align-items: center; gap: 8px; }
+    .report-menu-item:hover { filter: brightness(1.08); transform: translateX(2px); box-shadow: 0 6px 14px rgba(8, 15, 35, 0.3); }
+    .report-menu-item.active { background: linear-gradient(135deg, #1e3a8a, #2563eb); border-color: #2563eb; color: #fff; }
+    .report-menu-item .icon { font-size: 16px; }
+    .report-main { min-width: 0; }
+    .report-subview { display: none; }
+    .report-subview.active { display: block; }
+    .report-filters { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; padding: 12px; background: #111b2d; border: 1px solid #334155; border-radius: 8px; }
+    .report-filters select, .report-filters input { min-width: 140px; }
+    .report-card { border: 1px solid #334155; border-radius: 10px; background: #111b2d; padding: 16px; margin-bottom: 14px; }
+    .report-card-hd { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #2b3649; }
+    .report-card-title { font-weight: 600; color: #e2e8f0; display: flex; align-items: center; gap: 8px; }
+    .report-metric-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+    .report-metric-item { background: #0f1a2d; border: 1px solid #2b3649; border-radius: 8px; padding: 16px; text-align: center; }
+    .report-metric-value { font-size: 28px; font-weight: 700; color: #38bdf8; }
+    .report-metric-label { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+    .report-metric-change { font-size: 11px; margin-top: 4px; }
+    .report-metric-change.up { color: #22c55e; }
+    .report-metric-change.down { color: #ef4444; }
+    .report-chart-container { height: 280px; background: #0f172a; border: 1px solid #2b3649; border-radius: 8px; padding: 12px; position: relative; }
+    .report-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .report-table th, .report-table td { border: 1px solid #2b3649; padding: 8px; text-align: left; }
+    .report-table th { background: #172235; color: #a6b7d8; font-weight: 600; }
+    .report-table tr:hover { background: #1e293b; }
+    .report-template-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .report-template-card { border: 1px solid #334155; border-radius: 10px; background: #111b2d; padding: 16px; cursor: pointer; transition: all var(--dur-fast); }
+    .report-template-card:hover { border-color: #2563eb; transform: translateY(-2px); box-shadow: 0 8px 16px rgba(8, 15, 35, 0.3); }
+    .report-template-icon { width: 48px; height: 48px; background: linear-gradient(135deg, #1e3a8a, #2563eb); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 12px; }
+    .report-template-title { font-weight: 600; color: #e2e8f0; margin-bottom: 4px; }
+    .report-template-desc { font-size: 12px; color: #94a3b8; }
+    .chart-bar { display: flex; align-items: flex-end; gap: 4px; height: 200px; padding: 20px; }
+    .chart-bar-item { flex: 1; background: linear-gradient(180deg, #2563eb, #1e3a8a); border-radius: 4px 4px 0 0; min-height: 20px; position: relative; }
+    .chart-bar-item:hover { filter: brightness(1.2); }
+    .chart-bar-label { position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); font-size: 10px; color: #94a3b8; white-space: nowrap; }
+    .chart-line { height: 200px; position: relative; background: linear-gradient(to bottom, transparent 24px, #2b3649 24px, #2b3649 25px); background-size: 100% 25px; }
+    .chart-line-path { stroke: #38bdf8; stroke-width: 2; fill: none; }
+    .chart-line-area { fill: url(#lineGradient); opacity: 0.3; }
+    .chart-pie { width: 180px; height: 180px; margin: 0 auto; }
+    @media (max-width: 960px) { 
+      .report-layout { grid-template-columns: 1fr; } 
+      .report-sidebar { position: static; max-height: none; } 
+      .report-metric-grid { grid-template-columns: repeat(2, 1fr); }
+      .report-template-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand-block">
+      <img class="header-logo" src="1c5703c9-aca0-43d1-9843-9d502cb66fd0.png" alt="APS Logo" width="143" height="44" />
+      
+    </div>
+    <nav class="nav" id="nav">
+      <a href="decision.html" class="nav-item">决策中心</a>
+      <a href="collab.html" class="nav-item">协同中心</a>
+      <a href="demand.html" class="nav-item">需求中心</a>
+      <a href="resource.html" class="nav-item">资源中心</a>
+      <a href="rule.html" class="nav-item">规则中心</a>
+      <a href="monitor.html" class="nav-item">监控中心</a>
+      <a href="report.html" class="nav-item active">报表中心</a>
+      <a href="settings.html" class="nav-item">系统设置</a>
+    </nav>
+    <div class="header-meta" id="header-meta">
+      <span id="header-date">2026-02-28 08:56:33</span> |
+      <select id="hq-select" class="role-select" aria-label="基地切换">
+        <option>珠海格力总部</option>
+        <option>金湾基地</option>
+        <option>武汉基地</option>
+        <option>洛阳基地</option>
+      </select>
+      | 
+      <div class="user-dropdown" id="user-dropdown">
+        <div class="user-dropdown-toggle" onclick="toggleUserDropdown()">
+          <div class="avatar">张</div>
+          <span class="name">张伟</span>
+          <span class="arrow">▼</span>
+        </div>
+        <div class="user-dropdown-menu">
+          <a href="settings.html" class="user-dropdown-item">👤 用户信息</a>
+          <a href="login.html" class="user-dropdown-item logout">🚪 退出</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="app">
+    <section class="view" id="view-report">
+      <div class="report-layout">
+        <aside class="report-sidebar">
+          <div class="report-menu">
+            <button class="report-menu-item active" onclick="switchReportSub('daily', this)">
+              <span class="icon">📊</span> 生产日报
+            </button>
+            <button class="report-menu-item" onclick="switchReportSub('weekly', this)">
+              <span class="icon">📈</span> 生产周报
+            </button>
+            <button class="report-menu-item" onclick="switchReportSub('oee', this)">
+              <span class="icon">⚙️</span> OEE分析
+            </button>
+            <button class="report-menu-item" onclick="switchReportSub('delivery', this)">
+              <span class="icon">🚚</span> 交付分析
+            </button>
+            <button class="report-menu-item" onclick="switchReportSub('equipment', this)">
+              <span class="icon">🔧</span> 设备分析
+            </button>
+            <button class="report-menu-item" onclick="switchReportSub('custom', this)">
+              <span class="icon">🎨</span> 自定义报表
+            </button>
+          </div>
+        </aside>
+
+        <div class="report-main">
+          <!-- 生产日报 -->
+          <div class="report-subview active" id="report-sub-daily">
+            <div class="report-filters">
+              <select id="daily-plant" aria-label="日报基地"><option>全部基地</option><option>珠海格力总部</option><option>金湾基地</option><option>武汉基地</option><option>洛阳基地</option></select>
+              <input type="date" id="daily-date" aria-label="日报日期" value="2026-02-28" />
+              <button class="btn primary" onclick="generateDailyReport()">生成报表</button>
+              <button class="btn" onclick="exportReport('daily')">📥 导出</button>
+            </div>
+
+            <div class="report-metric-grid">
+              <div class="report-metric-item">
+                <div class="report-metric-value" id="daily-plan-qty">1,247</div>
+                <div class="report-metric-label">计划产量</div>
+                <div class="report-metric-change up">↑ 5.3% 环比</div>
+              </div>
+              <div class="report-metric-item">
+                <div class="report-metric-value" id="daily-actual-qty">1,189</div>
+                <div class="report-metric-label">实际产量</div>
+                <div class="report-metric-change up">达成率 95.3%</div>
+              </div>
+              <div class="report-metric-item">
+                <div class="report-metric-value" id="daily-oee">88.4%</div>
+                <div class="report-metric-label">平均OEE</div>
+                <div class="report-metric-change up">↑ 1.2%</div>
+              </div>
+              <div class="report-metric-item">
+                <div class="report-metric-value" id="daily-otd">94.2%</div>
+                <div class="report-metric-label">准时交付率</div>
+                <div class="report-metric-change up">↑ 2.1%</div>
+              </div>
+            </div>
+
+            <div class="report-card">
+              <div class="report-card-hd">
+                <div class="report-card-title">📈 各产线产量趋势</div>
+                <select class="sm"><option>按小时</option><option>按班次</option></select>
+              </div>
+              <div class="report-chart-container">
+                <div class="chart-bar" id="daily-trend-chart">
+                  <!-- 动态生成 -->
+                </div>
+              </div>
+            </div>
+
+            <div class="report-card">
+              <div class="report-card-hd">
+                <div class="report-card-title">📋 今日订单完成情况</div>
+              </div>
+              <table class="report-table">
+                <thead>
+                  <tr>
+                    <th>订单号</th>
+                    <th>产品型号</th>
+                    <th>计划数量</th>
+                    <th>完成数量</th>
+                    <th>完成率</th>
+                    <th>状态</th>
+                  </tr>
+                </thead>
+                <tbody id="daily-order-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- 生产周报 -->
+          <div class="report-subview" id="report-sub-weekly">
+            <div class="report-filters">
+              <select><option>第9周 (02/24-03/02)</option><option>第8周 (02/17-02/23)</option></select>
+              <select><option>全部基地</option><option>珠海格力总部</option><option>金湾基地</option></select>
+              <button class="btn primary" onclick="generateWeeklyReport()">生成报表</button>
+              <button class="btn" onclick="exportReport('weekly')">📥 导出</button>
+            </div>
+
+            <div class="report-metric-grid">
+              <div class="report-metric-item">
+                <div class="report-metric-value">8,742</div>
+                <div class="report-metric-label">周总产量</div>
+                <div class="report-metric-change up">↑ 8.5%</div>
+              </div>
+              <div class="report-metric-item">
+                <div class="report-metric-value">92.6%</div>
+                <div class="report-metric-label">周达成率</div>
+                <div class="report-metric-change up">↑ 3.2%</div>
+              </div>
+              <div class="report-metric-item">
+                <div class="report-metric-value">156</div>
+                <div class="report-metric-label">完成订单数</div>
+                <div class="report-metric-change up">↑ 12</div>
+              </div>
+              <div class="report-metric-item">
+                <div class="report-metric-value">3.2h</div>
+                <div class="report-metric-label">平均交付周期</div>
+                <div class="report-metric-change down">↓ 0.5h</div>
+              </div>
+            </div>
+
+            <div class="report-card">
+              <div class="report-card-hd">
+                <div class="report-card-title">📊 周产能趋势对比</div>
+              </div>
+              <div class="report-chart-container">
+                <svg viewBox="0 0 800 200" style="width:100%;height:100%;">
+                  <defs>
+                    <linearGradient id="lineGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" style="stop-color:#38bdf8;stop-opacity:0.8" />
+                      <stop offset="100%" style="stop-color:#38bdf8;stop-opacity:0" />
+                    </linearGradient>
+                  </defs>
+                  <path class="chart-line-area" d="M0,150 L100,120 L200,100 L300,130 L400,80 L500,90 L600,70 L700,60 L800,50 L800,200 L0,200 Z" />
+                  <path class="chart-line-path" d="M0,150 L100,120 L200,100 L300,130 L400,80 L500,90 L600,70 L700,60 L800,50" />
+                  <text x="50" y="180" fill="#94a3b8" font-size="12">周一</text>
+                  <text x="200" y="180" fill="#94a3b8" font-size="12">周二</text>
+                  <text x="350" y="180" fill="#94a3b8" font-size="12">周三</text>
+                  <text x="500" y="180" fill="#94a3b8" font-size="12">周四</text>
+                  <text x="650" y="180" fill="#94a3b8" font-size="12">周五</text>
+                  <text x="750" y="180" fill="#94a3b8" font-size="12">周六</text>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- OEE分析 -->
+          <div class="report-subview" id="report-sub-oee">
+            <div class="report-filters">
+              <select><option>近7天</option><option>近30天</option><option>本月</option></select>
+              <select><option>全部产线</option><option>东区总装</option><option>西区总装</option></select>
+              <button class="btn primary">生成分析</button>
+              <button class="btn" onclick="exportReport('oee')">📥 导出</button>
+            </div>
+
+            <div class="grid-2">
+              <div class="report-card">
+                <div class="report-card-hd">
+                  <div class="report-card-title">⚙️ OEE构成分析</div>
+                </div>
+                <div class="chart-pie" style="background: conic-gradient(#2563eb 0% 65%, #10b981 65% 85%, #f59e0b 85% 95%, #ef4444 95% 100%); border-radius: 50%;"></div>
+                <div style="display:flex;justify-content:center;gap:20px;margin-top:16px;font-size:12px;">
+                  <div><span style="display:inline-block;width:12px;height:12px;background:#2563eb;border-radius:2px;margin-right:4px;"></span>可用率 65%</div>
+                  <div><span style="display:inline-block;width:12px;height:12px;background:#10b981;border-radius:2px;margin-right:4px;"></span>性能率 20%</div>
+                  <div><span style="display:inline-block;width:12px;height:12px;background:#f59e0b;border-radius:2px;margin-right:4px;"></span>质量率 10%</div>
+                  <div><span style="display:inline-block;width:12px;height:12px;background:#ef4444;border-radius:2px;margin-right:4px;"></span>损失 5%</div>
+                </div>
+              </div>
+
+              <div class="report-card">
+                <div class="report-card-hd">
+                  <div class="report-card-title">📉 时间损失 breakdown</div>
+                </div>
+                <table class="report-table">
+                  <thead>
+                    <tr><th>损失类型</th><th>时间(h)</th><th>占比</th><th>主要原因</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>设备故障</td><td>12.5</td><td>35%</td><td>压缩机故障</td></tr>
+                    <tr><td>换型调整</td><td>8.3</td><td>23%</td><td>模具更换</td></tr>
+                    <tr><td>物料等待</td><td>6.2</td><td>17%</td><td>缺料</td></tr>
+                    <tr><td>质量问题</td><td>4.8</td><td>13%</td><td>首检不合格</td></tr>
+                    <tr><td>其他</td><td>4.2</td><td>12%</td><td>-</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- 交付分析 -->
+          <div class="report-subview" id="report-sub-delivery">
+            <div class="report-filters">
+              <select><option>近30天</option><option>近90天</option><option>本年度</option></select>
+              <select><option>按客户</option><option>按产品</option><option>按基地</option></select>
+              <button class="btn primary">生成分析</button>
+              <button class="btn" onclick="exportReport('delivery')">📥 导出</button>
+            </div>
+
+            <div class="report-card">
+              <div class="report-card-hd">
+                <div class="report-card-title">🚚 准时交付率趋势</div>
+              </div>
+              <div class="report-chart-container">
+                <svg viewBox="0 0 800 200" style="width:100%;height:100%;">
+                  <path class="chart-line-path" d="M0,100 L80,90 L160,85 L240,95 L320,80 L400,70 L480,75 L560,65 L640,60 L720,55 L800,50" stroke="#10b981" />
+                  <line x1="0" y1="150" x2="800" y2="150" stroke="#475569" stroke-dasharray="4" />
+                  <text x="10" y="145" fill="#64748b" font-size="10">目标线 95%</text>
+                </svg>
+              </div>
+            </div>
+
+            <div class="report-card">
+              <div class="report-card-hd">
+                <div class="report-card-title">🏆 客户交付排名</div>
+              </div>
+              <table class="report-table">
+                <thead>
+                  <tr><th>客户</th><th>订单数</th><th>准时交付</th><th>准时率</th><th>平均提前期</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>战略客户A</td><td>45</td><td>44</td><td><span style="color:#22c55e;font-weight:600;">97.8%</span></td><td>2.1天</td></tr>
+                  <tr><td>大客户B</td><td>38</td><td>36</td><td><span style="color:#22c55e;font-weight:600;">94.7%</span></td><td>2.5天</td></tr>
+                  <tr><td>重点客户C</td><td>32</td><td>29</td><td><span style="color:#f59e0b;font-weight:600;">90.6%</span></td><td>3.2天</td></tr>
+                  <tr><td>一般客户D</td><td>28</td><td>24</td><td><span style="color:#f59e0b;font-weight:600;">85.7%</span></td><td>4.1天</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- 设备分析 -->
+          <div class="report-subview" id="report-sub-equipment">
+            <div class="report-filters">
+              <select><option>全部设备</option><option>总装线</option><option>注塑机</option></select>
+              <select><option>近7天</option><option>近30天</option></select>
+              <button class="btn primary">生成分析</button>
+              <button class="btn" onclick="exportReport('equipment')">📥 导出</button>
+            </div>
+
+            <div class="report-card">
+              <div class="report-card-hd">
+                <div class="report-card-title">🔧 设备运行状态</div>
+              </div>
+              <table class="report-table">
+                <thead>
+                  <tr><th>设备编号</th><th>设备名称</th><th>运行时间</th><th>OEE</th><th>故障次数</th><th>状态</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>EQ-001</td><td>总装线A</td><td>165h</td><td>91.2%</td><td>0</td><td><span style="color:#22c55e;">● 正常</span></td></tr>
+                  <tr><td>EQ-002</td><td>总装线B</td><td>158h</td><td>87.5%</td><td>1</td><td><span style="color:#22c55e;">● 正常</span></td></tr>
+                  <tr><td>EQ-003</td><td>注塑机01</td><td>142h</td><td>78.9%</td><td>2</td><td><span style="color:#f59e0b;">● 预警</span></td></tr>
+                  <tr><td>EQ-004</td><td>注塑机02</td><td>168h</td><td>93.4%</td><td>0</td><td><span style="color:#22c55e;">● 正常</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- 自定义报表 -->
+          <div class="report-subview" id="report-sub-custom">
+            <div class="report-card">
+              <div class="report-card-hd">
+                <div class="report-card-title">🎨 报表模板库</div>
+                <button class="btn primary" onclick="createCustomReport()">+ 新建报表</button>
+              </div>
+              <div class="report-template-grid">
+                <div class="report-template-card" onclick="loadTemplate('production')">
+                  <div class="report-template-icon">📊</div>
+                  <div class="report-template-title">生产综合报表</div>
+                  <div class="report-template-desc">包含产量、OEE、达成率等核心指标</div>
+                </div>
+                <div class="report-template-card" onclick="loadTemplate('quality')">
+                  <div class="report-template-icon">✅</div>
+                  <div class="report-template-title">质量分析报表</div>
+                  <div class="report-template-desc">一次合格率、返工率、报废率分析</div>
+                </div>
+                <div class="report-template-card" onclick="loadTemplate('cost')">
+                  <div class="report-template-icon">💰</div>
+                  <div class="report-template-title">成本分析报表</div>
+                  <div class="report-template-icon">⏱️</div>
+                  <div class="report-template-title">效率分析报表</div>
+                  <div class="report-template-desc">人均产出、设备效率、换型时间</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="report-card">
+              <div class="report-card-hd">
+                <div class="report-card-title">📁 我的报表</div>
+              </div>
+              <table class="report-table">
+                <thead>
+                  <tr><th>报表名称</th><th>类型</th><th>创建时间</th><th>最后运行</th><th>操作</th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>月度生产汇总</td>
+                    <td>自定义</td>
+                    <td>2026-02-01</td>
+                    <td>2026-02-28 08:30</td>
+                    <td><button class="btn sm">运行</button> <button class="btn sm">编辑</button></td>
+                  </tr>
+                  <tr>
+                    <td>基地对比分析</td>
+                    <td>自定义</td>
+                    <td>2026-01-15</td>
+                    <td>2026-02-27 18:00</td>
+                    <td><button class="btn sm">运行</button> <button class="btn sm">编辑</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="common.js"></script>
+  <script>
+    // 切换报表子视图
+    function switchReportSub(viewName, btn) {
+      document.querySelectorAll('.report-subview').forEach(el => el.classList.remove('active'));
+      document.getElementById('report-sub-' + viewName).classList.add('active');
+      document.querySelectorAll('.report-menu-item').forEach(el => el.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+    // 生成日报数据
+    function generateDailyReport() {
+      // 模拟数据更新
+      document.getElementById('daily-plan-qty').textContent = (1200 + Math.floor(Math.random() * 200)).toLocaleString();
+      document.getElementById('daily-actual-qty').textContent = (1150 + Math.floor(Math.random() * 150)).toLocaleString();
+      document.getElementById('daily-oee').textContent = (85 + Math.random() * 8).toFixed(1) + '%';
+      document.getElementById('daily-otd').textContent = (90 + Math.random() * 8).toFixed(1) + '%';
+      
+      renderDailyTrendChart();
+      renderDailyOrderTable();
+      toast('日报数据已更新');
+    }
+
+    // 渲染日报趋势图
+    function renderDailyTrendChart() {
+      const container = document.getElementById('daily-trend-chart');
+      const hours = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00'];
+      let html = '';
+      hours.forEach((hour, idx) => {
+        const height = 40 + Math.random() * 50;
+        html += `
+          <div class="chart-bar-item" style="height:${height}%;">
+            <div class="chart-bar-label">${hour}</div>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    }
+
+    // 渲染日报订单表
+    function renderDailyOrderTable() {
+      const tbody = document.getElementById('daily-order-tbody');
+      const orders = [
+        {no: 'SO-20260228-001', model: 'KFR-26GW', plan: 120, actual: 118, rate: 98.3, status: 'ok'},
+        {no: 'SO-20260228-002', model: 'KFR-35GW', plan: 150, actual: 145, rate: 96.7, status: 'ok'},
+        {no: 'SO-20260228-003', model: 'KFR-50GW', plan: 80, actual: 76, rate: 95.0, status: 'ok'},
+        {no: 'SO-20260228-004', model: 'KFR-72GW', plan: 60, actual: 52, rate: 86.7, status: 'warn'},
+        {no: 'SO-20260228-005', model: 'KFR-26GW', plan: 100, actual: 98, rate: 98.0, status: 'ok'},
+      ];
+      
+      tbody.innerHTML = orders.map(o => `
+        <tr>
+          <td>${o.no}</td>
+          <td>${o.model}</td>
+          <td>${o.plan}</td>
+          <td>${o.actual}</td>
+          <td>${o.rate}%</td>
+          <td><span class="tag ${o.status}">${o.status === 'ok' ? '正常' : '预警'}</span></td>
+        </tr>
+      `).join('');
+    }
+
+    // 生成周报
+    function generateWeeklyReport() {
+      toast('周报数据已更新');
+    }
+
+    // 导出报表
+    function exportReport(type) {
+      const reportNames = {
+        'daily': '生产日报',
+        'weekly': '生产周报',
+        'oee': 'OEE分析报告',
+        'delivery': '交付分析报告',
+        'equipment': '设备分析报告'
+      };
+      
+      const content = `${reportNames[type]}_${new Date().toISOString().slice(0,10)}_${document.getElementById('hq-select').value}\n\n` +
+        '此报告由格力APS智能排程系统生成\n' +
+        '生成时间: ' + new Date().toLocaleString('zh-CN') + '\n\n' +
+        '==========================\n' +
+        '数据内容...\n' +
+        '==========================';
+      
+      const blob = new Blob([content], { type: 'text/plain;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `${reportNames[type]}_${new Date().toISOString().slice(0,10)}.txt`;
+      link.click();
+      toast(`${reportNames[type]}导出成功！`);
+    }
+
+    // 创建自定义报表
+    function createCustomReport() {
+      const name = prompt('请输入报表名称：');
+      if (name) {
+        toast(`报表「${name}」创建成功！`);
+      }
+    }
+
+    // 加载模板
+    function loadTemplate(type) {
+      toast(`正在加载${type}模板...`);
+    }
+
+    // 初始化
+    document.addEventListener('DOMContentLoaded', () => {
+      renderDailyTrendChart();
+      renderDailyOrderTable();
+    });
+  </script>
+</body>
+</html>

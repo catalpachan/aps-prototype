@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>系统设置 - 格力计划排程智能体</title>
+  <link rel="stylesheet" href="common.css" />
+  <style>
+    .resource-layout { display: grid; grid-template-columns: 220px 1fr; gap: 14px; align-items: start; }
+    .resource-sidebar { position: sticky; top: 76px; max-height: calc(100vh - 100px); }
+    .resource-menu { display: flex; flex-direction: column; gap: 8px; }
+    .resource-menu-item { width: 100%; text-align: left; background: #172235; color: #dbeafe; border: 1px solid #334155; border-radius: 8px; padding: 8px 10px; font-size: 12px; cursor: pointer; transition: transform var(--dur-fast) var(--ease-soft), filter var(--dur-fast) var(--ease-soft), border-color var(--dur-fast) var(--ease-soft), box-shadow var(--dur-fast) var(--ease-soft); position: relative; overflow: hidden; isolation: isolate; }
+    .resource-menu-item:hover { filter: brightness(1.08); transform: translateX(2px); box-shadow: 0 6px 14px rgba(8, 15, 35, 0.3); }
+    .resource-menu-item.active { background: linear-gradient(135deg, #1e3a8a, #2563eb); border-color: #2563eb; color: #fff; }
+    .resource-main { min-width: 0; }
+    .settings-subview { display: none; }
+    .settings-subview.active { display: block; }
+    .settings-form-grid { display: grid; grid-template-columns: repeat(2, minmax(180px, 1fr)); gap: 10px; }
+    .settings-ann-item { border: 1px solid #334155; border-radius: 8px; padding: 8px; background: #111b2d; margin-bottom: 8px; }
+    .settings-ann-item .hd { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; font-size: 12px; color: #dbeafe; }
+    .settings-ann-item .bd { font-size: 12px; color: var(--muted); line-height: 1.5; }
+    .usage-stat-card { border: 1px solid #334155; border-radius: 8px; padding: 12px; background: #111b2d; text-align: center; }
+    .usage-stat-value { font-size: 24px; font-weight: 800; color: #38bdf8; }
+    .usage-stat-label { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+    
+    /* 系统对接样式 */
+    .integration-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    .integration-card { border: 1px solid #334155; border-radius: 10px; background: #111b2d; padding: 16px; }
+    .integration-card-hd { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .integration-name { font-weight: 600; color: #e2e8f0; display: flex; align-items: center; gap: 8px; }
+    .integration-status { font-size: 11px; padding: 3px 10px; border-radius: 999px; }
+    .integration-status.connected { background: #052e2b; color: #a7f3d0; border: 1px solid #0f766e; }
+    .integration-status.disconnected { background: #3a1016; color: #fecaca; border: 1px solid #7f1d1d; }
+    .integration-status.syncing { background: #3a2609; color: #fde68a; border: 1px solid #b45309; }
+    .integration-info { font-size: 12px; color: #94a3b8; line-height: 1.8; }
+    .integration-info-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
+    .integration-actions { margin-top: 12px; display: flex; gap: 8px; }
+    
+    /* 数据同步样式 */
+    .sync-status-bar { display: flex; gap: 24px; padding: 12px 16px; background: #0f1a2d; border: 1px solid #334155; border-radius: 8px; margin-bottom: 16px; }
+    .sync-status-item { display: flex; align-items: center; gap: 6px; }
+    .sync-status-label { font-size: 12px; color: #94a3b8; }
+    .sync-status-value { font-size: 13px; font-weight: 600; color: #e2e8f0; }
+    .sync-status-value.ok { color: #22c55e; }
+    .sync-status-value.warn { color: #f59e0b; }
+    .sync-status-value.err { color: #ef4444; }
+    .sync-log-panel { border: 1px solid #334155; border-radius: 8px; background: #0f172a; }
+    .sync-log-hd { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-bottom: 1px solid #334155; font-weight: 600; color: #e2e8f0; }
+    .sync-log-content { max-height: 200px; overflow-y: auto; padding: 10px 12px; font-size: 12px; font-family: monospace; }
+    .sync-log-item { margin-bottom: 6px; padding: 6px 8px; border-radius: 4px; }
+    .sync-log-item.success { background: #052e2b; color: #a7f3d0; }
+    .sync-log-item.error { background: #3a1016; color: #fecaca; }
+    .sync-log-item.info { background: #172235; color: #94a3b8; }
+    .sync-progress-bar { width: 100%; height: 4px; background: #1e293b; border-radius: 2px; overflow: hidden; margin-top: 8px; }
+    .sync-progress-fill { height: 100%; background: linear-gradient(90deg, #2563eb, #38bdf8); transition: width 0.3s; }
+    
+    @media (max-width: 960px) { .resource-layout { grid-template-columns: 1fr; } .resource-sidebar { position: static; max-height: none; } .settings-form-grid { grid-template-columns: 1fr; } .integration-grid { grid-template-columns: 1fr; } .sync-status-bar { flex-wrap: wrap; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand-block">
+      <img class="header-logo" src="1c5703c9-aca0-43d1-9843-9d502cb66fd0.png" alt="APS Logo" width="143" height="44" />
+      
+    </div>
+    <nav class="nav" id="nav">
+      <a href="decision.html" class="nav-item">决策中心</a>
+      <a href="collab.html" class="nav-item">协同中心</a>
+      <a href="demand.html" class="nav-item">需求中心</a>
+      <a href="resource.html" class="nav-item">资源中心</a>
+      <a href="rule.html" class="nav-item">规则中心</a>
+      <a href="monitor.html" class="nav-item">监控中心</a>
+      <a href="report.html" class="nav-item">报表中心</a>
+      <a href="settings.html" class="nav-item active">系统设置</a>
+    </nav>
+    <div class="header-meta" id="header-meta">
+      <span id="header-date">2026-02-28 08:56:33</span> |
+      <select id="hq-select" class="role-select" aria-label="基地切换">
+        <option>珠海格力总部</option>
+        <option>金湾基地</option>
+        <option>武汉基地</option>
+        <option>洛阳基地</option>
+      </select>
+      | 
+      <div class="user-dropdown" id="user-dropdown">
+        <div class="user-dropdown-toggle" onclick="toggleUserDropdown()">
+          <div class="avatar">张</div>
+          <span class="name">张伟</span>
+          <span class="arrow">▼</span>
+        </div>
+        <div class="user-dropdown-menu">
+          <a href="settings.html" class="user-dropdown-item">👤 用户信息</a>
+          <a href="login.html" class="user-dropdown-item logout">🚪 退出</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="app">
+    <section class="view" id="view-settings">
+      <div class="resource-layout">
+        <aside class="resource-sidebar">
+          <div class="resource-menu">
+            <button class="resource-menu-item active" onclick="switchSettingsSub('version', this)">版本公告</button>
+            <button class="resource-menu-item" onclick="switchSettingsSub('integration', this)">系统对接</button>
+            <button class="resource-menu-item" onclick="switchSettingsSub('sync', this)">数据同步</button>
+            <button class="resource-menu-item" onclick="switchSettingsSub('users', this)">账号管理</button>
+            <button class="resource-menu-item" onclick="switchSettingsSub('roles', this)">角色权限</button>
+            <button class="resource-menu-item" onclick="switchSettingsSub('audit', this)">审计日志</button>
+            <button class="resource-menu-item" onclick="switchSettingsSub('usage', this)">使用统计</button>
+            <button class="resource-menu-item" onclick="switchSettingsSub('base', this)">基础设置</button>
+          </div>
+        </aside>
+
+        <div class="resource-main">
+          <div class="settings-subview active" id="settings-sub-version">
+            <article class="card">
+              <div class="card-hd"><span>版本公告</span><button class="btn primary" onclick="publishVersionAnnouncement()">发布公告</button></div>
+              <div class="card-bd">
+                <div class="settings-form-grid">
+                  <div class="modal-field"><label>公告标题</label><input id="settings-ann-title" value="V3.6 预发布说明" /></div>
+                  <div class="modal-field" style="grid-column: 1 / -1;"><label>公告内容</label><textarea id="settings-ann-content" rows="3">新增系统设置中心，补齐账号、权限、审计、统计与基础配置入口。</textarea></div>
+                </div>
+                <div id="settings-version-list" style="margin-top:10px;"></div>
+              </div>
+            </article>
+          </div>
+
+          <!-- 系统对接 -->
+          <div class="settings-subview" id="settings-sub-integration">
+            <article class="card">
+              <div class="card-hd"><span>外部系统对接管理</span><button class="btn primary" onclick="testAllConnections()">一键检测连接</button></div>
+              <div class="card-bd">
+                <div class="integration-grid" id="integration-list">
+                  <!-- 动态生成 -->
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <!-- 数据同步 -->
+          <div class="settings-subview" id="settings-sub-sync">
+            <article class="card">
+              <div class="card-hd">
+                <span>数据同步控制台</span>
+                <div class="row">
+                  <select id="sync-system-filter"><option value="all">全部系统</option><option value="erp">ERP</option><option value="mes">MES</option><option value="wms">WMS</option></select>
+                  <button class="btn ok" onclick="syncAllData()">🔄 一键全量同步</button>
+                </div>
+              </div>
+              <div class="card-bd">
+                <div class="sync-status-bar" id="sync-status-bar">
+                  <div class="sync-status-item">
+                    <span class="sync-status-label">上次全量同步:</span>
+                    <span class="sync-status-value" id="last-full-sync">2026-02-28 06:00:00</span>
+                  </div>
+                  <div class="sync-status-item">
+                    <span class="sync-status-label">同步状态:</span>
+                    <span class="sync-status-value ok" id="sync-overall-status">✅ 正常</span>
+                  </div>
+                  <div class="sync-status-item">
+                    <span class="sync-status-label">待同步数据:</span>
+                    <span class="sync-status-value warn" id="sync-pending-count">23 条</span>
+                  </div>
+                </div>
+                <table style="margin-top:16px;">
+                  <thead>
+                    <tr><th>数据表</th><th>来源系统</th><th>记录数</th><th>最后同步</th><th>同步状态</th><th>操作</th></tr>
+                  </thead>
+                  <tbody id="sync-table-tbody"></tbody>
+                </table>
+                <div class="sync-log-panel" id="sync-log-panel" style="margin-top:20px;">
+                  <div class="sync-log-hd">📋 同步日志 <button class="btn sm" onclick="clearSyncLogs()">清空</button></div>
+                  <div class="sync-log-content" id="sync-log-content"></div>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <div class="settings-subview" id="settings-sub-users">
+            <article class="card">
+              <div class="card-hd"><span>账号管理</span><div class="row"><input id="settings-user-search" aria-label="搜索账号" placeholder="搜索账号/姓名" oninput="renderSettingsUsers()" /><button class="btn primary" onclick="addSystemUser()">新增账号</button></div></div>
+              <div class="card-bd">
+                <table><thead><tr><th>账号</th><th>姓名</th><th>角色</th><th>状态</th><th>最近登录</th><th>操作</th></tr></thead><tbody id="settings-user-tbody"></tbody></table>
+              </div>
+            </article>
+          </div>
+
+          <div class="settings-subview" id="settings-sub-roles">
+            <article class="card">
+              <div class="card-hd"><span>角色权限</span><button class="btn" onclick="saveRolePolicy()">保存权限策略</button></div>
+              <div class="card-bd">
+                <table><thead><tr><th>角色</th><th>可访问模块</th><th>数据范围</th><th>状态</th></tr></thead><tbody id="settings-role-tbody"></tbody></table>
+                <div class="muted" style="margin-top:8px;">支持菜单级权限与操作按钮权限组合配置（演示版）。</div>
+              </div>
+            </article>
+          </div>
+
+          <div class="settings-subview" id="settings-sub-audit">
+            <article class="card">
+              <div class="card-hd"><span>审计日志</span><div class="row"><select id="settings-audit-filter" aria-label="审计模块筛选" onchange="renderSettingsAuditLogs()"><option value="all">全部模块</option><option value="排程">排程</option><option value="规则">规则</option><option value="账号">账号</option><option value="资源">资源</option></select><button class="btn" onclick="exportAuditLogs()">导出日志</button></div></div>
+              <div class="card-bd"><table><thead><tr><th>时间</th><th>操作者</th><th>模块</th><th>动作</th><th>结果</th></tr></thead><tbody id="settings-audit-tbody"></tbody></table></div>
+            </article>
+          </div>
+
+          <div class="settings-subview" id="settings-sub-usage">
+            <article class="card">
+              <div class="card-hd"><span>使用统计</span><button class="btn" onclick="refreshUsageStats()">刷新统计</button></div>
+              <div class="card-bd" id="settings-usage-panel"></div>
+            </article>
+          </div>
+
+          <div class="settings-subview" id="settings-sub-base">
+            <article class="card">
+              <div class="card-hd"><span>基础设置</span><button class="btn ok" onclick="saveBaseSettings()">保存设置</button></div>
+              <div class="card-bd">
+                <div class="settings-form-grid">
+                  <div class="modal-field"><label>系统时区</label><select><option>Asia/Shanghai (UTC+8)</option><option>UTC (UTC+0)</option></select></div>
+                  <div class="modal-field"><label>会话超时（分钟）</label><input type="number" value="30" min="5" max="180" /></div>
+                  <div class="modal-field"><label>告警推送渠道</label><select><option>系统站内 + 邮件</option><option>仅系统站内</option><option>仅邮件</option></select></div>
+                  <div class="modal-field"><label>自动备份周期</label><select><option>每天</option><option>每周</option><option>每月</option></select></div>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+  <script src="common.js"></script>
+  <script>
+    function switchSettingsSub(sub, btn) {
+      document.querySelectorAll('.settings-subview').forEach(v => v.classList.remove('active'));
+      document.getElementById('settings-sub-' + sub).classList.add('active');
+      document.querySelectorAll('.resource-menu-item').forEach(m => m.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      
+      if (sub === 'users') renderSettingsUsers();
+      if (sub === 'roles') renderSettingsRoles();
+      if (sub === 'audit') renderSettingsAuditLogs();
+      if (sub === 'usage') renderUsageStats();
+    }
+
+    function renderVersionList() {
+      const container = document.getElementById('settings-version-list');
+      const versions = [
+        { version: 'V3.5', date: '2026-02-20', content: '优化甘特图交互体验，新增AI预排方案功能。' },
+        { version: 'V3.4', date: '2026-01-15', content: '新增多场景方案对比，支持What-If分析。' },
+        { version: 'V3.3', date: '2025-12-10', content: '优化排程算法，提升计算效率30%。' }
+      ];
+      container.innerHTML = versions.map(v => `
+        <div class="settings-ann-item">
+          <div class="hd"><span>${v.version} 正式发布</span><span class="muted">${v.date}</span></div>
+          <div class="bd">${v.content}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderSettingsUsers() {
+      const tbody = document.getElementById('settings-user-tbody');
+      const search = document.getElementById('settings-user-search').value.toLowerCase();
+      let users = state.settingsUsers || [];
+      
+      if (search) {
+        users = users.filter(u => u.account.toLowerCase().includes(search) || u.name.toLowerCase().includes(search));
+      }
+      
+      tbody.innerHTML = users.slice(0, 10).map(u => {
+        const statusClass = u.status === '启用' ? 'ok' : '';
+        return `<tr><td>${u.account}</td><td>${u.name}</td><td>${u.role}</td><td><span class="tag ${statusClass}">${u.status}</span></td><td>${u.lastLogin}</td><td><button class="btn sm">编辑</button></td></tr>`;
+      }).join('');
+    }
+
+    function renderSettingsRoles() {
+      const tbody = document.getElementById('settings-role-tbody');
+      const roles = [
+        { name: '管理员', modules: '全部模块', scope: '全厂数据', status: '生效' },
+        { name: '计划员', modules: '决策中心、协同中心、需求中心', scope: '所辖分厂', status: '生效' },
+        { name: '车间主管', modules: '监控中心、资源中心', scope: '本车间', status: '生效' }
+      ];
+      tbody.innerHTML = roles.map(r => `<tr><td>${r.name}</td><td>${r.modules}</td><td>${r.scope}</td><td><span class="tag ok">${r.status}</span></td></tr>`).join('');
+    }
+
+    function renderSettingsAuditLogs() {
+      const tbody = document.getElementById('settings-audit-tbody');
+      const filter = document.getElementById('settings-audit-filter').value;
+      let logs = state.settingsAuditLogs || [];
+      
+      if (filter !== 'all') {
+        logs = logs.filter(l => l.module === filter);
+      }
+      
+      tbody.innerHTML = logs.slice(0, 10).map(l => {
+        const resultClass = l.result === '成功' ? 'ok' : 'err';
+        return `<tr><td>${l.time}</td><td>${l.user}</td><td>${l.module}</td><td>${l.action}</td><td><span class="tag ${resultClass}">${l.result}</span></td></tr>`;
+      }).join('');
+    }
+
+    function renderUsageStats() {
+      const container = document.getElementById('settings-usage-panel');
+      container.innerHTML = `
+        <div class="grid-2">
+          <div class="usage-stat-card"><div class="usage-stat-value">48</div><div class="usage-stat-label">今日活跃用户</div></div>
+          <div class="usage-stat-card"><div class="usage-stat-value">126</div><div class="usage-stat-label">排程执行次数</div></div>
+          <div class="usage-stat-card"><div class="usage-stat-value">23</div><div class="usage-stat-label">规则调整次数</div></div>
+          <div class="usage-stat-card"><div class="usage-stat-value">0.8s</div><div class="usage-stat-label">平均响应时间</div></div>
+        </div>
+      `;
+    }
+
+    function publishVersionAnnouncement() {
+      toast('版本公告已发布');
+    }
+
+    function addSystemUser() {
+      toast('新增账号功能演示');
+    }
+
+    function saveRolePolicy() {
+      toast('权限策略已保存');
+    }
+
+    function exportAuditLogs() {
+      toast('审计日志导出中...');
+    }
+
+    function refreshUsageStats() {
+      renderUsageStats();
+      toast('使用统计已刷新');
+    }
+
+    function saveBaseSettings() {
+      toast('基础设置已保存');
+    }
+
+    // ========== 系统对接功能 ==========
+    const integrationSystems = [
+      { id: 'erp', name: 'ERP系统', type: 'SAP S/4HANA', status: 'connected', lastSync: '2026-02-28 08:30:00', tables: 15, records: 15230 },
+      { id: 'mes', name: 'MES系统', type: '自研系统', status: 'connected', lastSync: '2026-02-28 08:45:00', tables: 8, records: 8450 },
+      { id: 'wms', name: 'WMS系统', type: 'Infor WMS', status: 'connected', lastSync: '2026-02-28 09:00:00', tables: 6, records: 6780 },
+      { id: 'qms', name: '质量系统', type: '文件接口', status: 'connected', lastSync: '2026-02-28 07:15:00', tables: 3, records: 3210 },
+      { id: 'scm', name: '供应链系统', type: 'API', status: 'disconnected', lastSync: '2026-02-27 14:00:00', tables: 5, records: 4500 },
+      { id: 'crm', name: 'CRM系统', type: 'API', status: 'syncing', lastSync: '2026-02-28 09:30:00', tables: 4, records: 2800 }
+    ];
+
+    function renderIntegrationList() {
+      const container = document.getElementById('integration-list');
+      container.innerHTML = integrationSystems.map(sys => `
+        <div class="integration-card">
+          <div class="integration-card-hd">
+            <div class="integration-name">
+              <span>${getSystemIcon(sys.id)}</span>
+              <span>${sys.name}</span>
+            </div>
+            <span class="integration-status ${sys.status}">${getStatusText(sys.status)}</span>
+          </div>
+          <div class="integration-info">
+            <div class="integration-info-row"><span>系统类型:</span><span>${sys.type}</span></div>
+            <div class="integration-info-row"><span>最后同步:</span><span>${sys.lastSync}</span></div>
+            <div class="integration-info-row"><span>数据表数:</span><span>${sys.tables} 张</span></div>
+            <div class="integration-info-row"><span>记录总数:</span><span>${sys.records.toLocaleString()} 条</span></div>
+          </div>
+          <div class="integration-actions">
+            <button class="btn sm" onclick="testConnection('${sys.id}')">🔌 测试连接</button>
+            <button class="btn sm" onclick="syncSystemData('${sys.id}')">🔄 立即同步</button>
+            <button class="btn sm" onclick="configSystem('${sys.id}')">⚙️ 配置</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function getSystemIcon(id) {
+      const icons = { erp: '📊', mes: '🏭', wms: '📦', qms: '✅', scm: '🚚', crm: '👥' };
+      return icons[id] || '🔧';
+    }
+
+    function getStatusText(status) {
+      const texts = { connected: '已连接', disconnected: '断开', syncing: '同步中' };
+      return texts[status] || status;
+    }
+
+    function testConnection(systemId) {
+      const sys = integrationSystems.find(s => s.id === systemId);
+      toast(`正在测试 ${sys.name} 连接...`);
+      setTimeout(() => {
+        toast(`${sys.name} 连接测试成功！延迟: ${Math.floor(Math.random() * 50 + 10)}ms`);
+      }, 1000);
+    }
+
+    function testAllConnections() {
+      toast('正在检测所有系统连接状态...');
+      setTimeout(() => {
+        toast('检测完成：5个系统正常，1个系统异常');
+        renderIntegrationList();
+      }, 1500);
+    }
+
+    function syncSystemData(systemId) {
+      const sys = integrationSystems.find(s => s.id === systemId);
+      sys.status = 'syncing';
+      renderIntegrationList();
+      toast(`${sys.name} 数据同步中...`);
+      setTimeout(() => {
+        sys.status = 'connected';
+        sys.lastSync = new Date().toLocaleString('zh-CN');
+        renderIntegrationList();
+        toast(`${sys.name} 数据同步完成！`);
+        addSyncLog('success', `${sys.name} 数据同步成功，更新 ${Math.floor(Math.random() * 100 + 50)} 条记录`);
+      }, 2000);
+    }
+
+    function configSystem(systemId) {
+      toast(`正在打开 ${systemId.toUpperCase()} 系统配置...`);
+    }
+
+    // ========== 数据同步功能 ==========
+    const syncTables = [
+      { name: '制造BOM表', source: 'ERP', records: 1523, lastSync: '2026-02-28 08:30:00', status: 'synced' },
+      { name: '品目表', source: 'ERP', records: 845, lastSync: '2026-02-28 08:28:00', status: 'synced' },
+      { name: '订单表', source: 'ERP', records: 5230, lastSync: '2026-02-28 08:25:00', status: 'pending' },
+      { name: '生产日历表', source: 'MES', records: 365, lastSync: '2026-02-28 08:45:00', status: 'synced' },
+      { name: '资源表', source: 'MES', records: 48, lastSync: '2026-02-28 08:40:00', status: 'synced' },
+      { name: '销售急售表', source: 'CRM', records: 156, lastSync: '2026-02-28 09:30:00', status: 'syncing' },
+      { name: '物料配套表', source: 'WMS', records: 2345, lastSync: '2026-02-28 09:00:00', status: 'synced' },
+      { name: '配套结果表', source: 'WMS', records: 1234, lastSync: '2026-02-28 08:58:00', status: 'synced' }
+    ];
+
+    let syncLogs = [
+      { type: 'success', time: '2026-02-28 09:30:15', msg: 'CRM销售急售表同步成功，更新 23 条记录' },
+      { type: 'info', time: '2026-02-28 09:15:00', msg: '开始执行定时同步任务' },
+      { type: 'success', time: '2026-02-28 09:00:05', msg: 'WMS物料配套表同步成功' },
+      { type: 'error', time: '2026-02-28 08:45:20', msg: 'SCM供应链系统连接超时，将在5分钟后重试' }
+    ];
+
+    function renderSyncTable() {
+      const tbody = document.getElementById('sync-table-tbody');
+      const filter = document.getElementById('sync-system-filter')?.value || 'all';
+      let tables = syncTables;
+      
+      if (filter !== 'all') {
+        tables = tables.filter(t => t.source.toLowerCase() === filter);
+      }
+      
+      tbody.innerHTML = tables.map(t => {
+        const statusMap = { synced: ['✅ 已同步', 'ok'], pending: ['⏳ 待同步', 'warn'], syncing: ['🔄 同步中', ''] };
+        const [statusText, statusClass] = statusMap[t.status] || [t.status, ''];
+        return `
+          <tr>
+            <td>${t.name}</td>
+            <td><span class="tag">${t.source}</span></td>
+            <td>${t.records.toLocaleString()}</td>
+            <td>${t.lastSync}</td>
+            <td><span class="tag ${statusClass}">${statusText}</span></td>
+            <td><button class="btn sm" onclick="syncSingleTable('${t.name}')">同步</button></td>
+          </tr>
+        `;
+      }).join('');
+      
+      // 更新待同步数量
+      const pendingCount = syncTables.filter(t => t.status === 'pending').length;
+      document.getElementById('sync-pending-count').textContent = pendingCount + ' 条';
+    }
+
+    function renderSyncLogs() {
+      const container = document.getElementById('sync-log-content');
+      container.innerHTML = syncLogs.map(log => `
+        <div class="sync-log-item ${log.type}">
+          [${log.time}] ${log.msg}
+        </div>
+      `).join('');
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function addSyncLog(type, msg) {
+      const time = new Date().toLocaleString('zh-CN');
+      syncLogs.unshift({ type, time, msg });
+      if (syncLogs.length > 50) syncLogs.pop();
+      renderSyncLogs();
+    }
+
+    function syncSingleTable(tableName) {
+      const table = syncTables.find(t => t.name === tableName);
+      if (table) {
+        table.status = 'syncing';
+        renderSyncTable();
+        addSyncLog('info', `开始同步 ${tableName}...`);
+        
+        setTimeout(() => {
+          table.status = 'synced';
+          table.lastSync = new Date().toLocaleString('zh-CN');
+          renderSyncTable();
+          addSyncLog('success', `${tableName} 同步成功，共 ${table.records} 条记录`);
+        }, 1500);
+      }
+    }
+
+    function syncAllData() {
+      toast('🔄 开始一键全量数据同步...');
+      addSyncLog('info', '启动全量数据同步任务');
+      
+      let completed = 0;
+      syncTables.forEach((table, idx) => {
+        setTimeout(() => {
+          table.status = 'syncing';
+          renderSyncTable();
+          addSyncLog('info', `正在同步 ${table.name}...`);
+          
+          setTimeout(() => {
+            table.status = 'synced';
+            table.lastSync = new Date().toLocaleString('zh-CN');
+            completed++;
+            renderSyncTable();
+            addSyncLog('success', `${table.name} 同步完成`);
+            
+            if (completed === syncTables.length) {
+              toast('✅ 全量数据同步完成！');
+              addSyncLog('success', '全量数据同步任务全部完成');
+              document.getElementById('last-full-sync').textContent = new Date().toLocaleString('zh-CN');
+            }
+          }, 1000);
+        }, idx * 300);
+      });
+    }
+
+    function clearSyncLogs() {
+      syncLogs = [];
+      renderSyncLogs();
+      toast('同步日志已清空');
+    }
+
+    document.getElementById('sync-system-filter')?.addEventListener('change', renderSyncTable);
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderVersionList();
+      renderIntegrationList();
+      renderSyncTable();
+      renderSyncLogs();
+    });
+  </script>
+</body>
+</html>

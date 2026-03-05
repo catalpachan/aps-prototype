@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>规则中心 - 格力计划排程智能体</title>
+  <link rel="stylesheet" href="common.css" />
+  <style>
+    .rule-hard-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+    .rule-hard-item { border: 1px solid #334155; border-radius: 8px; background: #111c2f; padding: 8px 10px; line-height: 1.5; }
+    .rule-hard-item-head { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap; }
+    .rule-hard-code { display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 999px; background: #1e293b; border: 1px solid #475569; color: #cbd5e1; }
+    .rule-hard-level { font-size: 10px; font-weight: 700; color: #fecaca; background: #450a0a; border: 1px solid #7f1d1d; border-radius: 999px; padding: 1px 7px; }
+    .rule-result-empty { border: 1px dashed #3b4c67; border-radius: 10px; background: linear-gradient(160deg, #0f1a2d 0%, #0f172a 100%); padding: 12px; color: #94a3b8; display: flex; flex-direction: column; gap: 6px; line-height: 1.6; }
+    .rule-result-empty b { color: #cbd5e1; font-size: 13px; font-weight: 700; }
+    .rule-result-card { border: 1px solid #334155; border-radius: 10px; background: linear-gradient(160deg, #10192b 0%, #0f172a 100%); padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+    .rule-status { display: inline-flex; align-items: center; font-size: 11px; font-weight: 700; border: 1px solid; border-radius: 999px; padding: 3px 10px; }
+    .rule-status.ok { color: #a7f3d0; background: #052e2b; border-color: #0f766e; }
+    .rule-status.warn { color: #fde68a; background: #3a2609; border-color: #b45309; }
+    .rule-toggle-group { display: grid; grid-template-columns: 1fr; gap: 8px; margin-bottom: 10px; }
+    .rule-toggle-item { display: flex; align-items: center; gap: 8px; border: 1px solid #334155; border-radius: 8px; background: #101b2d; padding: 8px 10px; color: #cbd5e1; font-size: 12px; cursor: pointer; }
+    .rule-toggle-item:hover { border-color: #4b5f82; background: #13233a; }
+    .rule-kpi-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .rule-kpi-item { border: 1px solid #2f3d55; border-radius: 8px; background: #111c2f; padding: 8px; }
+    .leadtime-item { display: flex; align-items: center; justify-content: space-between; padding: 10px; border: 1px solid #334155; border-radius: 8px; background: #111b2d; margin-bottom: 8px; }
+    .leadtime-item:last-child { margin-bottom: 0; }
+    @media (max-width: 820px) { .rule-kpi-row { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand-block">
+      <img class="header-logo" src="1c5703c9-aca0-43d1-9843-9d502cb66fd0.png" alt="APS Logo" width="143" height="44" />
+      
+    </div>
+    <nav class="nav" id="nav">
+      <a href="decision.html" class="nav-item">决策中心</a>
+      <a href="collab.html" class="nav-item">协同中心</a>
+      <a href="demand.html" class="nav-item">需求中心</a>
+      <a href="resource.html" class="nav-item">资源中心</a>
+      <a href="rule.html" class="nav-item active">规则中心</a>
+      <a href="monitor.html" class="nav-item">监控中心</a>
+      <a href="report.html" class="nav-item">报表中心</a>
+      <a href="settings.html" class="nav-item">系统设置</a>
+    </nav>
+    <div class="header-meta" id="header-meta">
+      <span id="header-date">2026-02-28 08:56:33</span> |
+      <select id="hq-select" class="role-select" aria-label="基地切换">
+        <option>珠海格力总部</option>
+        <option>金湾基地</option>
+        <option>武汉基地</option>
+        <option>洛阳基地</option>
+      </select>
+      | 
+      <div class="user-dropdown" id="user-dropdown">
+        <div class="user-dropdown-toggle" onclick="toggleUserDropdown()">
+          <div class="avatar">张</div>
+          <span class="name">张伟</span>
+          <span class="arrow">▼</span>
+        </div>
+        <div class="user-dropdown-menu">
+          <a href="settings.html" class="user-dropdown-item">👤 用户信息</a>
+          <a href="login.html" class="user-dropdown-item logout">🚪 退出</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="app">
+    <section class="view" id="view-rule">
+      <div class="grid-2">
+        <article class="card">
+          <div class="card-hd"><span>硬约束规则库</span><button class="btn err" onclick="validateHardRules()">执行硬约束校验</button></div>
+          <div class="card-bd">
+            <div id="hard-rule-list" class="rule-hard-list"></div>
+            <div id="hard-rule-result">
+              <div class="rule-result-empty"><b>等待校验</b><span>点击"执行硬约束校验"后，系统将输出通过/冲突明细与处置建议。</span></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-hd"><span>软约束评分矩阵</span><button class="btn" onclick="recalcSoftScore()">重算评分</button></div>
+          <div class="card-bd">
+            <table>
+              <thead><tr><th>指标</th><th>权重</th><th>当前得分</th></tr></thead>
+              <tbody id="soft-score-tbody"></tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-hd"><span>提前期参数池</span><button class="btn" onclick="togglePeakMode()">旺季压缩切换</button></div>
+          <div class="card-bd" id="leadtime-panel"></div>
+        </article>
+
+        <article class="card">
+          <div class="card-hd"><span>临时复杂规则集</span><button class="btn" onclick="applyComplexRules()">应用规则</button></div>
+          <div class="card-bd">
+            <div class="rule-toggle-group">
+              <label class="rule-toggle-item"><input type="checkbox" id="rule-lock" checked> <span>锁定关键设备</span></label>
+              <label class="rule-toggle-item"><input type="checkbox" id="rule-block"> <span>封锁维保时段</span></label>
+              <label class="rule-toggle-item"><input type="checkbox" id="rule-group" checked> <span>同批次成组排程</span></label>
+            </div>
+            <div id="complex-rule-result">
+              <div class="rule-result-empty"><b>等待应用</b><span>勾选策略后点击"应用规则"，将展示生效范围与风险影响。</span></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-hd"><span>规则模拟与验证（沙盘）</span><button class="btn warn txt-white" onclick="runRuleSandbox()">运行What-If</button></div>
+          <div class="card-bd" id="sandbox-result">
+            <div class="rule-result-empty"><b>等待模拟</b><span>点击"运行What-If"后，将展示收益指标、冲突变化和推荐方案。</span></div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-hd"><span>冲突判定准则</span><button class="btn" onclick="judgeConflict()">冲突判定</button></div>
+          <div class="card-bd" id="conflict-result">
+            <div class="rule-result-empty"><b>等待判定</b><span>点击"冲突判定"后，将输出冲突等级、超限时长及处置路径。</span></div>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+  <script src="common.js"></script>
+  <script>
+    let isPeakMode = false;
+
+    function renderHardRules() {
+      const container = document.getElementById('hard-rule-list');
+      const rules = state.hardRules || [];
+      container.innerHTML = rules.map(r => `
+        <div class="rule-hard-item">
+          <div class="rule-hard-item-head">
+            <span class="rule-hard-code">${r.code}</span>
+            <span class="rule-hard-level">${r.level}</span>
+            <span style="color:#e2e8f0;font-size:12px;font-weight:700;">${r.name}</span>
+          </div>
+          <div style="color:#94a3b8;font-size:11px;">${r.desc}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderSoftScores() {
+      const tbody = document.getElementById('soft-score-tbody');
+      const scores = state.softScores || [];
+      tbody.innerHTML = scores.map(s => `
+        <tr><td>${s.name}</td><td>${s.weight}%</td><td style="color:${s.score >= 90 ? '#86efac' : s.score >= 80 ? '#fcd34d' : '#fca5a5'};font-weight:700;">${s.score}</td></tr>
+      `).join('');
+    }
+
+    function renderLeadTimes() {
+      const container = document.getElementById('leadtime-panel');
+      const leadtimes = state.leadTimes || [];
+      container.innerHTML = leadtimes.map(l => `
+        <div class="leadtime-item">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="tag">${l.process}</span>
+            <span style="color:#94a3b8;">标准: ${l.normal}天</span>
+          </div>
+          <span class="tag ${isPeakMode ? 'warn' : ''}">旺季: ${isPeakMode ? l.peak : l.normal}天</span>
+        </div>
+      `).join('');
+    }
+
+    function validateHardRules() {
+      document.getElementById('hard-rule-result').innerHTML = `
+        <div class="rule-result-card">
+          <div class="row" style="justify-content:space-between;"><span class="rule-status ok">校验通过</span><span class="muted">执行时间 ${formatClockTime()}</span></div>
+          <div>本次校验共检查 24 条硬约束，全部通过，无冲突。</div>
+          <div class="rule-kpi-row" style="margin-top:8px;">
+            <div class="rule-kpi-item"><span class="muted">通过率</span><div style="font-weight:700;">100%</div></div>
+            <div class="rule-kpi-item"><span class="muted">冲突数</span><div style="font-weight:700;">0</div></div>
+            <div class="rule-kpi-item"><span class="muted">警告数</span><div style="font-weight:700;">2</div></div>
+          </div>
+        </div>`;
+      toast('硬约束校验完成');
+    }
+
+    function recalcSoftScore() {
+      state.softScores.forEach(s => s.score = Math.min(100, s.score + Math.random() * 5 - 2));
+      renderSoftScores();
+      toast('软约束评分已重算');
+    }
+
+    function togglePeakMode() {
+      isPeakMode = !isPeakMode;
+      renderLeadTimes();
+      toast(isPeakMode ? '已切换至旺季压缩模式' : '已切换至标准模式');
+    }
+
+    function applyComplexRules() {
+      document.getElementById('complex-rule-result').innerHTML = `
+        <div class="rule-result-card">
+          <div class="row" style="justify-content:space-between;"><span class="rule-status ok">已应用</span><span class="muted">生效时间 ${formatClockTime()}</span></div>
+          <div>规则集已生效，影响范围: 3条产线，预计提升产能利用率 5.2%</div>
+        </div>`;
+      toast('复杂规则已应用');
+    }
+
+    function runRuleSandbox() {
+      document.getElementById('sandbox-result').innerHTML = `
+        <div class="rule-result-card">
+          <div class="row" style="justify-content:space-between;"><span class="rule-status ok">模拟完成</span><span class="muted">模拟时间 ${formatClockTime()}</span></div>
+          <div>What-If 模拟结果: 准时交付率 +3.5%，成本指数 +1.2%</div>
+          <div class="rule-kpi-row" style="margin-top:8px;">
+            <div class="rule-kpi-item"><span class="muted">推荐度</span><div style="font-weight:700;">85%</div></div>
+            <div class="rule-kpi-item"><span class="muted">风险等级</span><div style="font-weight:700;">低</div></div>
+            <div class="rule-kpi-item"><span class="muted">实施难度</span><div style="font-weight:700;">中</div></div>
+          </div>
+        </div>`;
+      toast('沙盘模拟完成');
+    }
+
+    function judgeConflict() {
+      document.getElementById('conflict-result').innerHTML = `
+        <div class="rule-result-card">
+          <div class="row" style="justify-content:space-between;"><span class="rule-status ok">判定完成</span><span class="muted">判定时间 ${formatClockTime()}</span></div>
+          <div>当前排程无冲突，所有约束条件均满足。</div>
+        </div>`;
+      toast('冲突判定完成');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderHardRules();
+      renderSoftScores();
+      renderLeadTimes();
+    });
+  </script>
+</body>
+</html>

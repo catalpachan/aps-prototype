@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>资源中心 - 格力计划排程智能体</title>
+  <link rel="stylesheet" href="common.css" />
+  <style>
+    .resource-layout {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .resource-sidebar {
+      position: sticky;
+      top: 76px;
+      max-height: calc(100vh - 100px);
+    }
+
+    .resource-menu {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .resource-menu-item {
+      width: 100%;
+      text-align: left;
+      background: #172235;
+      color: #dbeafe;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: transform var(--dur-fast) var(--ease-soft), filter var(--dur-fast) var(--ease-soft), border-color var(--dur-fast) var(--ease-soft), box-shadow var(--dur-fast) var(--ease-soft);
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    .resource-menu-item:hover {
+      filter: brightness(1.08);
+      transform: translateX(2px);
+      box-shadow: 0 6px 14px rgba(8, 15, 35, 0.3);
+    }
+
+    .resource-menu-item.active {
+      background: linear-gradient(135deg, #1e3a8a, #2563eb);
+      border-color: #2563eb;
+      color: #fff;
+    }
+
+    .resource-main {
+      min-width: 0;
+    }
+
+    .resource-subview {
+      display: none;
+    }
+
+    .resource-subview.active {
+      display: block;
+    }
+
+    .resource-tools {
+      margin-bottom: 10px;
+      gap: 10px;
+    }
+
+    .resource-tools input {
+      min-width: 220px;
+    }
+
+    .resource-pagination {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid #2b3649;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .resource-page-info {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .resource-page-nav {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .btn.delete-btn {
+      background: #393232;
+      border-color: #b39393;
+      color: #ff8080;
+    }
+
+    .equipment-card {
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 10px;
+      background: #111b2d;
+      margin-bottom: 8px;
+    }
+
+    .equipment-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .equipment-card-title {
+      font-weight: 600;
+      color: #e2e8f0;
+    }
+
+    .equipment-card-meta {
+      font-size: 11px;
+      color: #94a3b8;
+      margin-top: 4px;
+    }
+
+    .mold-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      background: #111b2d;
+      margin-bottom: 8px;
+    }
+
+    .skill-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      background: #1e293b;
+      border: 1px solid #475569;
+      color: #cbd5e1;
+    }
+
+    .calendar-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      background: #111b2d;
+      margin-bottom: 8px;
+    }
+
+    @media (max-width: 960px) {
+      .resource-layout { grid-template-columns: 1fr; }
+      .resource-sidebar { position: static; max-height: none; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand-block">
+      <img class="header-logo" src="1c5703c9-aca0-43d1-9843-9d502cb66fd0.png" alt="APS Logo" width="143" height="44" />
+      
+    </div>
+    <nav class="nav" id="nav">
+      <a href="decision.html" class="nav-item">决策中心</a>
+      <a href="collab.html" class="nav-item">协同中心</a>
+      <a href="demand.html" class="nav-item">需求中心</a>
+      <a href="resource.html" class="nav-item active">资源中心</a>
+      <a href="rule.html" class="nav-item">规则中心</a>
+      <a href="monitor.html" class="nav-item">监控中心</a>
+      <a href="report.html" class="nav-item">报表中心</a>
+      <a href="settings.html" class="nav-item">系统设置</a>
+    </nav>
+    <div class="header-meta" id="header-meta">
+      <span id="header-date">2026-02-28 08:56:33</span> |
+      <select id="hq-select" class="role-select" aria-label="基地切换">
+        <option>珠海格力总部</option>
+        <option>金湾基地</option>
+        <option>武汉基地</option>
+        <option>洛阳基地</option>
+      </select>
+      | 
+      <div class="user-dropdown" id="user-dropdown">
+        <div class="user-dropdown-toggle" onclick="toggleUserDropdown()">
+          <div class="avatar">张</div>
+          <span class="name">张伟</span>
+          <span class="arrow">▼</span>
+        </div>
+        <div class="user-dropdown-menu">
+          <a href="settings.html" class="user-dropdown-item">👤 用户信息</a>
+          <a href="login.html" class="user-dropdown-item logout">🚪 退出</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="app">
+    <section class="view" id="view-resource">
+      <div class="resource-layout">
+        <aside class="resource-sidebar">
+          <div class="resource-menu">
+            <button class="resource-menu-item active" data-resource-sub="overview" onclick="switchResourceSub('overview', this)">资源总览</button>
+            <button class="resource-menu-item" data-resource-sub="device" onclick="switchResourceSub('device', this)">设备管理</button>
+            <button class="resource-menu-item" data-resource-sub="mold" onclick="switchResourceSub('mold', this)">模具管理</button>
+            <button class="resource-menu-item" data-resource-sub="personnel" onclick="switchResourceSub('personnel', this)">人员管理</button>
+            <button class="resource-menu-item" data-resource-sub="calendar" onclick="switchResourceSub('calendar', this)">日历管理</button>
+            <button class="resource-menu-item" data-resource-sub="outsource" onclick="switchResourceSub('outsource', this)">外协资源</button>
+          </div>
+        </aside>
+
+        <div class="resource-main">
+          <div class="resource-subview active" id="resource-sub-overview">
+            <div class="kpis">
+              <div class="kpi">
+                <div class="muted">厂区设备总数（含分厂）</div>
+                <div class="v" id="ro-equip-total">1,280</div>
+                <div class="muted" id="ro-equip-factory">正常运行 1,156 台</div>
+              </div>
+              <div class="kpi">
+                <div class="muted">模具总数</div>
+                <div class="v" id="ro-mold-total">3,450</div>
+                <div class="muted" id="ro-mold-extra">在用 2,890 套</div>
+              </div>
+              <div class="kpi">
+                <div class="muted">值班人员数据</div>
+                <div class="v" id="ro-duty-total">856</div>
+                <div class="muted" id="ro-duty-extra">今日出勤 812 人</div>
+              </div>
+              <div class="kpi">
+                <div class="muted">早晚班排班与维保窗口</div>
+                <div class="v" id="ro-shift-main">正常</div>
+                <div class="muted" id="ro-shift-extra">下一场维保: 20:00</div>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <article class="card">
+                <div class="card-hd"><span>全要素设备建模</span><button class="btn" onclick="refreshEquipment()">刷新IoT状态</button></div>
+                <div class="card-bd" id="equipment-cards"></div>
+              </article>
+
+              <article class="card">
+                <div class="card-hd"><span>模具与工装档案</span><button class="btn" onclick="simulateMoldTransfer()">模拟调拨</button></div>
+                <div class="card-bd" id="mold-panel"></div>
+              </article>
+
+              <article class="card">
+                <div class="card-hd"><span>人员技能矩阵</span><button class="btn" onclick="checkQualification()">资质校验</button></div>
+                <div class="card-bd">
+                  <table>
+                    <thead><tr><th>工号</th><th>姓名</th><th>主技能</th><th>等级</th><th>证书到期</th></tr></thead>
+                    <tbody id="skill-tbody"></tbody>
+                  </table>
+                </div>
+              </article>
+
+              <article class="card">
+                <div class="card-hd"><span>多层级日历体系</span><button class="btn" onclick="detectCalendarDeviation()">偏差检测</button></div>
+                <div class="card-bd" id="calendar-panel"></div>
+              </article>
+            </div>
+          </div>
+
+          <div class="resource-subview" id="resource-sub-device">
+            <article class="card">
+              <div class="card-hd"><span>设备管理</span><button class="btn primary" onclick="addResourceItem('device')">新增设备</button></div>
+              <div class="card-bd">
+                <div class="row resource-tools">
+                  <select id="resource-device-filter" aria-label="设备状态筛选" onchange="renderResourceTable('device')">
+                    <option value="all">全部状态</option>
+                    <option value="运行">运行</option>
+                    <option value="预警">预警</option>
+                    <option value="检修">检修</option>
+                    <option value="待机">待机</option>
+                  </select>
+                  <input id="resource-device-search" aria-label="搜索设备" placeholder="搜索设备编码/名称" oninput="renderResourceTable('device')" />
+                  <button class="btn sm" onclick="resetResourceFilter('device')">重置</button>
+                </div>
+                <table>
+                  <thead><tr><th>设备编码</th><th>设备名称</th><th>型号</th><th>状态</th><th>产能</th><th>操作</th></tr></thead>
+                  <tbody id="resource-device-tbody"></tbody>
+                </table>
+                <div class="resource-pagination" id="resource-device-pagination"></div>
+              </div>
+            </article>
+          </div>
+
+          <div class="resource-subview" id="resource-sub-mold">
+            <article class="card">
+              <div class="card-hd"><span>模具管理</span><button class="btn primary" onclick="addResourceItem('mold')">新增模具</button></div>
+              <div class="card-bd">
+                <div class="row resource-tools">
+                  <select id="resource-mold-filter" aria-label="模具状态筛选" onchange="renderResourceTable('mold')">
+                    <option value="all">全部状态</option>
+                    <option value="在用">在用</option>
+                    <option value="待检">待检</option>
+                    <option value="保养">保养</option>
+                    <option value="封存">封存</option>
+                  </select>
+                  <input id="resource-mold-search" aria-label="搜索模具" placeholder="搜索模具编号" oninput="renderResourceTable('mold')" />
+                  <button class="btn sm" onclick="resetResourceFilter('mold')">重置</button>
+                </div>
+                <table>
+                  <thead><tr><th>模具编号</th><th>一模几穴</th><th>适配机台</th><th>寿命</th><th>库位</th><th>状态</th><th>操作</th></tr></thead>
+                  <tbody id="resource-mold-tbody"></tbody>
+                </table>
+                <div class="resource-pagination" id="resource-mold-pagination"></div>
+              </div>
+            </article>
+          </div>
+
+          <div class="resource-subview" id="resource-sub-personnel">
+            <article class="card">
+              <div class="card-hd"><span>人员管理</span><button class="btn primary" onclick="addResourceItem('personnel')">新增人员</button></div>
+              <div class="card-bd">
+                <div class="row resource-tools">
+                  <select id="resource-personnel-filter" aria-label="人员技能筛选" onchange="renderResourceTable('personnel')">
+                    <option value="all">全部技能</option>
+                    <option value="注塑">注塑</option>
+                    <option value="焊接">焊接</option>
+                    <option value="总装">总装</option>
+                    <option value="冷媒加注">冷媒加注</option>
+                    <option value="钣金">钣金</option>
+                  </select>
+                  <input id="resource-personnel-search" aria-label="搜索人员" placeholder="搜索工号/姓名" oninput="renderResourceTable('personnel')" />
+                  <button class="btn sm" onclick="resetResourceFilter('personnel')">重置</button>
+                </div>
+                <table>
+                  <thead><tr><th>工号</th><th>姓名</th><th>技能</th><th>等级</th><th>证书到期</th><th>操作</th></tr></thead>
+                  <tbody id="resource-personnel-tbody"></tbody>
+                </table>
+                <div class="resource-pagination" id="resource-personnel-pagination"></div>
+              </div>
+            </article>
+          </div>
+
+          <div class="resource-subview" id="resource-sub-calendar">
+            <article class="card">
+              <div class="card-hd"><span>日历管理</span><button class="btn primary" onclick="addResourceItem('calendar')">新增日历</button></div>
+              <div class="card-bd">
+                <div class="row resource-tools">
+                  <select id="resource-calendar-filter" aria-label="日历状态筛选" onchange="renderResourceTable('calendar')">
+                    <option value="all">全部状态</option>
+                    <option value="已对齐">已对齐</option>
+                    <option value="待对齐">待对齐</option>
+                  </select>
+                  <input id="resource-calendar-search" aria-label="搜索日历" placeholder="搜索工厂/班次" oninput="renderResourceTable('calendar')" />
+                  <button class="btn sm" onclick="resetResourceFilter('calendar')">重置</button>
+                </div>
+                <table>
+                  <thead><tr><th>工厂</th><th>班次</th><th>维保窗口</th><th>加班策略</th><th>状态</th><th>操作</th></tr></thead>
+                  <tbody id="resource-calendar-tbody"></tbody>
+                </table>
+                <div class="resource-pagination" id="resource-calendar-pagination"></div>
+              </div>
+            </article>
+          </div>
+
+          <div class="resource-subview" id="resource-sub-outsource">
+            <article class="card">
+              <div class="card-hd"><span>外协资源</span><button class="btn primary" onclick="addResourceItem('outsource')">新增外协</button></div>
+              <div class="card-bd">
+                <div class="row resource-tools">
+                  <select id="resource-outsource-filter" aria-label="外协状态筛选" onchange="renderResourceTable('outsource')">
+                    <option value="all">全部状态</option>
+                    <option value="可用">可用</option>
+                    <option value="备选">备选</option>
+                    <option value="紧张">紧张</option>
+                  </select>
+                  <input id="resource-outsource-search" aria-label="搜索外协" placeholder="搜索外协厂商" oninput="renderResourceTable('outsource')" />
+                  <button class="btn sm" onclick="resetResourceFilter('outsource')">重置</button>
+                </div>
+                <table>
+                  <thead><tr><th>外协厂商</th><th>产能</th><th>质量等级</th><th>交期</th><th>状态</th><th>操作</th></tr></thead>
+                  <tbody id="resource-outsource-tbody"></tbody>
+                </table>
+                <div class="resource-pagination" id="resource-outsource-pagination"></div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <script src="common.js"></script>
+  <script>
+    const resourceConfig = {
+      device: { tbody: 'resource-device-tbody', pagination: 'resource-device-pagination', filter: 'resource-device-filter', search: 'resource-device-search' },
+      mold: { tbody: 'resource-mold-tbody', pagination: 'resource-mold-pagination', filter: 'resource-mold-filter', search: 'resource-mold-search' },
+      personnel: { tbody: 'resource-personnel-tbody', pagination: 'resource-personnel-pagination', filter: 'resource-personnel-filter', search: 'resource-personnel-search' },
+      calendar: { tbody: 'resource-calendar-tbody', pagination: 'resource-calendar-pagination', filter: 'resource-calendar-filter', search: 'resource-calendar-search' },
+      outsource: { tbody: 'resource-outsource-tbody', pagination: 'resource-outsource-pagination', filter: 'resource-outsource-filter', search: 'resource-outsource-search' }
+    };
+
+    function switchResourceSub(sub, btn) {
+      document.querySelectorAll('.resource-subview').forEach(v => v.classList.remove('active'));
+      document.getElementById('resource-sub-' + sub).classList.add('active');
+      document.querySelectorAll('.resource-menu-item').forEach(m => m.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      
+      if (sub !== 'overview') {
+        renderResourceTable(sub);
+      }
+    }
+
+    function renderResourceOverview() {
+      const records = state.resourceRecords || {};
+      
+      // Equipment stats
+      const devices = records.devices || [];
+      const runningDevices = devices.filter(d => d.status === '运行').length;
+      document.getElementById('ro-equip-total').textContent = devices.length.toLocaleString();
+      document.getElementById('ro-equip-factory').textContent = `正常运行 ${runningDevices} 台`;
+      
+      // Mold stats
+      const molds = records.molds || [];
+      const activeMolds = molds.filter(m => m.status === '在用').length;
+      document.getElementById('ro-mold-total').textContent = molds.length.toLocaleString();
+      document.getElementById('ro-mold-extra').textContent = `在用 ${activeMolds} 套`;
+      
+      // Personnel stats
+      const personnels = records.personnels || [];
+      document.getElementById('ro-duty-total').textContent = personnels.length;
+      document.getElementById('ro-duty-extra').textContent = `今日出勤 ${Math.floor(personnels.length * 0.95)} 人`;
+      
+      // Render equipment cards
+      const equipmentContainer = document.getElementById('equipment-cards');
+      equipmentContainer.innerHTML = devices.slice(0, 5).map(d => {
+        const statusClass = d.status === '运行' ? 'ok' : d.status === '预警' ? 'warn' : d.status === '检修' ? 'err' : '';
+        return `
+          <div class="equipment-card">
+            <div class="equipment-card-header">
+              <span class="equipment-card-title">${d.name}</span>
+              <span class="tag ${statusClass}">${d.status}</span>
+            </div>
+            <div class="equipment-card-meta">编码: ${d.code} · 型号: ${d.model} · 产能: ${d.capacity}</div>
+          </div>
+        `;
+      }).join('');
+      
+      // Render mold panel
+      const moldContainer = document.getElementById('mold-panel');
+      moldContainer.innerHTML = molds.slice(0, 5).map(m => {
+        const statusClass = m.status === '在用' ? 'ok' : m.status === '待检' ? 'warn' : m.status === '保养' ? 'info' : '';
+        return `
+          <div class="mold-item">
+            <div>
+              <div style="font-weight:600;color:#e2e8f0;">${m.code}</div>
+              <div class="muted" style="font-size:11px;">${m.cavity} · ${m.machine}</div>
+            </div>
+            <div style="text-align:right;">
+              <span class="tag ${statusClass}">${m.status}</span>
+              <div class="muted" style="font-size:11px;margin-top:4px;">寿命 ${m.life}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+      
+      // Render skills table
+      const skillsTbody = document.getElementById('skill-tbody');
+      skillsTbody.innerHTML = personnels.slice(0, 5).map(p => `
+        <tr>
+          <td>${p.empId}</td>
+          <td>${p.name}</td>
+          <td><span class="skill-badge">${p.skill}</span></td>
+          <td>${p.level}</td>
+          <td>${p.certExpiry}</td>
+        </tr>
+      `).join('');
+      
+      // Render calendar panel
+      const calendarContainer = document.getElementById('calendar-panel');
+      const calendars = records.calendars || [];
+      calendarContainer.innerHTML = calendars.slice(0, 5).map(c => {
+        const statusClass = c.status === '已对齐' ? 'ok' : 'warn';
+        return `
+          <div class="calendar-item">
+            <div>
+              <div style="font-weight:600;color:#e2e8f0;">${c.factory}</div>
+              <div class="muted" style="font-size:11px;">${c.shift} · ${c.maintenance}</div>
+            </div>
+            <span class="tag ${statusClass}">${c.status}</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderResourceTable(type) {
+      const config = resourceConfig[type];
+      const filterValue = document.getElementById(config.filter).value;
+      const searchValue = document.getElementById(config.search).value.toLowerCase();
+      
+      let data = [];
+      if (state.resourceRecords) {
+        data = state.resourceRecords[type === 'device' ? 'devices' : type === 'mold' ? 'molds' : type === 'personnel' ? 'personnels' : type === 'calendar' ? 'calendars' : 'outsources'] || [];
+      }
+      
+      // Filter
+      if (filterValue !== 'all') {
+        data = data.filter(item => item.status === filterValue || item.skill === filterValue);
+      }
+      
+      // Search
+      if (searchValue) {
+        data = data.filter(item => {
+          return Object.values(item).some(v => String(v).toLowerCase().includes(searchValue));
+        });
+      }
+      
+      // Pagination
+      const pageSize = 10;
+      const page = state.resourcePagination[type].page;
+      const total = data.length;
+      const totalPages = Math.ceil(total / pageSize);
+      const start = (page - 1) * pageSize;
+      const pageData = data.slice(start, start + pageSize);
+      
+      // Render table
+      const tbody = document.getElementById(config.tbody);
+      let html = '';
+      
+      if (type === 'device') {
+        html = pageData.map(d => {
+          const statusClass = d.status === '运行' ? 'ok' : d.status === '预警' ? 'warn' : d.status === '检修' ? 'err' : '';
+          return `<tr><td>${d.code}</td><td>${d.name}</td><td>${d.model}</td><td><span class="tag ${statusClass}">${d.status}</span></td><td>${d.capacity}</td><td><button class="btn sm">编辑</button></td></tr>`;
+        }).join('');
+      } else if (type === 'mold') {
+        html = pageData.map(m => {
+          const statusClass = m.status === '在用' ? 'ok' : m.status === '待检' ? 'warn' : m.status === '保养' ? 'info' : '';
+          return `<tr><td>${m.code}</td><td>${m.cavity}</td><td>${m.machine}</td><td>${m.life}</td><td>${m.location}</td><td><span class="tag ${statusClass}">${m.status}</span></td><td><button class="btn sm">编辑</button></td></tr>`;
+        }).join('');
+      } else if (type === 'personnel') {
+        html = pageData.map(p => `<tr><td>${p.empId}</td><td>${p.name}</td><td>${p.skill}</td><td>${p.level}</td><td>${p.certExpiry}</td><td><button class="btn sm">编辑</button></td></tr>`).join('');
+      } else if (type === 'calendar') {
+        html = pageData.map(c => {
+          const statusClass = c.status === '已对齐' ? 'ok' : 'warn';
+          return `<tr><td>${c.factory}</td><td>${c.shift}</td><td>${c.maintenance}</td><td>${c.overtime}</td><td><span class="tag ${statusClass}">${c.status}</span></td><td><button class="btn sm">编辑</button></td></tr>`;
+        }).join('');
+      } else if (type === 'outsource') {
+        html = pageData.map(o => {
+          const statusClass = o.status === '可用' ? 'ok' : o.status === '紧张' ? 'warn' : 'info';
+          return `<tr><td>${o.vendor}</td><td>${o.capacity}</td><td><span class="tag ${o.quality === 'A+' || o.quality === 'A' ? 'ok' : 'warn'}">${o.quality}</span></td><td>${o.leadTime}</td><td><span class="tag ${statusClass}">${o.status}</span></td><td><button class="btn sm">编辑</button></td></tr>`;
+        }).join('');
+      }
+      
+      tbody.innerHTML = html || '<tr><td colspan="10" style="text-align:center;color:#94a3b8;">暂无数据</td></tr>';
+      
+      // Render pagination
+      const pagination = document.getElementById(config.pagination);
+      pagination.innerHTML = `
+        <span class="resource-page-info">共 ${total} 条 · 第 ${page}/${Math.max(1, totalPages)} 页</span>
+        <div class="resource-page-nav">
+          <button class="btn sm" onclick="changePage('${type}', -1)" ${page <= 1 ? 'disabled' : ''}>上一页</button>
+          <button class="btn sm" onclick="changePage('${type}', 1)" ${page >= totalPages ? 'disabled' : ''}>下一页</button>
+        </div>
+      `;
+    }
+
+    function changePage(type, delta) {
+      state.resourcePagination[type].page += delta;
+      renderResourceTable(type);
+    }
+
+    function resetResourceFilter(type) {
+      const config = resourceConfig[type];
+      document.getElementById(config.filter).value = 'all';
+      document.getElementById(config.search).value = '';
+      state.resourcePagination[type].page = 1;
+      renderResourceTable(type);
+    }
+
+    function addResourceItem(type) {
+      toast(`新增${type === 'device' ? '设备' : type === 'mold' ? '模具' : type === 'personnel' ? '人员' : type === 'calendar' ? '日历' : '外协'}功能演示`);
+    }
+
+    function refreshEquipment() {
+      renderResourceOverview();
+      toast('IoT状态已刷新');
+    }
+
+    function simulateMoldTransfer() {
+      toast('模具调拨模拟已启动');
+    }
+
+    function checkQualification() {
+      toast('资质校验完成');
+    }
+
+    function detectCalendarDeviation() {
+      toast('偏差检测完成');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderResourceOverview();
+    });
+  </script>
+</body>
+</html>
