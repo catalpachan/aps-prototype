@@ -226,6 +226,114 @@
     .insert-item:last-child {
       margin-bottom: 0;
     }
+
+    .change-result-empty {
+      padding: 12px;
+      border: 1px dashed #334155;
+      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.35);
+      font-size: 12px;
+      color: #94a3b8;
+    }
+
+    .change-result-panel {
+      border: 1px solid #334155;
+      border-radius: 10px;
+      background: linear-gradient(165deg, rgba(15, 26, 45, 0.9) 0%, rgba(17, 31, 56, 0.86) 100%);
+      padding: 12px;
+      box-shadow: inset 0 1px 0 rgba(148, 163, 184, 0.06);
+    }
+
+    .change-result-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .change-result-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #e2e8f0;
+    }
+
+    .change-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .change-summary-card {
+      background: rgba(15, 23, 42, 0.72);
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 10px;
+      min-height: 68px;
+    }
+
+    .change-summary-label {
+      font-size: 11px;
+      color: #94a3b8;
+      margin-bottom: 6px;
+    }
+
+    .change-summary-value {
+      font-size: 22px;
+      line-height: 1;
+      font-weight: 800;
+      color: #f8fafc;
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+    }
+
+    .change-summary-unit {
+      font-size: 11px;
+      color: #94a3b8;
+      font-weight: 500;
+      margin-bottom: 1px;
+    }
+
+    .change-section {
+      border: 1px solid #334155;
+      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.48);
+      padding: 10px;
+      margin-top: 8px;
+    }
+
+    .change-section-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #cbd5e1;
+      margin-bottom: 8px;
+    }
+
+    .change-list {
+      margin: 0;
+      padding-left: 18px;
+      color: #cbd5e1;
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .change-meta {
+      margin-top: 10px;
+      font-size: 11px;
+      color: #94a3b8;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 820px) {
+      .change-summary-grid {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>
@@ -374,7 +482,7 @@
               <input id="change-order" aria-label="订单号" value="SO-20260227-018" />
               <button class="btn primary" onclick="runChangeImpact()">生成重排建议</button>
             </div>
-            <div id="change-result" class="muted">等待变更影响分析...</div>
+            <div id="change-result" class="change-result-empty">等待变更影响分析...</div>
           </div>
         </article>
       </div>
@@ -422,7 +530,8 @@
       toast('双向溯源分析完成');
     }
 
-    function recommendSubstitute() {
+    function recommendSubstitute(options = {}) {
+      const silent = options.silent === true;
       const inventory = state.inventory || [];
       const container = document.getElementById('inventory-panel');
       
@@ -442,8 +551,14 @@
           </div>
         `;
       }).join('');
+
+      const shortageCount = inventory.filter(item => item.status === 'shortage').length;
+      const shortageKpi = document.getElementById('kpi-shortage');
+      if (shortageKpi) shortageKpi.textContent = shortageCount;
       
-      toast('替代料推荐已生成');
+      if (!silent) {
+        toast('替代料推荐已生成');
+      }
     }
 
     function simulateInsertOrder() {
@@ -451,12 +566,104 @@
     }
 
     function runChangeImpact() {
+      const changeType = document.getElementById('change-type')?.value || 'delivery';
+      const orderNo = (document.getElementById('change-order')?.value || 'SO-20260227-018').trim() || 'SO-20260227-018';
+      const configMap = {
+        delivery: {
+          label: '交期调整',
+          tagClass: 'warn',
+          affected: 3,
+          delay: '4.0',
+          resource: '2',
+          impactList: [
+            `订单 ${orderNo} 调整后，影响后续排程窗口 4 小时`,
+            '东区总装与两器分厂的换型顺序需要微调',
+            '关联 3 个下游工单需重算开始时间'
+          ],
+          suggestionList: [
+            '优先锁定战略客户订单产能，常规单后移一班次',
+            '将注塑分厂非关键工单切换至夜班执行',
+            '同步释放备用产线 ZZW08 缓冲 2 小时'
+          ]
+        },
+        qty: {
+          label: '数量增减',
+          tagClass: 'info',
+          affected: 4,
+          delay: '2.5',
+          resource: '3',
+          impactList: [
+            `订单 ${orderNo} 数量变化触发物料与产能再平衡`,
+            '关键物料压缩机需求增加，库存安全边际下降',
+            '关联工单工时与班次分配需要重新计算'
+          ],
+          suggestionList: [
+            '将两器分厂剩余产能优先分配给新增数量',
+            '启用替代料方案，避免压缩机物料短缺',
+            '按“旺季热销 > 常规订单”策略重排优先级'
+          ]
+        },
+        cancel: {
+          label: '紧急撤销',
+          tagClass: 'red',
+          affected: 2,
+          delay: '1.0',
+          resource: '1',
+          impactList: [
+            `订单 ${orderNo} 撤销后，释放当前排程窗口`,
+            '已占用工单需回收并重新分配到待排池',
+            '产线节拍会出现短时空档，需要补齐任务'
+          ],
+          suggestionList: [
+            '将插单池中战略客户工单前置填充空档',
+            '优先安排同工艺路线订单，减少换型损耗',
+            '同步更新交付承诺，避免异常预警扩散'
+          ]
+        }
+      };
+      const cfg = configMap[changeType] || configMap.delivery;
+
+      document.getElementById('change-result').className = '';
       document.getElementById('change-result').innerHTML = `
-        <div style="color:#e2e8f0;">
-          <div style="margin-bottom:8px;"><b>影响分析结果:</b></div>
-          <div>• 影响下游 <span class="tag warn">3个工单</span></div>
-          <div>• 预计延误 <span class="tag warn">4小时</span></div>
-          <div>• 建议调整排程优先级，优先保障战略客户订单</div>
+        <div class="change-result-panel">
+          <div class="change-result-head">
+            <div class="change-result-title">重排建议已生成：${orderNo}</div>
+            <span class="tag ${cfg.tagClass}">${cfg.label}</span>
+          </div>
+
+          <div class="change-summary-grid">
+            <div class="change-summary-card">
+              <div class="change-summary-label">影响下游工单</div>
+              <div class="change-summary-value">${cfg.affected}<span class="change-summary-unit">个</span></div>
+            </div>
+            <div class="change-summary-card">
+              <div class="change-summary-label">预计延误</div>
+              <div class="change-summary-value">${cfg.delay}<span class="change-summary-unit">小时</span></div>
+            </div>
+            <div class="change-summary-card">
+              <div class="change-summary-label">需调整资源</div>
+              <div class="change-summary-value">${cfg.resource}<span class="change-summary-unit">类</span></div>
+            </div>
+          </div>
+
+          <div class="change-section">
+            <div class="change-section-title">影响范围</div>
+            <ul class="change-list">
+              ${cfg.impactList.map(item => `<li>${item}</li>`).join('')}
+            </ul>
+          </div>
+
+          <div class="change-section">
+            <div class="change-section-title">AI重排建议</div>
+            <ul class="change-list">
+              ${cfg.suggestionList.map(item => `<li>${item}</li>`).join('')}
+            </ul>
+          </div>
+
+          <div class="change-meta">
+            <span>建议策略：优先保障战略客户交付</span>
+            <span>评估时间：刚刚</span>
+          </div>
         </div>
       `;
       toast('影响范围计算完成');
@@ -533,7 +740,7 @@
       const rulePool = document.getElementById('rule-pool');
       const ruleChain = document.getElementById('rule-chain');
       
-      chips.forEach(chip => {
+      function bindRuleChipDrag(chip) {
         chip.addEventListener('dragstart', (e) => {
           e.dataTransfer.setData('text/plain', chip.textContent);
           chip.classList.add('dragging');
@@ -542,7 +749,9 @@
         chip.addEventListener('dragend', () => {
           chip.classList.remove('dragging');
         });
-      });
+      }
+
+      chips.forEach(bindRuleChipDrag);
       
       ruleChain.addEventListener('dragover', (e) => {
         e.preventDefault();
@@ -556,6 +765,7 @@
           newChip.className = 'rule-chip';
           newChip.draggable = true;
           newChip.textContent = text;
+          bindRuleChipDrag(newChip);
           ruleChain.appendChild(newChip);
         }
       });
@@ -564,6 +774,7 @@
     document.addEventListener('DOMContentLoaded', () => {
       syncOrders();
       renderBomTreeView();
+      recommendSubstitute({ silent: true });
       renderInserts();
       initDragAndDrop();
       
