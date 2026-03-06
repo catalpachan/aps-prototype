@@ -5,10 +5,17 @@ function formatDateTime(d) {
 
 let toastTimer = null;
 let aiAssistantLastFocus = null;
+let headerDateTimer = null;
+let commonInitialized = false;
+let clickA11yObserver = null;
+let formPromptLastFocus = null;
 
 function toast(msg) {
   const t = document.getElementById('toast');
   if (!t) return;
+  t.setAttribute('role', 'status');
+  t.setAttribute('aria-live', 'polite');
+  t.setAttribute('aria-atomic', 'true');
   t.textContent = msg;
   t.classList.add('show');
   if (toastTimer) {
@@ -18,6 +25,192 @@ function toast(msg) {
     t.classList.remove('show');
     toastTimer = null;
   }, 2000);
+}
+
+function updateHeaderDateText() {
+  const headerDate = document.getElementById('header-date');
+  if (headerDate) {
+    headerDate.textContent = formatDateTime(new Date());
+  }
+}
+
+function showFormPrompt(options = {}) {
+  const {
+    title = '请输入内容',
+    label = '输入',
+    defaultValue = '',
+    placeholder = '',
+    inputType = 'text',
+    min,
+    max,
+    step,
+    confirmText = '确定',
+    cancelText = '取消',
+    validator
+  } = options;
+
+  return new Promise((resolve) => {
+    const backdrop = document.createElement('div');
+    backdrop.className = 'form-prompt-backdrop';
+    backdrop.setAttribute('role', 'presentation');
+
+    const dialog = document.createElement('div');
+    dialog.className = 'form-prompt-dialog';
+    dialog.setAttribute('role', 'dialog');
+    dialog.setAttribute('aria-modal', 'true');
+    dialog.setAttribute('aria-labelledby', 'form-prompt-title');
+
+    const inputId = `form-prompt-input-${Date.now()}`;
+    dialog.innerHTML = `
+      <h3 id="form-prompt-title">${escapeHTML(title)}</h3>
+      <label for="${inputId}">${escapeHTML(label)}</label>
+      <input id="${inputId}" class="form-prompt-input" type="${escapeHTML(inputType)}" placeholder="${escapeHTML(placeholder)}" value="${escapeHTML(String(defaultValue))}" />
+      <div class="form-prompt-error" aria-live="polite"></div>
+      <div class="form-prompt-actions">
+        <button type="button" class="btn" data-action="cancel">${escapeHTML(cancelText)}</button>
+        <button type="button" class="btn primary" data-action="confirm">${escapeHTML(confirmText)}</button>
+      </div>
+    `;
+
+    const input = dialog.querySelector('.form-prompt-input');
+    if (input) {
+      if (min !== undefined) input.setAttribute('min', String(min));
+      if (max !== undefined) input.setAttribute('max', String(max));
+      if (step !== undefined) input.setAttribute('step', String(step));
+    }
+
+    const errorEl = dialog.querySelector('.form-prompt-error');
+    const finish = (value) => {
+      document.removeEventListener('keydown', onKeyDown);
+      backdrop.remove();
+      if (formPromptLastFocus) {
+        formPromptLastFocus.focus();
+        formPromptLastFocus = null;
+      }
+      resolve(value);
+    };
+
+    const onConfirm = () => {
+      if (!input) {
+        finish(null);
+        return;
+      }
+      const value = input.value.trim();
+      let error = '';
+      if (typeof validator === 'function') {
+        error = validator(value) || '';
+      } else if (!value) {
+        error = '请输入有效内容';
+      }
+      if (error) {
+        if (errorEl) errorEl.textContent = error;
+        input.setAttribute('aria-invalid', 'true');
+        input.focus();
+        return;
+      }
+      input.removeAttribute('aria-invalid');
+      finish(value);
+    };
+
+    const onKeyDown = (evt) => {
+      if (!backdrop.isConnected) return;
+      if (evt.key === 'Escape') {
+        evt.preventDefault();
+        finish(null);
+      } else if (evt.key === 'Enter' && evt.target === input) {
+        evt.preventDefault();
+        onConfirm();
+      }
+    };
+
+    backdrop.addEventListener('click', (evt) => {
+      if (evt.target === backdrop) {
+        finish(null);
+      }
+    });
+
+    dialog.addEventListener('click', (evt) => {
+      const target = evt.target;
+      if (!(target instanceof HTMLElement)) return;
+      if (target.dataset.action === 'cancel') {
+        finish(null);
+      } else if (target.dataset.action === 'confirm') {
+        onConfirm();
+      }
+    });
+
+    formPromptLastFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    backdrop.appendChild(dialog);
+    document.body.appendChild(backdrop);
+    document.addEventListener('keydown', onKeyDown);
+
+    if (input) {
+      setTimeout(() => {
+        input.focus();
+        input.select();
+      }, 10);
+    }
+  });
+}
+
+function ensureSkipLink() {
+  if (document.querySelector('.skip-link')) return;
+  const main = document.getElementById('app') || document.querySelector('main');
+  if (!main) return;
+  if (!main.id) {
+    main.id = 'main-content';
+  }
+  const skipLink = document.createElement('a');
+  skipLink.className = 'skip-link';
+  skipLink.href = `#${main.id}`;
+  skipLink.textContent = '跳转到主要内容';
+  document.body.insertAdjacentElement('afterbegin', skipLink);
+}
+
+function hasAssociatedLabel(control) {
+  if (!(control instanceof HTMLElement)) return false;
+  if (control.hasAttribute('aria-label') || control.hasAttribute('aria-labelledby')) return true;
+  if (control.closest('label')) return true;
+  const id = control.getAttribute('id');
+  if (!id) return false;
+  return !!document.querySelector(`label[for="${id}"]`);
+}
+
+function buildControlLabel(control) {
+  if (!(control instanceof HTMLElement)) return '';
+  const prev = control.previousElementSibling;
+  if (prev && prev.tagName === 'LABEL') {
+    return prev.textContent.trim();
+  }
+  const parentLabel = control.parentElement?.querySelector(':scope > label');
+  if (parentLabel) {
+    return parentLabel.textContent.trim();
+  }
+  const placeholder = control.getAttribute('placeholder');
+  if (placeholder) return placeholder.trim();
+  const name = control.getAttribute('name');
+  if (name) return name.trim();
+  const id = control.getAttribute('id');
+  if (id) return id.trim();
+  return control.tagName === 'SELECT' ? '选择项' : '输入项';
+}
+
+function ensureFormControlLabels(root = document) {
+  if (!(root instanceof Document) && !(root instanceof HTMLElement)) return;
+  const controls = [];
+  if (root instanceof HTMLElement && root.matches('input, select, textarea')) {
+    controls.push(root);
+  }
+  root.querySelectorAll('input, select, textarea').forEach((el) => controls.push(el));
+  controls.forEach((control) => {
+    const type = control.getAttribute('type');
+    if (type === 'hidden' || control.getAttribute('aria-hidden') === 'true') return;
+    if (hasAssociatedLabel(control)) return;
+    const inferred = buildControlLabel(control);
+    if (inferred) {
+      control.setAttribute('aria-label', inferred);
+    }
+  });
 }
 
 function padNumber(num, length) {
@@ -432,23 +625,111 @@ function buildSettingsAuditLogs(count = 50) {
   });
 }
 
-// 用户下拉菜单切换
-function toggleUserDropdown() {
+function syncUserDropdownA11y() {
   const dropdown = document.getElementById('user-dropdown');
-  if (dropdown) {
-    dropdown.classList.toggle('open');
+  if (!dropdown) return;
+  const toggle = dropdown.querySelector('.user-dropdown-toggle');
+  const menu = dropdown.querySelector('.user-dropdown-menu');
+  if (toggle) {
+    toggle.setAttribute('role', 'button');
+    toggle.setAttribute('tabindex', '0');
+    toggle.setAttribute('aria-haspopup', 'menu');
+    if (menu) {
+      if (!menu.id) {
+        menu.id = 'user-dropdown-menu';
+      }
+      toggle.setAttribute('aria-controls', menu.id);
+    }
+    toggle.setAttribute('aria-expanded', dropdown.classList.contains('open') ? 'true' : 'false');
   }
+}
+
+function isNativeInteractive(target) {
+  if (!(target instanceof HTMLElement)) return false;
+  const tag = target.tagName;
+  return tag === 'BUTTON'
+    || tag === 'A'
+    || tag === 'INPUT'
+    || tag === 'SELECT'
+    || tag === 'TEXTAREA'
+    || tag === 'SUMMARY';
+}
+
+function makeOnclickElementKeyboardAccessible(el) {
+  if (!(el instanceof HTMLElement) || isNativeInteractive(el)) return;
+  if (!el.hasAttribute('role')) {
+    el.setAttribute('role', 'button');
+  }
+  if (!el.hasAttribute('tabindex')) {
+    el.setAttribute('tabindex', '0');
+  }
+  if (el.dataset.keyActivated === 'true') return;
+  el.dataset.keyActivated = 'true';
+  el.addEventListener('keydown', (evt) => {
+    if (evt.key !== 'Enter' && evt.key !== ' ') return;
+    evt.preventDefault();
+    el.click();
+  });
+}
+
+function enhanceClickAccessibility(root = document) {
+  const targets = root.querySelectorAll('[onclick], .user-dropdown-toggle');
+  targets.forEach((el) => makeOnclickElementKeyboardAccessible(el));
+  syncUserDropdownA11y();
+  ensureFormControlLabels(root);
+}
+
+function ensureClickAccessibilityObserver() {
+  if (clickA11yObserver || !document.body) return;
+  clickA11yObserver = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      mutation.addedNodes.forEach((node) => {
+        if (!(node instanceof HTMLElement)) return;
+        if (node.matches('[onclick], .user-dropdown-toggle')) {
+          makeOnclickElementKeyboardAccessible(node);
+        }
+        enhanceClickAccessibility(node);
+        ensureFormControlLabels(node);
+      });
+    });
+  });
+  clickA11yObserver.observe(document.body, { childList: true, subtree: true });
+}
+
+// 用户下拉菜单切换
+function toggleUserDropdown(forceOpen) {
+  const dropdown = document.getElementById('user-dropdown');
+  if (!dropdown) return;
+  const shouldOpen = typeof forceOpen === 'boolean'
+    ? forceOpen
+    : !dropdown.classList.contains('open');
+  dropdown.classList.toggle('open', shouldOpen);
+  syncUserDropdownA11y();
 }
 
 // 点击外部关闭用户下拉菜单
 document.addEventListener('click', (e) => {
   const dropdown = document.getElementById('user-dropdown');
   if (dropdown && !dropdown.contains(e.target)) {
-    dropdown.classList.remove('open');
+    toggleUserDropdown(false);
   }
 });
 
-function init() {
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    toggleUserDropdown(false);
+  }
+});
+
+function init(options = {}) {
+  const force = options.force === true;
+  if (commonInitialized && !force) {
+    updateHeaderDateText();
+    enhanceClickAccessibility(document);
+    ensureClickAccessibilityObserver();
+    return;
+  }
+  commonInitialized = true;
   state.ganttTasks = buildInitialGanttTasks();
   state.decisionTasks = buildInitialDecisionTasks();
   state.orders = buildOrders();
@@ -466,14 +747,19 @@ function init() {
   state.resourceRecords = buildResourceRecords();
   state.settingsUsers = buildSettingsUsers();
   state.settingsAuditLogs = buildSettingsAuditLogs();
-  
-  const headerDate = document.getElementById('header-date');
-  if (headerDate) {
-    headerDate.textContent = formatDateTime(new Date());
-    setInterval(() => {
-      headerDate.textContent = formatDateTime(new Date());
-    }, 1000);
+
+  updateHeaderDateText();
+  if (headerDateTimer) {
+    clearInterval(headerDateTimer);
+    headerDateTimer = null;
   }
+  if (document.getElementById('header-date')) {
+    headerDateTimer = setInterval(updateHeaderDateText, 1000);
+  }
+  ensureSkipLink();
+  enhanceClickAccessibility(document);
+  ensureFormControlLabels(document);
+  ensureClickAccessibilityObserver();
 }
 
 // AI Assistant Functions
@@ -491,7 +777,7 @@ function initAIAssistant() {
   btn.setAttribute('aria-haspopup', 'dialog');
   btn.setAttribute('aria-controls', 'ai-assistant-modal');
   btn.setAttribute('aria-expanded', 'false');
-  btn.innerHTML = '<img class="ai-assistant-icon" src="AI助手.svg" alt="AI排程助手图标" />';
+  btn.innerHTML = '<img class="ai-assistant-icon" src="AI助手.svg" alt="AI排程助手图标" width="44" height="44" />';
   btn.onclick = toggleAIAssistant;
   document.body.appendChild(btn);
 
@@ -523,8 +809,8 @@ function initAIAssistant() {
     <div class="ai-assistant-body" id="ai-chat-body"></div>
     <div class="ai-assistant-footer">
       <div class="ai-input-row">
-        <input type="text" class="ai-assistant-input" id="ai-chat-input" placeholder="请输入您的问题..." onkeypress="handleAIInputKeypress(event)">
-        <button type="button" class="ai-assistant-send" onclick="sendAIMessage()">➤</button>
+        <input type="text" class="ai-assistant-input" id="ai-chat-input" placeholder="请输入您的问题..." onkeydown="handleAIInputKeydown(event)">
+        <button type="button" class="ai-assistant-send" aria-label="发送消息" onclick="sendAIMessage()">➤</button>
       </div>
     </div>
   `;
@@ -658,11 +944,13 @@ function queueAIResponse(text) {
   }, 800);
 }
 
-function handleAIInputKeypress(e) {
-  if (e.key === 'Enter') {
+function handleAIInputKeydown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
     sendAIMessage();
   }
 }
+const handleAIInputKeypress = handleAIInputKeydown;
 
 function generateAIResponse(input) {
   const responses = {

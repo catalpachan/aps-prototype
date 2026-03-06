@@ -54,7 +54,7 @@
             border: 1px solid #2d3a6b;
             border-radius: 8px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: background 0.3s, color 0.3s, border-color 0.3s, transform 0.3s, box-shadow 0.3s, filter 0.3s;
             font-size: 14px;
             color: #a0b0ff;
         }
@@ -138,7 +138,7 @@
             border-radius: 6px;
             cursor: pointer;
             font-weight: 600;
-            transition: all 0.3s;
+            transition: background 0.3s, color 0.3s, border-color 0.3s, transform 0.3s, box-shadow 0.3s, filter 0.3s;
             font-size: 13px;
             margin: 2px;
         }
@@ -194,7 +194,7 @@
             border: 2px solid #00a8ff;
             border-radius: 20px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: background 0.3s, color 0.3s, border-color 0.3s, transform 0.3s, box-shadow 0.3s, filter 0.3s;
             font-size: 12px;
             color: #00d4ff;
             font-weight: bold;
@@ -230,7 +230,7 @@
             border: 1px solid #2d3a6b;
             border-radius: 8px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: background 0.3s, color 0.3s, border-color 0.3s, transform 0.3s, box-shadow 0.3s, filter 0.3s;
             text-align: center;
         }
 
@@ -383,7 +383,7 @@
             align-items: center;
             white-space: nowrap;
             overflow: hidden;
-            transition: all 0.2s;
+            transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.2s, box-shadow 0.2s, filter 0.2s;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
         }
 
@@ -441,7 +441,7 @@
             padding: 8px 20px;
             cursor: pointer;
             font-size: 13px;
-            transition: all 0.2s;
+            transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.2s, box-shadow 0.2s, filter 0.2s;
             color: #c0c8e8;
         }
 
@@ -497,7 +497,7 @@
             padding: 15px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: background 0.3s, color 0.3s, border-color 0.3s, transform 0.3s, box-shadow 0.3s, filter 0.3s;
         }
 
         .device-card:hover {
@@ -603,7 +603,7 @@
             border-radius: 8px;
             cursor: pointer;
             text-align: center;
-            transition: all 0.3s;
+            transition: background 0.3s, color 0.3s, border-color 0.3s, transform 0.3s, box-shadow 0.3s, filter 0.3s;
             font-weight: bold;
         }
 
@@ -664,7 +664,7 @@
             border: 1px solid #2d3a6b;
             border-radius: 8px;
             margin: 0 5px;
-            transition: all 0.3s;
+            transition: background 0.3s, color 0.3s, border-color 0.3s, transform 0.3s, box-shadow 0.3s, filter 0.3s;
             cursor: pointer;
         }
 
@@ -697,7 +697,7 @@
             color: white;
             font-size: 24px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: background 0.3s, color 0.3s, border-color 0.3s, transform 0.3s, box-shadow 0.3s, filter 0.3s;
             box-shadow: 0 4px 15px rgba(255, 77, 109, 0.4);
         }
 
@@ -734,7 +734,7 @@
             cursor: grab;
             font-size: 12px;
             text-align: center;
-            transition: all 0.2s;
+            transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.2s, box-shadow 0.2s, filter 0.2s;
         }
 
         .sim-item:hover {
@@ -775,7 +775,7 @@
             border-radius: 8px;
             padding: 15px;
             text-align: center;
-            transition: all 0.3s;
+            transition: background 0.3s, color 0.3s, border-color 0.3s, transform 0.3s, box-shadow 0.3s, filter 0.3s;
         }
 
         .universe-card:hover {
@@ -946,7 +946,7 @@
             font-size: 24px;
             cursor: pointer;
             box-shadow: 0 6px 20px rgba(0, 212, 255, 0.5);
-            transition: all 0.3s;
+            transition: background 0.3s, color 0.3s, border-color 0.3s, transform 0.3s, box-shadow 0.3s, filter 0.3s;
             z-index: 999;
         }
 
@@ -1252,7 +1252,7 @@
             color: #00d4ff;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: background 0.3s, color 0.3s, border-color 0.3s, transform 0.3s, box-shadow 0.3s, filter 0.3s;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
         }
 
@@ -1567,7 +1567,7 @@
                 <div class="card-content">
                     <div style="margin-bottom: 10px;">
                         <strong>选择重排场景：</strong>
-                        <select id="rearrange-scenario" style="margin-left: 10px; padding: 5px; background: rgba(45, 58, 107, 0.5); border: 1px solid #2d3a6b; color: #e0e6ff; border-radius: 4px;">
+                        <select id="rearrange-scenario" aria-label="重排策略选择" style="margin-left: 10px; padding: 5px; background: rgba(45, 58, 107, 0.5); border: 1px solid #2d3a6b; color: #e0e6ff; border-radius: 4px;">
                             <option value="min-disturb">最小扰动</option>
                             <option value="guarantee-delivery">保证交期</option>
                             <option value="min-changeover">最少换模</option>
@@ -2077,6 +2077,40 @@
             });
         }
 
+        function ensureAccessibleFormControls(root = document) {
+            if (!root || !root.querySelectorAll) return;
+            const controls = [];
+            if (root instanceof HTMLElement && root.matches('input, select, textarea')) {
+                controls.push(root);
+            }
+            root.querySelectorAll('input, select, textarea').forEach(control => controls.push(control));
+            controls.forEach(control => {
+                if (!(control instanceof HTMLElement)) return;
+                const type = control.getAttribute('type');
+                if (type === 'hidden') return;
+                if (control.hasAttribute('aria-label') || control.hasAttribute('aria-labelledby')) return;
+                if (control.closest('label')) return;
+
+                const id = control.getAttribute('id');
+                if (id && document.querySelector(`label[for="${id}"]`)) return;
+
+                let inferred = '';
+                const prev = control.previousElementSibling;
+                if (prev && prev.tagName === 'LABEL') {
+                    inferred = prev.textContent.trim();
+                } else if (control.placeholder) {
+                    inferred = control.placeholder.trim();
+                } else if (id) {
+                    inferred = id;
+                } else {
+                    inferred = control.tagName === 'SELECT' ? '选择项' : '输入项';
+                }
+                if (inferred) {
+                    control.setAttribute('aria-label', inferred);
+                }
+            });
+        }
+
         function getModalFocusableElements() {
             const dialog = document.querySelector('#modal .modal-content');
             if (!dialog) return [];
@@ -2116,6 +2150,7 @@
         // 初始化
         document.addEventListener('DOMContentLoaded', function() {
             promoteOnclickElements(document);
+            ensureAccessibleFormControls(document);
 
             // 导航切换
             document.querySelectorAll('.nav-tab').forEach(tab => {
@@ -2514,7 +2549,7 @@
                     <label><input type="checkbox" checked> 电子控制器 - 需求：200件</label><br><br>
                     <div class="form-group">
                         <label>紧急程度</label>
-                        <select id="urgency" style="width: 100%; padding: 8px; background: rgba(45, 58, 107, 0.5); border: 1px solid #2d3a6b; color: #e0e6ff; border-radius: 4px;">
+                        <select id="urgency" aria-label="紧急程度选择" style="width: 100%; padding: 8px; background: rgba(45, 58, 107, 0.5); border: 1px solid #2d3a6b; color: #e0e6ff; border-radius: 4px;">
                             <option>紧急（24小时内）</option>
                             <option>高（48小时内）</option>
                             <option>普通（72小时内）</option>
@@ -2882,6 +2917,7 @@
             modal.setAttribute('aria-hidden', 'false');
             promoteOnclickElements(document.getElementById('modal-body'));
             wireModalLabels(document.getElementById('modal-body'));
+            ensureAccessibleFormControls(document.getElementById('modal-body'));
             const focusables = getModalFocusableElements();
             if (focusables.length > 0) {
                 focusables[0].focus();

@@ -144,7 +144,7 @@
               <div class="card-hd">
                 <span>数据同步控制台</span>
                 <div class="row">
-                  <select id="sync-system-filter"><option value="all">全部系统</option><option value="erp">ERP</option><option value="mes">MES</option><option value="wms">WMS</option></select>
+                  <select id="sync-system-filter" aria-label="同步系统筛选"><option value="all">全部系统</option><option value="erp">ERP</option><option value="mes">MES</option><option value="wms">WMS</option></select>
                   <button class="btn ok" onclick="syncAllData()">🔄 一键全量同步</button>
                 </div>
               </div>
@@ -215,10 +215,10 @@
               <div class="card-hd"><span>基础设置</span><button class="btn ok" onclick="saveBaseSettings()">保存设置</button></div>
               <div class="card-bd">
                 <div class="settings-form-grid">
-                  <div class="modal-field"><label>系统时区</label><select><option>Asia/Shanghai (UTC+8)</option><option>UTC (UTC+0)</option></select></div>
-                  <div class="modal-field"><label>会话超时（分钟）</label><input type="number" value="30" min="5" max="180" /></div>
-                  <div class="modal-field"><label>告警推送渠道</label><select><option>系统站内 + 邮件</option><option>仅系统站内</option><option>仅邮件</option></select></div>
-                  <div class="modal-field"><label>自动备份周期</label><select><option>每天</option><option>每周</option><option>每月</option></select></div>
+                  <div class="modal-field"><label>系统时区</label><select aria-label="系统时区"><option>Asia/Shanghai (UTC+8)</option><option>UTC (UTC+0)</option></select></div>
+                  <div class="modal-field"><label>会话超时（分钟）</label><input type="number" aria-label="会话超时分钟数" value="30" min="5" max="180" /></div>
+                  <div class="modal-field"><label>告警推送渠道</label><select aria-label="告警推送渠道"><option>系统站内 + 邮件</option><option>仅系统站内</option><option>仅邮件</option></select></div>
+                  <div class="modal-field"><label>自动备份周期</label><select aria-label="自动备份周期"><option>每天</option><option>每周</option><option>每月</option></select></div>
                 </div>
               </div>
             </article>

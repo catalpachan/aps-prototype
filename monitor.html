@@ -171,13 +171,17 @@
     }
 
     .production-line-item {
+      width: 100%;
       padding: 12px;
       background: rgba(30, 41, 59, 0.4);
       border: 1px solid rgba(59, 130, 246, 0.1);
       border-radius: 10px;
       margin-bottom: 10px;
+      font: inherit;
+      color: inherit;
+      text-align: left;
       cursor: pointer;
-      transition: all 0.3s;
+      transition: background 0.3s, border-color 0.3s, transform 0.3s, box-shadow 0.3s;
     }
 
     .production-line-item:hover {
@@ -190,6 +194,11 @@
       background: linear-gradient(135deg, rgba(37, 99, 235, 0.25), rgba(59, 130, 246, 0.15));
       border-color: #3b82f6;
       box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+    }
+
+    .production-line-item:focus-visible {
+      outline: 2px solid #60a5fa;
+      outline-offset: 2px;
     }
 
     .production-line-item .line-name {
@@ -244,7 +253,7 @@
     /* 设备样式 */
     .equipment-group {
       cursor: pointer;
-      transition: all 0.3s;
+      transition: filter 0.3s;
     }
 
     .equipment-group:hover {
@@ -254,7 +263,7 @@
     .equipment-rect {
       rx: 6;
       stroke-width: 2;
-      transition: all 0.3s;
+      transition: fill 0.3s, stroke 0.3s, filter 0.3s;
     }
 
     .equipment-rect.running {
@@ -775,7 +784,7 @@
     </nav>
     <div class="header-meta" id="header-meta">
       <span id="header-date">2026-02-28 08:56:33</span> |
-      <select id="hq-select" class="role-select">
+      <select id="hq-select" class="role-select" aria-label="基地切换">
         <option>珠海格力总部</option>
         <option>金湾基地</option>
         <option>武汉基地</option>
@@ -806,7 +815,7 @@
             <span class="tag" style="background:rgba(168,85,247,0.2);color:#c084fc;border:1px solid rgba(168,85,247,0.3);">实时同步</span>
           </div>
           <div class="row">
-            <select id="twin-view-mode" onchange="switchTwinView(this.value)" style="padding:6px 12px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#e2e8f0;">
+            <select id="twin-view-mode" aria-label="数字孪生视图切换" onchange="switchTwinView(this.value)" style="padding:6px 12px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#e2e8f0;">
               <option value="overview">全景视图</option>
               <option value="production">生产线视图</option>
               <option value="material">物料流转</option>
@@ -1033,7 +1042,7 @@
       <!-- 底部监控面板 -->
       <div class="grid-2">
         <article class="card">
-          <div class="card-hd"><span>执行进度看板</span><div class="row"><select><option>按订单</option><option>按批次</option><option>按机型</option></select><button class="btn" onclick="refreshFlowBoard()">刷新频率: 5s</button></div></div>
+          <div class="card-hd"><span>执行进度看板</span><div class="row"><select aria-label="进度看板维度"><option>按订单</option><option>按批次</option><option>按机型</option></select><button class="btn" onclick="refreshFlowBoard()">刷新频率: 5s</button></div></div>
           <div class="card-bd"><div class="flow" id="flow-board"></div></div>
         </article>
 
@@ -1150,7 +1159,7 @@
     function renderProductionLinesList() {
       const container = document.getElementById('production-lines-list');
       container.innerHTML = productionLines.map(line => `
-        <div class="production-line-item" onclick="focusProductionLine('${line.id}')">
+        <button type="button" class="production-line-item" data-line-id="${line.id}" onclick="focusProductionLine('${line.id}', this)">
           <div class="line-name">${line.name}</div>
           <div class="line-status">
             <span class="status-dot ${getStatusByMajority(line)}"></span>
@@ -1159,8 +1168,12 @@
             ${line.error > 0 ? `<span style="color:#f87171;"> · ${line.error}故障</span>` : ''}
           </div>
           <div class="line-oee">OEE: ${line.oee}%</div>
-        </div>
+        </button>
       `).join('');
+      const firstItem = container.querySelector('.production-line-item');
+      if (firstItem) {
+        firstItem.classList.add('active');
+      }
     }
 
     function getStatusByMajority(line) {
@@ -1451,11 +1464,14 @@
       renderLiveAlerts();
     }
 
-    function focusProductionLine(lineId) {
+    function focusProductionLine(lineId, triggerEl) {
       document.querySelectorAll('.production-line-item').forEach(el => {
         el.classList.remove('active');
       });
-      event.currentTarget.classList.add('active');
+      const activeEl = triggerEl || document.querySelector(`.production-line-item[data-line-id="${lineId}"]`);
+      if (activeEl) {
+        activeEl.classList.add('active');
+      }
       
       const line = productionLines.find(l => l.id === lineId);
       if (line) {
@@ -1478,8 +1494,11 @@
       const colors = ['#38bdf8', '#f59e0b', '#22c55e', '#a855f7'];
       
       container.innerHTML = flowData.map((item, i) => {
+        const rate = item.planned > 0 ? (item.actual / item.planned) * 100 : 0;
+        const value = Math.max(0, Math.min(100, Number(rate.toFixed(1))));
         const dashArray = 264;
-        const dashOffset = dashArray - (item.value / 100) * dashArray;
+        const dashOffset = dashArray - (value / 100) * dashArray;
+        const delta = item.actual - item.planned;
         return `
           <div class="flow-step">
             <div class="flow-ring-wrap">
@@ -1487,10 +1506,11 @@
                 <circle class="flow-ring-bg" cx="50" cy="50" r="42"></circle>
                 <circle class="flow-ring-bar" cx="50" cy="50" r="42" stroke-dasharray="${dashArray}" stroke-dashoffset="${dashOffset}" style="stroke:${colors[i % colors.length]}"></circle>
               </svg>
-              <div class="flow-ring-value">${item.value}<small>%</small></div>
+              <div class="flow-ring-value">${value}<small>%</small></div>
             </div>
             <div style="font-size:12px;color:#cbd5e1;font-weight:600;">${item.name}</div>
             <div style="font-size:11px;color:#94a3b8;">计划: ${item.planned} / 完成: ${item.actual}</div>
+            <div style="font-size:11px;color:${delta >= 0 ? '#4ade80' : '#f87171'};">${delta >= 0 ? '超额' : '缺口'}: ${Math.abs(delta)}</div>
           </div>
         `;
       }).join('');
@@ -1498,7 +1518,7 @@
 
     function renderAlerts() {
       const container = document.getElementById('alert-board');
-      const alerts = state.alerts || [];
+      const alerts = [...(state.alerts || [])].sort((a, b) => a.level - b.level);
       
       container.innerHTML = alerts.map((alert, i) => {
         const levelClass = alert.level === 1 ? 'alert-l1 blink-red' : alert.level === 2 ? 'alert-l2' : 'alert-l3';
@@ -1506,7 +1526,7 @@
         return `
           <div class="alert-line ${levelClass} ${i === 0 ? 'blink-red' : ''}">
             <span class="tag ${tagClass}">L${alert.level}</span>
-            <span style="flex:1;">${alert.title}</span>
+            <span style="flex:1;">${alert.title}</span><span class="muted" style="font-size:11px;">${alert.time || ''}</span>
             <button class="btn sm" onclick="openIncident('L${alert.level}', '${alert.title}')">处理</button>
           </div>
         `;
@@ -1538,7 +1558,7 @@
           <tbody>
             ${performance.map(p => {
               const rate = (p.actual / p.target * 100).toFixed(1);
-              const tagClass = rate >= 95 ? 'ok' : rate >= 80 ? 'warn' : 'red';
+              const tagClass = rate >= 95 ? 'ok' : rate >= 80 ? 'warn' : 'err';
               return `<tr><td>${p.name}</td><td>${p.target}%</td><td>${p.actual}%</td><td><span class="tag ${tagClass}">${rate}%</span></td></tr>`;
             }).join('')}
           </tbody>
@@ -1547,7 +1567,28 @@
     }
 
     function refreshFlowBoard() {
-      toast('进度看板已刷新');
+      if (Array.isArray(state.flowData)) {
+        state.flowData = state.flowData.map((item) => {
+          const drift = Math.round(randFlow(-30, 50));
+          const actual = Math.max(0, item.actual + drift);
+          return {
+            ...item,
+            actual
+          };
+        });
+      }
+      renderFlowBoard();
+      const worst = (state.flowData || []).reduce((a, b) => ((a.actual / a.planned) < (b.actual / b.planned) ? a : b), state.flowData?.[0]);
+      if (worst) {
+        const rate = ((worst.actual / worst.planned) * 100).toFixed(1);
+        toast(`进度看板已刷新，当前瓶颈：${worst.name}（${rate}%）`);
+      } else {
+        toast('进度看板已刷新');
+      }
+    }
+
+    function randFlow(min, max) {
+      return min + Math.random() * (max - min);
     }
 
     function pushAlerts() {

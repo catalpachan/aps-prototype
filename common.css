@@ -32,6 +32,21 @@ body {
   scroll-behavior: smooth;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  html:focus-within {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 body.ai-modal-open {
   overflow: hidden;
 }
@@ -43,6 +58,74 @@ select:focus-visible,
 textarea:focus-visible {
   outline: 2px solid #60a5fa;
   outline-offset: 2px;
+}
+
+.skip-link {
+  position: absolute;
+  left: 12px;
+  top: 0;
+  transform: translateY(-120%);
+  background: #0b1220;
+  color: #e2e8f0;
+  border: 1px solid #60a5fa;
+  border-radius: 8px;
+  padding: 8px 12px;
+  z-index: 9999;
+  text-decoration: none;
+  font-size: 12px;
+}
+
+.skip-link:focus {
+  transform: translateY(8px);
+}
+
+.form-prompt-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+  padding: 16px;
+}
+
+.form-prompt-dialog {
+  width: min(480px, 100%);
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  box-shadow: 0 20px 45px rgba(2, 6, 23, 0.45);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form-prompt-dialog h3 {
+  font-size: 16px;
+  margin: 0;
+}
+
+.form-prompt-dialog label {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.form-prompt-input {
+  width: 100%;
+}
+
+.form-prompt-error {
+  min-height: 18px;
+  font-size: 12px;
+  color: #fda4af;
+}
+
+.form-prompt-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 header {
@@ -500,6 +583,11 @@ th { color: var(--muted); font-weight: 600; }
   border-color: #4b5f82;
 }
 
+.user-dropdown-toggle:focus-visible {
+  outline: 2px solid #60a5fa;
+  outline-offset: 2px;
+}
+
 .user-dropdown-toggle .avatar {
   width: 16px;
   height: 16px;
@@ -872,13 +960,4 @@ th { color: var(--muted); font-weight: 600; }
   .grid-2, .grid-3 { grid-template-columns: 1fr; }
   .ai-assistant-modal { width: calc(100% - 20px); height: min(600px, calc(100vh - 20px)); }
   .ai-preset-cards { grid-template-columns: 1fr; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 1ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 1ms !important;
-    scroll-behavior: auto !important;
-  }
 }

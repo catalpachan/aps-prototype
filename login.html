@@ -42,6 +42,7 @@
                     </label>
                     <button type="button" class="forgot-password" onclick="forgotPassword()">忘记密码？</button>
                 </div>
+                <p class="login-hint" id="forgotPasswordHint" role="status" aria-live="polite"></p>
                 
                 <button type="submit" class="btn primary login-btn" id="loginBtn">
                     <span>登录</span>
@@ -119,7 +120,13 @@
         
         // 忘记密码
         function forgotPassword() {
-            alert('请联系系统管理员重置密码\n电话: 13888888888\n邮箱: 180023@gree.com.cn');
+            const hint = document.getElementById('forgotPasswordHint');
+            if (!hint) return;
+            hint.textContent = '请联系系统管理员重置密码：13888888888 / 180023@gree.com.cn';
+            window.clearTimeout(window.__forgotHintTimer);
+            window.__forgotHintTimer = window.setTimeout(() => {
+                hint.textContent = '';
+            }, 5000);
         }
         
         // 页面加载时检查是否有记住的用户名

@@ -52,7 +52,7 @@ body {
     border: none; 
     cursor: pointer;
     font-weight: 600; 
-    transition: all 0.2s; 
+    transition: background 0.2s, color 0.2s, transform 0.2s, box-shadow 0.2s; 
     background: var(--bg-input); 
     color: var(--text-main);
     font-size: 13px; 
@@ -198,7 +198,7 @@ header {
     border: 1px solid transparent;
     color: var(--text-dim);
     font-weight: 600; 
-    transition: all 0.2s; 
+    transition: background 0.2s, color 0.2s, border-color 0.2s; 
     white-space: nowrap; 
     font-size: 13px;
 }
@@ -1076,6 +1076,13 @@ header {
 
 .forgot-password:hover {
     opacity: 0.8;
+}
+
+.login-hint {
+    min-height: 18px;
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: -8px;
 }
 
 .login-btn {
