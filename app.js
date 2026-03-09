@@ -113,8 +113,17 @@ function editUser(userId) {
     addMessage(`编辑用户 ${userId}`, 'system');
 }
 
-function deleteUser(userId) {
-    if (confirm(`确定要删除用户 ${userId} 吗？`)) {
+async function deleteUser(userId) {
+    const confirmed = typeof showConfirmDialog === 'function'
+        ? await showConfirmDialog({
+            title: '确认删除用户',
+            message: `确定要删除用户 ${userId} 吗？`,
+            confirmText: '确认删除',
+            cancelText: '取消',
+            confirmType: 'danger'
+        })
+        : false;
+    if (confirmed) {
         showToast(`用户 ${userId} 已删除`);
         addMessage(`删除用户 ${userId}`, 'system');
     }

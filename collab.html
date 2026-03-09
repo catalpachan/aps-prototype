@@ -49,27 +49,30 @@
   <header>
     <div class="brand-block">
       <img class="header-logo" src="1c5703c9-aca0-43d1-9843-9d502cb66fd0.png" alt="APS Logo" width="143" height="44" />
-      
+      <div class="aps-console-title">
+        <div class="aps-console-title-main">高级计划排程系统</div>
+        <div class="aps-console-title-sub">跨厂协同排程控制台</div>
+      </div>
+      <div class="aps-site-switch">
+        <span class="aps-site-switch-label">制造基地</span>
+        <select id="hq-select" class="role-select" aria-label="基地切换">
+          <option>珠海格力总部</option>
+          <option>金湾基地</option>
+          <option>武汉基地</option>
+          <option>洛阳基地</option>
+        </select>
+      </div>
     </div>
-    <nav class="nav" id="nav">
-      <a href="decision.html" class="nav-item">决策中心</a>
-      <a href="collab.html" class="nav-item active">协同中心</a>
-      <a href="demand.html" class="nav-item">需求中心</a>
-      <a href="resource.html" class="nav-item">资源中心</a>
-      <a href="rule.html" class="nav-item">规则中心</a>
-      <a href="monitor.html" class="nav-item">监控中心</a>
-      <a href="report.html" class="nav-item">报表中心</a>
+    <nav class="nav aps-main-nav" id="nav">
+      <a href="collab.html" class="nav-item active">排产操作</a>
+      <a href="decision.html" class="nav-item">决策分析</a>
       <a href="settings.html" class="nav-item">系统设置</a>
     </nav>
-    <div class="header-meta" id="header-meta">
-      <span id="header-date">2026-02-28 08:56:33</span> |
-      <select id="hq-select" class="role-select" aria-label="基地切换">
-        <option>珠海格力总部</option>
-        <option>金湾基地</option>
-        <option>武汉基地</option>
-        <option>洛阳基地</option>
-      </select>
-      | 
+    <div class="header-meta aps-header-meta" id="header-meta">
+      <span id="header-date" class="aps-clock-chip">2026-02-28 08:56:33</span>
+      <button type="button" class="aps-notify-btn" id="aps-notify-btn" aria-label="打开消息通知">
+        🔔<span class="aps-notify-badge" id="aps-notify-badge">0</span>
+      </button>
       <div class="user-dropdown" id="user-dropdown">
         <div class="user-dropdown-toggle" onclick="toggleUserDropdown()">
           <div class="avatar">张</div>
@@ -123,7 +126,7 @@
 
         <article class="card collab-right">
           <div class="card-hd">
-            <span>可视化交互工作台（甘特图）</span>
+            <span>可视化交互工作台</span>
             <div class="row">
               <select id="gantt-plant-filter" aria-label="分厂筛选"><option value="all">全部分厂</option><option value="east">东区总装</option><option value="west">西区总装</option><option value="inject">注塑分厂</option><option value="hx">两器分厂</option><option value="ctrl">控制器分厂</option></select>
               <button class="btn" onclick="verifyDraggedPlan()">拖拽后规则校验</button>
@@ -173,6 +176,25 @@
       <div class="modal-ft">
         <button type="button" class="btn" id="task-edit-cancel">取消</button>
         <button type="button" class="btn primary" id="task-edit-save">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-mask" id="execute-confirm-mask" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="execute-confirm-title">
+      <div class="modal-hd">
+        <span id="execute-confirm-title">执行方案确认</span>
+        <button type="button" class="btn sm" id="execute-confirm-close">关闭</button>
+      </div>
+      <div class="modal-bd single-col">
+        <div class="task-editor-status">
+          <div style="font-weight:700;color:#e2e8f0;margin-bottom:6px;">确认执行当前预排方案？</div>
+          <div class="muted">执行后将覆盖当前甘特排产结果，请确认后继续。</div>
+        </div>
+      </div>
+      <div class="modal-ft">
+        <button type="button" class="btn" id="execute-confirm-cancel">取消</button>
+        <button type="button" class="btn ok txt-white" id="execute-confirm-ok">确认执行</button>
       </div>
     </div>
   </div>
@@ -555,6 +577,16 @@
     }
 
     function executePreplan() {
+      document.getElementById('execute-confirm-mask')?.classList.add('show');
+    }
+
+    function closeExecuteConfirm(showCancelToast = false) {
+      document.getElementById('execute-confirm-mask')?.classList.remove('show');
+      if (showCancelToast) toast('已取消执行方案');
+    }
+
+    function confirmExecutePreplan() {
+      closeExecuteConfirm(false);
       toast('方案已执行：当前预排结果已生效');
     }
 
@@ -571,10 +603,16 @@
       document.getElementById('task-editor-mask')?.addEventListener('click', (e) => {
         if (e.target.id === 'task-editor-mask') closeTaskEditor();
       });
+      document.getElementById('execute-confirm-close')?.addEventListener('click', () => closeExecuteConfirm(true));
+      document.getElementById('execute-confirm-cancel')?.addEventListener('click', () => closeExecuteConfirm(true));
+      document.getElementById('execute-confirm-ok')?.addEventListener('click', confirmExecutePreplan);
+      document.getElementById('execute-confirm-mask')?.addEventListener('click', (e) => {
+        if (e.target.id === 'execute-confirm-mask') closeExecuteConfirm(false);
+      });
       document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && document.getElementById('task-editor-mask')?.classList.contains('show')) {
-          closeTaskEditor();
-        }
+        if (e.key !== 'Escape') return;
+        if (document.getElementById('task-editor-mask')?.classList.contains('show')) closeTaskEditor();
+        if (document.getElementById('execute-confirm-mask')?.classList.contains('show')) closeExecuteConfirm(false);
       });
       document.getElementById('gantt-plant-filter')?.addEventListener('change', renderGanttWorkbench);
       document.addEventListener('pointermove', onTaskPointerMove);
@@ -582,5 +620,6 @@
       document.addEventListener('pointercancel', onTaskPointerUp);
     });
   </script>
+  <script src="aps-optimization.js"></script>
 </body>
 </html>

@@ -9,6 +9,7 @@ let headerDateTimer = null;
 let commonInitialized = false;
 let clickA11yObserver = null;
 let formPromptLastFocus = null;
+let confirmDialogLastFocus = null;
 
 function toast(msg) {
   const t = document.getElementById('toast');
@@ -149,6 +150,82 @@ function showFormPrompt(options = {}) {
         input.focus();
         input.select();
       }, 10);
+    }
+  });
+}
+
+function showConfirmDialog(options = {}) {
+  const config = typeof options === 'string' ? { message: options } : (options || {});
+  const {
+    title = '请确认操作',
+    message = '是否继续执行该操作？',
+    confirmText = '确定',
+    cancelText = '取消',
+    confirmType = 'primary'
+  } = config;
+
+  const confirmBtnClass = confirmType === 'danger' ? 'btn err txt-white' : 'btn primary';
+
+  return new Promise((resolve) => {
+    const backdrop = document.createElement('div');
+    backdrop.className = 'confirm-dialog-backdrop';
+    backdrop.setAttribute('role', 'presentation');
+
+    const dialog = document.createElement('div');
+    dialog.className = 'confirm-dialog';
+    dialog.setAttribute('role', 'dialog');
+    dialog.setAttribute('aria-modal', 'true');
+    dialog.setAttribute('aria-labelledby', 'confirm-dialog-title');
+    dialog.innerHTML = `
+      <h3 id="confirm-dialog-title">${escapeHTML(String(title))}</h3>
+      <div class="confirm-dialog-message">${escapeHTML(String(message)).replace(/\n/g, '<br>')}</div>
+      <div class="confirm-dialog-actions">
+        <button type="button" class="btn" data-action="cancel">${escapeHTML(String(cancelText))}</button>
+        <button type="button" class="${confirmBtnClass}" data-action="confirm">${escapeHTML(String(confirmText))}</button>
+      </div>
+    `;
+
+    const finish = (value) => {
+      document.removeEventListener('keydown', onKeyDown);
+      backdrop.remove();
+      if (confirmDialogLastFocus) {
+        confirmDialogLastFocus.focus();
+        confirmDialogLastFocus = null;
+      }
+      resolve(value);
+    };
+
+    const onKeyDown = (evt) => {
+      if (!backdrop.isConnected) return;
+      if (evt.key === 'Escape') {
+        evt.preventDefault();
+        finish(false);
+      }
+      if (evt.key === 'Enter') {
+        evt.preventDefault();
+        finish(true);
+      }
+    };
+
+    backdrop.addEventListener('click', (evt) => {
+      if (evt.target === backdrop) finish(false);
+    });
+
+    dialog.addEventListener('click', (evt) => {
+      const target = evt.target;
+      if (!(target instanceof HTMLElement)) return;
+      if (target.dataset.action === 'cancel') finish(false);
+      if (target.dataset.action === 'confirm') finish(true);
+    });
+
+    confirmDialogLastFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    backdrop.appendChild(dialog);
+    document.body.appendChild(backdrop);
+    document.addEventListener('keydown', onKeyDown);
+
+    const confirmButton = dialog.querySelector('[data-action="confirm"]');
+    if (confirmButton instanceof HTMLElement) {
+      setTimeout(() => confirmButton.focus(), 10);
     }
   });
 }
@@ -597,6 +674,72 @@ function buildSettingsAuditLogs(count = 50) {
   const secondStep = 173;
   const baseSeconds = 9 * 3600 + 30 * 60;
 
+  function buildChangeDetail(module, actionIndex, i, seq) {
+    if (module === "账号") {
+      if (actionIndex === 0) {
+        return { beforeValue: "账号列表: 42人", afterValue: "账号列表: 43人" };
+      }
+      if (actionIndex === 1) {
+        return { beforeValue: `user_${seq} 密码版本:v2`, afterValue: `user_${seq} 密码版本:v3` };
+      }
+      if (actionIndex === 2) {
+        return { beforeValue: `user_${seq} 状态:启用`, afterValue: `user_${seq} 状态:禁用` };
+      }
+      return { beforeValue: `user_${seq} 状态:禁用`, afterValue: `user_${seq} 状态:启用` };
+    }
+
+    if (module === "排程") {
+      const beforeStart = 8 + (i % 3);
+      const afterStart = beforeStart - 1;
+      if (actionIndex === 0) {
+        return {
+          beforeValue: "模式: Backward-JIT, 达成率: 92.8%",
+          afterValue: "模式: Forward-ASAP, 达成率: 94.1%"
+        };
+      }
+      if (actionIndex === 1) {
+        return {
+          beforeValue: `WO-${7000 + i} 开始:${padNumber(beforeStart, 2)}:00`,
+          afterValue: `WO-${7000 + i} 开始:${padNumber(afterStart, 2)}:00`
+        };
+      }
+      if (actionIndex === 2) {
+        return {
+          beforeValue: "计划状态: 草稿",
+          afterValue: "计划状态: 已发布"
+        };
+      }
+      return {
+        beforeValue: "瓶颈资源锁定: 2条",
+        afterValue: "瓶颈资源锁定: 3条"
+      };
+    }
+
+    if (module === "规则") {
+      if (actionIndex === 0) {
+        return { beforeValue: "交期权重: 68%", afterValue: "交期权重: 72%" };
+      }
+      if (actionIndex === 1) {
+        return { beforeValue: "策略版本: V3.5", afterValue: "策略版本: V3.6" };
+      }
+      if (actionIndex === 2) {
+        return { beforeValue: "插单阈值: 12%", afterValue: "插单阈值: 10%" };
+      }
+      return { beforeValue: "换产惩罚系数: 1.20", afterValue: "换产惩罚系数: 1.05" };
+    }
+
+    if (actionIndex === 0) {
+      return { beforeValue: "设备状态: 待维护", afterValue: "设备状态: 正常" };
+    }
+    if (actionIndex === 1) {
+      return { beforeValue: "模具寿命: 81%", afterValue: "模具寿命: 95%" };
+    }
+    if (actionIndex === 2) {
+      return { beforeValue: "人员资质: 48人", afterValue: "人员资质: 52人" };
+    }
+    return { beforeValue: "外协评分: 83", afterValue: "外协评分: 87" };
+  }
+
   return Array.from({ length: count }, (_, i) => {
     const module = modules[i % modules.length];
     const actionIndex = Math.floor(i / modules.length) % 4;
@@ -615,11 +758,14 @@ function buildSettingsAuditLogs(count = 50) {
     const hour = Math.floor(timeSeconds / 3600);
     const minute = Math.floor((timeSeconds % 3600) / 60);
     const second = timeSeconds % 60;
+    const changeDetail = buildChangeDetail(module, actionIndex, i, seq);
     return {
       time: `2026-02-28 ${padNumber(hour, 2)}:${padNumber(minute, 2)}:${padNumber(second, 2)}`,
       user: users[i % users.length],
       module,
       action,
+      beforeValue: changeDetail.beforeValue,
+      afterValue: i % 9 === 0 ? `${changeDetail.beforeValue}（未生效）` : changeDetail.afterValue,
       result: i % 9 === 0 ? "失败" : "成功"
     };
   });

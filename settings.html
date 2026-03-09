@@ -61,27 +61,30 @@
   <header>
     <div class="brand-block">
       <img class="header-logo" src="1c5703c9-aca0-43d1-9843-9d502cb66fd0.png" alt="APS Logo" width="143" height="44" />
-      
+      <div class="aps-console-title">
+        <div class="aps-console-title-main">高级计划排程系统</div>
+        <div class="aps-console-title-sub">跨厂协同排程控制台</div>
+      </div>
+      <div class="aps-site-switch">
+        <span class="aps-site-switch-label">制造基地</span>
+        <select id="hq-select" class="role-select" aria-label="基地切换">
+          <option>珠海格力总部</option>
+          <option>金湾基地</option>
+          <option>武汉基地</option>
+          <option>洛阳基地</option>
+        </select>
+      </div>
     </div>
-    <nav class="nav" id="nav">
-      <a href="decision.html" class="nav-item">决策中心</a>
-      <a href="collab.html" class="nav-item">协同中心</a>
-      <a href="demand.html" class="nav-item">需求中心</a>
-      <a href="resource.html" class="nav-item">资源中心</a>
-      <a href="rule.html" class="nav-item">规则中心</a>
-      <a href="monitor.html" class="nav-item">监控中心</a>
-      <a href="report.html" class="nav-item">报表中心</a>
+    <nav class="nav aps-main-nav" id="nav">
+      <a href="collab.html" class="nav-item">排产操作</a>
+      <a href="decision.html" class="nav-item">决策分析</a>
       <a href="settings.html" class="nav-item active">系统设置</a>
     </nav>
-    <div class="header-meta" id="header-meta">
-      <span id="header-date">2026-02-28 08:56:33</span> |
-      <select id="hq-select" class="role-select" aria-label="基地切换">
-        <option>珠海格力总部</option>
-        <option>金湾基地</option>
-        <option>武汉基地</option>
-        <option>洛阳基地</option>
-      </select>
-      | 
+    <div class="header-meta aps-header-meta" id="header-meta">
+      <span id="header-date" class="aps-clock-chip">2026-02-28 08:56:33</span>
+      <button type="button" class="aps-notify-btn" id="aps-notify-btn" aria-label="打开消息通知">
+        🔔<span class="aps-notify-badge" id="aps-notify-badge">0</span>
+      </button>
       <div class="user-dropdown" id="user-dropdown">
         <div class="user-dropdown-toggle" onclick="toggleUserDropdown()">
           <div class="avatar">张</div>
@@ -199,7 +202,7 @@
           <div class="settings-subview" id="settings-sub-audit">
             <article class="card">
               <div class="card-hd"><span>审计日志</span><div class="row"><select id="settings-audit-filter" aria-label="审计模块筛选" onchange="renderSettingsAuditLogs()"><option value="all">全部模块</option><option value="排程">排程</option><option value="规则">规则</option><option value="账号">账号</option><option value="资源">资源</option></select><button class="btn" onclick="exportAuditLogs()">导出日志</button></div></div>
-              <div class="card-bd"><table><thead><tr><th>时间</th><th>操作者</th><th>模块</th><th>动作</th><th>结果</th></tr></thead><tbody id="settings-audit-tbody"></tbody></table></div>
+              <div class="card-bd"><table><thead><tr><th>时间</th><th>操作者</th><th>模块</th><th>动作</th><th>修改前</th><th>修改后</th><th>结果</th></tr></thead><tbody id="settings-audit-tbody"></tbody></table></div>
             </article>
           </div>
 
@@ -294,7 +297,7 @@
       
       tbody.innerHTML = logs.slice(0, 10).map(l => {
         const resultClass = l.result === '成功' ? 'ok' : 'err';
-        return `<tr><td>${l.time}</td><td>${l.user}</td><td>${l.module}</td><td>${l.action}</td><td><span class="tag ${resultClass}">${l.result}</span></td></tr>`;
+        return `<tr><td>${l.time}</td><td>${l.user}</td><td>${l.module}</td><td>${l.action}</td><td>${l.beforeValue || '-'}</td><td>${l.afterValue || '-'}</td><td><span class="tag ${resultClass}">${l.result}</span></td></tr>`;
       }).join('');
     }
 
@@ -539,5 +542,6 @@
       renderSyncLogs();
     });
   </script>
+  <script src="aps-optimization.js"></script>
 </body>
 </html>

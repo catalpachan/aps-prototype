@@ -339,6 +339,10 @@
       color: #94a3b8;
     }
 
+    .decision-ok-white {
+      color: #fff !important;
+    }
+
     /* 排产员待办工作区 */
     .planner-todo {
       background: #111b2d;
@@ -1248,26 +1252,30 @@
   <header>
     <div class="brand-block">
       <img class="header-logo" src="1c5703c9-aca0-43d1-9843-9d502cb66fd0.png" alt="APS Logo" width="143" height="44" />
+      <div class="aps-console-title">
+        <div class="aps-console-title-main">高级计划排程系统</div>
+        <div class="aps-console-title-sub">跨厂协同排程控制台</div>
+      </div>
+      <div class="aps-site-switch">
+        <span class="aps-site-switch-label">制造基地</span>
+        <select id="hq-select" class="role-select" aria-label="基地切换">
+          <option>珠海格力总部</option>
+          <option>金湾基地</option>
+          <option>武汉基地</option>
+          <option>洛阳基地</option>
+        </select>
+      </div>
     </div>
-    <nav class="nav" id="nav">
-      <a href="decision.html" class="nav-item active">决策中心</a>
-      <a href="collab.html" class="nav-item">协同中心</a>
-      <a href="demand.html" class="nav-item">需求中心</a>
-      <a href="resource.html" class="nav-item">资源中心</a>
-      <a href="rule.html" class="nav-item">规则中心</a>
-      <a href="monitor.html" class="nav-item">监控中心</a>
-      <a href="report.html" class="nav-item">报表中心</a>
+    <nav class="nav aps-main-nav" id="nav">
+      <a href="collab.html" class="nav-item">排产操作</a>
+      <a href="decision.html" class="nav-item active">决策分析</a>
       <a href="settings.html" class="nav-item">系统设置</a>
     </nav>
-    <div class="header-meta" id="header-meta">
-      <span id="header-date">2026-02-28 08:56:33</span> |
-      <select id="hq-select" class="role-select" aria-label="基地切换">
-        <option>珠海格力总部</option>
-        <option>金湾基地</option>
-        <option>武汉基地</option>
-        <option>洛阳基地</option>
-      </select>
-      | 
+    <div class="header-meta aps-header-meta" id="header-meta">
+      <span id="header-date" class="aps-clock-chip">2026-02-28 08:56:33</span>
+      <button type="button" class="aps-notify-btn" id="aps-notify-btn" aria-label="打开消息通知">
+        🔔<span class="aps-notify-badge" id="aps-notify-badge">0</span>
+      </button>
       <div class="user-dropdown" id="user-dropdown">
         <div class="user-dropdown-toggle" onclick="toggleUserDropdown()">
           <div class="avatar">张</div>
@@ -1387,7 +1395,7 @@
           <div style="display: flex;align-items: center;gap: 10px;">
             <button class="btn" onclick="openPreScheduleModal()">🔮 一键预排</button>
             <button class="btn primary" onclick="runAIReschedule()">🤖 AI智能重排</button>
-            <button class="btn ok" onclick="confirmAndPublishSchedule()">✓ 确认发布</button>
+            <button class="btn ok decision-ok-white" onclick="confirmAndPublishSchedule()">✓ 确认发布</button>
           </div>
         </div>
         
@@ -1550,7 +1558,7 @@
             <button class="btn" onclick="showScheduleResult({ scroll: true })">📊 排产结果</button>
             <button class="btn" onclick="openPreScheduleModal()">🔮 一键预排</button>
             <button class="btn primary" onclick="runAIReschedule()">🤖 AI智能重排</button>
-            <button class="btn ok" onclick="runScheduleDiagnosis()">🔍 排产诊断</button>
+            <button class="btn ok decision-ok-white" onclick="runScheduleDiagnosis()">🔍 排产诊断</button>
             <button class="btn" onclick="renderDecisionCenter()">刷新</button>
           </div>
         </div>
@@ -1838,13 +1846,22 @@
       }, 1000);
     }
 
-    function batchApproveAI() {
+    async function batchApproveAI() {
       const pending = aiSuggestions.filter(s => s.status === 'pending');
       if (pending.length === 0) {
         toast('没有待确认的AI建议');
         return;
       }
-      if (confirm(`确定一键采纳 ${pending.length} 条AI建议吗？`)) {
+      const approveMessage = `确定一键采纳 ${pending.length} 条AI建议吗？`;
+      const confirmed = typeof showConfirmDialog === 'function'
+        ? await showConfirmDialog({
+            title: '批量采纳确认',
+            message: approveMessage,
+            confirmText: '确认采纳',
+            cancelText: '取消'
+          })
+        : false;
+      if (confirmed) {
         pending.forEach(s => {
           s.status = 'approved';
           approvedSuggestions.push(s);
@@ -2938,7 +2955,7 @@ ${document.getElementById('schedule-orders-tbody')?.innerText || '暂无数据'}
       });
     }
 
-    function confirmAndPublishSchedule() {
+    async function confirmAndPublishSchedule() {
       if (workflowStep < 3) {
         toast('⚠️ 请先完成预排并查看结果');
         return;
@@ -2948,7 +2965,16 @@ ${document.getElementById('schedule-orders-tbody')?.innerText || '暂无数据'}
       const shift = document.getElementById('schedule-shift');
       const shiftText = shift.options[shift.selectedIndex].text;
       
-      if (confirm(`确认发布排产计划?\n\n📅 日期: ${date}\n⏰ 班次: ${shiftText}\n📋 订单数: 45个\n\n发布后车间将收到正式生产指令。`)) {
+      const publishMessage = `确认发布排产计划?\n\n📅 日期: ${date}\n⏰ 班次: ${shiftText}\n📋 订单数: 45个\n\n发布后车间将收到正式生产指令。`;
+      const confirmed = typeof showConfirmDialog === 'function'
+        ? await showConfirmDialog({
+            title: '发布排产确认',
+            message: publishMessage,
+            confirmText: '确认发布',
+            cancelText: '取消'
+          })
+        : false;
+      if (confirmed) {
         toast('🚀 正在发布排产计划...');
         
         setTimeout(() => {
@@ -3007,5 +3033,6 @@ ${document.getElementById('schedule-orders-tbody')?.innerText || '暂无数据'}
       renderDecisionCenter();
     });
   </script>
+  <script src="aps-optimization.js"></script>
 </body>
 </html>
