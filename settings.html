@@ -112,6 +112,7 @@
             <button class="resource-menu-item" onclick="switchSettingsSub('audit', this)">审计日志</button>
             <button class="resource-menu-item" onclick="switchSettingsSub('usage', this)">使用统计</button>
             <button class="resource-menu-item" onclick="switchSettingsSub('base', this)">基础设置</button>
+            <button class="resource-menu-item" onclick="switchSettingsSub('report', this)">报表中心</button>
           </div>
         </aside>
 
@@ -226,6 +227,70 @@
               </div>
             </article>
           </div>
+
+          <div class="settings-subview" id="settings-sub-report">
+            <article class="card">
+              <div class="card-hd">
+                <span>报表中心</span>
+                <div class="row">
+                  <button class="btn" onclick="saveReportDefinition()">保存定义</button>
+                  <button class="btn primary" onclick="generateComplianceReport()">生成报表</button>
+                  <button class="btn ok" onclick="exportReportBundle()">导出报表</button>
+                </div>
+              </div>
+              <div class="card-bd">
+                <div class="settings-form-grid">
+                  <div class="modal-field">
+                    <label>报表定义</label>
+                    <input id="report-definition-name" value="总部周度合规排产报告" />
+                  </div>
+                  <div class="modal-field">
+                    <label>报表类型</label>
+                    <select id="report-definition-type" aria-label="报表类型">
+                      <option>合规审计报表</option>
+                      <option>排产执行报表</option>
+                      <option>资源风险报表</option>
+                    </select>
+                  </div>
+                  <div class="modal-field">
+                    <label>统计周期</label>
+                    <select id="report-definition-period" aria-label="统计周期">
+                      <option>近7天</option>
+                      <option>本月</option>
+                      <option>本季度</option>
+                    </select>
+                  </div>
+                  <div class="modal-field">
+                    <label>导出格式</label>
+                    <select id="report-definition-format" aria-label="导出格式">
+                      <option>PDF + Excel</option>
+                      <option>仅 PDF</option>
+                      <option>仅 Excel</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div style="margin-top:16px;">
+                  <div class="card-hd" style="padding:0 0 10px 0;border:none;">
+                    <span>报表定义清单</span>
+                  </div>
+                  <div id="settings-report-definition-list"></div>
+                </div>
+
+                <div style="margin-top:18px;">
+                  <div class="card-hd" style="padding:0 0 10px 0;border:none;">
+                    <span>生成与导出记录</span>
+                  </div>
+                  <table>
+                    <thead>
+                      <tr><th>报表名称</th><th>类型</th><th>生成时间</th><th>状态</th><th>导出格式</th><th>操作</th></tr>
+                    </thead>
+                    <tbody id="settings-report-run-tbody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </article>
+          </div>
         </div>
       </div>
     </section>
@@ -244,6 +309,7 @@
       if (sub === 'roles') renderSettingsRoles();
       if (sub === 'audit') renderSettingsAuditLogs();
       if (sub === 'usage') renderUsageStats();
+      if (sub === 'report') renderReportCenter();
     }
 
     function renderVersionList() {
@@ -336,6 +402,108 @@
 
     function saveBaseSettings() {
       toast('基础设置已保存');
+    }
+
+    const reportDefinitions = [
+      { name: '总部周度合规排产报告', type: '合规审计报表', period: '近7天', format: 'PDF + Excel' },
+      { name: '制造基地月度执行报告', type: '排产执行报表', period: '本月', format: '仅 Excel' },
+      { name: '资源风险巡检报告', type: '资源风险报表', period: '本季度', format: '仅 PDF' }
+    ];
+
+    let reportRuns = [
+      { name: '总部周度合规排产报告', type: '合规审计报表', generatedAt: '2026-02-28 09:20:00', status: '已生成', format: 'PDF + Excel' },
+      { name: '制造基地月度执行报告', type: '排产执行报表', generatedAt: '2026-02-27 18:05:00', status: '已导出', format: '仅 Excel' }
+    ];
+
+    function renderReportCenter() {
+      const definitionList = document.getElementById('settings-report-definition-list');
+      const runTbody = document.getElementById('settings-report-run-tbody');
+      if (!definitionList || !runTbody) return;
+
+      definitionList.innerHTML = reportDefinitions.map((item) => `
+        <div class="settings-ann-item">
+          <div class="hd"><span>${item.name}</span><span class="muted">${item.type}</span></div>
+          <div class="bd">周期: ${item.period} · 默认导出: ${item.format}</div>
+        </div>
+      `).join('');
+
+      runTbody.innerHTML = reportRuns.map((item, idx) => `
+        <tr>
+          <td>${item.name}</td>
+          <td>${item.type}</td>
+          <td>${item.generatedAt}</td>
+          <td><span class="tag ${item.status === '已导出' ? 'ok' : ''}">${item.status}</span></td>
+          <td>${item.format}</td>
+          <td><button class="btn sm" onclick="downloadGeneratedReport(${idx})">下载</button></td>
+        </tr>
+      `).join('');
+    }
+
+    function saveReportDefinition() {
+      const name = document.getElementById('report-definition-name')?.value?.trim();
+      const type = document.getElementById('report-definition-type')?.value;
+      const period = document.getElementById('report-definition-period')?.value;
+      const format = document.getElementById('report-definition-format')?.value;
+      if (!name) {
+        toast('请先填写报表定义名称');
+        return;
+      }
+      reportDefinitions.unshift({ name, type, period, format });
+      renderReportCenter();
+      toast('报表定义已保存');
+    }
+
+    function generateComplianceReport() {
+      const name = document.getElementById('report-definition-name')?.value?.trim() || '未命名报表';
+      const type = document.getElementById('report-definition-type')?.value || '合规审计报表';
+      const format = document.getElementById('report-definition-format')?.value || 'PDF + Excel';
+      reportRuns.unshift({
+        name,
+        type,
+        generatedAt: new Date().toLocaleString('zh-CN'),
+        status: '已生成',
+        format
+      });
+      renderReportCenter();
+      toast('报表已生成，待导出');
+    }
+
+    function exportReportBundle() {
+      const name = document.getElementById('report-definition-name')?.value?.trim() || 'APS报表';
+      const type = document.getElementById('report-definition-type')?.value || '合规审计报表';
+      const format = document.getElementById('report-definition-format')?.value || 'PDF + Excel';
+      const content = `
+${name}
+类型: ${type}
+导出格式: ${format}
+生成时间: ${new Date().toLocaleString('zh-CN')}
+基地: ${document.getElementById('hq-select')?.value || '珠海格力总部'}
+`;
+      const blob = new Blob([content], { type: 'text/plain;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `${name}_${new Date().toISOString().slice(0, 10)}.txt`;
+      link.click();
+      reportRuns.unshift({
+        name,
+        type,
+        generatedAt: new Date().toLocaleString('zh-CN'),
+        status: '已导出',
+        format
+      });
+      renderReportCenter();
+      toast('报表导出完成');
+    }
+
+    function downloadGeneratedReport(index) {
+      const item = reportRuns[index];
+      if (!item) return;
+      const blob = new Blob([`${item.name}\n${item.type}\n${item.generatedAt}`], { type: 'text/plain;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `${item.name}_${item.generatedAt.replace(/[\\s:]/g, '-')}.txt`;
+      link.click();
+      toast(`已下载 ${item.name}`);
     }
 
     // ========== 系统对接功能 ==========
@@ -540,6 +708,7 @@
       renderIntegrationList();
       renderSyncTable();
       renderSyncLogs();
+      renderReportCenter();
     });
   </script>
   <script src="aps-optimization.js"></script>

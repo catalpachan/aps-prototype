@@ -451,8 +451,7 @@
 
       .aps-preplan-result,
       .aps-resource-list,
-      .aps-schedule-options,
-      .aps-llm-log {
+      .aps-schedule-options {
         margin-top: 8px;
         display: flex;
         flex-direction: column;
@@ -465,8 +464,7 @@
       }
 
       .aps-resource-item,
-      .aps-schedule-option,
-      .aps-llm-entry {
+      .aps-schedule-option {
         border: 1px solid #334155;
         border-radius: 8px;
         padding: 8px 10px;
@@ -650,15 +648,6 @@
         font-style: normal;
         font-size: 11px;
         color: #e2e8f0;
-      }
-
-      .aps-llm-input-row {
-        display: flex;
-        gap: 8px;
-      }
-
-      .aps-llm-input-row input {
-        flex: 1;
       }
 
       .gantt-task.violation-flash {
@@ -1362,14 +1351,6 @@
         </div>
       </article>
 
-      <article class="aps-upgrade-card" id="aps-llm-card">
-        <h4><span>大语言模型智能对话辅助中枢</span></h4>
-        <div class="aps-llm-input-row">
-          <input id="aps-llm-input" placeholder="输入调序指令，例如：为什么压缩机缺料？" />
-          <button class="btn sm" id="aps-llm-send-btn">发送</button>
-        </div>
-        <div class="aps-llm-log" id="aps-llm-log"></div>
-      </article>
     `;
     leftCol.insertAdjacentHTML('afterbegin', upgradeHtml);
 
@@ -1381,7 +1362,6 @@
     ];
 
     const sharedState = getSharedState();
-    let snapshot = [];
     const schedulePlans = [
       {
         mode: 'delivery',
@@ -1415,31 +1395,6 @@
       }
     ];
     let selectedScheduleMode = schedulePlans[0].mode;
-
-    function copyTasks() {
-      if (!Array.isArray(sharedState?.ganttTasks)) return [];
-      return sharedState.ganttTasks.map((task) => ({
-        id: task.id,
-        start: task.start,
-        duration: task.duration,
-        line: task.line,
-        chainId: task.chainId,
-        batchCode: task.batchCode
-      }));
-    }
-
-    function restoreTasks(lastSnapshot) {
-      if (!Array.isArray(sharedState?.ganttTasks) || !lastSnapshot.length) return;
-      const snapshotMap = new Map(lastSnapshot.map((item) => [item.id, item]));
-      sharedState.ganttTasks.forEach((task) => {
-        const old = snapshotMap.get(task.id);
-        if (!old) return;
-        task.start = old.start;
-        task.duration = old.duration;
-        task.line = old.line;
-      });
-      if (typeof renderGanttWorkbench === 'function') renderGanttWorkbench();
-    }
 
     function ensureTaskTags() {
       if (!Array.isArray(sharedState?.ganttTasks)) return;
@@ -1528,7 +1483,7 @@
       }, 1200);
     }
 
-    function runResourceMatch() {
+    async function runResourceMatch() {
       const list = document.getElementById('aps-resource-list');
       if (!list) return;
       const inventory = Array.isArray(sharedState?.inventory) ? sharedState.inventory : [];
@@ -1544,6 +1499,7 @@
             { name: '电路板', shortage: 80, warn: true, replacement: '切换备用供应商（洛阳）' },
             { name: '冷凝器', shortage: 0, warn: false, replacement: '无需替代' }
           ];
+      const warnCount = mapped.filter((item) => item.warn).length;
 
       list.innerHTML = mapped
         .map((item) => `
@@ -1554,6 +1510,38 @@
         `)
         .join('');
       toast('资源匹配完成：已完成设备状态与物料水位碰撞测算。');
+
+      const shouldAdopt = typeof showConfirmDialog === 'function'
+        ? await showConfirmDialog({
+            title: '资源匹配建议确认',
+            message: warnCount
+              ? `本次资源匹配识别出 ${warnCount} 项预警，是否采纳系统推荐的替代料与调拨方案？`
+              : '本次资源匹配未发现异常，是否采纳系统建议并锁定当前资源配置？',
+            confirmText: '采纳建议',
+            cancelText: '暂不采纳'
+          })
+        : false;
+
+      if (shouldAdopt) {
+        list.insertAdjacentHTML(
+          'afterbegin',
+          `<div class="aps-resource-item">
+            <div><b>已采纳系统建议</b></div>
+            <div class="muted">${warnCount ? '替代料与跨基地调拨方案已加入执行队列。' : '当前资源配置已锁定为推荐基线。'}</div>
+          </div>`
+        );
+        toast('已采纳资源匹配建议。');
+        return;
+      }
+
+      list.insertAdjacentHTML(
+        'afterbegin',
+        `<div class="aps-resource-item">
+          <div><b>待人工确认</b></div>
+          <div class="muted">系统已保留本次资源匹配结果，暂未采纳推荐方案。</div>
+        </div>`
+      );
+      toast('已保留资源匹配结果，等待人工决策。');
     }
 
     function applyScheduleMode(mode) {
@@ -1569,7 +1557,6 @@
         }
       });
       if (typeof renderGanttWorkbench === 'function') renderGanttWorkbench();
-      snapshot = copyTasks();
     }
 
     function getSchedulePlan(mode) {
@@ -1648,190 +1635,15 @@
       toast(`一键排产完成：${plan.title}已同步到可视化交互工作台。`);
     }
 
-    function appendLlmLog(content, isUser) {
-      const log = document.getElementById('aps-llm-log');
-      if (!log) return;
-      const className = isUser ? 'aps-llm-entry' : 'aps-llm-entry';
-      const prefix = isUser ? '计划员' : '智能助手';
-      const div = document.createElement('div');
-      div.className = className;
-      div.innerHTML = `<b>${prefix}:</b> ${content}`;
-      log.prepend(div);
-    }
-
-    function sendLlmCommand() {
-      const input = document.getElementById('aps-llm-input');
-      if (!input) return;
-      const text = input.value.trim();
-      if (!text) return;
-      appendLlmLog(text, true);
-      if (typeof toggleAIAssistant === 'function') toggleAIAssistant(true);
-      if (typeof addAIMessage === 'function') {
-        addAIMessage('user', text);
-      }
-
-      let answer = '已收到指令，建议先执行资源匹配再触发重排。';
-      if (text.includes('缺料')) {
-        answer = '压缩机缺料主因来自供应商延迟，建议启用洛阳基地替代料并将高优订单转移至西区总装。';
-      } else if (text.includes('重排')) {
-        answer = '建议优先重排注塑与总装链路，预计可回收 42 分钟交付风险。';
-      }
-      appendLlmLog(answer, false);
-      if (typeof addAIMessage === 'function') {
-        addAIMessage('ai', answer);
-      }
-      input.value = '';
-    }
-
-    function validateBatchContinuity() {
-      if (!Array.isArray(sharedState?.ganttTasks)) return { ok: true, violations: [] };
-      ensureTaskTags();
-      const tasks = sharedState.ganttTasks;
-      const violations = [];
-      const grouped = new Map();
-      tasks.forEach((task) => {
-        if (!grouped.has(task.batchCode)) grouped.set(task.batchCode, []);
-        grouped.get(task.batchCode).push(task);
-      });
-      grouped.forEach((group, batchCode) => {
-        group.sort((a, b) => a.start - b.start);
-        for (let i = 1; i < group.length; i += 1) {
-          const prev = group[i - 1];
-          const curr = group[i];
-          const gap = curr.start - (prev.start + prev.duration);
-          if (gap > 4 || Math.abs(curr.line - prev.line) > 2) {
-            violations.push({ taskName: curr.name, batchCode });
-          }
-        }
-      });
-      return { ok: violations.length === 0, violations };
-    }
-
-    function getPrimaryTaskMoveFromSnapshot() {
-      if (!Array.isArray(sharedState?.ganttTasks) || !snapshot.length) return false;
-      const previousMap = new Map(snapshot.map((item) => [item.id, item]));
-
-      let movedTask = null;
-      let moveDeltaX = 0;
-      let moveDeltaY = 0;
-      let movedScore = 0;
-
-      sharedState.ganttTasks.forEach((task) => {
-        const old = previousMap.get(task.id);
-        if (!old) return;
-        const dx = task.start - old.start;
-        const dy = task.line - old.line;
-        const score = Math.abs(dx) + Math.abs(dy);
-        if (score > movedScore) {
-          movedTask = task;
-          moveDeltaX = dx;
-          moveDeltaY = dy;
-          movedScore = score;
-        }
-      });
-
-      if (!movedTask || movedScore === 0) return null;
-      return { movedTask, moveDeltaX, moveDeltaY, movedScore };
-    }
-
-    function hasTaskMovementSinceSnapshot() {
-      return !!getPrimaryTaskMoveFromSnapshot();
-    }
-
-    function applyChainLinkageFromSnapshot() {
-      const moveInfo = getPrimaryTaskMoveFromSnapshot();
-      if (!moveInfo) return false;
-      const { movedTask, moveDeltaX, moveDeltaY } = moveInfo;
-      if (!movedTask.chainId) return false;
-      const totalCols = typeof GANTT_TOTAL_COLS === 'number' ? GANTT_TOTAL_COLS : 25;
-      const lineTotal = typeof GANTT_LINE_TOTAL === 'number' ? GANTT_LINE_TOTAL : 20;
-      let linkedCount = 0;
-      sharedState.ganttTasks.forEach((task) => {
-        if (task.id === movedTask.id || task.chainId !== movedTask.chainId) return;
-        const maxStart = Math.max(0, totalCols - task.duration);
-        task.start = Math.min(maxStart, Math.max(0, task.start + moveDeltaX));
-        task.line = Math.min(lineTotal - 1, Math.max(0, task.line + moveDeltaY));
-        linkedCount += 1;
-      });
-      if (linkedCount > 0 && typeof renderGanttWorkbench === 'function') {
-        renderGanttWorkbench();
-      }
-      return linkedCount > 0;
-    }
-
-    function flashFirstViolation(taskName) {
-      const taskEls = Array.from(document.querySelectorAll('.gantt-task'));
-      const target = taskEls.find((el) => el.textContent.includes(taskName));
-      if (!target) return;
-      target.classList.add('violation-flash');
-      setTimeout(() => target.classList.remove('violation-flash'), 1600);
-    }
-
-    let autoVerifyTimer = null;
-
-    function verifyAndMaybeRollback(showSuccessToast) {
-      const result = validateBatchContinuity();
-      if (result.ok) {
-        snapshot = copyTasks();
-        if (showSuccessToast) {
-          toast('拖拽后校验通过：批次连续生产与硬约束均满足。');
-        }
-        return true;
-      }
-      restoreTasks(snapshot);
-      flashFirstViolation(result.violations[0]?.taskName || '');
-      toast(`发现硬约束冲突（${result.violations[0]?.batchCode || '批次'}），任务已回弹到安全位置。`);
-      return false;
-    }
-
     const orderSyncBtn = document.getElementById('aps-order-sync-btn');
     const preplanBtn = document.getElementById('aps-preplan-start-btn');
     const resourceBtn = document.getElementById('aps-resource-match-btn');
     const smartBtn = document.getElementById('aps-smart-schedule-btn');
-    const llmBtn = document.getElementById('aps-llm-send-btn');
 
     orderSyncBtn?.addEventListener('click', syncOrders);
     preplanBtn?.addEventListener('click', runPreplanWizard);
     resourceBtn?.addEventListener('click', runResourceMatch);
     smartBtn?.addEventListener('click', runSmartSchedule);
-    llmBtn?.addEventListener('click', sendLlmCommand);
-    document.getElementById('aps-llm-input')?.addEventListener('keydown', (evt) => {
-      if (evt.key === 'Enter') sendLlmCommand();
-    });
-
-    window.verifyDraggedPlan = function () {
-      if (!hasTaskMovementSinceSnapshot()) {
-        toast('未检测到拖拽变更，无需执行校验。');
-        return;
-      }
-      const linked = applyChainLinkageFromSnapshot();
-      const ok = verifyAndMaybeRollback(true);
-      if (linked && ok) {
-        toast('已联动同批次跨厂配套任务。');
-      }
-    };
-
-    let pendingDragValidation = false;
-    document.addEventListener('pointerdown', (evt) => {
-      if (!(evt.target instanceof HTMLElement)) return;
-      if (evt.target.closest('.gantt-task')) {
-        pendingDragValidation = true;
-      }
-    });
-
-    document.addEventListener('pointerup', () => {
-      if (!pendingDragValidation) return;
-      pendingDragValidation = false;
-      clearTimeout(autoVerifyTimer);
-      autoVerifyTimer = setTimeout(() => {
-        if (!hasTaskMovementSinceSnapshot()) return;
-        const linked = applyChainLinkageFromSnapshot();
-        const ok = verifyAndMaybeRollback(false);
-        if (linked && ok) {
-          toast('拖拽联动完成：同批次配套任务已自动平移。');
-        }
-      }, 120);
-    });
 
     const originalRunSelfHealing = window.runSelfHealing;
     window.runSelfHealing = function () {
@@ -1864,23 +1676,9 @@
       healBtn.textContent = '执行重排';
     }
 
-      const ganttRow = document.querySelector('.collab-right .card-hd .row');
-      if (ganttRow) {
-        const verifyBtn = Array.from(ganttRow.querySelectorAll('button')).find((btn) => btn.textContent.includes('拖拽后规则校验'));
-        const preplanBtnInRow = ganttRow.querySelector('.preplan-btn');
-        const executeBtnInRow = ganttRow.querySelector('.execute-btn');
-        if (verifyBtn) verifyBtn.textContent = '拖拽调序校验';
-        if (preplanBtnInRow) preplanBtnInRow.textContent = 'AI预排方案';
-        if (executeBtnInRow) executeBtnInRow.textContent = '执行方案';
-        if (preplanBtnInRow && executeBtnInRow && verifyBtn) {
-          ganttRow.append(verifyBtn, preplanBtnInRow, executeBtnInRow);
-        }
-      }
-
     ensureTaskTags();
     renderOrderTable();
     renderSmartScheduleOptions();
-    snapshot = copyTasks();
   }
 
   function enhanceDecisionPage() {
@@ -2400,18 +2198,6 @@
         </div>
       </div>
 
-      <div class="aps-setting-block">
-        <div class="aps-setting-title">合规报表生成与多维导出中心</div>
-        <div class="aps-feedback-box">
-          <button class="btn sm primary" id="aps-export-btn">多维数据导出</button>
-          <div class="muted">导出文字文档或电子表格，并自动植入合规水印（演示版）。</div>
-        </div>
-      </div>
-
-      <div class="aps-setting-block">
-        <div class="aps-setting-title">决策反哺建议接收</div>
-        <div class="aps-feedback-content" id="aps-feedback-content">尚未收到反哺建议。</div>
-      </div>
     `;
 
     baseCardBody.appendChild(block);
@@ -2440,30 +2226,6 @@
       update();
     }
 
-    function loadFeedback() {
-      const box = document.getElementById('aps-feedback-content');
-      if (!box) return;
-      const raw = localStorage.getItem(FEEDBACK_STORAGE_KEY);
-      if (!raw) {
-        box.textContent = '尚未收到反哺建议。请在“决策分析”页点击“生成反哺建议”。';
-        return;
-      }
-      try {
-        const data = JSON.parse(raw);
-        box.innerHTML = `
-          <div><b>生成时间:</b> ${data.generatedAt}</div>
-          <div><b>建议场景:</b> ${data.recommendedScene}</div>
-          <div><b>硬约束/软约束:</b> ${data.hardConstraintWeight}% / ${data.softConstraintWeight}%</div>
-          <div><b>建议基准:</b> 交期 ${data?.baselineWeights?.delivery ?? 72}% / 成本 ${data?.baselineWeights?.cost ?? 18}% / 库存 ${data?.baselineWeights?.stock ?? 10}%</div>
-          <div><b>回写状态:</b> ${data?.baselineAppliedAt ? `已回写（${data.baselineAppliedAt}）` : '待确认'}</div>
-          <div><b>建议说明:</b> ${data.note}</div>
-        `;
-        applyScene(data.recommendedScene);
-      } catch (err) {
-        box.textContent = '反哺建议读取失败，请重新生成。';
-      }
-    }
-
     document.querySelectorAll('#aps-scene-options .aps-scene-btn').forEach((button) => {
       button.addEventListener('click', () => {
         applyScene(button.dataset.scene);
@@ -2479,26 +2241,6 @@
       toast('跨厂时间尺对齐请求已执行。');
     });
 
-    document.getElementById('aps-export-btn')?.addEventListener('click', () => {
-      const content = `
-APS多维导出报告（演示版）
-生成时间: ${new Date().toLocaleString('zh-CN')}
-
-导出维度:
-- 基地: ${document.getElementById('hq-select')?.value || '珠海格力总部'}
-- 场景: ${document.querySelector('#aps-scene-options .aps-scene-btn.active')?.dataset.scene || '常规平稳'}
-- 权重: 交期 ${document.getElementById('aps-weight-delivery')?.value || 68}% / 成本 ${document.getElementById('aps-weight-cost')?.value || 22}% / 库存 ${document.getElementById('aps-weight-stock')?.value || 10}%
-
-水印: APS-国产化数据安全合规标识
-`;
-      const blob = new Blob([content], { type: 'text/plain;charset=utf-8;' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = `APS多维导出_${new Date().toISOString().slice(0, 10)}.txt`;
-      link.click();
-      toast('多维数据导出完成，已生成合规标识文件。');
-    });
-
     const baseline = loadBaselineWeights();
     if (baseline) {
       applyBaselineWeightsToInputs(baseline);
@@ -2507,7 +2249,6 @@ APS多维导出报告（演示版）
     bindWeight('aps-weight-cost', 'aps-weight-cost-v');
     bindWeight('aps-weight-stock', 'aps-weight-stock-v');
     applyScene('常规平稳');
-    loadFeedback();
   }
 
   function runPageEnhancement() {

@@ -92,35 +92,8 @@
       <div class="collab-layout">
         <div class="collab-left">
           <article class="card">
-            <div class="card-hd">
-              <span>排程执行引擎</span>
-              <div class="row"><select id="schedule-mode" aria-label="排程模式"><option value="forward">Forward-ASAP</option><option value="backward">Backward-JIT</option></select><button class="btn primary" onclick="runScheduling()">执行排程</button></div>
-            </div>
-            <div class="card-bd" id="engine-result">
-              <div class="collab-result-empty"><b>等待执行排程</b><span>点击右上角"执行排程"后，将展示模式、产能分配与执行摘要。</span></div>
-            </div>
-          </article>
-
-          <article class="card">
-            <div class="card-hd"><span>一键诊断与归因</span><button class="btn" onclick="runDiagnosis()">一键诊断</button></div>
-            <div class="card-bd" id="diag-result">
-              <div class="collab-result-empty"><b>等待诊断分析</b><span>点击"一键诊断"后，将展示主因占比、瓶颈工序与执行建议。</span></div>
-            </div>
-          </article>
-
-          <article class="card">
             <div class="card-hd"><span>自主自愈重排</span><button class="btn ok txt-white" onclick="runSelfHealing()">触发自愈</button></div>
             <div class="card-bd"><div class="progress"><span id="heal-progress" style="width:0%"></span></div><div id="heal-result" class="muted" style="margin-top:8px;">待触发</div></div>
-          </article>
-
-          <article class="card">
-            <div class="card-hd"><span>多场景方案对比</span><button class="btn" onclick="buildScenarioCompare()">生成方案对比</button></div>
-            <div class="card-bd">
-              <table>
-                <thead><tr><th>方案</th><th>准时率</th><th>利用率</th><th>成本指数</th></tr></thead>
-                <tbody id="scenario-tbody"></tbody>
-              </table>
-            </div>
           </article>
         </div>
 
@@ -129,8 +102,6 @@
             <span>可视化交互工作台</span>
             <div class="row">
               <select id="gantt-plant-filter" aria-label="分厂筛选"><option value="all">全部分厂</option><option value="east">东区总装</option><option value="west">西区总装</option><option value="inject">注塑分厂</option><option value="hx">两器分厂</option><option value="ctrl">控制器分厂</option></select>
-              <button class="btn" onclick="verifyDraggedPlan()">拖拽后规则校验</button>
-              <button class="preplan-btn" onclick="aiPreScheduleShuffle()">AI预排方案</button>
               <button class="execute-btn" onclick="executePreplan()">执行方案</button>
             </div>
           </div>
@@ -208,18 +179,6 @@
         <span>锁定状态: ${locks.length}条产线已锁定</span>
         <span class="muted">最后更新: ${formatClockTime()}</span>
       `;
-    }
-
-    function renderScenarioCompare() {
-      const tbody = document.getElementById('scenario-tbody');
-      const scenarios = [
-        { name: "成本最优", onTime: 91.8, util: 89.6, cost: "0.86" },
-        { name: "交期最优", onTime: 95.4, util: 87.2, cost: "1.03" },
-        { name: "产能最优", onTime: 93.2, util: 92.1, cost: "0.97" }
-      ];
-      tbody.innerHTML = scenarios.map(s => `
-        <tr><td>${s.name}</td><td><span class="tag ${s.onTime >= 90 ? 'ok' : s.onTime >= 80 ? 'warn' : 'red'}">${s.onTime}%</span></td><td><span class="tag ${s.util >= 90 ? 'ok' : s.util >= 80 ? 'warn' : 'red'}">${s.util}%</span></td><td>${s.cost}</td></tr>
-      `).join('');
     }
 
     const GANTT_CELL_W = 56;
@@ -513,31 +472,6 @@
       });
     }
 
-    function runScheduling() {
-      const mode = document.getElementById('schedule-mode').value;
-      document.getElementById('engine-result').innerHTML = `
-        <div class="collab-result">
-          <div class="row" style="justify-content:space-between;"><span class="tag ok">执行完成</span><span class="muted">${formatClockTime()}</span></div>
-          <div>排程模式: ${mode === 'forward' ? 'Forward-ASAP' : 'Backward-JIT'}</div>
-          <div>共安排 48 个工单，覆盖 20 条产线</div>
-          <div>预计完成时间: 22:30</div>
-        </div>`;
-      toast('排程引擎执行完成');
-    }
-
-    function runDiagnosis() {
-      document.getElementById('diag-result').innerHTML = `
-        <div class="collab-result">
-          <div class="row" style="justify-content:space-between;"><span class="tag warn">诊断完成</span><span class="muted">${formatClockTime()}</span></div>
-          <div class="collab-metric-grid">
-            <div class="collab-metric-item"><div class="muted">物料短缺</div><div style="font-weight:700;">35%</div><div class="collab-metric-bar"><span class="collab-metric-fill" style="width:35%"></span></div></div>
-            <div class="collab-metric-item"><div class="muted">设备瓶颈</div><div style="font-weight:700;">45%</div><div class="collab-metric-bar"><span class="collab-metric-fill" style="width:45%"></span></div></div>
-          </div>
-          <div style="margin-top:8px;"><div class="muted">当前瓶颈工序</div><div style="color:#fca5a5;font-weight:700;">冷媒加注（ZZW12）</div></div>
-        </div>`;
-      toast('归因分析已完成');
-    }
-
     function runSelfHealing() {
       const bar = document.getElementById('heal-progress');
       bar.style.width = '0%';
@@ -551,29 +485,6 @@
           toast('自愈重排完成');
         }
       }, 180);
-    }
-
-    function buildScenarioCompare() {
-      renderScenarioCompare();
-      toast('多场景方案对比已生成');
-    }
-
-    function verifyDraggedPlan() {
-      toast('拖拽后校验通过：批次一致、交付提前期满足要求');
-    }
-
-    function aiPreScheduleShuffle() {
-      toast('AI预排方案计算中，请稍候...');
-      setTimeout(() => {
-        (state.ganttTasks || []).forEach((task) => {
-          task.start = clamp(Math.floor(Math.random() * (GANTT_TOTAL_COLS - 2)), 0, GANTT_TOTAL_COLS - 1);
-          task.duration = clamp(Math.floor(Math.random() * 4) + 1, 1, 6);
-          task.line = clamp(task.line + Math.floor(Math.random() * 3) - 1, 0, GANTT_LINE_TOTAL - 1);
-          sanitizeTask(task);
-        });
-        renderGanttWorkbench();
-        toast('AI预排方案完成：甘特任务方案已随机打乱');
-      }, 2000);
     }
 
     function executePreplan() {
@@ -592,7 +503,6 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       renderLocks();
-      renderScenarioCompare();
       renderGanttWorkbench();
       buildTaskEditorOptions();
       document.getElementById('task-edit-start')?.addEventListener('change', validateTaskEditor);
