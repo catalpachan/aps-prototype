@@ -1353,6 +1353,11 @@
 
     `;
     leftCol.insertAdjacentHTML('afterbegin', upgradeHtml);
+    const wipCard = leftCol.querySelector('.wip-orders-card');
+    const preplanCard = document.getElementById('aps-order-sync-card');
+    if (wipCard && preplanCard && wipCard !== preplanCard.previousElementSibling) {
+      leftCol.insertBefore(wipCard, preplanCard);
+    }
 
     const orders = [
       { no: 'SO-20260309-018', source: 'ERP', delivery: '2026-03-10', qty: 560, status: 'ready' },

@@ -8,6 +8,29 @@
   <style>
     .collab-layout { display: grid; grid-template-columns: 420px 1fr; gap: 14px; min-height: 660px; }
     .collab-left { display: flex; flex-direction: column; gap: 14px; }
+    .wip-orders-card { border: 1px solid #334155; border-radius: 10px; background: linear-gradient(160deg, #101b2f 0%, #0f172a 100%); padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+    .wip-orders-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .wip-orders-title { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: #e2e8f0; }
+    .wip-plant-chip { font-size: 11px; color: #dbeafe; background: rgba(37, 99, 235, 0.25); border: 1px solid rgba(59, 130, 246, 0.55); border-radius: 999px; padding: 3px 8px; }
+    .wip-plant-select { min-width: 120px; height: 30px; border: 1px solid #334155; border-radius: 8px; background: #111b2d; color: #e2e8f0; font-size: 12px; padding: 0 8px; }
+    .wip-plant-select:focus { outline: none; border-color: #60a5fa; box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.18); }
+    .wip-orders-sub { font-size: 11px; color: #94a3b8; }
+    .wip-orders-list { max-height: 384px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+    .wip-orders-list { -ms-overflow-style: none; scrollbar-width: none; }
+    .wip-orders-list::-webkit-scrollbar { width: 0; height: 0; display: none; }
+    .wip-order-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; border: 1px solid #2e3d56; border-radius: 8px; padding: 9px 10px; background: #111b2d; cursor: pointer; transition: border-color var(--dur-fast), transform var(--dur-fast), box-shadow var(--dur-fast); }
+    .wip-order-item:hover { border-color: #2563eb; transform: translateY(-1px); box-shadow: 0 8px 16px rgba(15, 23, 42, 0.45); }
+    .wip-order-main { min-width: 0; flex: 1; }
+    .wip-order-no { font-size: 12px; font-weight: 700; color: #e2e8f0; margin-bottom: 2px; }
+    .wip-order-meta { font-size: 11px; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .wip-order-right { text-align: right; white-space: nowrap; }
+    .wip-order-qty { font-size: 12px; font-weight: 700; color: #38bdf8; }
+    .wip-order-time { font-size: 10px; color: #64748b; margin-top: 2px; }
+    .wip-pagination { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .wip-page-btn { min-width: 66px; border: 1px solid #334155; border-radius: 6px; background: #1e293b; color: #cbd5e1; font-size: 11px; padding: 5px 10px; cursor: pointer; transition: all var(--dur-fast); }
+    .wip-page-btn:hover:not(:disabled) { border-color: #2563eb; background: #2563eb; color: #fff; }
+    .wip-page-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .wip-page-info { font-size: 11px; color: #94a3b8; font-weight: 700; }
     .collab-result-empty { border: 1px dashed #3b4c67; border-radius: 10px; background: linear-gradient(160deg, #0f1a2d 0%, #0f172a 100%); padding: 12px; color: #94a3b8; display: flex; flex-direction: column; gap: 6px; line-height: 1.6; }
     .collab-result-empty b { color: #cbd5e1; font-size: 13px; font-weight: 700; }
     .collab-result { border: 1px solid #334155; border-radius: 10px; background: linear-gradient(160deg, #10192b 0%, #0f172a 100%); padding: 12px; display: flex; flex-direction: column; gap: 10px; }
@@ -18,6 +41,8 @@
     .collab-right { min-width: 0; height: 770px; position: sticky; top: 76px; align-self: start; display: flex; flex-direction: column; }
     .collab-right .card-bd { flex: 1; min-height: 0; display: flex; flex-direction: column; }
     .gantt-wrap { border: 1px solid #334155; border-radius: 8px; overflow: auto; max-height: 620px; background: #0d1525; }
+    .gantt-wrap { -ms-overflow-style: none; scrollbar-width: none; }
+    .gantt-wrap::-webkit-scrollbar { width: 0; height: 0; display: none; }
     .collab-right .gantt-wrap { flex: 1; max-height: none; }
     .gantt-table { border-collapse: collapse; width: max-content; min-width: 100%; table-layout: fixed; --gantt-cell-w: 56px; }
     .gantt-table th, .gantt-table td { border: 1px solid #2b3548; padding: 0; text-align: center; height: 30px; white-space: nowrap; overflow: visible; position: relative; }
@@ -91,6 +116,29 @@
     <section class="view" id="view-collab">
       <div class="collab-layout">
         <div class="collab-left">
+          <article class="wip-orders-card">
+            <div class="wip-orders-head">
+              <div class="wip-orders-title">
+                <span>各分厂在制订单</span>
+                <span class="wip-plant-chip" id="wip-current-plant">东区总装</span>
+              </div>
+              <select class="wip-plant-select" id="wip-plant-select" aria-label="切换分厂" onchange="onWipPlantChange(this.value)">
+                <option value="east">东区总装</option>
+                <option value="west">西区总装</option>
+                <option value="inject">注塑分厂</option>
+                <option value="hx">两器分厂</option>
+                <option value="ctrl">控制器分厂</option>
+              </select>
+            </div>
+            <div class="wip-orders-sub" id="wip-orders-sub">近10条在制订单</div>
+            <div class="wip-orders-list" id="wip-orders-list"></div>
+            <div class="wip-pagination">
+              <button class="wip-page-btn" id="wip-prev-page" onclick="changeWipPage(-1)">上一页</button>
+              <span class="wip-page-info" id="wip-page-info">1 / 1</span>
+              <button class="wip-page-btn" id="wip-next-page" onclick="changeWipPage(1)">下一页</button>
+            </div>
+          </article>
+
           <article class="card">
             <div class="card-hd"><span>自主自愈重排</span><button class="btn ok txt-white" onclick="runSelfHealing()">触发自愈</button></div>
             <div class="card-bd"><div class="progress"><span id="heal-progress" style="width:0%"></span></div><div id="heal-result" class="muted" style="margin-top:8px;">待触发</div></div>
@@ -188,6 +236,100 @@
     let ganttPointerCtx = null;
     let ganttRafPending = false;
     const taskEditorState = { taskIndex: -1, lastFocusedEl: null };
+    const WIP_PAGE_SIZE = 10;
+    const wipPlants = [
+      { key: 'east', name: '东区总装' },
+      { key: 'west', name: '西区总装' },
+      { key: 'inject', name: '注塑分厂' },
+      { key: 'hx', name: '两器分厂' },
+      { key: 'ctrl', name: '控制器分厂' }
+    ];
+    let currentWipPlantIndex = 0;
+    let currentWipPage = 1;
+
+    function createWipOrderData(plantIndex) {
+      const models = ['KFR-35GW', 'KFR-50GW', 'KFR-72GW', 'KFR-120LW', 'GMV-160WL'];
+      const steps = ['总装', '注塑成型', '两器焊接', '控制板装配', '整机测试'];
+      return Array.from({ length: 24 }, (_, idx) => {
+        const seq = plantIndex * 100 + 201 + idx;
+        return {
+          orderNo: `SO-20260311-${String(seq).padStart(3, '0')}`,
+          model: models[(plantIndex + idx) % models.length],
+          step: steps[(plantIndex * 2 + idx) % steps.length],
+          qty: 60 + ((plantIndex * 37 + idx * 29) % 260),
+          progress: 12 + ((plantIndex * 15 + idx * 9) % 81),
+          updated: `${2 + (idx % 10)}分钟前`
+        };
+      });
+    }
+
+    const wipOrdersByPlant = wipPlants.reduce((acc, plant, idx) => {
+      acc[plant.key] = createWipOrderData(idx);
+      return acc;
+    }, {});
+
+    function renderWipOrders() {
+      const plant = wipPlants[currentWipPlantIndex];
+      const all = wipOrdersByPlant[plant.key] || [];
+      const totalPages = Math.max(1, Math.ceil(all.length / WIP_PAGE_SIZE));
+      currentWipPage = clamp(currentWipPage, 1, totalPages);
+
+      const listEl = document.getElementById('wip-orders-list');
+      if (!listEl) return;
+
+      const start = (currentWipPage - 1) * WIP_PAGE_SIZE;
+      const items = all.slice(start, start + WIP_PAGE_SIZE);
+
+      const plantEl = document.getElementById('wip-current-plant');
+      const subEl = document.getElementById('wip-orders-sub');
+      const plantSelectEl = document.getElementById('wip-plant-select');
+      const pageEl = document.getElementById('wip-page-info');
+      const prevEl = document.getElementById('wip-prev-page');
+      const nextEl = document.getElementById('wip-next-page');
+
+      if (plantEl) plantEl.textContent = plant.name;
+      if (subEl) subEl.textContent = `${plant.name}近${WIP_PAGE_SIZE}条在制订单`;
+      if (plantSelectEl && plantSelectEl.value !== plant.key) plantSelectEl.value = plant.key;
+
+      listEl.innerHTML = items.map(item => `
+        <div class="wip-order-item" onclick="openWipOrder('${item.orderNo}', '${plant.name}', '${item.model}', '${item.step}', ${item.qty}, ${item.progress})">
+          <div class="wip-order-main">
+            <div class="wip-order-no">${item.orderNo}</div>
+            <div class="wip-order-meta">${item.model} · ${item.step} · 完成度 ${item.progress}%</div>
+          </div>
+          <div class="wip-order-right">
+            <div class="wip-order-qty">${item.qty}套</div>
+            <div class="wip-order-time">${item.updated}</div>
+          </div>
+        </div>
+      `).join('');
+
+      if (pageEl) pageEl.textContent = `${currentWipPage} / ${totalPages}`;
+      if (prevEl) prevEl.disabled = currentWipPage <= 1;
+      if (nextEl) nextEl.disabled = currentWipPage >= totalPages;
+    }
+
+    function onWipPlantChange(plantKey) {
+      const nextIndex = wipPlants.findIndex((p) => p.key === plantKey);
+      if (nextIndex < 0) return;
+      currentWipPlantIndex = nextIndex;
+      currentWipPage = 1;
+      renderWipOrders();
+      toast(`已切换至 ${wipPlants[nextIndex].name}`);
+    }
+
+    function changeWipPage(offset) {
+      const plant = wipPlants[currentWipPlantIndex];
+      const totalPages = Math.max(1, Math.ceil((wipOrdersByPlant[plant.key] || []).length / WIP_PAGE_SIZE));
+      const nextPage = currentWipPage + offset;
+      if (nextPage < 1 || nextPage > totalPages) return;
+      currentWipPage = nextPage;
+      renderWipOrders();
+    }
+
+    function openWipOrder(orderNo, plantName, model, step, qty, progress) {
+      toast(`${plantName} | ${orderNo} | ${model} | ${step} | ${qty}套 | 完成度${progress}%`);
+    }
 
     function clamp(val, min, max) {
       return Math.min(max, Math.max(min, val));
@@ -503,6 +645,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       renderLocks();
+      renderWipOrders();
       renderGanttWorkbench();
       buildTaskEditorOptions();
       document.getElementById('task-edit-start')?.addEventListener('change', validateTaskEditor);
