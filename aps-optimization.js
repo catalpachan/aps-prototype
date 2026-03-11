@@ -1021,7 +1021,7 @@
       const titleBlock = document.createElement('div');
       titleBlock.className = 'aps-console-title';
       titleBlock.innerHTML = `
-        <div class="aps-console-title-main">高级计划排程系统</div>
+        <div class="aps-console-title-main">格力高级计划排程系统</div>
         <div class="aps-console-title-sub">跨厂协同排程控制台</div>
       `;
       brandBlock.appendChild(titleBlock);
@@ -1685,32 +1685,6 @@
     const view = document.getElementById('view-decision');
     if (!view || document.getElementById('aps-decision-upgrade')) return;
 
-    const kpiDashboard = view.querySelector('.kpi-dashboard');
-    if (kpiDashboard && !document.getElementById('aps-kpi-band')) {
-      const kpiBand = document.createElement('article');
-      kpiBand.className = 'card aps-kpi-band';
-      kpiBand.id = 'aps-kpi-band';
-      kpiBand.innerHTML = `
-        <div class="card-hd">
-          <span>全局关键绩效指标仪表带</span>
-          <div class="row">
-            <button class="btn sm" id="aps-kpi-trend-btn">查看走势明细</button>
-            <button class="btn sm primary" id="aps-kpi-feedback-btn">生成反哺建议</button>
-          </div>
-        </div>
-        <div class="card-bd">
-          <div class="aps-kpi-mini-grid">
-            <div class="aps-kpi-mini"><div class="label">准时交付率</div><div class="value">94.2%</div></div>
-            <div class="aps-kpi-mini"><div class="label">平均换产时长</div><div class="value">36min</div></div>
-            <div class="aps-kpi-mini"><div class="label">库存风险点</div><div class="value">3</div></div>
-            <div class="aps-kpi-mini"><div class="label">综合健康评分</div><div class="value">89</div></div>
-          </div>
-          <div class="muted" id="aps-kpi-band-status" style="margin-top:8px;">点击“生成反哺建议”可将参数建议回写到系统设置。</div>
-        </div>
-      `;
-      kpiDashboard.insertAdjacentElement('afterend', kpiBand);
-    }
-
     const module = document.createElement('section');
     module.id = 'aps-decision-upgrade';
     module.className = 'aps-decision-grid';
@@ -1752,9 +1726,9 @@
       </article>
     `;
 
-    const aiWorkbench = view.querySelector('.ai-workbench');
-    if (aiWorkbench) {
-      aiWorkbench.insertAdjacentElement('beforebegin', module);
+    const topModule = view.querySelector('.decision-kpi-module');
+    if (topModule) {
+      topModule.insertAdjacentElement('afterend', module);
     } else {
       view.insertAdjacentElement('afterbegin', module);
     }

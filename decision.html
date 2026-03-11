@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>决策中心 - 格力计划排程智能体</title>
+  <title>格力高级计划排程系统</title>
   <link rel="stylesheet" href="common.css" />
   <style>
     /* AI协作工作台样式 */
@@ -1122,6 +1122,21 @@
       gap: 16px;
     }
 
+    .decision-top-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) 360px;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .decision-top-main {
+      min-width: 0;
+    }
+
+    .decision-top-side {
+      min-width: 0;
+    }
+
     .decision-kpi-module-note {
       font-size: 12px;
       color: #94a3b8;
@@ -1420,6 +1435,9 @@
     }
 
     @media (max-width: 1200px) {
+      .decision-top-grid {
+        grid-template-columns: 1fr;
+      }
       .kpi-dashboard {
         grid-template-columns: repeat(2, 1fr);
       }
@@ -1490,7 +1508,7 @@
     <div class="brand-block">
       <img class="header-logo" src="1c5703c9-aca0-43d1-9843-9d502cb66fd0.png" alt="APS Logo" width="143" height="44" />
       <div class="aps-console-title">
-        <div class="aps-console-title-main">高级计划排程系统</div>
+        <div class="aps-console-title-main">格力高级计划排程系统</div>
         <div class="aps-console-title-sub">跨厂协同排程控制台</div>
       </div>
       <div class="aps-site-switch">
@@ -1535,164 +1553,171 @@
           <span class="decision-kpi-module-note">指标总览与待办入口已融合为同一模块</span>
         </div>
         <div class="card-bd">
-          <div class="kpi-dashboard">
-            <div class="kpi-fusion-band">
-              <div class="kpi-fusion-metric">
-                <div class="kpi-fusion-label">全局关键绩效指标</div>
-                <div class="kpi-fusion-value">94.2%</div>
-                <div class="kpi-fusion-note">准时交付率，较上周提升 1.8%</div>
-              </div>
-              <div class="kpi-fusion-metric">
-                <div class="kpi-fusion-label">平均换产时长</div>
-                <div class="kpi-fusion-value">36 min</div>
-                <div class="kpi-fusion-note">跨厂协同切换保持在目标带内</div>
-              </div>
-              <div class="kpi-fusion-metric">
-                <div class="kpi-fusion-label">库存风险点</div>
-                <div class="kpi-fusion-value">3</div>
-                <div class="kpi-fusion-note">已同步进入计划员待办清单</div>
-              </div>
-              <div class="kpi-fusion-metric">
-                <div class="kpi-fusion-label">综合健康评分</div>
-                <div class="kpi-fusion-value">89</div>
-                <div class="kpi-fusion-note">适合继续维持当前稳态排产节奏</div>
-              </div>
-            </div>
-
-            <div class="kpi-card kpi-oee">
-              <div class="kpi-card-bg"></div>
-              <div class="kpi-card-content">
-                <div class="kpi-card-header">
-                  <div class="kpi-icon">⚙️</div>
-                  <div class="kpi-trend up">
-                    <span class="trend-arrow">↑</span>
-                    <span class="trend-value">1.2%</span>
+          <div class="decision-top-grid">
+            <div class="decision-top-main">
+              <div class="kpi-dashboard">
+                <div class="kpi-fusion-band">
+                  <div class="kpi-fusion-metric">
+                    <div class="kpi-fusion-label">全局关键绩效指标</div>
+                    <div class="kpi-fusion-value">94.2%</div>
+                    <div class="kpi-fusion-note">准时交付率，较上周提升 1.8%</div>
+                  </div>
+                  <div class="kpi-fusion-metric">
+                    <div class="kpi-fusion-label">平均换产时长</div>
+                    <div class="kpi-fusion-value">36 min</div>
+                    <div class="kpi-fusion-note">跨厂协同切换保持在目标带内</div>
+                  </div>
+                  <div class="kpi-fusion-metric">
+                    <div class="kpi-fusion-label">库存风险点</div>
+                    <div class="kpi-fusion-value">3</div>
+                    <div class="kpi-fusion-note">已同步进入计划员待办清单</div>
+                  </div>
+                  <div class="kpi-fusion-metric">
+                    <div class="kpi-fusion-label">综合健康评分</div>
+                    <div class="kpi-fusion-value">89</div>
+                    <div class="kpi-fusion-note">适合继续维持当前稳态排产节奏</div>
                   </div>
                 </div>
-                <div class="kpi-value" id="d-kpi-oee">88.4%</div>
-                <div class="kpi-label">实时产能 (OEE)</div>
-                <div class="kpi-sub">较上周同期</div>
-              </div>
-            </div>
 
-            <div class="kpi-card kpi-plan">
-              <div class="kpi-card-bg"></div>
-              <div class="kpi-card-content">
-                <div class="kpi-card-header">
-                  <div class="kpi-icon">📊</div>
-                  <div class="kpi-trend up">
-                    <span class="trend-arrow">↑</span>
-                    <span class="trend-value">5.3%</span>
+                <div class="kpi-card kpi-oee">
+                  <div class="kpi-card-bg"></div>
+                  <div class="kpi-card-content">
+                    <div class="kpi-card-header">
+                      <div class="kpi-icon">⚙️</div>
+                      <div class="kpi-trend up">
+                        <span class="trend-arrow">↑</span>
+                        <span class="trend-value">1.2%</span>
+                      </div>
+                    </div>
+                    <div class="kpi-value" id="d-kpi-oee">88.4%</div>
+                    <div class="kpi-label">实时产能 (OEE)</div>
+                    <div class="kpi-sub">较上周同期</div>
                   </div>
                 </div>
-                <div class="kpi-value" id="d-kpi-plan">92<span class="kpi-unit">/120</span></div>
-                <div class="kpi-label">今日计划完成</div>
-                <div class="kpi-progress">
-                  <div class="kpi-progress-bar">
-                    <div class="kpi-progress-fill" style="width:76.7%"></div>
+
+                <div class="kpi-card kpi-plan">
+                  <div class="kpi-card-bg"></div>
+                  <div class="kpi-card-content">
+                    <div class="kpi-card-header">
+                      <div class="kpi-icon">📊</div>
+                      <div class="kpi-trend up">
+                        <span class="trend-arrow">↑</span>
+                        <span class="trend-value">5.3%</span>
+                      </div>
+                    </div>
+                    <div class="kpi-value" id="d-kpi-plan">92<span class="kpi-unit">/120</span></div>
+                    <div class="kpi-label">今日计划完成</div>
+                    <div class="kpi-progress">
+                      <div class="kpi-progress-bar">
+                        <div class="kpi-progress-fill" style="width:76.7%"></div>
+                      </div>
+                      <span class="kpi-progress-text">76.7%</span>
+                    </div>
                   </div>
-                  <span class="kpi-progress-text">76.7%</span>
                 </div>
-              </div>
-            </div>
 
-            <div class="kpi-card kpi-wip">
-              <div class="kpi-card-bg"></div>
-              <div class="kpi-card-content">
-                <div class="kpi-card-header">
-                  <div class="kpi-icon">🏭</div>
-                  <div class="kpi-trend stable">
-                    <span class="trend-arrow">→</span>
-                    <span class="trend-value">平稳</span>
+                <div class="kpi-card kpi-wip">
+                  <div class="kpi-card-bg"></div>
+                  <div class="kpi-card-content">
+                    <div class="kpi-card-header">
+                      <div class="kpi-icon">🏭</div>
+                      <div class="kpi-trend stable">
+                        <span class="trend-arrow">→</span>
+                        <span class="trend-value">平稳</span>
+                      </div>
+                    </div>
+                    <div class="kpi-value" id="d-kpi-wip">34</div>
+                    <div class="kpi-label">在制订单 (WIP)</div>
+                    <div class="kpi-sub">
+                      <span class="sub-item">内机 20</span>
+                      <span class="sub-divider">|</span>
+                      <span class="sub-item">外机 14</span>
+                    </div>
                   </div>
                 </div>
-                <div class="kpi-value" id="d-kpi-wip">34</div>
-                <div class="kpi-label">在制订单 (WIP)</div>
-                <div class="kpi-sub">
-                  <span class="sub-item">内机 20</span>
-                  <span class="sub-divider">|</span>
-                  <span class="sub-item">外机 14</span>
+
+                <div class="kpi-card kpi-ai" id="planner-todo-entry-card" role="button" tabindex="0" onclick="focusPlannerTodoList()" onkeydown="handleTodoCardKey(event)">
+                  <div class="kpi-card-bg"></div>
+                  <div class="kpi-card-content">
+                    <div class="kpi-card-header">
+                      <div class="kpi-icon">📋</div>
+                      <div class="kpi-badge">今日</div>
+                    </div>
+                    <div class="kpi-value" id="d-kpi-ai-pending">3</div>
+                    <div class="kpi-label">计划员待办</div>
+                    <div class="kpi-sub" id="d-kpi-ai-extra">
+                      <span class="sub-item ok">紧急 2</span>
+                      <span class="sub-divider">|</span>
+                      <span class="sub-item">待处理 5</span>
+                    </div>
+                    <div class="todo-focus-hint">点击卡片进入待办清单列表</div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div class="kpi-card kpi-ai" id="planner-todo-entry-card" role="button" tabindex="0" onclick="focusPlannerTodoList()" onkeydown="handleTodoCardKey(event)">
-              <div class="kpi-card-bg"></div>
-              <div class="kpi-card-content">
-                <div class="kpi-card-header">
-                  <div class="kpi-icon">📋</div>
-                  <div class="kpi-badge">今日</div>
+            <div class="decision-top-side">
+              <div class="planner-todo primary" id="planner-todo-panel">
+                <div class="card-hd" style="margin-bottom:12px;padding:0;border:none;">
+                  <span>📋 计划员工作台</span>
+                  <span class="muted" style="font-size:11px;">点击条目直接处理</span>
                 </div>
-                <div class="kpi-value" id="d-kpi-ai-pending">3</div>
-                <div class="kpi-label">计划员待办</div>
-                <div class="kpi-sub" id="d-kpi-ai-extra">
-                  <span class="sub-item ok">紧急 2</span>
-                  <span class="sub-divider">|</span>
-                  <span class="sub-item">待处理 5</span>
+                <div class="todo-stats">
+                  <div class="todo-stat">
+                    <div class="todo-stat-value" id="todo-urgent">2</div>
+                    <div class="todo-stat-label">紧急</div>
+                  </div>
+                  <div class="todo-stat">
+                    <div class="todo-stat-value" id="todo-pending" style="color:#f59e0b;">5</div>
+                    <div class="todo-stat-label">待处理</div>
+                  </div>
+                  <div class="todo-stat">
+                    <div class="todo-stat-value" id="todo-done" style="color:#22c55e;">8</div>
+                    <div class="todo-stat-label">已完成</div>
+                  </div>
                 </div>
-                <div class="todo-focus-hint">点击卡片进入待办清单列表</div>
+                <div class="todo-list" id="todo-list">
+                  <!-- 待办事项动态生成 -->
+                </div>
               </div>
             </div>
           </div>
 
-        <div class="planner-todo primary" id="planner-todo-panel">
-          <div class="card-hd" style="margin-bottom:12px;padding:0;border:none;">
-            <span>📋 计划员待办清单</span>
-            <span class="muted" style="font-size:11px;">点击条目直接处理</span>
-          </div>
-          <div class="todo-stats">
-            <div class="todo-stat">
-              <div class="todo-stat-value" id="todo-urgent">2</div>
-              <div class="todo-stat-label">紧急</div>
-            </div>
-            <div class="todo-stat">
-              <div class="todo-stat-value" id="todo-pending" style="color:#f59e0b;">5</div>
-              <div class="todo-stat-label">待处理</div>
-            </div>
-            <div class="todo-stat">
-              <div class="todo-stat-value" id="todo-done" style="color:#22c55e;">8</div>
-              <div class="todo-stat-label">已完成</div>
-            </div>
-          </div>
-          <div class="todo-list" id="todo-list">
-            <!-- 待办事项动态生成 -->
-          </div>
-        </div>
-
-        <div class="ai-suggestions-panel" style="margin-top:4px;">
-          <div class="ai-panel-head">
-            <div>
-              <div class="ai-panel-title">
-                <span>🤖</span>
-                <span>AI智能建议中心</span>
+          <div class="ai-suggestions-panel" style="margin-top:4px;">
+            <div class="ai-panel-head">
+              <div>
+                <div class="ai-panel-title">
+                  <span>🤖</span>
+                  <span>AI智能建议中心</span>
+                </div>
+                <div class="ai-panel-subtitle">按风险与收益自动排序，辅助计划员快速决策</div>
               </div>
-              <div class="ai-panel-subtitle">按风险与收益自动排序，辅助计划员快速决策</div>
+              <div class="ai-panel-actions">
+                <button class="btn sm" onclick="refreshAISuggestions()">刷新建议</button>
+                <button class="btn sm primary" onclick="batchApproveAI()">一键采纳</button>
+              </div>
             </div>
-            <div class="ai-panel-actions">
-              <button class="btn sm" onclick="refreshAISuggestions()">刷新建议</button>
-              <button class="btn sm primary" onclick="batchApproveAI()">一键采纳</button>
+            <div class="ai-overview">
+              <div class="ai-overview-item">
+                <div class="ai-overview-label">待确认建议</div>
+                <div class="ai-overview-value pending" id="ai-overview-pending">0</div>
+              </div>
+              <div class="ai-overview-item">
+                <div class="ai-overview-label">平均置信度</div>
+                <div class="ai-overview-value confidence" id="ai-overview-confidence">0%</div>
+              </div>
+              <div class="ai-overview-item">
+                <div class="ai-overview-label">高优先级</div>
+                <div class="ai-overview-value priority" id="ai-overview-priority">0</div>
+              </div>
+            </div>
+            <div id="ai-suggestions-list">
+              <!-- AI建议动态生成 -->
             </div>
           </div>
-          <div class="ai-overview">
-            <div class="ai-overview-item">
-              <div class="ai-overview-label">待确认建议</div>
-              <div class="ai-overview-value pending" id="ai-overview-pending">0</div>
-            </div>
-            <div class="ai-overview-item">
-              <div class="ai-overview-label">平均置信度</div>
-              <div class="ai-overview-value confidence" id="ai-overview-confidence">0%</div>
-            </div>
-            <div class="ai-overview-item">
-              <div class="ai-overview-label">高优先级</div>
-              <div class="ai-overview-value priority" id="ai-overview-priority">0</div>
-            </div>
-          </div>
-          <div id="ai-suggestions-list">
-            <!-- AI建议动态生成 -->
-          </div>
-        </div>
         </div>
       </article>
+
     </section>
   </main>
 
@@ -1898,8 +1923,7 @@
       { id: 1, type: 'urgent', status: 'urgent', icon: '🔴', title: '设备故障: 东区ZZW05停机', meta: '需立即调整排程', time: '2分钟前', owner: '设备维修协同组', source: '设备监控中心', detail: '东区总装 ZZW05 因伺服驱动异常停机，当前已影响 2 个在制订单。需要立即锁定受影响产能，并协调维修班组确认恢复时间。', suggestion: '优先将 SO-20260227-021 和 SO-20260227-024 临时切换至备用产线，避免后续班次累计延误。', primaryAction: 'dispatch-repair', primaryLabel: '派发维修协同' },
       { id: 2, type: 'urgent', status: 'urgent', icon: '📋', title: '审批: 战略客户插单申请', meta: 'SO-20260227-035', time: '15分钟前', owner: '计划员值班席', source: '销售急售协同', detail: '战略客户新增 1 笔紧急插单，销售已提交审批申请。该单需在当前班次内给出处理意见，否则将影响承诺交付时间。', suggestion: '建议联动 AI 智能建议中心查看插单影响评估，再决定是否放行。', primaryAction: 'open-ai', primaryLabel: '查看 AI 建议' },
       { id: 3, type: 'warning', status: 'pending', icon: '⚠️', title: '物料预警: 压缩机库存不足', meta: '缺口180件', time: '32分钟前', owner: '物料协同 Agent', source: 'WMS / 安全库存规则', detail: '压缩机安全库存跌破阈值，预计 4 小时后将直接影响西区总装排程执行。当前缺口 180 件，需尽快确认替代料或补料到厂时间。', suggestion: '建议先锁定高优订单用量，并联系采购确认临采补货窗口。', primaryAction: 'notify-material', primaryLabel: '发起物料协同' },
-      { id: 4, type: 'normal', status: 'pending', icon: '📊', title: '生成今日排程报告', meta: '每日例行任务', time: '待处理', owner: '计划运营岗位', source: '日报任务模板', detail: '本日排程报告尚未生成，包含产能利用、交期风险、异常摘要与班次执行偏差。完成后需同步给生产经理与值班调度。', suggestion: '可直接在弹窗中触发生成，并自动归档至日报中心。', primaryAction: 'generate-report', primaryLabel: '立即生成报告' },
-      { id: 5, type: 'normal', status: 'pending', icon: '🔄', title: '同步ERP系统订单状态', meta: '15条待同步', time: '待处理', owner: '集成数据专员', source: 'ERP 对账队列', detail: '当前 ERP 侧有 15 条订单状态尚未回写，涉及完工、暂停与改期。若不及时同步，会影响后续 AI 建议与排程结果的准确性。', suggestion: '建议本班次完成同步并抽查异常订单，避免状态漂移持续扩大。', primaryAction: 'sync-erp', primaryLabel: '执行同步' }
+      { id: 4, type: 'normal', status: 'pending', icon: '📊', title: '生成今日排程报告', meta: '每日例行任务', time: '待处理', owner: '计划运营岗位', source: '日报任务模板', detail: '本日排程报告尚未生成，包含产能利用、交期风险、异常摘要与班次执行偏差。完成后需同步给生产经理与值班调度。', suggestion: '可直接在弹窗中触发生成，并自动归档至日报中心。', primaryAction: 'generate-report', primaryLabel: '立即生成报告' }
     ];
     let plannerTodoDoneCount = 8;
     const plannerTodoDefaultVisibleStatuses = ['urgent', 'pending'];
