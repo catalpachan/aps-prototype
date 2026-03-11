@@ -1636,7 +1636,7 @@
                   </div>
                 </div>
 
-                <div class="kpi-card kpi-ai" id="planner-todo-entry-card" role="button" tabindex="0" onclick="focusPlannerTodoList()" onkeydown="handleTodoCardKey(event)">
+                <div class="kpi-card kpi-ai" id="planner-todo-entry-card" role="button" tabindex="0" onclick="openPlannerTodoPage()" onkeydown="handleTodoCardKey(event)">
                   <div class="kpi-card-bg"></div>
                   <div class="kpi-card-content">
                     <div class="kpi-card-header">
@@ -1650,7 +1650,7 @@
                       <span class="sub-divider">|</span>
                       <span class="sub-item">待处理 5</span>
                     </div>
-                    <div class="todo-focus-hint">点击卡片进入待办清单列表</div>
+                    <div class="todo-focus-hint">点击卡片进入待办清单列表页</div>
                   </div>
                 </div>
               </div>
@@ -1919,14 +1919,34 @@
     }
 
     // ========== 排产员待办 ==========
-    const todoItems = [
+    const PLANNER_TODO_STORAGE_KEY = 'aps.planner.todo.items.v1';
+    const DEFAULT_PLANNER_TODO_ITEMS = [
       { id: 1, type: 'urgent', status: 'urgent', icon: '🔴', title: '设备故障: 东区ZZW05停机', meta: '需立即调整排程', time: '2分钟前', owner: '设备维修协同组', source: '设备监控中心', detail: '东区总装 ZZW05 因伺服驱动异常停机，当前已影响 2 个在制订单。需要立即锁定受影响产能，并协调维修班组确认恢复时间。', suggestion: '优先将 SO-20260227-021 和 SO-20260227-024 临时切换至备用产线，避免后续班次累计延误。', primaryAction: 'dispatch-repair', primaryLabel: '派发维修协同' },
       { id: 2, type: 'urgent', status: 'urgent', icon: '📋', title: '审批: 战略客户插单申请', meta: 'SO-20260227-035', time: '15分钟前', owner: '计划员值班席', source: '销售急售协同', detail: '战略客户新增 1 笔紧急插单，销售已提交审批申请。该单需在当前班次内给出处理意见，否则将影响承诺交付时间。', suggestion: '建议联动 AI 智能建议中心查看插单影响评估，再决定是否放行。', primaryAction: 'open-ai', primaryLabel: '查看 AI 建议' },
       { id: 3, type: 'warning', status: 'pending', icon: '⚠️', title: '物料预警: 压缩机库存不足', meta: '缺口180件', time: '32分钟前', owner: '物料协同 Agent', source: 'WMS / 安全库存规则', detail: '压缩机安全库存跌破阈值，预计 4 小时后将直接影响西区总装排程执行。当前缺口 180 件，需尽快确认替代料或补料到厂时间。', suggestion: '建议先锁定高优订单用量，并联系采购确认临采补货窗口。', primaryAction: 'notify-material', primaryLabel: '发起物料协同' },
       { id: 4, type: 'normal', status: 'pending', icon: '📊', title: '生成今日排程报告', meta: '每日例行任务', time: '待处理', owner: '计划运营岗位', source: '日报任务模板', detail: '本日排程报告尚未生成，包含产能利用、交期风险、异常摘要与班次执行偏差。完成后需同步给生产经理与值班调度。', suggestion: '可直接在弹窗中触发生成，并自动归档至日报中心。', primaryAction: 'generate-report', primaryLabel: '立即生成报告' }
     ];
+    let todoItems = loadPlannerTodoItems();
     let plannerTodoDoneCount = 8;
     const plannerTodoDefaultVisibleStatuses = ['urgent', 'pending'];
+
+    function loadPlannerTodoItems() {
+      try {
+        const raw = localStorage.getItem(PLANNER_TODO_STORAGE_KEY);
+        if (!raw) return DEFAULT_PLANNER_TODO_ITEMS.map((item) => ({ ...item }));
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed) || parsed.length === 0) {
+          return DEFAULT_PLANNER_TODO_ITEMS.map((item) => ({ ...item }));
+        }
+        return parsed;
+      } catch (error) {
+        return DEFAULT_PLANNER_TODO_ITEMS.map((item) => ({ ...item }));
+      }
+    }
+
+    function savePlannerTodoItems() {
+      localStorage.setItem(PLANNER_TODO_STORAGE_KEY, JSON.stringify(todoItems));
+    }
 
     function getVisibleTodoItems() {
       return todoItems.filter(item => plannerTodoDefaultVisibleStatuses.includes(item.status));
@@ -1936,6 +1956,7 @@
       const item = todoItems.find(todo => todo.id === id);
       if (!item) return null;
       Object.assign(item, updates);
+      savePlannerTodoItems();
       return item;
     }
 
@@ -2126,8 +2147,12 @@
     function handleTodoCardKey(event) {
       if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault();
-        focusPlannerTodoList();
+        openPlannerTodoPage();
       }
+    }
+
+    function openPlannerTodoPage() {
+      window.location.href = 'planner-todo.html';
     }
 
     function focusAISuggestionsPanel() {

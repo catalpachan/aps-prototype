@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>格力高级计划排程系统</title>
+  <link rel="stylesheet" href="common.css" />
+  <style>
+    .todo-page {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .todo-page-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 16px;
+      padding: 2px 2px 0;
+    }
+
+    .todo-page-title {
+      font-size: 24px;
+      font-weight: 800;
+      color: #f8fafc;
+      margin-bottom: 6px;
+    }
+
+    .todo-page-subtitle {
+      font-size: 13px;
+      color: #94a3b8;
+      max-width: 760px;
+      line-height: 1.7;
+    }
+
+    .todo-stat-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .todo-stat-card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid #334155;
+      border-radius: 14px;
+      padding: 16px;
+      background: linear-gradient(155deg, rgba(12, 21, 38, 0.98) 0%, rgba(16, 29, 52, 0.98) 100%);
+      box-shadow: inset 0 1px 0 rgba(148, 163, 184, 0.06);
+    }
+
+    .todo-stat-card::before {
+      content: "";
+      position: absolute;
+      top: -40px;
+      right: -24px;
+      width: 120px;
+      height: 120px;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(59, 130, 246, 0.22) 0%, transparent 72%);
+      pointer-events: none;
+    }
+
+    .todo-stat-label {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .todo-stat-value {
+      font-size: 30px;
+      font-weight: 800;
+      color: #f8fafc;
+      line-height: 1;
+      margin-bottom: 8px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .todo-stat-note {
+      font-size: 12px;
+      color: #cbd5e1;
+      position: relative;
+      z-index: 1;
+    }
+
+    .todo-console {
+      display: grid;
+      grid-template-columns: minmax(0, 1.65fr) minmax(320px, 0.9fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .todo-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .todo-toolbar .row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .todo-table-wrap {
+      overflow-x: auto;
+    }
+
+    .todo-table tbody tr {
+      transition: background var(--dur-fast), box-shadow var(--dur-fast);
+      cursor: pointer;
+    }
+
+    .todo-table tbody tr:hover {
+      background: rgba(30, 41, 59, 0.55);
+    }
+
+    .todo-table tbody tr.active {
+      background: rgba(30, 64, 175, 0.18);
+      box-shadow: inset 2px 0 0 #60a5fa;
+    }
+
+    .todo-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      border: 1px solid;
+      white-space: nowrap;
+    }
+
+    .todo-chip.urgent {
+      background: rgba(127, 29, 29, 0.22);
+      border-color: #b91c1c;
+      color: #fecaca;
+    }
+
+    .todo-chip.pending {
+      background: rgba(146, 64, 14, 0.22);
+      border-color: #d97706;
+      color: #fde68a;
+    }
+
+    .todo-chip.done {
+      background: rgba(6, 95, 70, 0.22);
+      border-color: #059669;
+      color: #a7f3d0;
+    }
+
+    .todo-chip.normal {
+      background: rgba(30, 64, 175, 0.2);
+      border-color: #2563eb;
+      color: #bfdbfe;
+    }
+
+    .todo-owner {
+      color: #cbd5e1;
+      font-size: 12px;
+    }
+
+    .todo-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .todo-detail-card {
+      border: 1px solid #334155;
+      border-radius: 14px;
+      padding: 16px;
+      background: linear-gradient(160deg, rgba(13, 23, 42, 0.98) 0%, rgba(10, 18, 34, 0.98) 100%);
+    }
+
+    .todo-detail-kicker {
+      font-size: 11px;
+      color: #93c5fd;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .todo-detail-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #f8fafc;
+      line-height: 1.4;
+      margin-bottom: 8px;
+    }
+
+    .todo-detail-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .todo-detail-section {
+      margin-bottom: 14px;
+    }
+
+    .todo-detail-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .todo-detail-label {
+      font-size: 11px;
+      color: #94a3b8;
+      margin-bottom: 6px;
+    }
+
+    .todo-detail-text {
+      font-size: 13px;
+      color: #dbeafe;
+      line-height: 1.7;
+    }
+
+    .todo-form-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .todo-form-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .empty-panel {
+      border: 1px dashed #334155;
+      border-radius: 12px;
+      padding: 28px 20px;
+      text-align: center;
+      color: #94a3b8;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    @media (max-width: 1180px) {
+      .todo-console {
+        grid-template-columns: 1fr;
+      }
+      .todo-stat-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 768px) {
+      .todo-page-head {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .todo-stat-grid {
+        grid-template-columns: 1fr;
+      }
+      .todo-form-actions {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand-block">
+      <img class="header-logo" src="1c5703c9-aca0-43d1-9843-9d502cb66fd0.png" alt="APS Logo" width="143" height="44" />
+      <div class="aps-console-title">
+        <div class="aps-console-title-main">格力高级计划排程系统</div>
+        <div class="aps-console-title-sub">跨厂协同排程控制台</div>
+      </div>
+      <div class="aps-site-switch">
+        <span class="aps-site-switch-label">制造基地</span>
+        <select id="hq-select" class="role-select" aria-label="基地切换">
+          <option>珠海格力总部</option>
+          <option>金湾基地</option>
+          <option>武汉基地</option>
+          <option>洛阳基地</option>
+        </select>
+      </div>
+    </div>
+    <nav class="nav aps-main-nav" id="nav">
+      <a href="collab.html" class="nav-item">排产操作</a>
+      <a href="decision.html" class="nav-item active">决策分析</a>
+      <a href="settings.html" class="nav-item">系统设置</a>
+    </nav>
+    <div class="header-meta aps-header-meta" id="header-meta">
+      <span id="header-date" class="aps-clock-chip">2026-02-28 08:56:33</span>
+      <button type="button" class="aps-notify-btn" id="aps-notify-btn" aria-label="打开消息通知">
+        🔔<span class="aps-notify-badge" id="aps-notify-badge">0</span>
+      </button>
+      <div class="user-dropdown" id="user-dropdown">
+        <div class="user-dropdown-toggle" onclick="toggleUserDropdown()">
+          <div class="avatar">张</div>
+          <span class="name">张伟</span>
+          <span class="arrow">▼</span>
+        </div>
+        <div class="user-dropdown-menu">
+          <a href="settings.html" class="user-dropdown-item">👤 用户信息</a>
+          <a href="login.html" class="user-dropdown-item logout">🚪 退出</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="app">
+    <section class="view">
+      <div class="todo-page">
+        <div class="todo-page-head">
+          <div>
+            <div class="todo-page-title">计划员待办清单列表</div>
+            <div class="todo-page-subtitle">以表单化工作台集中处理紧急异常、插单审批、物料预警与例行报告任务。选择任一待办后，可直接在右侧完成受理、改派、延期、完成等动作。</div>
+          </div>
+          <div class="row">
+            <button type="button" class="btn" onclick="window.location.href='decision.html'">返回决策中心</button>
+            <button type="button" class="btn primary" onclick="resetPlannerTodos()">重置清单</button>
+          </div>
+        </div>
+
+        <div class="todo-stat-grid" id="planner-todo-stats"></div>
+
+        <div class="todo-console">
+          <article class="card">
+            <div class="card-hd">
+              <span>待办事项总览</span>
+              <div class="row">
+                <select id="planner-filter-status" aria-label="待办状态筛选" onchange="renderPlannerTodoTable()">
+                  <option value="all">全部状态</option>
+                  <option value="urgent">紧急待处理</option>
+                  <option value="pending">待处理</option>
+                  <option value="done">已完成</option>
+                </select>
+                <input id="planner-search-input" placeholder="搜索标题 / 来源 / 责任人" aria-label="搜索待办" oninput="renderPlannerTodoTable()" />
+              </div>
+            </div>
+            <div class="card-bd">
+              <div class="todo-toolbar">
+                <div class="row muted" style="font-size:12px;">单击表格行载入处理表单，双击可快速查看详情。</div>
+                <div class="row">
+                  <button type="button" class="btn sm" onclick="selectPlannerTodo(null)">清空选择</button>
+                  <button type="button" class="btn sm primary" onclick="bulkAcceptUrgent()">批量受理紧急项</button>
+                </div>
+              </div>
+              <div class="todo-table-wrap">
+                <table class="todo-table">
+                  <thead>
+                    <tr>
+                      <th>任务</th>
+                      <th>状态</th>
+                      <th>责任人</th>
+                      <th>来源</th>
+                      <th>更新时间</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody id="planner-todo-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </article>
+
+          <div class="todo-panel">
+            <article class="card">
+              <div class="card-hd"><span>待办详情</span></div>
+              <div class="card-bd" id="planner-detail-panel"></div>
+            </article>
+
+            <article class="card">
+              <div class="card-hd"><span>处理表单</span></div>
+              <div class="card-bd">
+                <form id="planner-action-form" class="todo-form-grid">
+                  <div class="modal-field">
+                    <label for="planner-form-owner">责任人</label>
+                    <input id="planner-form-owner" name="owner" />
+                  </div>
+                  <div class="modal-field">
+                    <label for="planner-form-status">处理状态</label>
+                    <select id="planner-form-status" name="status">
+                      <option value="urgent">紧急待处理</option>
+                      <option value="pending">待处理</option>
+                      <option value="done">已完成</option>
+                    </select>
+                  </div>
+                  <div class="modal-field">
+                    <label for="planner-form-priority">优先级</label>
+                    <select id="planner-form-priority" name="type">
+                      <option value="urgent">紧急</option>
+                      <option value="warning">预警</option>
+                      <option value="normal">常规</option>
+                    </select>
+                  </div>
+                  <div class="modal-field">
+                    <label for="planner-form-time">跟进时间</label>
+                    <input id="planner-form-time" name="time" placeholder="例如：10分钟后复核" />
+                  </div>
+                  <div class="modal-field">
+                    <label for="planner-form-meta">处理摘要</label>
+                    <input id="planner-form-meta" name="meta" placeholder="例如：已派发维修协同" />
+                  </div>
+                  <div class="modal-field">
+                    <label for="planner-form-note">处理意见</label>
+                    <textarea id="planner-form-note" name="note" rows="4" placeholder="填写处理动作、风险说明与后续安排"></textarea>
+                  </div>
+                  <div class="todo-form-actions">
+                    <button type="button" class="btn" onclick="savePlannerForm()">保存处理意见</button>
+                    <button type="button" class="btn ok" onclick="completePlannerTodo()">标记完成</button>
+                    <button type="button" class="btn warn" onclick="postponePlannerTodo()">延期处理</button>
+                    <button type="button" class="btn err txt-white" onclick="rejectPlannerTodo()">退回复核</button>
+                  </div>
+                </form>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <script src="common.js"></script>
+  <script>
+    const PLANNER_TODO_STORAGE_KEY = 'aps.planner.todo.items.v1';
+    const DEFAULT_PLANNER_TODO_ITEMS = [
+      { id: 1, type: 'urgent', status: 'urgent', icon: '🔴', title: '设备故障: 东区ZZW05停机', meta: '需立即调整排程', time: '2分钟前', owner: '设备维修协同组', source: '设备监控中心', detail: '东区总装 ZZW05 因伺服驱动异常停机，当前已影响 2 个在制订单。需要立即锁定受影响产能，并协调维修班组确认恢复时间。', suggestion: '优先将 SO-20260227-021 和 SO-20260227-024 临时切换至备用产线，避免后续班次累计延误。', primaryAction: 'dispatch-repair', primaryLabel: '派发维修协同' },
+      { id: 2, type: 'urgent', status: 'urgent', icon: '📋', title: '审批: 战略客户插单申请', meta: 'SO-20260227-035', time: '15分钟前', owner: '计划员值班席', source: '销售急售协同', detail: '战略客户新增 1 笔紧急插单，销售已提交审批申请。该单需在当前班次内给出处理意见，否则将影响承诺交付时间。', suggestion: '建议联动 AI 智能建议中心查看插单影响评估，再决定是否放行。', primaryAction: 'open-ai', primaryLabel: '查看 AI 建议' },
+      { id: 3, type: 'warning', status: 'pending', icon: '⚠️', title: '物料预警: 压缩机库存不足', meta: '缺口180件', time: '32分钟前', owner: '物料协同 Agent', source: 'WMS / 安全库存规则', detail: '压缩机安全库存跌破阈值，预计 4 小时后将直接影响西区总装排程执行。当前缺口 180 件，需尽快确认替代料或补料到厂时间。', suggestion: '建议先锁定高优订单用量，并联系采购确认临采补货窗口。', primaryAction: 'notify-material', primaryLabel: '发起物料协同' },
+      { id: 4, type: 'normal', status: 'pending', icon: '📊', title: '生成今日排程报告', meta: '每日例行任务', time: '待处理', owner: '计划运营岗位', source: '日报任务模板', detail: '本日排程报告尚未生成，包含产能利用、交期风险、异常摘要与班次执行偏差。完成后需同步给生产经理与值班调度。', suggestion: '可直接在表单中确认生成，并自动归档至日报中心。', primaryAction: 'generate-report', primaryLabel: '立即生成报告' }
+    ];
+
+    let plannerTodoItems = [];
+    let selectedPlannerTodoId = null;
+
+    function cloneDefaultTodos() {
+      return DEFAULT_PLANNER_TODO_ITEMS.map((item) => ({ ...item }));
+    }
+
+    function loadPlannerTodoItems() {
+      try {
+        const raw = localStorage.getItem(PLANNER_TODO_STORAGE_KEY);
+        if (!raw) return cloneDefaultTodos();
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) && parsed.length ? parsed : cloneDefaultTodos();
+      } catch (error) {
+        return cloneDefaultTodos();
+      }
+    }
+
+    function savePlannerTodoItems() {
+      localStorage.setItem(PLANNER_TODO_STORAGE_KEY, JSON.stringify(plannerTodoItems));
+    }
+
+    function getPlannerTodoById(id) {
+      return plannerTodoItems.find((item) => item.id === id) || null;
+    }
+
+    function getStatusLabel(status) {
+      if (status === 'urgent') return '紧急待处理';
+      if (status === 'pending') return '待处理';
+      if (status === 'done') return '已完成';
+      return '处理中';
+    }
+
+    function getTypeLabel(type) {
+      if (type === 'urgent') return '紧急';
+      if (type === 'warning') return '预警';
+      return '常规';
+    }
+
+    function renderPlannerTodoStats() {
+      const urgent = plannerTodoItems.filter((item) => item.status === 'urgent').length;
+      const pending = plannerTodoItems.filter((item) => item.status === 'pending').length;
+      const done = plannerTodoItems.filter((item) => item.status === 'done').length;
+      const total = plannerTodoItems.length;
+      const stats = [
+        { label: '总待办数', value: total, note: '当前在管任务池' },
+        { label: '紧急项', value: urgent, note: '优先受理项需即时响应' },
+        { label: '待处理', value: pending, note: '待计划员明确动作' },
+        { label: '已完成', value: done, note: '本班次闭环完成' }
+      ];
+      document.getElementById('planner-todo-stats').innerHTML = stats.map((item) => `
+        <div class="todo-stat-card">
+          <div class="todo-stat-label">${item.label}</div>
+          <div class="todo-stat-value">${item.value}</div>
+          <div class="todo-stat-note">${item.note}</div>
+        </div>
+      `).join('');
+    }
+
+    function buildTableActionCell(item) {
+      return `
+        <div class="row" style="display:flex;gap:6px;flex-wrap:wrap;">
+          <button type="button" class="btn sm" onclick="event.stopPropagation(); selectPlannerTodo(${item.id})">查看详情</button>
+          <button type="button" class="btn sm primary" onclick="event.stopPropagation(); jumpToProcessForm(${item.id})">处理事项</button>
+        </div>
+      `;
+    }
+
+    function getFilteredPlannerTodos() {
+      const status = document.getElementById('planner-filter-status')?.value || 'all';
+      const keyword = (document.getElementById('planner-search-input')?.value || '').trim().toLowerCase();
+      return plannerTodoItems.filter((item) => {
+        const matchStatus = status === 'all' ? true : item.status === status;
+        const corpus = `${item.title} ${item.owner} ${item.source} ${item.meta}`.toLowerCase();
+        const matchKeyword = !keyword || corpus.includes(keyword);
+        return matchStatus && matchKeyword;
+      });
+    }
+
+    function renderPlannerTodoTable() {
+      const rows = getFilteredPlannerTodos();
+      const tbody = document.getElementById('planner-todo-tbody');
+      if (!tbody) return;
+      tbody.innerHTML = rows.map((item) => `
+        <tr class="${item.id === selectedPlannerTodoId ? 'active' : ''}" onclick="selectPlannerTodo(${item.id})" ondblclick="jumpToProcessForm(${item.id})">
+          <td>
+            <div style="font-weight:700;color:#f8fafc;margin-bottom:4px;">${escapeHTML(item.title)}</div>
+            <div class="muted" style="font-size:12px;">${escapeHTML(item.meta)}</div>
+          </td>
+          <td><span class="todo-chip ${item.status}">${escapeHTML(getStatusLabel(item.status))}</span></td>
+          <td><span class="todo-owner">${escapeHTML(item.owner)}</span></td>
+          <td><span class="muted">${escapeHTML(item.source)}</span></td>
+          <td><span class="muted">${escapeHTML(item.time)}</span></td>
+          <td>${buildTableActionCell(item)}</td>
+        </tr>
+      `).join('') || `
+        <tr><td colspan="6"><div class="empty-panel">当前筛选条件下没有待办事项。</div></td></tr>
+      `;
+    }
+
+    function renderPlannerDetail() {
+      const panel = document.getElementById('planner-detail-panel');
+      const item = getPlannerTodoById(selectedPlannerTodoId);
+      if (!panel) return;
+      if (!item) {
+        panel.innerHTML = '<div class="empty-panel">请选择左侧待办事项，右侧将展示详情与处理表单。</div>';
+        return;
+      }
+      panel.innerHTML = `
+        <div class="todo-detail-card">
+          <div class="todo-detail-kicker">待办详情</div>
+          <div class="todo-detail-title">${escapeHTML(item.title)}</div>
+          <div class="todo-detail-meta">
+            <span class="todo-chip ${item.status}">${escapeHTML(getStatusLabel(item.status))}</span>
+            <span class="todo-chip ${item.type === 'warning' ? 'pending' : item.type}">${escapeHTML(getTypeLabel(item.type))}</span>
+          </div>
+          <div class="todo-detail-section">
+            <div class="todo-detail-label">责任归属</div>
+            <div class="todo-detail-text">${escapeHTML(item.owner)}</div>
+          </div>
+          <div class="todo-detail-section">
+            <div class="todo-detail-label">触发来源</div>
+            <div class="todo-detail-text">${escapeHTML(item.source)}</div>
+          </div>
+          <div class="todo-detail-section">
+            <div class="todo-detail-label">事件详情</div>
+            <div class="todo-detail-text">${escapeHTML(item.detail)}</div>
+          </div>
+          <div class="todo-detail-section">
+            <div class="todo-detail-label">建议动作</div>
+            <div class="todo-detail-text">${escapeHTML(item.suggestion)}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function fillPlannerForm() {
+      const item = getPlannerTodoById(selectedPlannerTodoId);
+      const form = document.getElementById('planner-action-form');
+      if (!form) return;
+      if (!item) {
+        form.reset();
+        return;
+      }
+      document.getElementById('planner-form-owner').value = item.owner || '';
+      document.getElementById('planner-form-status').value = item.status || 'pending';
+      document.getElementById('planner-form-priority').value = item.type || 'normal';
+      document.getElementById('planner-form-time').value = item.time || '';
+      document.getElementById('planner-form-meta').value = item.meta || '';
+      document.getElementById('planner-form-note').value = item.note || '';
+    }
+
+    function syncPlannerTodoPage() {
+      renderPlannerTodoStats();
+      renderPlannerTodoTable();
+      renderPlannerDetail();
+      fillPlannerForm();
+    }
+
+    function selectPlannerTodo(id) {
+      selectedPlannerTodoId = id;
+      syncPlannerTodoPage();
+    }
+
+    function jumpToProcessForm(id) {
+      selectedPlannerTodoId = id;
+      syncPlannerTodoPage();
+      document.getElementById('planner-form-owner')?.focus();
+    }
+
+    function patchSelectedPlannerTodo(patch) {
+      const item = getPlannerTodoById(selectedPlannerTodoId);
+      if (!item) {
+        toast('请先选择待办事项');
+        return null;
+      }
+      Object.assign(item, patch);
+      savePlannerTodoItems();
+      syncPlannerTodoPage();
+      return item;
+    }
+
+    function savePlannerForm() {
+      const item = patchSelectedPlannerTodo({
+        owner: document.getElementById('planner-form-owner').value.trim() || '待分配',
+        status: document.getElementById('planner-form-status').value,
+        type: document.getElementById('planner-form-priority').value,
+        time: document.getElementById('planner-form-time').value.trim() || '刚刚更新',
+        meta: document.getElementById('planner-form-meta').value.trim() || '已补充处理意见',
+        note: document.getElementById('planner-form-note').value.trim()
+      });
+      if (!item) return;
+      toast(`已保存处理意见：${item.title}`);
+    }
+
+    function completePlannerTodo() {
+      const note = document.getElementById('planner-form-note').value.trim();
+      const item = patchSelectedPlannerTodo({
+        status: 'done',
+        time: '刚刚完成',
+        meta: document.getElementById('planner-form-meta').value.trim() || '已完成闭环处理',
+        note
+      });
+      if (!item) return;
+      toast(`已完成：${item.title}`);
+    }
+
+    function postponePlannerTodo() {
+      const item = patchSelectedPlannerTodo({
+        status: 'pending',
+        time: document.getElementById('planner-form-time').value.trim() || '1小时后提醒',
+        meta: document.getElementById('planner-form-meta').value.trim() || '已延期处理，待再次提醒',
+        note: document.getElementById('planner-form-note').value.trim()
+      });
+      if (!item) return;
+      toast(`已延期：${item.title}`);
+    }
+
+    function rejectPlannerTodo() {
+      const item = patchSelectedPlannerTodo({
+        status: 'pending',
+        type: 'warning',
+        time: '已退回复核',
+        meta: document.getElementById('planner-form-meta').value.trim() || '已退回上游责任方复核',
+        note: document.getElementById('planner-form-note').value.trim()
+      });
+      if (!item) return;
+      toast(`已退回复核：${item.title}`);
+    }
+
+    async function bulkAcceptUrgent() {
+      const urgentItems = plannerTodoItems.filter((item) => item.status === 'urgent');
+      if (!urgentItems.length) {
+        toast('当前没有需要批量受理的紧急项');
+        return;
+      }
+      const confirmed = typeof showConfirmDialog === 'function'
+        ? await showConfirmDialog({
+            title: '批量受理确认',
+            message: `是否受理当前 ${urgentItems.length} 条紧急待办，并转入待处理状态？`,
+            confirmText: '确认受理',
+            cancelText: '取消'
+          })
+        : true;
+      if (!confirmed) return;
+      urgentItems.forEach((item) => {
+        item.status = 'pending';
+        item.meta = '计划员已受理，进入处理队列';
+        item.time = '刚刚受理';
+      });
+      savePlannerTodoItems();
+      syncPlannerTodoPage();
+      toast(`已受理 ${urgentItems.length} 条紧急项`);
+    }
+
+    async function resetPlannerTodos() {
+      const confirmed = typeof showConfirmDialog === 'function'
+        ? await showConfirmDialog({
+            title: '重置清单确认',
+            message: '是否将计划员待办清单恢复为默认演示数据？',
+            confirmText: '确认重置',
+            cancelText: '取消',
+            confirmType: 'danger'
+          })
+        : true;
+      if (!confirmed) return;
+      plannerTodoItems = cloneDefaultTodos();
+      selectedPlannerTodoId = plannerTodoItems[0]?.id || null;
+      savePlannerTodoItems();
+      syncPlannerTodoPage();
+      toast('计划员待办清单已重置。');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof init === 'function') {
+        init();
+      }
+      plannerTodoItems = loadPlannerTodoItems();
+      selectedPlannerTodoId = plannerTodoItems[0]?.id || null;
+      savePlannerTodoItems();
+      syncPlannerTodoPage();
+    });
+  </script>
+</body>
+</html>
