@@ -11,10 +11,12 @@
     .wip-orders-card { border: 1px solid #334155; border-radius: 10px; background: linear-gradient(160deg, #101b2f 0%, #0f172a 100%); padding: 12px; display: flex; flex-direction: column; gap: 10px; }
     .wip-orders-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
     .wip-orders-title { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: #e2e8f0; }
-    .wip-plant-chip { font-size: 11px; color: #dbeafe; background: rgba(37, 99, 235, 0.25); border: 1px solid rgba(59, 130, 246, 0.55); border-radius: 999px; padding: 3px 8px; }
     .wip-plant-select { min-width: 120px; height: 30px; border: 1px solid #334155; border-radius: 8px; background: #111b2d; color: #e2e8f0; font-size: 12px; padding: 0 8px; }
     .wip-plant-select:focus { outline: none; border-color: #60a5fa; box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.18); }
+    .wip-orders-sub-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
     .wip-orders-sub { font-size: 11px; color: #94a3b8; }
+    .wip-all-link { border: 1px solid #334155; border-radius: 999px; background: #111b2d; color: #93c5fd; font-size: 11px; padding: 4px 10px; cursor: pointer; white-space: nowrap; }
+    .wip-all-link:hover { border-color: #2563eb; color: #dbeafe; background: #172445; }
     .wip-orders-list { max-height: 384px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
     .wip-orders-list { -ms-overflow-style: none; scrollbar-width: none; }
     .wip-orders-list::-webkit-scrollbar { width: 0; height: 0; display: none; }
@@ -120,7 +122,6 @@
             <div class="wip-orders-head">
               <div class="wip-orders-title">
                 <span>各分厂在制订单</span>
-                <span class="wip-plant-chip" id="wip-current-plant">东区总装</span>
               </div>
               <select class="wip-plant-select" id="wip-plant-select" aria-label="切换分厂" onchange="onWipPlantChange(this.value)">
                 <option value="east">东区总装</option>
@@ -130,7 +131,10 @@
                 <option value="ctrl">控制器分厂</option>
               </select>
             </div>
-            <div class="wip-orders-sub" id="wip-orders-sub">近10条在制订单</div>
+            <div class="wip-orders-sub-row">
+              <div class="wip-orders-sub" id="wip-orders-sub">近10条在制订单</div>
+              <button class="wip-all-link" type="button" onclick="openAllWipOrders()">查看所有在制订单</button>
+            </div>
             <div class="wip-orders-list" id="wip-orders-list"></div>
             <div class="wip-pagination">
               <button class="wip-page-btn" id="wip-prev-page" onclick="changeWipPage(-1)">上一页</button>
@@ -280,14 +284,12 @@
       const start = (currentWipPage - 1) * WIP_PAGE_SIZE;
       const items = all.slice(start, start + WIP_PAGE_SIZE);
 
-      const plantEl = document.getElementById('wip-current-plant');
       const subEl = document.getElementById('wip-orders-sub');
       const plantSelectEl = document.getElementById('wip-plant-select');
       const pageEl = document.getElementById('wip-page-info');
       const prevEl = document.getElementById('wip-prev-page');
       const nextEl = document.getElementById('wip-next-page');
 
-      if (plantEl) plantEl.textContent = plant.name;
       if (subEl) subEl.textContent = `${plant.name}近${WIP_PAGE_SIZE}条在制订单`;
       if (plantSelectEl && plantSelectEl.value !== plant.key) plantSelectEl.value = plant.key;
 
@@ -329,6 +331,12 @@
 
     function openWipOrder(orderNo, plantName, model, step, qty, progress) {
       toast(`${plantName} | ${orderNo} | ${model} | ${step} | ${qty}套 | 完成度${progress}%`);
+    }
+
+    function openAllWipOrders() {
+      const plant = wipPlants[currentWipPlantIndex];
+      const target = `wip-orders.html?plant=${encodeURIComponent(plant.key)}`;
+      window.location.href = target;
     }
 
     function clamp(val, min, max) {

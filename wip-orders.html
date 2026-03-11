@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>所有在制订单 - 格力高级计划排程系统</title>
+  <link rel="stylesheet" href="common.css" />
+  <style>
+    .wip-detail-page { display: flex; flex-direction: column; gap: 14px; }
+    .wip-detail-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+    .wip-detail-filters { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .wip-filter-field { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #94a3b8; }
+    .wip-filter-field select, .wip-filter-field input { height: 32px; border: 1px solid #334155; border-radius: 8px; background: #111b2d; color: #e2e8f0; font-size: 12px; padding: 0 10px; }
+    .wip-filter-field input { min-width: 200px; }
+    .wip-summary { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .wip-summary-chip { border: 1px solid #334155; border-radius: 999px; padding: 5px 10px; font-size: 11px; color: #cbd5e1; background: #10192b; }
+    .wip-summary-chip b { color: #38bdf8; font-size: 12px; margin-left: 4px; }
+    .wip-detail-table-wrap { max-height: 620px; overflow: auto; border: 1px solid #334155; border-radius: 10px; background: #0f172a; }
+    .wip-detail-table-wrap { -ms-overflow-style: none; scrollbar-width: none; }
+    .wip-detail-table-wrap::-webkit-scrollbar { width: 0; height: 0; display: none; }
+    .wip-detail-table { width: 100%; min-width: 980px; border-collapse: collapse; }
+    .wip-detail-table th, .wip-detail-table td { padding: 9px 10px; border-bottom: 1px solid #243246; text-align: left; font-size: 12px; }
+    .wip-detail-table th { position: sticky; top: 0; z-index: 1; background: #172033; color: #dbe5f7; font-weight: 700; }
+    .wip-detail-table td { color: #d1d5db; }
+    .wip-detail-table td.num { color: #38bdf8; font-weight: 700; }
+    .wip-detail-table td.status { color: #93c5fd; }
+    .wip-detail-pagination { margin-top: 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .wip-page-btn { min-width: 72px; border: 1px solid #334155; border-radius: 6px; background: #1e293b; color: #cbd5e1; font-size: 11px; padding: 5px 10px; cursor: pointer; transition: all var(--dur-fast); }
+    .wip-page-btn:hover:not(:disabled) { border-color: #2563eb; background: #2563eb; color: #fff; }
+    .wip-page-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .wip-page-info { font-size: 12px; color: #94a3b8; font-weight: 700; }
+    @media (max-width: 960px) {
+      .wip-filter-field input { min-width: 160px; }
+      .wip-detail-table { min-width: 860px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand-block">
+      <img class="header-logo" src="1c5703c9-aca0-43d1-9843-9d502cb66fd0.png" alt="APS Logo" width="143" height="44" />
+      <div class="aps-console-title">
+        <div class="aps-console-title-main">格力高级计划排程系统</div>
+        <div class="aps-console-title-sub">各分厂在制订单详情</div>
+      </div>
+      <div class="aps-site-switch">
+        <span class="aps-site-switch-label">制造基地</span>
+        <select id="hq-select" class="role-select" aria-label="基地切换">
+          <option>珠海格力总部</option>
+          <option>金湾基地</option>
+          <option>武汉基地</option>
+          <option>洛阳基地</option>
+        </select>
+      </div>
+    </div>
+    <nav class="nav aps-main-nav" id="nav">
+      <a href="collab.html" class="nav-item active">排产操作</a>
+      <a href="decision.html" class="nav-item">决策分析</a>
+      <a href="settings.html" class="nav-item">系统设置</a>
+    </nav>
+    <div class="header-meta aps-header-meta">
+      <span id="header-date" class="aps-clock-chip">--</span>
+      <a href="collab.html" class="btn sm">返回排产操作</a>
+    </div>
+  </header>
+
+  <main id="app">
+    <section class="view wip-detail-page">
+      <article class="card">
+        <div class="card-hd">
+          <span>所有在制订单详情列表</span>
+          <span class="muted" id="wip-page-title-sub">按分厂查看在制订单明细</span>
+        </div>
+        <div class="card-bd">
+          <div class="wip-detail-toolbar">
+            <div class="wip-detail-filters">
+              <label class="wip-filter-field" for="wip-detail-plant">
+                分厂
+                <select id="wip-detail-plant" aria-label="分厂筛选">
+                  <option value="all">全部分厂</option>
+                  <option value="east">东区总装</option>
+                  <option value="west">西区总装</option>
+                  <option value="inject">注塑分厂</option>
+                  <option value="hx">两器分厂</option>
+                  <option value="ctrl">控制器分厂</option>
+                </select>
+              </label>
+              <label class="wip-filter-field" for="wip-detail-search">
+                订单搜索
+                <input id="wip-detail-search" type="search" placeholder="输入订单号/型号/工序" />
+              </label>
+            </div>
+            <div class="wip-summary" id="wip-summary"></div>
+          </div>
+
+          <div class="wip-detail-table-wrap">
+            <table class="wip-detail-table">
+              <thead>
+                <tr>
+                  <th>订单号</th>
+                  <th>分厂</th>
+                  <th>型号</th>
+                  <th>工序</th>
+                  <th>数量</th>
+                  <th>完成度</th>
+                  <th>更新时间</th>
+                  <th>状态</th>
+                </tr>
+              </thead>
+              <tbody id="wip-detail-tbody"></tbody>
+            </table>
+          </div>
+
+          <div class="wip-detail-pagination">
+            <button class="wip-page-btn" id="wip-detail-prev">上一页</button>
+            <span class="wip-page-info" id="wip-detail-page-info">1 / 1</span>
+            <button class="wip-page-btn" id="wip-detail-next">下一页</button>
+          </div>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const WIP_DETAIL_PAGE_SIZE = 20;
+    const wipPlants = [
+      { key: 'east', name: '东区总装' },
+      { key: 'west', name: '西区总装' },
+      { key: 'inject', name: '注塑分厂' },
+      { key: 'hx', name: '两器分厂' },
+      { key: 'ctrl', name: '控制器分厂' }
+    ];
+    const plantMap = wipPlants.reduce((acc, p) => {
+      acc[p.key] = p.name;
+      return acc;
+    }, {});
+
+    let currentPlantKey = 'all';
+    let currentPage = 1;
+    let searchKeyword = '';
+
+    function createWipOrderData(plantIndex) {
+      const models = ['KFR-35GW', 'KFR-50GW', 'KFR-72GW', 'KFR-120LW', 'GMV-160WL'];
+      const steps = ['总装', '注塑成型', '两器焊接', '控制板装配', '整机测试'];
+      return Array.from({ length: 24 }, (_, idx) => {
+        const seq = plantIndex * 100 + 201 + idx;
+        const progress = 12 + ((plantIndex * 15 + idx * 9) % 81);
+        return {
+          orderNo: `SO-20260311-${String(seq).padStart(3, '0')}`,
+          plantKey: wipPlants[plantIndex].key,
+          plantName: wipPlants[plantIndex].name,
+          model: models[(plantIndex + idx) % models.length],
+          step: steps[(plantIndex * 2 + idx) % steps.length],
+          qty: 60 + ((plantIndex * 37 + idx * 29) % 260),
+          progress,
+          updated: `${2 + (idx % 10)}分钟前`,
+          status: progress >= 95 ? '待入库' : progress >= 60 ? '生产中' : '排队中'
+        };
+      });
+    }
+
+    const allOrders = wipPlants.flatMap((_, idx) => createWipOrderData(idx));
+
+    function clamp(v, min, max) {
+      return Math.min(max, Math.max(min, v));
+    }
+
+    function parsePlantFromQuery() {
+      const plantParam = new URLSearchParams(window.location.search).get('plant');
+      if (plantParam && (plantParam === 'all' || plantMap[plantParam])) {
+        currentPlantKey = plantParam;
+      }
+    }
+
+    function updateQuery() {
+      const url = new URL(window.location.href);
+      if (currentPlantKey === 'all') {
+        url.searchParams.delete('plant');
+      } else {
+        url.searchParams.set('plant', currentPlantKey);
+      }
+      window.history.replaceState({}, '', url.toString());
+    }
+
+    function getFilteredOrders() {
+      const kw = searchKeyword.trim().toLowerCase();
+      return allOrders.filter((item) => {
+        if (currentPlantKey !== 'all' && item.plantKey !== currentPlantKey) return false;
+        if (!kw) return true;
+        return [item.orderNo, item.model, item.step, item.plantName].some((v) => v.toLowerCase().includes(kw));
+      });
+    }
+
+    function renderSummary(items) {
+      const summaryEl = document.getElementById('wip-summary');
+      if (!summaryEl) return;
+      const totalQty = items.reduce((sum, item) => sum + item.qty, 0);
+      const avgProgress = items.length
+        ? Math.round(items.reduce((sum, item) => sum + item.progress, 0) / items.length)
+        : 0;
+      const statusText = currentPlantKey === 'all' ? '全部分厂' : (plantMap[currentPlantKey] || '未知分厂');
+      summaryEl.innerHTML = `
+        <span class="wip-summary-chip">范围<b>${statusText}</b></span>
+        <span class="wip-summary-chip">订单数<b>${items.length}</b></span>
+        <span class="wip-summary-chip">总数量<b>${totalQty}套</b></span>
+        <span class="wip-summary-chip">平均完成度<b>${avgProgress}%</b></span>
+      `;
+    }
+
+    function renderTable() {
+      const rows = getFilteredOrders();
+      const totalPages = Math.max(1, Math.ceil(rows.length / WIP_DETAIL_PAGE_SIZE));
+      currentPage = clamp(currentPage, 1, totalPages);
+      const start = (currentPage - 1) * WIP_DETAIL_PAGE_SIZE;
+      const currentRows = rows.slice(start, start + WIP_DETAIL_PAGE_SIZE);
+
+      const tbody = document.getElementById('wip-detail-tbody');
+      const pageInfo = document.getElementById('wip-detail-page-info');
+      const prevBtn = document.getElementById('wip-detail-prev');
+      const nextBtn = document.getElementById('wip-detail-next');
+      const subTitle = document.getElementById('wip-page-title-sub');
+
+      if (tbody) {
+        tbody.innerHTML = currentRows.map((item) => `
+          <tr>
+            <td>${item.orderNo}</td>
+            <td>${item.plantName}</td>
+            <td>${item.model}</td>
+            <td>${item.step}</td>
+            <td class="num">${item.qty}套</td>
+            <td>${item.progress}%</td>
+            <td>${item.updated}</td>
+            <td class="status">${item.status}</td>
+          </tr>
+        `).join('') || `
+          <tr>
+            <td colspan="8" style="text-align:center;color:#94a3b8;">未匹配到在制订单</td>
+          </tr>
+        `;
+      }
+
+      if (pageInfo) pageInfo.textContent = `${currentPage} / ${totalPages}`;
+      if (prevBtn) prevBtn.disabled = currentPage <= 1;
+      if (nextBtn) nextBtn.disabled = currentPage >= totalPages;
+      if (subTitle) subTitle.textContent = `当前筛选：${currentPlantKey === 'all' ? '全部分厂' : plantMap[currentPlantKey]}，共 ${rows.length} 条`;
+
+      renderSummary(rows);
+      updateQuery();
+    }
+
+    function renderHeaderClock() {
+      const el = document.getElementById('header-date');
+      if (!el) return;
+      const now = new Date();
+      const pad = (n) => String(n).padStart(2, '0');
+      el.textContent = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      parsePlantFromQuery();
+
+      const plantSelect = document.getElementById('wip-detail-plant');
+      const searchInput = document.getElementById('wip-detail-search');
+      const prevBtn = document.getElementById('wip-detail-prev');
+      const nextBtn = document.getElementById('wip-detail-next');
+
+      if (plantSelect) {
+        plantSelect.value = currentPlantKey;
+        plantSelect.addEventListener('change', (e) => {
+          currentPlantKey = e.target.value || 'all';
+          currentPage = 1;
+          renderTable();
+        });
+      }
+
+      if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+          searchKeyword = e.target.value || '';
+          currentPage = 1;
+          renderTable();
+        });
+      }
+
+      prevBtn?.addEventListener('click', () => {
+        currentPage -= 1;
+        renderTable();
+      });
+      nextBtn?.addEventListener('click', () => {
+        currentPage += 1;
+        renderTable();
+      });
+
+      renderHeaderClock();
+      setInterval(renderHeaderClock, 1000);
+      renderTable();
+    });
+  </script>
+</body>
+</html>
