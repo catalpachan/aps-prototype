@@ -40,8 +40,8 @@
     .collab-metric-item { border: 1px solid #2f3d55; border-radius: 8px; padding: 8px; background: #111c2f; }
     .collab-metric-bar { height: 6px; border-radius: 999px; background: #223147; overflow: hidden; margin-top: 6px; }
     .collab-metric-fill { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #38bdf8 0%, #2563eb 100%); }
-    .collab-right { min-width: 0; height: 770px; position: sticky; top: 76px; align-self: start; display: flex; flex-direction: column; }
-    .collab-right .card-bd { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+    .collab-right { min-width: 0; height: auto; position: static; top: auto; align-self: start; display: flex; flex-direction: column; }
+    .collab-right .card-bd { flex: none; min-height: auto; display: flex; flex-direction: column; }
     .gantt-wrap { border: 1px solid #334155; border-radius: 8px; overflow: auto; max-height: 620px; background: #0d1525; }
     .gantt-wrap { -ms-overflow-style: none; scrollbar-width: none; }
     .gantt-wrap::-webkit-scrollbar { width: 0; height: 0; display: none; }
@@ -62,14 +62,125 @@
     .gantt-task.b { background: linear-gradient(90deg, #0f766e, #0d9488); }
     .gantt-task.c { background: linear-gradient(90deg, #b45309, #d97706); }
     .gantt-task.d { background: linear-gradient(90deg, #7c3aed, #9333ea); }
+    .view-switch { display: inline-flex; align-items: center; border: 1px solid #334155; border-radius: 8px; overflow: hidden; background: #0f172a; }
+    .view-btn { border: 0; background: transparent; color: #94a3b8; font-size: 12px; font-weight: 700; padding: 6px 12px; cursor: pointer; }
+    .view-btn + .view-btn { border-left: 1px solid #334155; }
+    .view-btn.active { background: #2563eb; color: #fff; }
+    .view-panel { display: none; min-height: 0; }
+    .view-panel.active { display: flex; flex-direction: column; gap: 8px; flex: none; min-height: auto; }
+    .day-view-date-head { border: 1px solid #334155; border-radius: 8px; padding: 8px 10px; background: #111b2d; color: #dbeafe; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+    .day-date-title { font-size: 11px; color: #93c5fd; font-weight: 700; letter-spacing: 0.2px; }
+    .day-date-text { font-size: 13px; color: #e2e8f0; font-weight: 700; }
+    .day-date-input { height: 30px; border: 1px solid #334155; border-radius: 8px; padding: 0 8px; background: #0f172a; color: #e2e8f0; font-size: 12px; }
+    .day-date-input:focus { outline: none; border-color: #60a5fa; box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2); }
+    .day-view-note { margin-bottom: 8px; }
+    .week-calendar { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
+    .week-day-card { appearance: none; width: 100%; text-align: left; font: inherit; color: inherit; border: 1px solid #334155; border-radius: 8px; padding: 8px; background: #101a2d; cursor: pointer; transition: transform var(--dur-fast), box-shadow var(--dur-fast), border-color var(--dur-fast); }
+    .week-day-card:hover { transform: translateY(-1px); box-shadow: 0 8px 16px rgba(2, 6, 23, 0.35); }
+    .week-day-card.active { border-color: #60a5fa; box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.25); }
+    .week-day-card:focus-visible { outline: none; border-color: #93c5fd; box-shadow: 0 0 0 2px rgba(147, 197, 253, 0.3); }
+    .week-day-card.load-low { border-color: #1f6a48; background: linear-gradient(180deg, rgba(22, 101, 52, 0.28), rgba(16, 26, 45, 0.92)); }
+    .week-day-card.load-mid { border-color: #7c5d0a; background: linear-gradient(180deg, rgba(202, 138, 4, 0.26), rgba(16, 26, 45, 0.92)); }
+    .week-day-card.load-high { border-color: #9a3412; background: linear-gradient(180deg, rgba(194, 65, 12, 0.26), rgba(16, 26, 45, 0.92)); }
+    .week-day-card.load-full { border-color: #b91c1c; background: linear-gradient(180deg, rgba(185, 28, 28, 0.32), rgba(16, 26, 45, 0.92)); }
+    .week-day-card.load-over { border-color: #5b2d1a; background: linear-gradient(180deg, rgba(92, 45, 26, 0.45), rgba(16, 26, 45, 0.94)); }
+    .week-day-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .week-day-week { font-size: 11px; color: #94a3b8; }
+    .week-day-date { font-size: 12px; color: #e2e8f0; font-weight: 700; }
+    .week-day-load { font-size: 18px; font-weight: 800; color: #e2e8f0; line-height: 1; margin-bottom: 6px; }
+    .week-day-tag { font-size: 10px; color: #cbd5e1; background: rgba(15, 23, 42, 0.75); border: 1px solid #334155; border-radius: 999px; padding: 2px 8px; display: inline-block; }
+    .load-low .week-day-load { color: #4ade80; }
+    .load-mid .week-day-load { color: #facc15; }
+    .load-high .week-day-load { color: #fb923c; }
+    .load-full .week-day-load { color: #f87171; }
+    .load-over .week-day-load { color: #fde2cf; }
+    .week-gantt-wrap { border: 1px solid #334155; border-radius: 8px; background: #0f172a; overflow-x: auto; }
+    .week-gantt-wrap { -ms-overflow-style: none; scrollbar-width: none; }
+    .week-gantt-wrap::-webkit-scrollbar { width: 0; height: 0; display: none; }
+    .week-gantt { min-width: 820px; }
+    .week-gantt-head, .week-gantt-row { display: grid; grid-template-columns: 120px 1fr; }
+    .week-gantt-head { border-bottom: 1px solid #334155; background: #172033; position: sticky; top: 0; z-index: 2; }
+    .week-gantt-head-label { padding: 8px 10px; font-size: 11px; color: #a6b7d8; font-weight: 700; }
+    .week-gantt-head-track { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+    .week-gantt-head-track span { padding: 8px 6px; border-left: 1px solid #2b3548; font-size: 11px; color: #cbd5e1; text-align: center; font-weight: 700; }
+    .week-gantt-row { border-bottom: 1px solid #243246; min-height: 42px; }
+    .week-gantt-row-label { padding: 8px 10px; font-size: 12px; color: #cbd5e1; font-weight: 700; border-right: 1px solid #2b3548; display: flex; flex-direction: column; gap: 2px; }
+    .week-gantt-row-plant { font-size: 10px; color: #94a3b8; font-weight: 500; }
+    .week-gantt-row-track { position: relative; background-image: linear-gradient(to right, transparent calc((100% / 7) - 1px), #23324b calc((100% / 7) - 1px), #23324b calc(100% / 7)); background-size: calc(100% / 7) 100%; }
+    .week-gantt-bar { position: absolute; top: 8px; height: 24px; border-radius: 6px; color: #fff; font-size: 11px; padding: 0 8px; display: flex; align-items: center; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; border: 1px solid rgba(255,255,255,0.2); }
+    .week-gantt-bar.editable { cursor: pointer; transition: transform var(--dur-fast), box-shadow var(--dur-fast), filter var(--dur-fast); }
+    .week-gantt-bar.editable:hover { transform: translateY(-1px); box-shadow: 0 6px 14px rgba(2, 6, 23, 0.36); filter: brightness(1.06); }
+    .week-gantt-bar.editable:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(191, 219, 254, 0.34); }
+    .week-gantt-bar.a { background: linear-gradient(90deg, #2563eb, #1d4ed8); }
+    .week-gantt-bar.b { background: linear-gradient(90deg, #0f766e, #0d9488); }
+    .week-gantt-bar.c { background: linear-gradient(90deg, #b45309, #d97706); }
+    .week-day-tables { display: block; }
+    .week-day-table-card { border: 1px solid #334155; border-radius: 8px; background: #101a2d; overflow: hidden; }
+    .week-day-table-head { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 8px 10px; border-bottom: 1px solid #334155; background: #172033; }
+    .week-day-table-head b { font-size: 12px; color: #e2e8f0; }
+    .week-day-table-head span { font-size: 11px; color: #94a3b8; }
+    .week-day-table-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 10px; border-bottom: 1px solid #334155; background: #141f33; }
+    .week-day-table-toolbar .muted { font-size: 11px; }
+    .week-day-table-wrap { overflow-x: auto; overflow-y: hidden; }
+    .week-day-table-wrap { -ms-overflow-style: none; scrollbar-width: none; }
+    .week-day-table-wrap::-webkit-scrollbar { width: 0; height: 0; display: none; }
+    .week-day-table { width: 100%; border-collapse: collapse; min-width: 1180px; }
+    .week-day-table th, .week-day-table td { padding: 6px 8px; border-bottom: 1px solid #243246; font-size: 11px; text-align: left; }
+    .week-day-table th { position: sticky; top: 0; z-index: 1; background: #1b273d; color: #cbd5e1; font-weight: 700; }
+    .week-day-table td { color: #d1d5db; }
+    .week-day-table td.order { color: #93c5fd; font-weight: 700; }
+    .week-day-table td.seq { width: 74px; }
+    .week-seq-input { width: 62px; height: 26px; border: 1px solid #334155; border-radius: 6px; background: #0f172a; color: #e2e8f0; font-size: 11px; padding: 0 6px; }
+    .week-seq-input:focus { outline: none; border-color: #60a5fa; box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.18); }
+    .week-day-pagination { display: flex; align-items: center; justify-content: flex-end; gap: 8px; padding: 8px 10px; border-top: 1px solid #334155; background: #141f33; }
+    .week-page-btn { border: 1px solid #334155; background: #0f172a; color: #cbd5e1; border-radius: 6px; font-size: 11px; padding: 4px 10px; cursor: pointer; }
+    .week-page-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .week-page-info { font-size: 11px; color: #94a3b8; min-width: 56px; text-align: center; }
+    .week-day-table-empty { padding: 16px; text-align: center; color: #64748b; font-size: 11px; }
+    .month-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+    .month-nav { display: flex; align-items: center; gap: 8px; }
+    .month-title { font-size: 14px; font-weight: 700; color: #e2e8f0; min-width: 110px; text-align: center; }
+    .month-legend { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .month-legend-item { font-size: 10px; color: #cbd5e1; border: 1px solid #334155; border-radius: 999px; padding: 2px 8px; }
+    .month-calendar { border: 1px solid #334155; border-radius: 10px; overflow: hidden; background: #0f172a; }
+    .month-weekdays, .month-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+    .month-weekdays div { padding: 8px 6px; text-align: center; font-size: 11px; color: #94a3b8; border-bottom: 1px solid #334155; background: #172033; font-weight: 700; }
+    .month-day { min-height: 108px; border-right: 1px solid #223147; border-bottom: 1px solid #223147; padding: 8px; position: relative; display: flex; flex-direction: column; gap: 6px; }
+    .month-day:nth-child(7n) { border-right: 0; }
+    .month-day.selectable { cursor: pointer; transition: transform var(--dur-fast), box-shadow var(--dur-fast), border-color var(--dur-fast); }
+    .month-day.selectable:hover { transform: translateY(-1px); box-shadow: 0 8px 16px rgba(2, 6, 23, 0.28); border-color: #3b82f6; }
+    .month-day.selectable:focus-visible { outline: none; border-color: #60a5fa; box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.24); }
+    .month-day.other { background: #0b1220; color: #475569; }
+    .month-day.load-low { background: linear-gradient(180deg, rgba(22, 101, 52, 0.22), rgba(15, 23, 42, 0.92)); }
+    .month-day.load-mid { background: linear-gradient(180deg, rgba(202, 138, 4, 0.22), rgba(15, 23, 42, 0.92)); }
+    .month-day.load-high { background: linear-gradient(180deg, rgba(194, 65, 12, 0.22), rgba(15, 23, 42, 0.92)); }
+    .month-day.load-full { background: linear-gradient(180deg, rgba(185, 28, 28, 0.28), rgba(15, 23, 42, 0.92)); }
+    .month-day.load-over { background: linear-gradient(180deg, rgba(185, 28, 28, 0.34), rgba(15, 23, 42, 0.92)); }
+    .month-day.ended { background: linear-gradient(180deg, rgba(100, 116, 139, 0.32), rgba(15, 23, 42, 0.95)); border-color: #475569; }
+    .month-day-head { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+    .month-day-num { font-size: 12px; font-weight: 700; color: #e2e8f0; }
+    .month-load { font-size: 11px; font-weight: 700; color: #e2e8f0; }
+    .month-load-bar { height: 6px; border-radius: 999px; background: #23324b; overflow: hidden; position: relative; }
+    .month-load-fill { position: absolute; left: 0; top: 0; height: 100%; border-radius: inherit; background: #60a5fa; }
+    .month-load-overfill { position: absolute; right: 0; top: 0; height: 100%; background: #3f1f12; }
+    .month-day.load-low .month-load-fill { background: #22c55e; }
+    .month-day.load-mid .month-load-fill { background: #facc15; }
+    .month-day.load-high .month-load-fill { background: #fb923c; }
+    .month-day.load-full .month-load-fill { background: #ef4444; width: 100% !important; }
+    .month-day.load-over .month-load-fill { background: #ef4444; width: 100% !important; }
+    .month-task-list { display: flex; flex-direction: column; gap: 4px; min-height: 0; }
+    .month-task-chip { font-size: 10px; color: #dbeafe; background: rgba(15, 23, 42, 0.72); border: 1px solid #334155; border-radius: 6px; padding: 2px 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .month-day.ended .month-load { color: #cbd5e1; }
+    .month-day.ended .month-load-fill { background: #94a3b8; }
+    .month-day.ended .month-load-overfill { display: none; }
+    .month-day.ended .month-task-chip { color: #cbd5e1; background: rgba(30, 41, 59, 0.75); border-color: #475569; }
     .task-editor-status { border: 1px solid #334155; border-radius: 8px; padding: 8px 10px; font-size: 12px; line-height: 1.45; background: #111b2d; color: #cbd5e1; }
     .task-editor-status.ok { border-color: #1f6a48; background: rgba(34, 197, 94, 0.12); color: #bbf7d0; }
     .task-editor-status.error { border-color: #7f1d1d; background: rgba(239, 68, 68, 0.12); color: #fecaca; }
-    .task-editor-preview { font-size: 12px; color: #93c5fd; margin-top: 2px; }
     .lock-strip { display: flex; align-items: center; justify-content: space-between; gap: 8px; border: 1px solid #334155; border-radius: 8px; padding: 8px; background: #111a2a; margin-bottom: 8px; font-size: 12px; }
     .preplan-btn { border: 1px solid #3b82f6; border-radius: 8px; padding: 6px 10px; color: #dbeafe; font-weight: 700; background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 55%, #38bdf8 100%); cursor: pointer; font-size: 12px; }
     .execute-btn { border: 1px solid #22c55e; border-radius: 8px; padding: 6px 10px; color: #dcfce7; font-weight: 700; background: linear-gradient(135deg, #166534 0%, #16a34a 55%, #4ade80 100%); cursor: pointer; font-size: 12px; }
-    @media (max-width: 960px) { .collab-layout { grid-template-columns: 1fr; } .collab-right { position: static; height: auto; } }
+    @media (max-width: 960px) { .collab-layout { grid-template-columns: 1fr; } .collab-right { position: static; height: auto; } .week-calendar { grid-template-columns: repeat(2, minmax(0, 1fr)); } .month-day { min-height: 96px; } }
   </style>
 </head>
 <body>
@@ -153,18 +264,63 @@
           <div class="card-hd">
             <span>可视化交互工作台</span>
             <div class="row">
+              <div class="view-switch" id="gantt-view-switch" aria-label="视角切换">
+                <button class="view-btn" type="button" data-view="month">月</button>
+                <button class="view-btn active" type="button" data-view="week">周</button>
+                <button class="view-btn" type="button" data-view="day">日</button>
+              </div>
               <select id="gantt-plant-filter" aria-label="分厂筛选"><option value="all">全部分厂</option><option value="east">东区总装</option><option value="west">西区总装</option><option value="inject">注塑分厂</option><option value="hx">两器分厂</option><option value="ctrl">控制器分厂</option></select>
               <button class="execute-btn" onclick="executePreplan()">执行方案</button>
             </div>
           </div>
           <div class="card-bd">
-            <div class="lock-strip" id="collab-locks"></div>
-            <div class="muted" style="margin-bottom:8px;">20条产线（ZZW01-ZZW20），25列时间刻度（00:00-24:00）。拖拽任务可换线换时段。</div>
-            <div class="gantt-wrap">
-              <table class="gantt-table" id="gantt-table">
-                <thead id="gantt-thead"></thead>
-                <tbody id="gantt-tbody"></tbody>
-              </table>
+            <div class="view-panel active" id="view-panel-week">
+              <div class="muted">本周视角（默认）：查看未来一周的生产计划（周日历 + 甘特样式）。双击甘特任务可编辑时间；周视角不支持拖拽与拉长。</div>
+              <div class="week-calendar" id="week-calendar"></div>
+              <div class="week-gantt-wrap">
+                <div class="week-gantt" id="week-gantt"></div>
+              </div>
+              <div class="week-day-tables" id="week-day-tables"></div>
+            </div>
+
+            <div class="view-panel" id="view-panel-day">
+              <div class="day-view-date-head" id="day-view-date-head">
+                <span class="day-date-title">排产日期</span>
+                <span class="day-date-text" id="day-view-date-text">--</span>
+                <input class="day-date-input" id="day-view-date-input" type="date" aria-label="选择排产日期" />
+              </div>
+              <div class="lock-strip" id="collab-locks"></div>
+              <div class="muted day-view-note">当日视角：表格甘特图样式，用于当日排产任务。20条产线（ZZW01-ZZW20），25列时间刻度（00:00-24:00）。拖拽任务可换线换时段。</div>
+              <div class="gantt-wrap">
+                <table class="gantt-table" id="gantt-table">
+                  <thead id="gantt-thead"></thead>
+                  <tbody id="gantt-tbody"></tbody>
+                </table>
+              </div>
+              <div class="week-day-tables" id="day-task-tables"></div>
+            </div>
+
+            <div class="view-panel" id="view-panel-month">
+              <div class="month-toolbar">
+                <div class="month-nav">
+                  <button class="btn sm" type="button" id="month-prev-btn">上月</button>
+                  <span class="month-title" id="month-title">--</span>
+                  <button class="btn sm" type="button" id="month-next-btn">下月</button>
+                </div>
+                <div class="month-legend">
+                  <span class="month-legend-item">低于50% 绿色</span>
+                  <span class="month-legend-item">进度中 黄色</span>
+                  <span class="month-legend-item">高于80% 橙色</span>
+                  <span class="month-legend-item">排满100% 红色</span>
+                  <span class="month-legend-item">超出100% 深褐色</span>
+                </div>
+              </div>
+              <div class="month-calendar">
+                <div class="month-weekdays">
+                  <div>周日</div><div>周一</div><div>周二</div><div>周三</div><div>周四</div><div>周五</div><div>周六</div>
+                </div>
+                <div class="month-grid" id="month-calendar-grid"></div>
+              </div>
             </div>
           </div>
         </article>
@@ -186,14 +342,13 @@
         <div class="row" style="gap:10px;">
           <div class="modal-field" style="min-width:160px;flex:1;">
             <label for="task-edit-start">开始时间</label>
-            <select id="task-edit-start" aria-label="任务开始时间"></select>
+            <input id="task-edit-start" type="datetime-local" step="60" aria-label="任务开始时间" />
           </div>
           <div class="modal-field" style="min-width:160px;flex:1;">
             <label for="task-edit-end">结束时间</label>
-            <select id="task-edit-end" aria-label="任务结束时间"></select>
+            <input id="task-edit-end" type="datetime-local" step="60" aria-label="任务结束时间" />
           </div>
         </div>
-        <div class="task-editor-preview" id="task-edit-preview"></div>
         <div class="task-editor-status" id="task-edit-status">请选择开始与结束时间。</div>
       </div>
       <div class="modal-ft">
@@ -239,7 +394,7 @@
     const GANTT_ROW_H = 30;
     let ganttPointerCtx = null;
     let ganttRafPending = false;
-    const taskEditorState = { taskIndex: -1, lastFocusedEl: null };
+    const taskEditorState = { taskIndex: -1, lastFocusedEl: null, baseDate: null };
     const WIP_PAGE_SIZE = 10;
     const wipPlants = [
       { key: 'east', name: '东区总装' },
@@ -339,17 +494,672 @@
       window.location.href = target;
     }
 
+    const WEEK_NAMES = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+    const PLANT_LINE_RANGES = {
+      east: [0, 3],
+      west: [4, 7],
+      inject: [8, 11],
+      hx: [12, 15],
+      ctrl: [16, 19]
+    };
+    let currentWorkbenchView = 'week';
+    let monthViewOffset = 0;
+    let selectedWeekDayIndex = 0;
+    let selectedDayDate = new Date();
+    selectedDayDate.setHours(0, 0, 0, 0);
+    let dayTaskPage = 1;
+    const WEEK_TASK_PAGE_SIZE = 10;
+    let weekDatesCache = [];
+    let weekTaskRowsCache = Array.from({ length: 7 }, () => []);
+    const weekDayPageByIndex = {};
+    const weekSeqOverrides = {};
+
+    function getPlantNameByKey(key) {
+      const found = wipPlants.find((p) => p.key === key);
+      return found ? found.name : key;
+    }
+
+    function getSelectedPlantKeys() {
+      const filter = document.getElementById('gantt-plant-filter')?.value || 'all';
+      if (filter === 'all') return wipPlants.map((p) => p.key);
+      if (wipPlants.some((p) => p.key === filter)) return [filter];
+      return wipPlants.map((p) => p.key);
+    }
+
+    function getPlantKeyByLine(line) {
+      if (line <= 3) return 'east';
+      if (line <= 7) return 'west';
+      if (line <= 11) return 'inject';
+      if (line <= 15) return 'hx';
+      return 'ctrl';
+    }
+
+    function getLineCode(line) {
+      return `ZZW${String(line + 1).padStart(2, '0')}`;
+    }
+
+    function getWorkshopNameByPlantKey(plantKey) {
+      const map = {
+        east: '东区总装车间',
+        west: '西区总装车间',
+        inject: '注塑车间',
+        hx: '两器车间',
+        ctrl: '控制器车间'
+      };
+      return map[plantKey] || '生产车间';
+    }
+
+    function formatDateYMD(date) {
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    }
+
+    function formatDateWithWeek(date) {
+      return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日 ${WEEK_NAMES[date.getDay()]}`;
+    }
+
+    function parseLocalDate(dateStr) {
+      if (!dateStr || typeof dateStr !== 'string') return null;
+      const parts = dateStr.split('-').map((item) => Number(item));
+      if (parts.length !== 3 || parts.some((num) => !Number.isFinite(num))) return null;
+      const [year, month, day] = parts;
+      const date = new Date(year, month - 1, day);
+      date.setHours(0, 0, 0, 0);
+      if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) return null;
+      return date;
+    }
+
+    function setSelectedDayDate(date) {
+      const next = new Date(date);
+      if (Number.isNaN(next.getTime())) return;
+      next.setHours(0, 0, 0, 0);
+      selectedDayDate = next;
+      dayTaskPage = 1;
+      updateDayViewDateHead();
+    }
+
+    function updateDayViewDateHead() {
+      const dateText = document.getElementById('day-view-date-text');
+      const dateInput = document.getElementById('day-view-date-input');
+      if (dateText) dateText.textContent = formatDateWithWeek(selectedDayDate);
+      if (dateInput) dateInput.value = formatDateYMD(selectedDayDate);
+    }
+
+    function handleDayDateInputChange(value) {
+      const nextDate = parseLocalDate(value);
+      if (!nextDate) return;
+      setSelectedDayDate(nextDate);
+      if (currentWorkbenchView !== 'day') {
+        setWorkbenchView('day', { silentToast: true });
+      } else {
+        renderGanttWorkbench();
+      }
+    }
+
+    function openDayViewByDate(dateStr) {
+      const date = parseLocalDate(dateStr);
+      if (!date) return;
+      setSelectedDayDate(date);
+      setWorkbenchView('day', { silentToast: true });
+      toast(`已切换至${date.getMonth() + 1}/${date.getDate()}日视角`);
+    }
+
+    function sortWeekRows(rows) {
+      rows.sort((a, b) => {
+        if (a.seq !== b.seq) return a.seq - b.seq;
+        if (a.machine !== b.machine) return a.machine.localeCompare(b.machine);
+        if ((a.startHour ?? 0) !== (b.startHour ?? 0)) return (a.startHour ?? 0) - (b.startHour ?? 0);
+        return a.orderCode.localeCompare(b.orderCode);
+      });
+    }
+
+    function getLinesByPlantKeys(plantKeys) {
+      const lines = [];
+      plantKeys.forEach((key) => {
+        const range = PLANT_LINE_RANGES[key];
+        if (!range) return;
+        for (let line = range[0]; line <= range[1]; line++) {
+          lines.push(line);
+        }
+      });
+      return lines;
+    }
+
+    function getDailyLoadPercent(plantKey, date) {
+      const idx = Math.max(0, wipPlants.findIndex((p) => p.key === plantKey));
+      const dayNo = Math.floor(new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime() / 86400000);
+      let ratio = 36 + ((dayNo * 13 + idx * 19) % 96); // 36% - 131%
+      if (date.getDay() === 0 || date.getDay() === 6) {
+        ratio = Math.max(28, ratio - 18);
+      }
+      return Math.round(ratio);
+    }
+
+    function getLoadClass(ratio) {
+      if (ratio > 100) return 'load-over';
+      if (ratio >= 100) return 'load-full';
+      if (ratio > 80) return 'load-high';
+      if (ratio >= 50) return 'load-mid';
+      return 'load-low';
+    }
+
+    function getScopeLoadPercent(plantKeys, date) {
+      if (!plantKeys.length) return 0;
+      const values = plantKeys.map((key) => getDailyLoadPercent(key, date));
+      return Math.round(values.reduce((sum, val) => sum + val, 0) / values.length);
+    }
+
+    function buildWeekDates() {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      return Array.from({ length: 7 }, (_, idx) => {
+        const d = new Date(today);
+        d.setDate(today.getDate() + idx);
+        return d;
+      });
+    }
+
+    function renderWeekView() {
+      const calendar = document.getElementById('week-calendar');
+      const gantt = document.getElementById('week-gantt');
+      const dayTables = document.getElementById('week-day-tables');
+      if (!calendar || !gantt || !dayTables) return;
+
+      const selectedKeys = getSelectedPlantKeys();
+      const weekDates = buildWeekDates();
+      const scopeText = selectedKeys.length === 1 ? getPlantNameByKey(selectedKeys[0]) : '全分厂';
+      const selectedLines = getLinesByPlantKeys(selectedKeys);
+      const lineSet = new Set(selectedLines);
+      const weekTaskRows = Array.from({ length: 7 }, () => []);
+
+      calendar.innerHTML = weekDates.map((date, dayIdx) => {
+        const ratio = getScopeLoadPercent(selectedKeys, date);
+        const klass = getLoadClass(ratio);
+        const activeClass = dayIdx === selectedWeekDayIndex ? 'active' : '';
+        return `
+          <button class="week-day-card ${klass} ${activeClass}" type="button" data-day-idx="${dayIdx}" aria-label="${WEEK_NAMES[date.getDay()]} ${date.getMonth() + 1}月${date.getDate()}日">
+            <div class="week-day-head">
+              <span class="week-day-week">${WEEK_NAMES[date.getDay()]}</span>
+              <span class="week-day-date">${date.getMonth() + 1}/${date.getDate()}</span>
+            </div>
+            <div class="week-day-load">${ratio}%</div>
+            <span class="week-day-tag">${scopeText} · 一周计划</span>
+          </button>
+        `;
+      }).join('');
+
+      calendar.querySelectorAll('.week-day-card').forEach((card) => {
+        card.addEventListener('click', () => {
+          const dayIdx = Number(card.dataset.dayIdx);
+          if (!Number.isFinite(dayIdx)) return;
+          onWeekDaySelect(dayIdx);
+        });
+      });
+
+      const tasks = Array.isArray(state.ganttTasks) ? state.ganttTasks : [];
+      const machineRows = selectedLines.map((line) => ({
+        line,
+        plantKey: getPlantKeyByLine(line),
+        bars: []
+      }));
+      const rowMap = new Map(machineRows.map((row) => [row.line, row]));
+      const hasRealTasks = tasks.length > 0;
+      const sourceTasks = hasRealTasks ? tasks : [{
+        id: 'VIRTUAL-0',
+        name: '排产任务',
+        cls: 'a',
+        status: '生产中',
+        qty: 120,
+        orderNo: 'ORD-VIRTUAL-001'
+      }];
+
+      selectedLines.forEach((line, lineIdx) => {
+        const row = rowMap.get(line);
+        if (!row) return;
+
+        weekDates.forEach((date, dayIdx) => {
+          const orderCount = 1 + ((line * 7 + dayIdx * 3) % 4); // 每天每机台1-4个订单
+          const gap = 0.04;
+          const usable = Math.max(0.24, 1 - gap * (orderCount + 1));
+          const slotWidth = Math.max(0.14, usable / orderCount);
+
+          for (let slot = 0; slot < orderCount; slot++) {
+            const sourceIdx = (lineIdx * 29 + dayIdx * 11 + slot * 3) % sourceTasks.length;
+            const src = sourceTasks[sourceIdx] || sourceTasks[0];
+            const seed = line * 97 + dayIdx * 31 + slot * 17;
+            const startOffset = gap + slot * (slotWidth + gap);
+            const durationDays = Math.min(slotWidth, 0.96 - startOffset);
+            const startHour = Math.round((startOffset * 24) * 60) / 60;
+            const durationHours = Math.max(0.5, Math.round((durationDays * 24) * 60) / 60);
+            const endHour = startHour + durationHours;
+            const normalizedOrderNo = src.orderNo
+              ? `${src.orderNo}-${dayIdx + 1}${slot + 1}`
+              : `ORD-${String((line + 1) * 1000 + dayIdx * 10 + slot + 1).padStart(6, '0')}`;
+            const startTime = toHourLabel(startHour);
+            const endTime = toHourLabel(endHour);
+            const uid = `WEEK-${line}-${dayIdx}-${slot}`;
+            const defaultSeq = weekTaskRows[dayIdx].length + 1;
+            const orderQtyBase = Number(src.qty) || 120;
+            const orderQty = Math.max(20, orderQtyBase + ((seed % 5) - 2) * 12);
+            const originalQty = Math.round(orderQty * (1.08 + (slot % 3) * 0.04));
+            const deliveryDateObj = new Date(date);
+            deliveryDateObj.setDate(deliveryDateObj.getDate() + 1 + (slot % 2));
+
+            row.bars.push({
+              taskIndex: hasRealTasks ? sourceIdx : -1,
+              baseDateStr: formatDateYMD(date),
+              orderNo: normalizedOrderNo,
+              taskName: src.name || '任务',
+              startDay: dayIdx + startOffset,
+              durationDays,
+              cls: src.cls || ['a', 'b', 'c'][seed % 3],
+              startTime,
+              endTime
+            });
+
+            weekTaskRows[dayIdx].push({
+              uid,
+              seq: weekSeqOverrides[uid] || defaultSeq,
+              startHour,
+              workshop: getWorkshopNameByPlantKey(row.plantKey),
+              plantName: getPlantNameByKey(row.plantKey),
+              machine: getLineCode(line),
+              orderCode: normalizedOrderNo,
+              materialCode: `MAT-${String(1000 + ((line * 37 + dayIdx * 17 + slot * 13) % 9000)).padStart(4, '0')}`,
+              deliveryDate: formatDateYMD(deliveryDateObj),
+              mergeTime: toHourLabel(startHour + Math.min(1, durationHours / 2)),
+              orderQty,
+              originalOrderQty: originalQty,
+              orderStatus: src.status || (slot % 2 ? '生产中' : '待上线'),
+              taskName: src.name || '任务',
+              timeRange: `${startTime}-${endTime}`
+            });
+          }
+        });
+      });
+
+      machineRows.forEach((row) => {
+        row.bars.sort((a, b) => a.startDay - b.startDay || b.durationDays - a.durationDays);
+      });
+      weekTaskRows.forEach((rows) => {
+        sortWeekRows(rows);
+      });
+
+      let html = `
+        <div class="week-gantt-head">
+          <div class="week-gantt-head-label">机台</div>
+          <div class="week-gantt-head-track">
+            ${weekDates.map((date) => `<span>${date.getMonth() + 1}/${date.getDate()}</span>`).join('')}
+          </div>
+        </div>
+      `;
+
+      machineRows.forEach((row) => {
+        html += `
+          <div class="week-gantt-row">
+            <div class="week-gantt-row-label">
+              <span>${getLineCode(row.line)}</span>
+              <span class="week-gantt-row-plant">${getPlantNameByKey(row.plantKey)}</span>
+            </div>
+            <div class="week-gantt-row-track">
+              ${row.bars.map((bar, barIdx) => `
+                <div class="week-gantt-bar editable ${bar.cls}" data-task-idx="${bar.taskIndex}" data-base-date="${bar.baseDateStr}" role="button" tabindex="0" style="left:${(bar.startDay / 7) * 100}%;width:${(Math.min(7 - bar.startDay, bar.durationDays) / 7) * 100}%;top:8px;" title="${bar.orderNo} | ${bar.taskName} | ${bar.startTime}-${bar.endTime}（双击编辑）" aria-label="${bar.orderNo}，双击编辑排程时间">
+                  ${bar.orderNo}
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      });
+      gantt.innerHTML = html;
+      gantt.querySelectorAll('.week-gantt-bar[data-task-idx]').forEach((barEl) => {
+        barEl.addEventListener('dblclick', () => {
+          const taskIndex = Number(barEl.dataset.taskIdx);
+          if (!Number.isInteger(taskIndex) || taskIndex < 0) return;
+          openTaskEditor(taskIndex, { baseDate: barEl.dataset.baseDate || '' });
+        });
+        barEl.addEventListener('keydown', (event) => {
+          if (event.key !== 'Enter') return;
+          const taskIndex = Number(barEl.dataset.taskIdx);
+          if (!Number.isInteger(taskIndex) || taskIndex < 0) return;
+          event.preventDefault();
+          openTaskEditor(taskIndex, { baseDate: barEl.dataset.baseDate || '' });
+        });
+      });
+
+      weekDatesCache = weekDates;
+      weekTaskRowsCache = weekTaskRows;
+      selectedWeekDayIndex = clamp(selectedWeekDayIndex, 0, weekDatesCache.length - 1);
+      renderSelectedWeekDayTasks();
+    }
+
+    function onWeekDaySelect(dayIdx) {
+      selectedWeekDayIndex = clamp(dayIdx, 0, Math.max(0, weekDatesCache.length - 1));
+      weekDayPageByIndex[selectedWeekDayIndex] = 1;
+      document.querySelectorAll('#week-calendar .week-day-card').forEach((card, idx) => {
+        card.classList.toggle('active', idx === selectedWeekDayIndex);
+      });
+      renderSelectedWeekDayTasks();
+    }
+
+    function updateWeekTaskSeq(rowUid, value) {
+      const parsed = Math.max(1, Math.round(Number(value)));
+      if (!Number.isFinite(parsed)) return;
+      weekSeqOverrides[rowUid] = parsed;
+      weekTaskRowsCache.forEach((rows) => {
+        rows.forEach((row) => {
+          if (row.uid === rowUid) row.seq = parsed;
+        });
+        sortWeekRows(rows);
+      });
+      renderSelectedWeekDayTasks();
+    }
+
+    function changeWeekDayPage(delta) {
+      const dayIdx = clamp(selectedWeekDayIndex, 0, Math.max(0, weekDatesCache.length - 1));
+      const rows = weekTaskRowsCache[dayIdx] || [];
+      const totalPages = Math.max(1, Math.ceil(rows.length / WEEK_TASK_PAGE_SIZE));
+      const currentPage = clamp((weekDayPageByIndex[dayIdx] || 1) + delta, 1, totalPages);
+      weekDayPageByIndex[dayIdx] = currentPage;
+      renderSelectedWeekDayTasks();
+    }
+
+    function renderSelectedWeekDayTasks() {
+      const container = document.getElementById('week-day-tables');
+      if (!container || !weekDatesCache.length) return;
+
+      const dayIdx = clamp(selectedWeekDayIndex, 0, weekDatesCache.length - 1);
+      const date = weekDatesCache[dayIdx];
+      const rows = weekTaskRowsCache[dayIdx] || [];
+      const totalPages = Math.max(1, Math.ceil(rows.length / WEEK_TASK_PAGE_SIZE));
+      const currentPage = clamp(weekDayPageByIndex[dayIdx] || 1, 1, totalPages);
+      weekDayPageByIndex[dayIdx] = currentPage;
+      const startIdx = (currentPage - 1) * WEEK_TASK_PAGE_SIZE;
+      const pageRows = rows.slice(startIdx, startIdx + WEEK_TASK_PAGE_SIZE);
+
+      container.innerHTML = `
+        <div class="week-day-table-card">
+          <div class="week-day-table-head">
+            <b>${WEEK_NAMES[date.getDay()]} ${date.getMonth() + 1}/${date.getDate()} 排产任务</b>
+            <span>${rows.length} 条任务（按排产顺序）</span>
+          </div>
+          <div class="week-day-table-toolbar">
+            <span class="muted">点击上方日期切换当日任务；排产顺序可手工编辑。</span>
+          </div>
+          ${rows.length ? `
+            <div class="week-day-table-wrap">
+              <table class="week-day-table">
+                <thead>
+                  <tr>
+                    <th>排产顺序</th>
+                    <th>车间</th>
+                    <th>机台</th>
+                    <th>订单代码</th>
+                    <th>物料编码</th>
+                    <th>交货期</th>
+                    <th>合批时间</th>
+                    <th>订单数量</th>
+                    <th>原订单数量</th>
+                    <th>订单状态</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${pageRows.map((row) => `
+                    <tr>
+                      <td class="seq">
+                        <input class="week-seq-input" type="number" min="1" step="1" value="${row.seq}" oninput="updateWeekTaskSeq('${row.uid}', this.value)" onchange="updateWeekTaskSeq('${row.uid}', this.value)" />
+                      </td>
+                      <td>${row.workshop}</td>
+                      <td>${row.machine}</td>
+                      <td class="order">${row.orderCode}</td>
+                      <td>${row.materialCode}</td>
+                      <td>${row.deliveryDate}</td>
+                      <td>${row.mergeTime}</td>
+                      <td>${row.orderQty}</td>
+                      <td>${row.originalOrderQty}</td>
+                      <td>${row.orderStatus}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+            <div class="week-day-pagination">
+              <span class="muted">每页10条</span>
+              <button class="week-page-btn" type="button" onclick="changeWeekDayPage(-1)" ${currentPage <= 1 ? 'disabled' : ''}>上一页</button>
+              <span class="week-page-info">${currentPage} / ${totalPages}</span>
+              <button class="week-page-btn" type="button" onclick="changeWeekDayPage(1)" ${currentPage >= totalPages ? 'disabled' : ''}>下一页</button>
+            </div>
+          ` : '<div class="week-day-table-empty">当日无排产任务</div>'}
+        </div>
+      `;
+    }
+
+    function buildDayTaskRows(date) {
+      const tasks = Array.isArray(state.ganttTasks) ? state.ganttTasks : [];
+      const filter = document.getElementById('gantt-plant-filter')?.value || 'all';
+      const rows = [];
+
+      tasks.forEach((task, idx) => {
+        sanitizeTask(task);
+        if (!lineMatchesFilter(task.line, filter)) return;
+
+        const plantKey = getPlantKeyByLine(task.line);
+        const orderCode = task.orderNo || `ORD-${String(task.id || idx).padStart(4, '0')}`;
+        const orderQty = Number(task.qty) || 0;
+        const originalOrderQty = Math.round(orderQty * (1.08 + (idx % 3) * 0.04));
+        const deliveryDateObj = new Date(date);
+        deliveryDateObj.setDate(deliveryDateObj.getDate() + (idx % 3) + 1);
+
+        rows.push({
+          seq: 0,
+          line: task.line,
+          startHour: task.start,
+          workshop: getWorkshopNameByPlantKey(plantKey),
+          machine: getLineCode(task.line),
+          orderCode,
+          materialCode: `MAT-${String(1000 + ((task.line * 37 + idx * 11) % 9000)).padStart(4, '0')}`,
+          deliveryDate: formatDateYMD(deliveryDateObj),
+          mergeTime: toHourLabel((task.start + 1) % 24),
+          orderQty,
+          originalOrderQty,
+          orderStatus: task.status || '生产中'
+        });
+      });
+
+      rows.sort((a, b) => {
+        if (a.startHour !== b.startHour) return a.startHour - b.startHour;
+        if (a.line !== b.line) return a.line - b.line;
+        return a.orderCode.localeCompare(b.orderCode);
+      });
+
+      rows.forEach((row, index) => {
+        row.seq = index + 1;
+      });
+
+      return rows;
+    }
+
+    function changeDayTaskPage(delta) {
+      const rows = buildDayTaskRows(selectedDayDate);
+      const totalPages = Math.max(1, Math.ceil(rows.length / WEEK_TASK_PAGE_SIZE));
+      dayTaskPage = clamp(dayTaskPage + delta, 1, totalPages);
+      renderDayTaskList();
+    }
+
+    function renderDayTaskList() {
+      const container = document.getElementById('day-task-tables');
+      if (!container) return;
+
+      const rows = buildDayTaskRows(selectedDayDate);
+      const totalPages = Math.max(1, Math.ceil(rows.length / WEEK_TASK_PAGE_SIZE));
+      dayTaskPage = clamp(dayTaskPage, 1, totalPages);
+      const startIdx = (dayTaskPage - 1) * WEEK_TASK_PAGE_SIZE;
+      const pageRows = rows.slice(startIdx, startIdx + WEEK_TASK_PAGE_SIZE);
+
+      container.innerHTML = `
+        <div class="week-day-table-card">
+          <div class="week-day-table-head">
+            <b>${WEEK_NAMES[selectedDayDate.getDay()]} ${selectedDayDate.getMonth() + 1}/${selectedDayDate.getDate()} 排产任务</b>
+            <span>${rows.length} 条任务</span>
+          </div>
+          <div class="week-day-table-toolbar">
+            <span class="muted">日视角订单列表（按开始时间排序）。</span>
+          </div>
+          ${rows.length ? `
+            <div class="week-day-table-wrap">
+              <table class="week-day-table">
+                <thead>
+                  <tr>
+                    <th>排产顺序</th>
+                    <th>车间</th>
+                    <th>机台</th>
+                    <th>订单代码</th>
+                    <th>物料编码</th>
+                    <th>交货期</th>
+                    <th>合批时间</th>
+                    <th>订单数量</th>
+                    <th>原订单数量</th>
+                    <th>订单状态</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${pageRows.map((row) => `
+                    <tr>
+                      <td>${row.seq}</td>
+                      <td>${row.workshop}</td>
+                      <td>${row.machine}</td>
+                      <td class="order">${row.orderCode}</td>
+                      <td>${row.materialCode}</td>
+                      <td>${row.deliveryDate}</td>
+                      <td>${row.mergeTime}</td>
+                      <td>${row.orderQty}</td>
+                      <td>${row.originalOrderQty}</td>
+                      <td>${row.orderStatus}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+            <div class="week-day-pagination">
+              <span class="muted">每页10条</span>
+              <button class="week-page-btn" type="button" onclick="changeDayTaskPage(-1)" ${dayTaskPage <= 1 ? 'disabled' : ''}>上一页</button>
+              <span class="week-page-info">${dayTaskPage} / ${totalPages}</span>
+              <button class="week-page-btn" type="button" onclick="changeDayTaskPage(1)" ${dayTaskPage >= totalPages ? 'disabled' : ''}>下一页</button>
+            </div>
+          ` : '<div class="week-day-table-empty">当日无排产任务</div>'}
+        </div>
+      `;
+    }
+
+    function renderMonthView() {
+      const grid = document.getElementById('month-calendar-grid');
+      const title = document.getElementById('month-title');
+      if (!grid || !title) return;
+
+      const today = new Date();
+      const firstDay = new Date(today.getFullYear(), today.getMonth() + monthViewOffset, 1);
+      const year = firstDay.getFullYear();
+      const month = firstDay.getMonth();
+      const firstWeekday = firstDay.getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const prevMonthDays = new Date(year, month, 0).getDate();
+      const selectedKeys = getSelectedPlantKeys();
+
+      title.textContent = `${year}年${month + 1}月`;
+
+      let html = '';
+      for (let i = 0; i < 42; i++) {
+        const dayNum = i - firstWeekday + 1;
+        if (dayNum < 1) {
+          html += `<div class="month-day other"><div class="month-day-num">${prevMonthDays + dayNum}</div></div>`;
+          continue;
+        }
+        if (dayNum > daysInMonth) {
+          html += `<div class="month-day other"><div class="month-day-num">${dayNum - daysInMonth}</div></div>`;
+          continue;
+        }
+        const date = new Date(year, month, dayNum);
+        const ratio = getScopeLoadPercent(selectedKeys, date);
+        const isFinishedTaskDate = month === 2 && dayNum >= 1 && dayNum <= 11;
+        const klass = `${getLoadClass(ratio)}${isFinishedTaskDate ? ' ended' : ''}`;
+        const fill = Math.min(100, ratio);
+        const overflow = ratio > 100 ? Math.min(40, ratio - 100) : 0;
+
+        const chips = (selectedKeys.length === 1
+          ? [selectedKeys[0]]
+          : selectedKeys
+            .map((key) => ({ key, ratio: getDailyLoadPercent(key, date) }))
+            .sort((a, b) => b.ratio - a.ratio)
+            .slice(0, 2)
+            .map((item) => item.key)
+        ).map((key) => {
+          const load = getDailyLoadPercent(key, date);
+          return `<div class="month-task-chip">${getPlantNameByKey(key)} · ${load}%</div>`;
+        }).join('');
+
+        const dateStr = formatDateYMD(date);
+        html += `
+          <div class="month-day ${klass} selectable" data-date="${dateStr}" role="button" tabindex="0" aria-label="${date.getMonth() + 1}月${dayNum}日，查看日视角排程">
+            <div class="month-day-head">
+              <span class="month-day-num">${dayNum}</span>
+              <span class="month-load">${isFinishedTaskDate ? '已结束' : `${ratio}%`}</span>
+            </div>
+            <div class="month-load-bar">
+              <span class="month-load-fill" style="width:${isFinishedTaskDate ? 100 : fill}%"></span>
+              ${overflow > 0 && !isFinishedTaskDate ? `<span class="month-load-overfill" style="width:${overflow}%"></span>` : ''}
+            </div>
+            <div class="month-task-list">${chips}</div>
+          </div>
+        `;
+      }
+      grid.innerHTML = html;
+      grid.querySelectorAll('.month-day.selectable').forEach((dayEl) => {
+        dayEl.addEventListener('click', () => openDayViewByDate(dayEl.dataset.date || ''));
+        dayEl.addEventListener('keydown', (event) => {
+          if (event.key !== 'Enter' && event.key !== ' ') return;
+          event.preventDefault();
+          openDayViewByDate(dayEl.dataset.date || '');
+        });
+      });
+    }
+
+    function renderActiveWorkbenchView() {
+      if (currentWorkbenchView === 'day') {
+        updateDayViewDateHead();
+        renderLocks();
+        renderGanttWorkbench();
+      } else if (currentWorkbenchView === 'month') {
+        renderMonthView();
+      } else {
+        renderWeekView();
+      }
+    }
+
+    function setWorkbenchView(view, opts = {}) {
+      const targetView = ['day', 'week', 'month'].includes(view) ? view : 'week';
+      currentWorkbenchView = targetView;
+
+      document.querySelectorAll('#gantt-view-switch .view-btn').forEach((btn) => {
+        btn.classList.toggle('active', btn.dataset.view === targetView);
+      });
+      document.getElementById('view-panel-day')?.classList.toggle('active', targetView === 'day');
+      document.getElementById('view-panel-week')?.classList.toggle('active', targetView === 'week');
+      document.getElementById('view-panel-month')?.classList.toggle('active', targetView === 'month');
+
+      renderActiveWorkbenchView();
+      if (!opts.silentToast) {
+        const labels = { day: '当日视角', week: '本周视角', month: '当月视角' };
+        toast(`已切换至${labels[targetView]}`);
+      }
+    }
+
     function clamp(val, min, max) {
       return Math.min(max, Math.max(min, val));
     }
 
     function sanitizeTask(task) {
-      task.start = clamp(Math.round(task.start || 0), 0, GANTT_TOTAL_COLS - 1);
-      task.duration = clamp(Math.round(task.duration || 1), 1, GANTT_TOTAL_COLS);
-      task.line = clamp(Math.round(task.line || 0), 0, GANTT_LINE_TOTAL - 1);
-      if (task.start + task.duration > GANTT_TOTAL_COLS) {
-        task.start = GANTT_TOTAL_COLS - task.duration;
-      }
+      task.start = Math.max(0, Number(task.start) || 0);
+      task.duration = Math.max(1 / 60, Number(task.duration) || 1 / 60);
+      task.line = clamp(Math.round(Number(task.line) || 0), 0, GANTT_LINE_TOTAL - 1);
     }
 
     function lineMatchesFilter(line, filter) {
@@ -372,7 +1182,34 @@
     }
 
     function toHourLabel(hour) {
-      return `${String(hour).padStart(2, '0')}:00`;
+      const totalMinutes = Math.max(0, Math.round((Number(hour) || 0) * 60));
+      const hh = Math.floor(totalMinutes / 60);
+      const mm = totalMinutes % 60;
+      return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
+    }
+
+    function formatDateTimeCN(date) {
+      return `${date.getFullYear()}年${String(date.getMonth() + 1).padStart(2, '0')}月${String(date.getDate()).padStart(2, '0')}日${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+    }
+
+    function buildTaskDateTimeRange(baseDate, startHour, endHour) {
+      const anchor = baseDate instanceof Date ? new Date(baseDate) : new Date();
+      if (Number.isNaN(anchor.getTime())) return `${toHourLabel(startHour)} - ${toHourLabel(endHour)}`;
+      anchor.setHours(0, 0, 0, 0);
+      const startAt = new Date(anchor);
+      startAt.setHours(0, 0, 0, 0);
+      startAt.setMinutes(startHour * 60);
+      const endAt = new Date(anchor);
+      endAt.setHours(0, 0, 0, 0);
+      endAt.setMinutes(endHour * 60);
+      return `${formatDateTimeCN(startAt)} - ${formatDateTimeCN(endAt)}`;
+    }
+
+    function getTaskEditorBaseDate() {
+      if (taskEditorState.baseDate instanceof Date && !Number.isNaN(taskEditorState.baseDate.getTime())) {
+        return taskEditorState.baseDate;
+      }
+      return selectedDayDate instanceof Date && !Number.isNaN(selectedDayDate.getTime()) ? selectedDayDate : new Date();
     }
 
     function getTaskEditorElements() {
@@ -382,7 +1219,6 @@
         line: document.getElementById('task-edit-line'),
         start: document.getElementById('task-edit-start'),
         end: document.getElementById('task-edit-end'),
-        preview: document.getElementById('task-edit-preview'),
         status: document.getElementById('task-edit-status'),
         save: document.getElementById('task-edit-save')
       };
@@ -391,20 +1227,38 @@
     function buildTaskEditorOptions() {
       const { start, end } = getTaskEditorElements();
       if (!start || !end) return;
-      if (!start.options.length) {
-        let startHtml = '';
-        for (let h = 0; h <= 24; h++) {
-          startHtml += `<option value="${h}">${toHourLabel(h)}</option>`;
-        }
-        start.innerHTML = startHtml;
-      }
-      if (!end.options.length) {
-        let endHtml = '';
-        for (let h = 1; h <= 25; h++) {
-          endHtml += `<option value="${h}">${toHourLabel(h)}</option>`;
-        }
-        end.innerHTML = endHtml;
-      }
+      start.setAttribute('step', '60');
+      end.setAttribute('step', '60');
+    }
+
+    function toDateTimeLocalValue(date) {
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+    }
+
+    function parseLocalDateTime(dateTimeStr) {
+      if (!dateTimeStr || typeof dateTimeStr !== 'string') return null;
+      const match = dateTimeStr.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/);
+      if (!match) return null;
+      const [, y, mo, d, h, mi] = match;
+      const date = new Date(Number(y), Number(mo) - 1, Number(d), Number(h), Number(mi), 0, 0);
+      if (Number.isNaN(date.getTime())) return null;
+      return date;
+    }
+
+    function getTaskEditorHourRange() {
+      const { start, end } = getTaskEditorElements();
+      if (!start || !end) return null;
+      const startAt = parseLocalDateTime(start.value);
+      const endAt = parseLocalDateTime(end.value);
+      if (!startAt || !endAt) return null;
+
+      const baseDate = getTaskEditorBaseDate();
+      const baseStart = new Date(baseDate);
+      baseStart.setHours(0, 0, 0, 0);
+      const startHour = (startAt.getTime() - baseStart.getTime()) / 3600000;
+      const endHour = (endAt.getTime() - baseStart.getTime()) / 3600000;
+
+      return { startHour, endHour, startAt, endAt, baseDate };
     }
 
     function findTaskConflict(taskIndex, line, start, end) {
@@ -419,25 +1273,31 @@
     }
 
     function validateTaskEditor() {
-      const { start, end, preview, status, save } = getTaskEditorElements();
+      const { status, save } = getTaskEditorElements();
       const task = state.ganttTasks?.[taskEditorState.taskIndex];
-      if (!task || !start || !end || !status || !save || !preview) {
+      if (!task || !status || !save) {
         return false;
       }
 
-      const startHour = Number(start.value);
-      const endHour = Number(end.value);
-      preview.textContent = `预览：${toHourLabel(startHour)} - ${toHourLabel(endHour)}`;
+      const range = getTaskEditorHourRange();
       status.className = 'task-editor-status';
+      if (!range) {
+        status.textContent = '时间无效：请选择有效的开始与结束日期时间。';
+        status.classList.add('error');
+        save.disabled = true;
+        return false;
+      }
 
-      if (!Number.isInteger(startHour) || !Number.isInteger(endHour) || endHour <= startHour) {
+      const { startHour, endHour, baseDate } = range;
+
+      if (!Number.isFinite(startHour) || !Number.isFinite(endHour) || endHour <= startHour) {
         status.textContent = '时间无效：结束时间必须晚于开始时间。';
         status.classList.add('error');
         save.disabled = true;
         return false;
       }
-      if (startHour < 0 || endHour > GANTT_TOTAL_COLS) {
-        status.textContent = '时间范围无效：需满足 00:00 到 25:00。';
+      if (startHour < 0) {
+        status.textContent = '时间无效：开始时间不能早于基准日期 00:00。';
         status.classList.add('error');
         save.disabled = true;
         return false;
@@ -445,7 +1305,8 @@
 
       const conflict = findTaskConflict(taskEditorState.taskIndex, task.line, startHour, endHour);
       if (conflict) {
-        status.textContent = `冲突：与 ${conflict.name}（${toHourLabel(conflict.start)}-${toHourLabel(conflict.start + conflict.duration)}）重叠。`;
+        const conflictRangeText = buildTaskDateTimeRange(baseDate, conflict.start, conflict.start + conflict.duration);
+        status.textContent = `冲突：与 ${conflict.name}（${conflictRangeText}）重叠。`;
         status.classList.add('error');
         save.disabled = true;
         return false;
@@ -457,19 +1318,27 @@
       return true;
     }
 
-    function openTaskEditor(taskIndex) {
+    function openTaskEditor(taskIndex, opts = {}) {
       const task = state.ganttTasks?.[taskIndex];
       if (!task) return;
       sanitizeTask(task);
       buildTaskEditorOptions();
 
       const els = getTaskEditorElements();
+      const parsedBaseDate = opts.baseDate ? parseLocalDate(opts.baseDate) : null;
       taskEditorState.taskIndex = taskIndex;
       taskEditorState.lastFocusedEl = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      taskEditorState.baseDate = parsedBaseDate || (selectedDayDate instanceof Date ? new Date(selectedDayDate) : new Date());
+      const baseStart = new Date(taskEditorState.baseDate);
+      baseStart.setHours(0, 0, 0, 0);
+      const startAt = new Date(baseStart);
+      startAt.setMinutes(Math.round(task.start * 60));
+      const endAt = new Date(baseStart);
+      endAt.setMinutes(Math.round((task.start + task.duration) * 60));
       if (els.name) els.name.textContent = task.name;
       if (els.line) els.line.textContent = `ZZW${String(task.line + 1).padStart(2, '0')}`;
-      if (els.start) els.start.value = String(task.start);
-      if (els.end) els.end.value = String(task.start + task.duration);
+      if (els.start) els.start.value = toDateTimeLocalValue(startAt);
+      if (els.end) els.end.value = toDateTimeLocalValue(endAt);
       validateTaskEditor();
 
       if (els.mask) {
@@ -490,20 +1359,23 @@
       }
       taskEditorState.lastFocusedEl = null;
       taskEditorState.taskIndex = -1;
+      taskEditorState.baseDate = null;
     }
 
     function saveTaskEditor() {
       const task = state.ganttTasks?.[taskEditorState.taskIndex];
-      const { start, end } = getTaskEditorElements();
-      if (!task || !start || !end) return;
+      if (!task) return;
       if (!validateTaskEditor()) return;
 
-      task.start = Number(start.value);
-      task.duration = Number(end.value) - Number(start.value);
+      const range = getTaskEditorHourRange();
+      if (!range) return;
+      task.start = range.startHour;
+      task.duration = range.endHour - range.startHour;
       sanitizeTask(task);
+      const rangeText = buildTaskDateTimeRange(getTaskEditorBaseDate(), task.start, task.start + task.duration);
       renderGanttWorkbench();
       closeTaskEditor();
-      toast(`任务时间已修改：${task.name}（${toHourLabel(task.start)}-${toHourLabel(task.start + task.duration)}）`);
+      toast(`任务时间已修改：${task.name}（${rangeText}）`);
     }
 
     function startTaskPointerInteraction(e, taskIndex) {
@@ -564,7 +1436,7 @@
       const changed = ganttPointerCtx.changed;
       ganttPointerCtx = null;
       if (task && changed) {
-        toast(`任务已更新：${task.name}（${String(task.start).padStart(2, '0')}:00-${String(task.start + task.duration).padStart(2, '0')}:00）`);
+        toast(`任务已更新：${task.name}（${toHourLabel(task.start)}-${toHourLabel(task.start + task.duration)}）`);
       }
     }
 
@@ -601,18 +1473,20 @@
         if (!lineMatchesFilter(task.line, filter)) return;
         const row = tbody.rows[task.line];
         if (!row) return;
-        const cell = row.cells[task.start + 1];
+        const startFloor = Math.floor(task.start);
+        const cell = row.cells[startFloor + 1];
         if (!cell) return;
         
         const taskDiv = document.createElement('div');
         taskDiv.className = `gantt-task ${task.cls}`;
-        taskDiv.style.left = '1px';
+        const minuteOffset = (task.start - startFloor) * GANTT_CELL_W;
+        taskDiv.style.left = `${1 + minuteOffset}px`;
         taskDiv.style.width = `${task.duration * GANTT_CELL_W - 2}px`;
-        taskDiv.title = `${task.name}: ${task.start}:00 - ${task.start + task.duration}:00`;
+        taskDiv.title = `${task.name}: ${toHourLabel(task.start)} - ${toHourLabel(task.start + task.duration)}`;
         taskDiv.innerHTML = `<span class="gantt-task-label">${task.name}</span><span class="gantt-resize-handle left" data-resize="left"></span><span class="gantt-resize-handle right" data-resize="right"></span>`;
         taskDiv.tabIndex = 0;
         taskDiv.setAttribute('role', 'button');
-        taskDiv.setAttribute('aria-label', `${task.name}，开始${task.start}点，结束${task.start + task.duration}点`);
+        taskDiv.setAttribute('aria-label', `${task.name}，开始${toHourLabel(task.start)}，结束${toHourLabel(task.start + task.duration)}`);
         taskDiv.addEventListener('pointerdown', (e) => startTaskPointerInteraction(e, index));
         taskDiv.addEventListener('dblclick', () => openTaskEditor(index));
         taskDiv.addEventListener('keydown', (e) => {
@@ -620,6 +1494,14 @@
         });
         cell.appendChild(taskDiv);
       });
+
+      if (currentWorkbenchView === 'week') {
+        renderWeekView();
+      } else if (currentWorkbenchView === 'month') {
+        renderMonthView();
+      } else if (currentWorkbenchView === 'day') {
+        renderDayTaskList();
+      }
     }
 
     function runSelfHealing() {
@@ -652,10 +1534,27 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      renderLocks();
+      updateDayViewDateHead();
       renderWipOrders();
       renderGanttWorkbench();
+      renderWeekView();
+      renderMonthView();
+      setWorkbenchView('week', { silentToast: true });
       buildTaskEditorOptions();
+      document.querySelectorAll('#gantt-view-switch .view-btn').forEach((btn) => {
+        btn.addEventListener('click', () => setWorkbenchView(btn.dataset.view));
+      });
+      document.getElementById('month-prev-btn')?.addEventListener('click', () => {
+        monthViewOffset -= 1;
+        renderMonthView();
+      });
+      document.getElementById('month-next-btn')?.addEventListener('click', () => {
+        monthViewOffset += 1;
+        renderMonthView();
+      });
+      document.getElementById('day-view-date-input')?.addEventListener('change', (event) => {
+        handleDayDateInputChange(event.target.value);
+      });
       document.getElementById('task-edit-start')?.addEventListener('change', validateTaskEditor);
       document.getElementById('task-edit-end')?.addEventListener('change', validateTaskEditor);
       document.getElementById('task-edit-save')?.addEventListener('click', saveTaskEditor);
@@ -675,7 +1574,9 @@
         if (document.getElementById('task-editor-mask')?.classList.contains('show')) closeTaskEditor();
         if (document.getElementById('execute-confirm-mask')?.classList.contains('show')) closeExecuteConfirm(false);
       });
-      document.getElementById('gantt-plant-filter')?.addEventListener('change', renderGanttWorkbench);
+      document.getElementById('gantt-plant-filter')?.addEventListener('change', () => {
+        renderActiveWorkbenchView();
+      });
       document.addEventListener('pointermove', onTaskPointerMove);
       document.addEventListener('pointerup', onTaskPointerUp);
       document.addEventListener('pointercancel', onTaskPointerUp);

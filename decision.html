@@ -1616,7 +1616,7 @@
                   </div>
                 </div>
 
-                <div class="kpi-card kpi-wip">
+                <div class="kpi-card kpi-wip" role="button" tabindex="0" onclick="openWipOrdersPage()" onkeydown="handleWipCardKey(event)">
                   <div class="kpi-card-bg"></div>
                   <div class="kpi-card-content">
                     <div class="kpi-card-header">
@@ -2153,6 +2153,17 @@
 
     function openPlannerTodoPage() {
       window.location.href = 'planner-todo.html';
+    }
+
+    function handleWipCardKey(event) {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        openWipOrdersPage();
+      }
+    }
+
+    function openWipOrdersPage() {
+      window.location.href = 'wip-orders.html';
     }
 
     function focusAISuggestionsPanel() {
