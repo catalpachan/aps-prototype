@@ -119,6 +119,18 @@
         min-width: 360px;
       }
 
+      .aps-header-layout {
+        display: grid;
+        grid-template-columns: minmax(280px, 1fr) auto minmax(280px, 1fr);
+        align-items: center;
+        gap: 16px;
+      }
+
+      .aps-header-layout .brand-block {
+        min-width: 0;
+        justify-self: start;
+      }
+
       .aps-console-title {
         display: flex;
         flex-direction: column;
@@ -167,6 +179,12 @@
         min-width: 0;
       }
 
+      .aps-header-layout .aps-main-nav {
+        grid-column: 2;
+        flex: 0 1 auto;
+        justify-self: center;
+      }
+
       .aps-main-nav .nav-item {
         font-size: 14px;
         font-weight: 700;
@@ -189,6 +207,16 @@
         align-items: center;
         gap: 8px;
         white-space: nowrap;
+      }
+
+      .aps-header-layout .aps-header-meta {
+        grid-column: 3;
+        justify-self: end;
+      }
+
+      .aps-header-meta .aps-site-switch {
+        margin-left: 0;
+        margin-right: 4px;
       }
 
       .aps-clock-chip {
@@ -964,6 +992,10 @@
       }
 
       @media (max-width: 960px) {
+        .aps-header-layout {
+          display: flex;
+        }
+
         .brand-block {
           min-width: 0;
           flex-wrap: wrap;
@@ -987,8 +1019,16 @@
           width: 100%;
         }
 
+        .aps-header-meta .aps-site-switch {
+          width: auto;
+        }
+
         .aps-site-switch .role-select {
           width: 100%;
+        }
+
+        .aps-header-meta .aps-site-switch .role-select {
+          width: 132px;
         }
 
         .aps-scene-options {
@@ -1014,6 +1054,7 @@
     const meta = document.getElementById('header-meta');
     const hqSelect = document.getElementById('hq-select');
     const userDropdown = document.getElementById('user-dropdown');
+    const headerEl = document.querySelector('header');
     const headerDate = document.getElementById('header-date');
     if (!header || !brandBlock || !nav || !meta) return;
 
@@ -1027,12 +1068,13 @@
       brandBlock.appendChild(titleBlock);
     }
 
-    let siteSwitch = brandBlock.querySelector('.aps-site-switch');
+    headerEl?.classList.add('aps-header-layout');
+
+    let siteSwitch = document.querySelector('.aps-site-switch');
     if (!siteSwitch) {
       siteSwitch = document.createElement('div');
       siteSwitch.className = 'aps-site-switch';
       siteSwitch.innerHTML = '<span class="aps-site-switch-label">制造基地</span>';
-      brandBlock.appendChild(siteSwitch);
     }
     if (hqSelect && hqSelect.parentElement !== siteSwitch) {
       siteSwitch.appendChild(hqSelect);
@@ -1092,10 +1134,14 @@
       }
     });
 
-    if (dateChip.parentElement !== meta) meta.prepend(dateChip);
+    if (siteSwitch.parentElement !== meta) meta.prepend(siteSwitch);
+    if (dateChip.parentElement !== meta) meta.appendChild(dateChip);
     if (notifyBtn.parentElement !== meta) meta.appendChild(notifyBtn);
     if (userDropdown && userDropdown.parentElement !== meta) meta.appendChild(userDropdown);
 
+    if (siteSwitch.nextSibling !== dateChip) {
+      meta.insertBefore(dateChip, siteSwitch.nextSibling);
+    }
     if (dateChip.nextSibling !== notifyBtn) {
       meta.insertBefore(notifyBtn, dateChip.nextSibling);
     }
