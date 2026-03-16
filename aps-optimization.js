@@ -516,6 +516,155 @@
         margin-bottom: 4px;
       }
 
+      .aps-sync-flow-card {
+        width: min(560px, calc(100vw - 32px));
+        border-radius: 18px;
+        overflow: hidden;
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.94));
+        border: 1px solid rgba(59, 130, 246, 0.22);
+        box-shadow: 0 28px 80px rgba(2, 6, 23, 0.5);
+      }
+
+      .aps-sync-flow-top {
+        padding: 18px 20px 14px;
+        border-bottom: 1px solid rgba(51, 65, 85, 0.75);
+        background:
+          radial-gradient(circle at top right, rgba(56, 189, 248, 0.2), transparent 42%),
+          linear-gradient(135deg, rgba(30, 41, 59, 0.88), rgba(15, 23, 42, 0.96));
+      }
+
+      .aps-sync-flow-top h3 {
+        margin: 0;
+        font-size: 18px;
+        color: #e2e8f0;
+        letter-spacing: 0.2px;
+      }
+
+      .aps-sync-flow-top p {
+        margin: 8px 0 0;
+        font-size: 12px;
+        line-height: 1.6;
+        color: #94a3b8;
+      }
+
+      .aps-sync-flow-progress {
+        margin-top: 14px;
+        height: 8px;
+        border-radius: 999px;
+        background: rgba(30, 41, 59, 0.95);
+        overflow: hidden;
+      }
+
+      .aps-sync-flow-progress > span {
+        display: block;
+        height: 100%;
+        width: 0%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #2563eb, #38bdf8, #7dd3fc);
+        transition: width 320ms ease;
+      }
+
+      .aps-sync-flow-list {
+        padding: 16px 20px 4px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .aps-sync-flow-step {
+        display: grid;
+        grid-template-columns: 28px 1fr auto;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 14px;
+        border-radius: 12px;
+        border: 1px solid rgba(51, 65, 85, 0.82);
+        background: rgba(15, 23, 42, 0.88);
+        transition: transform 220ms ease, border-color 220ms ease, background 220ms ease, box-shadow 220ms ease;
+      }
+
+      .aps-sync-flow-step.waiting .aps-sync-flow-index {
+        color: #64748b;
+        border-color: rgba(71, 85, 105, 0.8);
+      }
+
+      .aps-sync-flow-step.active {
+        border-color: rgba(56, 189, 248, 0.5);
+        background: linear-gradient(135deg, rgba(8, 47, 73, 0.8), rgba(15, 23, 42, 0.94));
+        box-shadow: 0 12px 28px rgba(8, 47, 73, 0.18);
+        transform: translateY(-1px);
+      }
+
+      .aps-sync-flow-step.done {
+        border-color: rgba(34, 197, 94, 0.35);
+        background: linear-gradient(135deg, rgba(5, 46, 22, 0.68), rgba(15, 23, 42, 0.94));
+      }
+
+      .aps-sync-flow-index {
+        width: 28px;
+        height: 28px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 999px;
+        border: 1px solid rgba(125, 211, 252, 0.35);
+        color: #7dd3fc;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .aps-sync-flow-step.done .aps-sync-flow-index {
+        color: #bbf7d0;
+        border-color: rgba(34, 197, 94, 0.35);
+      }
+
+      .aps-sync-flow-name {
+        font-size: 14px;
+        font-weight: 700;
+        color: #e2e8f0;
+      }
+
+      .aps-sync-flow-meta {
+        margin-top: 4px;
+        font-size: 11px;
+        color: #94a3b8;
+      }
+
+      .aps-sync-flow-status {
+        font-size: 11px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(71, 85, 105, 0.85);
+        color: #94a3b8;
+        background: rgba(15, 23, 42, 0.92);
+      }
+
+      .aps-sync-flow-step.active .aps-sync-flow-status {
+        color: #e0f2fe;
+        border-color: rgba(56, 189, 248, 0.4);
+        background: rgba(8, 47, 73, 0.7);
+      }
+
+      .aps-sync-flow-step.done .aps-sync-flow-status {
+        color: #bbf7d0;
+        border-color: rgba(34, 197, 94, 0.35);
+        background: rgba(5, 46, 22, 0.7);
+      }
+
+      .aps-sync-flow-foot {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 20px 18px;
+      }
+
+      .aps-sync-flow-note {
+        font-size: 12px;
+        line-height: 1.6;
+        color: #94a3b8;
+      }
+
       .aps-schedule-tablist {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1486,7 +1635,252 @@
       }
     }
 
-    function syncOrders() {
+    const ORDER_SYNC_FLOW_STEPS = [
+      { title: '基础数据导入', desc: '读取 ERP / CRM 订单主数据与交期基线。' },
+      { title: '排产记录复原', desc: '恢复最近一次排产快照与执行留痕。' },
+      { title: '数据初始化', desc: '建立本轮同步的工厂、产线与任务索引。' },
+      { title: '一模多物订单处理', desc: '识别需拆分的组合订单与共模约束关系。' },
+      { title: '品目指定机台', desc: '按物料属性绑定默认机台与工艺路径。' },
+      { title: '数据导入完成', desc: '导入结果已写入可视化交互工作台。' }
+    ];
+    const orderSyncFlowState = {
+      running: false,
+      currentStep: -1,
+      timers: []
+    };
+    const SYSTEM_EXECUTION_FLOW_STEPS = [
+      { title: '品目指定机台', desc: '依据品目工艺特性与既定映射关系锁定默认机台。' },
+      { title: '批次订单合并', desc: '按交期、工艺和能效批次执行订单聚合。' },
+      { title: '计划排产', desc: '计算产线负荷、交付优先级与可执行排产序列。' },
+      { title: '一模多物不排产订单开始时间赋值', desc: '为未直接排产的共模订单回填起始时间与衔接窗口。' },
+      { title: '车间计划标识', desc: '写入车间级计划状态、批次标记与协同识别码。' },
+      { title: '排产记录更新到工作台', desc: '将结果同步到可视化交互工作台与排产记录区。' }
+    ];
+    const systemExecutionFlowState = {
+      running: false,
+      currentStep: -1,
+      timers: [],
+      title: '系统执行流程',
+      readyText: '准备执行排产流程...',
+      doneText: '系统执行完成，工作台已同步更新。'
+    };
+
+    function clearOrderSyncFlowTimers() {
+      orderSyncFlowState.timers.forEach((timer) => clearTimeout(timer));
+      orderSyncFlowState.timers = [];
+    }
+
+    function clearSystemExecutionFlowTimers() {
+      systemExecutionFlowState.timers.forEach((timer) => clearTimeout(timer));
+      systemExecutionFlowState.timers = [];
+    }
+
+    function ensureOrderSyncFlowModal() {
+      if (document.getElementById('aps-order-sync-mask')) return;
+      const mask = document.createElement('div');
+      mask.className = 'modal-mask';
+      mask.id = 'aps-order-sync-mask';
+      mask.innerHTML = `
+        <div class="modal-card aps-sync-flow-card" role="dialog" aria-modal="true" aria-labelledby="aps-order-sync-title">
+          <div class="aps-sync-flow-top">
+            <h3 id="aps-order-sync-title">订单同步更新</h3>
+            <p>系统将按导入顺序恢复基础数据、排产快照与机台映射，完成后自动更新待排订单目录。</p>
+            <div class="aps-sync-flow-progress"><span id="aps-order-sync-progress"></span></div>
+          </div>
+          <div class="aps-sync-flow-list" id="aps-order-sync-steps"></div>
+          <div class="aps-sync-flow-foot">
+            <div class="aps-sync-flow-note" id="aps-order-sync-note">准备启动数据导入流程...</div>
+            <button type="button" class="btn primary" id="aps-order-sync-close" disabled>处理中</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(mask);
+
+      document.getElementById('aps-order-sync-close')?.addEventListener('click', () => {
+        if (orderSyncFlowState.running) return;
+        mask.classList.remove('show');
+      });
+      mask.addEventListener('click', (evt) => {
+        if (evt.target === mask && !orderSyncFlowState.running) {
+          mask.classList.remove('show');
+        }
+      });
+      document.addEventListener('keydown', (evt) => {
+        if (evt.key === 'Escape' && mask.classList.contains('show') && !orderSyncFlowState.running) {
+          mask.classList.remove('show');
+        }
+      });
+    }
+
+    function renderOrderSyncFlow() {
+      const list = document.getElementById('aps-order-sync-steps');
+      const note = document.getElementById('aps-order-sync-note');
+      const progress = document.getElementById('aps-order-sync-progress');
+      const closeBtn = document.getElementById('aps-order-sync-close');
+      if (!list || !note || !progress || !closeBtn) return;
+
+      const doneCount = orderSyncFlowState.currentStep >= ORDER_SYNC_FLOW_STEPS.length
+        ? ORDER_SYNC_FLOW_STEPS.length
+        : Math.max(0, orderSyncFlowState.currentStep);
+      const activeIndex = orderSyncFlowState.running ? orderSyncFlowState.currentStep : -1;
+      const progressValue = Math.round((doneCount / ORDER_SYNC_FLOW_STEPS.length) * 100);
+
+      list.innerHTML = ORDER_SYNC_FLOW_STEPS.map((step, idx) => {
+        const isDone = idx < doneCount;
+        const isActive = idx === activeIndex && orderSyncFlowState.running;
+        const status = isDone ? '已完成' : isActive ? '导入中' : '等待中';
+        const klass = isDone ? 'done' : isActive ? 'active' : 'waiting';
+        const indexLabel = isDone ? '✓' : String(idx + 1).padStart(2, '0');
+        return `
+          <div class="aps-sync-flow-step ${klass}">
+            <span class="aps-sync-flow-index">${indexLabel}</span>
+            <div>
+              <div class="aps-sync-flow-name">${step.title}</div>
+              <div class="aps-sync-flow-meta">${step.desc}</div>
+            </div>
+            <span class="aps-sync-flow-status">${status}</span>
+          </div>
+        `;
+      }).join('');
+
+      if (orderSyncFlowState.running && ORDER_SYNC_FLOW_STEPS[activeIndex]) {
+        note.textContent = `正在执行：${ORDER_SYNC_FLOW_STEPS[activeIndex].title}`;
+      } else if (!orderSyncFlowState.running && doneCount === ORDER_SYNC_FLOW_STEPS.length) {
+        note.textContent = '订单同步更新已完成，待排订单目录与预排向导已刷新。';
+      } else {
+        note.textContent = '准备启动数据导入流程...';
+      }
+
+      progress.style.width = `${progressValue}%`;
+      closeBtn.disabled = orderSyncFlowState.running;
+      closeBtn.textContent = orderSyncFlowState.running ? '处理中' : '关闭';
+    }
+
+    function ensureSystemExecutionFlowModal() {
+      if (document.getElementById('aps-system-flow-mask')) return;
+      const mask = document.createElement('div');
+      mask.className = 'modal-mask';
+      mask.id = 'aps-system-flow-mask';
+      mask.innerHTML = `
+        <div class="modal-card aps-sync-flow-card" role="dialog" aria-modal="true" aria-labelledby="aps-system-flow-title">
+          <div class="aps-sync-flow-top">
+            <h3 id="aps-system-flow-title">系统执行流程</h3>
+            <p id="aps-system-flow-desc">系统将依次完成机台指定、批次合并、计划排产与工作台回写。</p>
+            <div class="aps-sync-flow-progress"><span id="aps-system-flow-progress"></span></div>
+          </div>
+          <div class="aps-sync-flow-list" id="aps-system-flow-steps"></div>
+          <div class="aps-sync-flow-foot">
+            <div class="aps-sync-flow-note" id="aps-system-flow-note">准备执行排产流程...</div>
+            <button type="button" class="btn primary" id="aps-system-flow-close" disabled>处理中</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(mask);
+
+      document.getElementById('aps-system-flow-close')?.addEventListener('click', () => {
+        if (systemExecutionFlowState.running) return;
+        mask.classList.remove('show');
+      });
+      mask.addEventListener('click', (evt) => {
+        if (evt.target === mask && !systemExecutionFlowState.running) {
+          mask.classList.remove('show');
+        }
+      });
+      document.addEventListener('keydown', (evt) => {
+        if (evt.key === 'Escape' && mask.classList.contains('show') && !systemExecutionFlowState.running) {
+          mask.classList.remove('show');
+        }
+      });
+    }
+
+    function renderSystemExecutionFlow() {
+      const title = document.getElementById('aps-system-flow-title');
+      const desc = document.getElementById('aps-system-flow-desc');
+      const list = document.getElementById('aps-system-flow-steps');
+      const note = document.getElementById('aps-system-flow-note');
+      const progress = document.getElementById('aps-system-flow-progress');
+      const closeBtn = document.getElementById('aps-system-flow-close');
+      if (!title || !desc || !list || !note || !progress || !closeBtn) return;
+
+      const doneCount = systemExecutionFlowState.currentStep >= SYSTEM_EXECUTION_FLOW_STEPS.length
+        ? SYSTEM_EXECUTION_FLOW_STEPS.length
+        : Math.max(0, systemExecutionFlowState.currentStep);
+      const activeIndex = systemExecutionFlowState.running ? systemExecutionFlowState.currentStep : -1;
+      const progressValue = Math.round((doneCount / SYSTEM_EXECUTION_FLOW_STEPS.length) * 100);
+
+      title.textContent = systemExecutionFlowState.title;
+      desc.textContent = '系统将依次完成机台指定、批次合并、计划排产与工作台回写。';
+      list.innerHTML = SYSTEM_EXECUTION_FLOW_STEPS.map((step, idx) => {
+        const isDone = idx < doneCount;
+        const isActive = idx === activeIndex && systemExecutionFlowState.running;
+        const status = isDone ? '已完成' : isActive ? '执行中' : '等待中';
+        const klass = isDone ? 'done' : isActive ? 'active' : 'waiting';
+        const indexLabel = isDone ? '✓' : String(idx + 1).padStart(2, '0');
+        return `
+          <div class="aps-sync-flow-step ${klass}">
+            <span class="aps-sync-flow-index">${indexLabel}</span>
+            <div>
+              <div class="aps-sync-flow-name">${step.title}</div>
+              <div class="aps-sync-flow-meta">${step.desc}</div>
+            </div>
+            <span class="aps-sync-flow-status">${status}</span>
+          </div>
+        `;
+      }).join('');
+
+      if (systemExecutionFlowState.running && SYSTEM_EXECUTION_FLOW_STEPS[activeIndex]) {
+        note.textContent = `正在执行：${SYSTEM_EXECUTION_FLOW_STEPS[activeIndex].title}`;
+      } else if (!systemExecutionFlowState.running && doneCount === SYSTEM_EXECUTION_FLOW_STEPS.length) {
+        note.textContent = systemExecutionFlowState.doneText;
+      } else {
+        note.textContent = systemExecutionFlowState.readyText;
+      }
+
+      progress.style.width = `${progressValue}%`;
+      closeBtn.disabled = systemExecutionFlowState.running;
+      closeBtn.textContent = systemExecutionFlowState.running ? '处理中' : '关闭';
+    }
+
+    function runSystemExecutionFlow(options = {}) {
+      if (systemExecutionFlowState.running) {
+        document.getElementById('aps-system-flow-mask')?.classList.add('show');
+        toast('系统执行中，请稍候。');
+        return;
+      }
+
+      ensureSystemExecutionFlowModal();
+      const mask = document.getElementById('aps-system-flow-mask');
+      if (!mask) return;
+
+      clearSystemExecutionFlowTimers();
+      systemExecutionFlowState.running = true;
+      systemExecutionFlowState.currentStep = 0;
+      systemExecutionFlowState.title = options.title || '系统执行流程';
+      systemExecutionFlowState.readyText = options.readyText || '准备执行排产流程...';
+      systemExecutionFlowState.doneText = options.doneText || '系统执行完成，工作台已同步更新。';
+      renderSystemExecutionFlow();
+      mask.classList.add('show');
+
+      SYSTEM_EXECUTION_FLOW_STEPS.forEach((_, idx) => {
+        const timer = setTimeout(() => {
+          systemExecutionFlowState.currentStep = idx;
+          renderSystemExecutionFlow();
+        }, idx * 650);
+        systemExecutionFlowState.timers.push(timer);
+      });
+
+      const finishTimer = setTimeout(() => {
+        systemExecutionFlowState.currentStep = SYSTEM_EXECUTION_FLOW_STEPS.length;
+        systemExecutionFlowState.running = false;
+        if (typeof options.onComplete === 'function') {
+          options.onComplete();
+        }
+        renderSystemExecutionFlow();
+      }, SYSTEM_EXECUTION_FLOW_STEPS.length * 650 + 300);
+      systemExecutionFlowState.timers.push(finishTimer);
+    }
+
+    function finalizeOrderSyncOrders() {
       const today = new Date().toISOString().slice(0, 10);
       const rushOrder = {
         no: `SO-${today.replace(/-/g, '')}-${Math.floor(100 + Math.random() * 900)}`,
@@ -1500,7 +1894,41 @@
       if (cancellable) cancellable.status = 'cancelled';
       if (orders.length > 7) orders.pop();
       renderOrderTable();
-      toast('订单同步完成：已置顶加急插单，并隐藏撤销订单。');
+    }
+
+    function syncOrders() {
+      if (orderSyncFlowState.running) {
+        document.getElementById('aps-order-sync-mask')?.classList.add('show');
+        toast('订单同步更新进行中，请稍候。');
+        return;
+      }
+
+      ensureOrderSyncFlowModal();
+      const mask = document.getElementById('aps-order-sync-mask');
+      if (!mask) return;
+
+      clearOrderSyncFlowTimers();
+      orderSyncFlowState.running = true;
+      orderSyncFlowState.currentStep = 0;
+      renderOrderSyncFlow();
+      mask.classList.add('show');
+
+      ORDER_SYNC_FLOW_STEPS.forEach((_, idx) => {
+        const timer = setTimeout(() => {
+          orderSyncFlowState.currentStep = idx;
+          renderOrderSyncFlow();
+        }, idx * 700);
+        orderSyncFlowState.timers.push(timer);
+      });
+
+      const finishTimer = setTimeout(() => {
+        orderSyncFlowState.currentStep = ORDER_SYNC_FLOW_STEPS.length;
+        orderSyncFlowState.running = false;
+        finalizeOrderSyncOrders();
+        renderOrderSyncFlow();
+        toast('订单同步完成：已置顶加急插单，并隐藏撤销订单。');
+      }, ORDER_SYNC_FLOW_STEPS.length * 700 + 300);
+      orderSyncFlowState.timers.push(finishTimer);
     }
 
     async function runPreplanWizard() {
@@ -1676,7 +2104,7 @@
       updateScheduleSelectionHint();
     }
 
-    function runSmartSchedule() {
+    function executeSmartSchedule() {
       const plan = getSchedulePlan(selectedScheduleMode);
       applyScheduleMode(plan.mode);
       const nowText = typeof formatClockTime === 'function'
@@ -1684,6 +2112,15 @@
         : new Date().toLocaleTimeString('zh-CN', { hour12: false });
       updateScheduleSelectionHint(`${nowText} 已执行${plan.title}，可视化交互工作台已跟随更新。`);
       toast(`一键排产完成：${plan.title}已同步到可视化交互工作台。`);
+    }
+
+    function runSmartSchedule() {
+      runSystemExecutionFlow({
+        title: '系统执行流程',
+        readyText: '准备执行一键排产流程...',
+        doneText: '一键排产流程执行完成，排产记录已更新到工作台。',
+        onComplete: executeSmartSchedule
+      });
     }
 
     const orderSyncBtn = document.getElementById('aps-order-sync-btn');
@@ -1697,7 +2134,7 @@
     smartBtn?.addEventListener('click', runSmartSchedule);
 
     const originalRunSelfHealing = window.runSelfHealing;
-    window.runSelfHealing = function () {
+    function executeSelfHealing() {
       const isMajor = Math.random() > 0.45;
       if (!isMajor) {
         const healResult = document.getElementById('heal-result');
@@ -1716,6 +2153,15 @@
           healResult.textContent = '重大异常：已生成红色重排建议单，执行后时间轴已重组。';
         }
       }, 1200);
+    }
+
+    window.runSelfHealing = function () {
+      runSystemExecutionFlow({
+        title: '系统执行流程',
+        readyText: '准备执行重排与自愈流程...',
+        doneText: '执行重排流程完成，最新排产记录已更新到工作台。',
+        onComplete: executeSelfHealing
+      });
     };
 
     const healTitle = Array.from(document.querySelectorAll('.collab-left .card-hd span')).find((el) => el.textContent.includes('自主自愈重排'));

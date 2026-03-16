@@ -22,6 +22,42 @@
     .usage-stat-card { border: 1px solid #334155; border-radius: 8px; padding: 12px; background: #111b2d; text-align: center; }
     .usage-stat-value { font-size: 24px; font-weight: 800; color: #38bdf8; }
     .usage-stat-label { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+    .usage-hero-grid { display: grid; grid-template-columns: repeat(4, minmax(150px, 1fr)); gap: 12px; }
+    .usage-stat-card strong { display: block; margin-top: 8px; font-size: 11px; color: #7dd3fc; }
+    .usage-stat-foot { margin-top: 8px; font-size: 11px; color: #64748b; }
+    .usage-section-grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 14px; margin-top: 14px; }
+    .usage-block { border: 1px solid #334155; border-radius: 12px; background: linear-gradient(180deg, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.84)); overflow: hidden; }
+    .usage-block-hd { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid rgba(71, 85, 105, 0.55); }
+    .usage-block-title { display: flex; flex-direction: column; gap: 3px; }
+    .usage-block-title span { font-size: 14px; font-weight: 700; color: #e2e8f0; }
+    .usage-block-title small { font-size: 11px; color: #94a3b8; }
+    .usage-block-bd { padding: 14px; }
+    .usage-module-list, .usage-insight-list, .usage-report-list { display: flex; flex-direction: column; gap: 10px; }
+    .usage-module-item { padding: 10px 12px; border-radius: 10px; background: rgba(15, 23, 42, 0.78); border: 1px solid rgba(51, 65, 85, 0.85); }
+    .usage-module-meta { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 12px; color: #cbd5e1; }
+    .usage-bar-track { width: 100%; height: 8px; border-radius: 999px; background: rgba(30, 41, 59, 0.95); overflow: hidden; }
+    .usage-bar-fill { height: 100%; border-radius: inherit; background: linear-gradient(90deg, #0ea5e9, #38bdf8 55%, #7dd3fc); }
+    .usage-trend-chart { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 10px; align-items: end; min-height: 190px; padding-top: 8px; }
+    .usage-trend-col { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .usage-trend-value { font-size: 11px; color: #7dd3fc; }
+    .usage-trend-bar-wrap { width: 100%; min-height: 130px; display: flex; align-items: end; justify-content: center; }
+    .usage-trend-bar { width: 100%; max-width: 36px; border-radius: 12px 12px 6px 6px; background: linear-gradient(180deg, rgba(56, 189, 248, 0.95), rgba(37, 99, 235, 0.55)); box-shadow: 0 10px 24px rgba(14, 165, 233, 0.18); }
+    .usage-trend-label { font-size: 11px; color: #94a3b8; }
+    .usage-insight-item, .usage-report-item { padding: 12px; border-radius: 10px; border: 1px solid rgba(51, 65, 85, 0.8); background: rgba(17, 27, 45, 0.9); }
+    .usage-insight-item strong, .usage-report-item strong { display: block; margin-bottom: 6px; color: #e2e8f0; font-size: 13px; }
+    .usage-insight-item p, .usage-report-item p { margin: 0; font-size: 12px; line-height: 1.6; color: #94a3b8; }
+    .usage-report-meta { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 10px; font-size: 11px; color: #64748b; }
+    .usage-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; border: 1px solid rgba(14, 165, 233, 0.35); background: rgba(8, 47, 73, 0.55); color: #7dd3fc; font-size: 11px; }
+    .usage-filter-bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin: 16px 0 12px; flex-wrap: wrap; }
+    .usage-filter-group { display: flex; gap: 8px; flex-wrap: wrap; }
+    .usage-filter-bar input, .usage-filter-bar select { min-width: 180px; background: #0f172a; color: #e2e8f0; border: 1px solid #334155; border-radius: 8px; padding: 8px 10px; font-size: 12px; }
+    .usage-table-wrap { border: 1px solid #334155; border-radius: 12px; overflow: hidden; background: #0f172a; }
+    .usage-table-note { padding: 12px 14px; border-bottom: 1px solid rgba(51, 65, 85, 0.75); display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: 12px; color: #94a3b8; }
+    .usage-user-name { display: flex; flex-direction: column; gap: 3px; }
+    .usage-user-name strong { color: #e2e8f0; font-size: 13px; }
+    .usage-user-name span { color: #64748b; font-size: 11px; }
+    .usage-user-kpi { display: flex; flex-wrap: wrap; gap: 6px; }
+    .usage-kpi-pill { padding: 4px 8px; border-radius: 999px; background: rgba(30, 41, 59, 0.92); border: 1px solid rgba(51, 65, 85, 0.85); color: #cbd5e1; font-size: 11px; }
     
     /* 系统对接样式 */
     .integration-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
@@ -54,7 +90,9 @@
     .sync-progress-bar { width: 100%; height: 4px; background: #1e293b; border-radius: 2px; overflow: hidden; margin-top: 8px; }
     .sync-progress-fill { height: 100%; background: linear-gradient(90deg, #2563eb, #38bdf8); transition: width 0.3s; }
     
-    @media (max-width: 960px) { .resource-layout { grid-template-columns: 1fr; } .resource-sidebar { position: static; max-height: none; } .settings-form-grid { grid-template-columns: 1fr; } .integration-grid { grid-template-columns: 1fr; } .sync-status-bar { flex-wrap: wrap; } }
+    @media (max-width: 1200px) { .usage-hero-grid { grid-template-columns: repeat(2, minmax(160px, 1fr)); } .usage-section-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 960px) { .resource-layout { grid-template-columns: 1fr; } .resource-sidebar { position: static; max-height: none; } .settings-form-grid { grid-template-columns: 1fr; } .integration-grid { grid-template-columns: 1fr; } .sync-status-bar { flex-wrap: wrap; } .usage-trend-chart { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+    @media (max-width: 640px) { .usage-hero-grid { grid-template-columns: 1fr; } .usage-filter-bar input, .usage-filter-bar select { min-width: 0; width: 100%; } .usage-trend-chart { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   </style>
 </head>
 <body>
@@ -209,7 +247,7 @@
 
           <div class="settings-subview" id="settings-sub-usage">
             <article class="card">
-              <div class="card-hd"><span>使用统计</span><button class="btn" onclick="refreshUsageStats()">刷新统计</button></div>
+              <div class="card-hd"><span>使用统计</span><div class="row"><button class="btn" onclick="exportUsageSummary()">导出摘要</button><button class="btn" onclick="refreshUsageStats()">刷新统计</button></div></div>
               <div class="card-bd" id="settings-usage-panel"></div>
             </article>
           </div>
@@ -367,14 +405,248 @@
       }).join('');
     }
 
+    const usageOverview = [
+      { value: '62', label: '今日活跃用户', emphasis: '较昨日 +12%' },
+      { value: '186', label: '排程执行次数', emphasis: 'AI重排占比 34%' },
+      { value: '41', label: '报表导出次数', emphasis: '晨会前完成 79%' },
+      { value: '0.82s', label: '平均响应时间', emphasis: '高峰时段 09:00-10:00' }
+    ];
+
+    const usageModules = [
+      { module: '排产操作', sessions: 186, share: 92, users: 38, avgStay: '32 分钟' },
+      { module: '决策分析', sessions: 142, share: 78, users: 29, avgStay: '24 分钟' },
+      { module: '监控中心', sessions: 118, share: 61, users: 33, avgStay: '18 分钟' },
+      { module: '报表中心', sessions: 74, share: 46, users: 21, avgStay: '14 分钟' }
+    ];
+
+    const usageTrend = [
+      { hour: '07:00', value: 12 },
+      { hour: '08:00', value: 28 },
+      { hour: '09:00', value: 42 },
+      { hour: '10:00', value: 38 },
+      { hour: '11:00', value: 33 },
+      { hour: '13:00', value: 26 },
+      { hour: '15:00', value: 30 },
+      { hour: '17:00', value: 18 }
+    ];
+
+    const usageInsights = [
+      { title: '班前排产窗口集中', desc: '08:00-10:00 占全天排程动作 43%，主要来自总部计划员与金湾基地轮值调度。' },
+      { title: '报表需求向周度复盘倾斜', desc: '近 7 天导出的 41 份报表里，执行复盘与齐套预警两类占比最高，适合预置快捷模板。' },
+      { title: '移动端巡检使用提升', desc: '监控中心移动端访问占比提升到 18%，建议补充车间主管专属入口和告警摘要。' }
+    ];
+
+    const usageReports = [
+      { name: '班次活跃度日报', owner: '制造运营中心', generatedAt: '今天 07:58', status: '已推送', note: '自动汇总各基地登录、排产与调度动作，已推送到晨会群。' },
+      { name: '排程执行偏差周报', owner: '计划平台主管', generatedAt: '今天 09:10', status: '待复核', note: '聚焦计划调整次数、锁单原因和异常改单来源，支持周会复盘。' },
+      { name: '关键用户行为洞察', owner: '系统管理组', generatedAt: '昨天 18:30', status: '已归档', note: '沉淀高频用户、停留时长和异常峰值，可用于培训与权限优化。' }
+    ];
+
+    const usageUserRows = [
+      { user: '张伟', account: 'zhangwei', role: '管理员', dept: '总部计划中心', plant: '珠海总部', sessions: 16, scheduleRuns: 28, exports: 6, duration: '3.8h', lastModule: '系统设置 / 报表中心', lastAction: '导出总部周度合规排产报告', lastActive: '2026-02-28 09:36', risk: '正常' },
+      { user: '李敏', account: 'limin', role: '计划员', dept: '金湾基地计划组', plant: '金湾基地', sessions: 13, scheduleRuns: 34, exports: 4, duration: '3.1h', lastModule: '排产操作 / 协同排产', lastAction: '重排订单 GZ-240228-17', lastActive: '2026-02-28 09:28', risk: '高频操作' },
+      { user: '王强', account: 'wangqiang', role: '车间主管', dept: '总装一车间', plant: '武汉基地', sessions: 9, scheduleRuns: 6, exports: 2, duration: '1.9h', lastModule: '监控中心 / 异常跟踪', lastAction: '确认总装线 2 号告警', lastActive: '2026-02-28 09:15', risk: '正常' },
+      { user: '陈婷', account: 'chenting', role: '计划员', dept: '洛阳基地计划组', plant: '洛阳基地', sessions: 11, scheduleRuns: 22, exports: 5, duration: '2.7h', lastModule: '决策分析 / KPI 归因', lastAction: '查看换产损失归因', lastActive: '2026-02-28 08:56', risk: '报表依赖高' },
+      { user: '赵磊', account: 'zhaolei', role: '系统管理员', dept: '信息化管理部', plant: '珠海总部', sessions: 7, scheduleRuns: 3, exports: 8, duration: '2.2h', lastModule: '系统设置 / 审计日志', lastAction: '导出账号权限变更记录', lastActive: '2026-02-28 08:48', risk: '审计关注' },
+      { user: '刘芳', account: 'liufang', role: '采购协同', dept: '供应链协同组', plant: '金湾基地', sessions: 8, scheduleRuns: 4, exports: 3, duration: '1.6h', lastModule: '资源中心 / 齐套分析', lastAction: '查看物料齐套缺件清单', lastActive: '2026-02-28 08:32', risk: '正常' }
+    ];
+
+    function getUsageRiskTag(risk) {
+      if (risk === '高频操作') return 'warn';
+      if (risk === '审计关注') return 'err';
+      if (risk === '报表依赖高') return '';
+      return 'ok';
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, (char) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      }[char]));
+    }
+
     function renderUsageStats() {
       const container = document.getElementById('settings-usage-panel');
+      const keyword = document.getElementById('usage-user-search')?.value?.trim().toLowerCase() || '';
+      const roleFilter = document.getElementById('usage-role-filter')?.value || 'all';
+      const users = usageUserRows.filter((item) => {
+        const matchesKeyword = !keyword || [item.user, item.account, item.dept, item.lastModule, item.lastAction].some(text => text.toLowerCase().includes(keyword));
+        const matchesRole = roleFilter === 'all' || item.role === roleFilter;
+        return matchesKeyword && matchesRole;
+      });
+      const maxTrend = Math.max(...usageTrend.map(item => item.value), 1);
+
       container.innerHTML = `
-        <div class="grid-2">
-          <div class="usage-stat-card"><div class="usage-stat-value">48</div><div class="usage-stat-label">今日活跃用户</div></div>
-          <div class="usage-stat-card"><div class="usage-stat-value">126</div><div class="usage-stat-label">排程执行次数</div></div>
-          <div class="usage-stat-card"><div class="usage-stat-value">23</div><div class="usage-stat-label">规则调整次数</div></div>
-          <div class="usage-stat-card"><div class="usage-stat-value">0.8s</div><div class="usage-stat-label">平均响应时间</div></div>
+        <div class="usage-hero-grid">
+          ${usageOverview.map(item => `
+            <div class="usage-stat-card">
+              <div class="usage-stat-value">${item.value}</div>
+              <div class="usage-stat-label">${item.label}</div>
+              <strong>${item.emphasis}</strong>
+              <div class="usage-stat-foot">统计周期: 今日 00:00 - 现在</div>
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="usage-section-grid">
+          <section class="usage-block">
+            <div class="usage-block-hd">
+              <div class="usage-block-title">
+                <span>模块使用报表</span>
+                <small>按访问深度与操作频次综合排序</small>
+              </div>
+              <span class="usage-chip">TOP 模块 4 个</span>
+            </div>
+            <div class="usage-block-bd">
+              <div class="usage-module-list">
+                ${usageModules.map(item => `
+                  <div class="usage-module-item">
+                    <div class="usage-module-meta">
+                      <strong>${item.module}</strong>
+                      <span>${item.sessions} 次访问 · ${item.users} 位用户</span>
+                    </div>
+                    <div class="usage-bar-track"><div class="usage-bar-fill" style="width:${item.share}%;"></div></div>
+                    <div class="usage-module-meta" style="margin-top:8px; margin-bottom:0;">
+                      <span>使用覆盖率 ${item.share}%</span>
+                      <span>平均停留 ${item.avgStay}</span>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </section>
+
+          <section class="usage-block">
+            <div class="usage-block-hd">
+              <div class="usage-block-title">
+                <span>时段活跃趋势</span>
+                <small>按登录与关键操作折算的活跃指数</small>
+              </div>
+              <span class="usage-chip">峰值 09:00</span>
+            </div>
+            <div class="usage-block-bd">
+              <div class="usage-trend-chart">
+                ${usageTrend.map(item => `
+                  <div class="usage-trend-col">
+                    <div class="usage-trend-value">${item.value}</div>
+                    <div class="usage-trend-bar-wrap">
+                      <div class="usage-trend-bar" style="height:${Math.max(22, Math.round(item.value / maxTrend * 132))}px;"></div>
+                    </div>
+                    <div class="usage-trend-label">${item.hour}</div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <div class="usage-section-grid">
+          <section class="usage-block">
+            <div class="usage-block-hd">
+              <div class="usage-block-title">
+                <span>运营洞察</span>
+                <small>从排产、监控与报表行为归纳的使用特征</small>
+              </div>
+              <span class="usage-chip">建议 3 条</span>
+            </div>
+            <div class="usage-block-bd">
+              <div class="usage-insight-list">
+                ${usageInsights.map(item => `
+                  <div class="usage-insight-item">
+                    <strong>${item.title}</strong>
+                    <p>${item.desc}</p>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </section>
+
+          <section class="usage-block">
+            <div class="usage-block-hd">
+              <div class="usage-block-title">
+                <span>统计报表清单</span>
+                <small>今日已生成或待复核的使用类报表</small>
+              </div>
+              <span class="usage-chip">自动生成 2 份</span>
+            </div>
+            <div class="usage-block-bd">
+              <div class="usage-report-list">
+                ${usageReports.map(item => `
+                  <div class="usage-report-item">
+                    <strong>${item.name}</strong>
+                    <p>${item.note}</p>
+                    <div class="usage-report-meta">
+                      <span>责任人: ${item.owner}</span>
+                      <span>${item.generatedAt} · ${item.status}</span>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <div class="usage-filter-bar">
+          <div class="usage-filter-group">
+            <input id="usage-user-search" placeholder="搜索用户 / 账号 / 模块 / 操作" value="${escapeHtml(keyword)}" oninput="renderUsageStats()" />
+            <select id="usage-role-filter" onchange="renderUsageStats()" aria-label="按角色筛选">
+              <option value="all"${roleFilter === 'all' ? ' selected' : ''}>全部角色</option>
+              <option value="管理员"${roleFilter === '管理员' ? ' selected' : ''}>管理员</option>
+              <option value="系统管理员"${roleFilter === '系统管理员' ? ' selected' : ''}>系统管理员</option>
+              <option value="计划员"${roleFilter === '计划员' ? ' selected' : ''}>计划员</option>
+              <option value="车间主管"${roleFilter === '车间主管' ? ' selected' : ''}>车间主管</option>
+              <option value="采购协同"${roleFilter === '采购协同' ? ' selected' : ''}>采购协同</option>
+            </select>
+          </div>
+          <div class="usage-chip">明细 ${users.length} 人</div>
+        </div>
+
+        <div class="usage-table-wrap">
+          <div class="usage-table-note">
+            <span>用户使用明细覆盖登录频次、排程操作、报表产出、最近动作与审计风险标识。</span>
+            <span>更新时间: ${new Date().toLocaleString('zh-CN')}</span>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>用户</th>
+                <th>角色 / 组织</th>
+                <th>访问情况</th>
+                <th>最近访问模块</th>
+                <th>最近操作</th>
+                <th>最后活跃</th>
+                <th>风险标签</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${users.map(item => `
+                <tr>
+                  <td>
+                    <div class="usage-user-name">
+                      <strong>${item.user}</strong>
+                      <span>${item.account} · ${item.plant}</span>
+                    </div>
+                  </td>
+                  <td>${item.role}<br><span class="muted">${item.dept}</span></td>
+                  <td>
+                    <div class="usage-user-kpi">
+                      <span class="usage-kpi-pill">登录 ${item.sessions} 次</span>
+                      <span class="usage-kpi-pill">排程 ${item.scheduleRuns} 次</span>
+                      <span class="usage-kpi-pill">导出 ${item.exports} 次</span>
+                      <span class="usage-kpi-pill">在线 ${item.duration}</span>
+                    </div>
+                  </td>
+                  <td>${item.lastModule}</td>
+                  <td>${item.lastAction}</td>
+                  <td>${item.lastActive}</td>
+                  <td><span class="tag ${getUsageRiskTag(item.risk)}">${item.risk}</span></td>
+                </tr>
+              `).join('') || '<tr><td colspan="7" class="muted" style="text-align:center; padding: 24px;">未找到符合条件的使用记录</td></tr>'}
+            </tbody>
+          </table>
         </div>
       `;
     }
@@ -398,6 +670,24 @@
     function refreshUsageStats() {
       renderUsageStats();
       toast('使用统计已刷新');
+    }
+
+    function exportUsageSummary() {
+      const text = [
+        'APS 使用统计摘要',
+        `导出时间: ${new Date().toLocaleString('zh-CN')}`,
+        '',
+        ...usageOverview.map(item => `${item.label}: ${item.value} (${item.emphasis})`),
+        '',
+        '模块使用概况:',
+        ...usageModules.map(item => `${item.module}: ${item.sessions} 次访问, ${item.users} 位用户, 覆盖率 ${item.share}%`)
+      ].join('\n');
+      const blob = new Blob([text], { type: 'text/plain;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `APS使用统计摘要_${new Date().toISOString().slice(0, 10)}.txt`;
+      link.click();
+      toast('使用统计摘要已导出');
     }
 
     function saveBaseSettings() {

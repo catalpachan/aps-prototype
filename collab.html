@@ -275,7 +275,7 @@
           </div>
           <div class="card-bd">
             <div class="view-panel active" id="view-panel-week">
-              <div class="muted">本周视角（默认）：查看未来一周的生产计划（周日历 + 甘特样式）。双击甘特任务可编辑时间；周视角不支持拖拽与拉长。</div>
+              <div class="muted">本周视角（默认）：查看未来一周的生产计划（周日历 + 甘特样式）。点击日期卡片可跳转到对应日期的日视角；双击甘特任务可编辑时间；周视角不支持拖拽与拉长。</div>
               <div class="week-calendar" id="week-calendar"></div>
               <div class="week-gantt-wrap">
                 <div class="week-gantt" id="week-gantt"></div>
@@ -698,7 +698,7 @@
         card.addEventListener('click', () => {
           const dayIdx = Number(card.dataset.dayIdx);
           if (!Number.isFinite(dayIdx)) return;
-          onWeekDaySelect(dayIdx);
+          onWeekDaySelect(dayIdx, { openDayView: true });
         });
       });
 
@@ -840,13 +840,21 @@
       renderSelectedWeekDayTasks();
     }
 
-    function onWeekDaySelect(dayIdx) {
+    function onWeekDaySelect(dayIdx, opts = {}) {
       selectedWeekDayIndex = clamp(dayIdx, 0, Math.max(0, weekDatesCache.length - 1));
       weekDayPageByIndex[selectedWeekDayIndex] = 1;
       document.querySelectorAll('#week-calendar .week-day-card').forEach((card, idx) => {
         card.classList.toggle('active', idx === selectedWeekDayIndex);
       });
       renderSelectedWeekDayTasks();
+      const selectedDate = weekDatesCache[selectedWeekDayIndex];
+      if (selectedDate) {
+        setSelectedDayDate(selectedDate);
+      }
+      if (opts.openDayView && selectedDate) {
+        setWorkbenchView('day', { silentToast: true });
+        toast(`已从周视角跳转至${selectedDate.getMonth() + 1}/${selectedDate.getDate()}日视角`);
+      }
     }
 
     function updateWeekTaskSeq(rowUid, value) {
