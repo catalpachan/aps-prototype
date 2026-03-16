@@ -18,31 +18,56 @@
     .wip-detail-table-wrap { max-height: 620px; overflow: auto; border: 1px solid #334155; border-radius: 10px; background: #0f172a; }
     .wip-detail-table-wrap { -ms-overflow-style: none; scrollbar-width: none; }
     .wip-detail-table-wrap::-webkit-scrollbar { width: 0; height: 0; display: none; }
-    .wip-detail-table { width: 100%; min-width: 980px; border-collapse: collapse; }
-    .wip-detail-table th, .wip-detail-table td { padding: 9px 10px; border-bottom: 1px solid #243246; text-align: left; font-size: 12px; }
+    .wip-detail-table { width: 100%; min-width: 1880px; border-collapse: collapse; }
+    .wip-detail-table th, .wip-detail-table td { padding: 9px 10px; border-bottom: 1px solid #243246; text-align: left; font-size: 12px; white-space: nowrap; }
     .wip-detail-table th { position: sticky; top: 0; z-index: 1; background: #172033; color: #dbe5f7; font-weight: 700; }
     .wip-detail-table td { color: #d1d5db; }
     .wip-detail-table td.num { color: #38bdf8; font-weight: 700; }
     .wip-detail-table td.status { color: #93c5fd; }
-    .wip-detail-pagination { margin-top: 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .wip-detail-table td.locked { color: #fbbf24; font-weight: 700; }
+    .wip-detail-table td.unlocked { color: #86efac; }
+    .wip-seq-input {
+      width: 52px;
+      height: 28px;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      background: #111b2d;
+      color: #e2e8f0;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 700;
+      outline: none;
+    }
+    .wip-seq-input:focus {
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.15);
+    }
+    .wip-detail-pagination { margin-top: 10px; display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
     .wip-page-btn { min-width: 72px; border: 1px solid #334155; border-radius: 6px; background: #1e293b; color: #cbd5e1; font-size: 11px; padding: 5px 10px; cursor: pointer; transition: all var(--dur-fast); }
     .wip-page-btn:hover:not(:disabled) { border-color: #2563eb; background: #2563eb; color: #fff; }
     .wip-page-btn:disabled { opacity: 0.45; cursor: not-allowed; }
     .wip-page-info { font-size: 12px; color: #94a3b8; font-weight: 700; }
     @media (max-width: 960px) {
       .wip-filter-field input { min-width: 160px; }
-      .wip-detail-table { min-width: 860px; }
+      .wip-detail-table { min-width: 1480px; }
     }
   </style>
 </head>
 <body>
-  <header>
+  <header class="aps-header-layout">
     <div class="brand-block">
       <img class="header-logo" src="1c5703c9-aca0-43d1-9843-9d502cb66fd0.png" alt="APS Logo" width="143" height="44" />
       <div class="aps-console-title">
         <div class="aps-console-title-main">格力高级计划排程系统</div>
-        <div class="aps-console-title-sub">各分厂在制订单详情</div>
+        <div class="aps-console-title-sub">跨厂协同排程控制台</div>
       </div>
+    </div>
+    <nav class="nav aps-main-nav" id="nav">
+      <a href="collab.html" class="nav-item active">排产操作</a>
+      <a href="decision.html" class="nav-item">决策分析</a>
+      <a href="settings.html" class="nav-item">系统设置</a>
+    </nav>
+    <div class="header-meta aps-header-meta" id="header-meta">
       <div class="aps-site-switch">
         <span class="aps-site-switch-label">制造基地</span>
         <select id="hq-select" class="role-select" aria-label="基地切换">
@@ -52,15 +77,21 @@
           <option>洛阳基地</option>
         </select>
       </div>
-    </div>
-    <nav class="nav aps-main-nav" id="nav">
-      <a href="collab.html" class="nav-item active">排产操作</a>
-      <a href="decision.html" class="nav-item">决策分析</a>
-      <a href="settings.html" class="nav-item">系统设置</a>
-    </nav>
-    <div class="header-meta aps-header-meta">
-      <span id="header-date" class="aps-clock-chip">--</span>
-      <a href="collab.html" class="btn sm">返回排产操作</a>
+      <span id="header-date" class="aps-clock-chip">2026-02-28 08:56:33</span>
+      <button type="button" class="aps-notify-btn" id="aps-notify-btn" aria-label="打开消息通知">
+        🔔<span class="aps-notify-badge" id="aps-notify-badge">0</span>
+      </button>
+      <div class="user-dropdown" id="user-dropdown">
+        <div class="user-dropdown-toggle" onclick="toggleUserDropdown()">
+          <div class="avatar">张</div>
+          <span class="name">张伟</span>
+          <span class="arrow">▼</span>
+        </div>
+        <div class="user-dropdown-menu">
+          <a href="settings.html?sub=profile" class="user-dropdown-item">👤 用户信息</a>
+          <a href="login.html" class="user-dropdown-item logout">🚪 退出</a>
+        </div>
+      </div>
     </div>
   </header>
 
@@ -90,7 +121,7 @@
               </label>
               <label class="wip-filter-field" for="wip-detail-search">
                 订单搜索
-                <input id="wip-detail-search" type="search" placeholder="输入订单号/型号/工序" />
+                <input id="wip-detail-search" type="search" placeholder="输入订单代码/物料编码/产品名称" />
               </label>
             </div>
             <div class="wip-summary" id="wip-summary"></div>
@@ -100,14 +131,21 @@
             <table class="wip-detail-table">
               <thead>
                 <tr>
-                  <th>订单号</th>
+                  <th>排产顺序</th>
                   <th>分厂</th>
-                  <th>型号</th>
-                  <th>工序</th>
-                  <th>数量</th>
-                  <th>完成度</th>
-                  <th>更新时间</th>
-                  <th>状态</th>
+                  <th>机台</th>
+                  <th>订单代码</th>
+                  <th>手工指定机台</th>
+                  <th>物料编码</th>
+                  <th>产品名称</th>
+                  <th>交货期</th>
+                  <th>合批时间</th>
+                  <th>订单数量</th>
+                  <th>原订单数量</th>
+                  <th>扫描数量</th>
+                  <th>MES推送时间</th>
+                  <th>分厂上线时间</th>
+                  <th>锁定标识</th>
                 </tr>
               </thead>
               <tbody id="wip-detail-tbody"></tbody>
@@ -143,29 +181,57 @@
     let searchKeyword = '';
 
     function createWipOrderData(plantIndex) {
-      const models = ['KFR-35GW', 'KFR-50GW', 'KFR-72GW', 'KFR-120LW', 'GMV-160WL'];
-      const steps = ['总装', '注塑成型', '两器焊接', '控制板装配', '整机测试'];
+      const productNames = ['臻净风挂机', '云锦柜机', '商用多联机', '变频风管机', '静音新风模块'];
+      const machinePrefixes = ['E', 'W', 'I', 'H', 'C'];
+      const materialFamilies = ['MAT-GJ', 'MAT-GM', 'MAT-KT', 'MAT-XF', 'MAT-DL'];
       return Array.from({ length: 24 }, (_, idx) => {
-        const seq = plantIndex * 100 + 201 + idx;
-        const progress = 12 + ((plantIndex * 15 + idx * 9) % 81);
+        const seq = plantIndex * 100 + idx + 1;
+        const machinePrefix = machinePrefixes[plantIndex] || 'A';
+        const machineIndex = ((idx % 8) + 1).toString().padStart(2, '0');
+        const machine = `${machinePrefix}-JT-${machineIndex}`;
+        const manualMachine = idx % 5 === 0 ? `${machinePrefix}-JT-${(((idx + 2) % 8) + 1).toString().padStart(2, '0')}` : '否';
+        const orderQty = 80 + ((plantIndex * 31 + idx * 17) % 220);
+        const originalQty = orderQty + ((idx + plantIndex) % 4) * 10;
+        const scannedQty = Math.max(0, orderQty - ((idx * 13 + plantIndex * 7) % 36));
+        const dueDay = 17 + (idx % 9);
+        const batchDay = 14 + (idx % 6);
+        const mesDay = 13 + (idx % 5);
+        const onlineDay = 14 + (idx % 6);
+        const locked = (idx + plantIndex) % 6 === 0;
         return {
-          orderNo: `SO-20260311-${String(seq).padStart(3, '0')}`,
+          scheduleSeq: `SEQ-${String(seq).padStart(4, '0')}`,
           plantKey: wipPlants[plantIndex].key,
           plantName: wipPlants[plantIndex].name,
-          model: models[(plantIndex + idx) % models.length],
-          step: steps[(plantIndex * 2 + idx) % steps.length],
-          qty: 60 + ((plantIndex * 37 + idx * 29) % 260),
-          progress,
-          updated: `${2 + (idx % 10)}分钟前`,
-          status: progress >= 95 ? '待入库' : progress >= 60 ? '生产中' : '排队中'
+          machine,
+          orderCode: `MO-2603-${String(seq + 1800).padStart(5, '0')}`,
+          manualMachine,
+          materialCode: `${materialFamilies[(plantIndex + idx) % materialFamilies.length]}-${String(5200 + seq).padStart(5, '0')}`,
+          productName: `${productNames[(plantIndex + idx) % productNames.length]} ${10 + ((idx + plantIndex) % 7)}P`,
+          dueDate: `2026-03-${String(dueDay).padStart(2, '0')} 18:00`,
+          batchTime: `2026-03-${String(batchDay).padStart(2, '0')} ${String(8 + (idx % 9)).padStart(2, '0')}:${idx % 2 === 0 ? '00' : '30'}`,
+          orderQty,
+          originalQty,
+          scannedQty,
+          mesPushTime: `2026-03-${String(mesDay).padStart(2, '0')} ${String(7 + (idx % 8)).padStart(2, '0')}:${idx % 3 === 0 ? '15' : '45'}`,
+          plantLaunchTime: `2026-03-${String(onlineDay).padStart(2, '0')} ${String(9 + (idx % 7)).padStart(2, '0')}:${idx % 2 === 0 ? '20' : '50'}`,
+          lockFlag: locked ? '锁定' : '未锁定'
         };
       });
     }
 
-    const allOrders = wipPlants.flatMap((_, idx) => createWipOrderData(idx));
+    let allOrders = wipPlants.flatMap((_, idx) => createWipOrderData(idx));
 
     function clamp(v, min, max) {
       return Math.min(max, Math.max(min, v));
+    }
+
+    function formatScheduleOrder(value) {
+      return String(Math.max(1, value)).padStart(2, '0');
+    }
+
+    function parseScheduleOrder(value) {
+      const parsed = Number.parseInt(String(value || '').replace(/[^\d]/g, ''), 10);
+      return Number.isFinite(parsed) ? parsed : null;
     }
 
     function parsePlantFromQuery() {
@@ -190,23 +256,59 @@
       return allOrders.filter((item) => {
         if (currentPlantKey !== 'all' && item.plantKey !== currentPlantKey) return false;
         if (!kw) return true;
-        return [item.orderNo, item.model, item.step, item.plantName].some((v) => v.toLowerCase().includes(kw));
+        return [
+          item.scheduleSeq,
+          item.orderCode,
+          item.materialCode,
+          item.productName,
+          item.machine,
+          item.manualMachine,
+          item.plantName
+        ].some((v) => v.toLowerCase().includes(kw));
       });
+    }
+
+    function updateScheduleOrder(orderCode, nextOrder) {
+      const filteredRows = getFilteredOrders();
+      const sourceIndex = filteredRows.findIndex((item) => item.orderCode === orderCode);
+      if (sourceIndex === -1) {
+        renderTable();
+        return;
+      }
+
+      const targetIndex = clamp(nextOrder, 1, filteredRows.length) - 1;
+      if (sourceIndex === targetIndex) {
+        renderTable();
+        return;
+      }
+
+      const movedItem = filteredRows[sourceIndex];
+      const reorderedRows = filteredRows.filter((item) => item.orderCode !== orderCode);
+      reorderedRows.splice(targetIndex, 0, movedItem);
+
+      const filteredCodes = new Set(filteredRows.map((item) => item.orderCode));
+      let pointer = 0;
+      allOrders = allOrders.map((item) => (
+        filteredCodes.has(item.orderCode) ? reorderedRows[pointer++] : item
+      ));
+
+      currentPage = clamp(Math.ceil((targetIndex + 1) / WIP_DETAIL_PAGE_SIZE), 1, Math.max(1, Math.ceil(filteredRows.length / WIP_DETAIL_PAGE_SIZE)));
+      renderTable();
     }
 
     function renderSummary(items) {
       const summaryEl = document.getElementById('wip-summary');
       if (!summaryEl) return;
-      const totalQty = items.reduce((sum, item) => sum + item.qty, 0);
-      const avgProgress = items.length
-        ? Math.round(items.reduce((sum, item) => sum + item.progress, 0) / items.length)
-        : 0;
+      const totalQty = items.reduce((sum, item) => sum + item.orderQty, 0);
+      const totalScanned = items.reduce((sum, item) => sum + item.scannedQty, 0);
+      const lockedCount = items.filter((item) => item.lockFlag === '锁定').length;
       const statusText = currentPlantKey === 'all' ? '全部分厂' : (plantMap[currentPlantKey] || '未知分厂');
       summaryEl.innerHTML = `
         <span class="wip-summary-chip">范围<b>${statusText}</b></span>
         <span class="wip-summary-chip">订单数<b>${items.length}</b></span>
         <span class="wip-summary-chip">总数量<b>${totalQty}套</b></span>
-        <span class="wip-summary-chip">平均完成度<b>${avgProgress}%</b></span>
+        <span class="wip-summary-chip">扫描数量<b>${totalScanned}套</b></span>
+        <span class="wip-summary-chip">锁定订单<b>${lockedCount}</b></span>
       `;
     }
 
@@ -224,22 +326,56 @@
       const subTitle = document.getElementById('wip-page-title-sub');
 
       if (tbody) {
-        tbody.innerHTML = currentRows.map((item) => `
+        tbody.innerHTML = currentRows.map((item, idx) => `
           <tr>
-            <td>${item.orderNo}</td>
+            <td>
+              <input
+                class="wip-seq-input"
+                type="text"
+                inputmode="numeric"
+                value="${formatScheduleOrder(start + idx + 1)}"
+                data-order-code="${item.orderCode}"
+                data-current-order="${start + idx + 1}"
+                aria-label="${item.orderCode} 排产顺序"
+              />
+            </td>
             <td>${item.plantName}</td>
-            <td>${item.model}</td>
-            <td>${item.step}</td>
-            <td class="num">${item.qty}套</td>
-            <td>${item.progress}%</td>
-            <td>${item.updated}</td>
-            <td class="status">${item.status}</td>
+            <td>${item.machine}</td>
+            <td>${item.orderCode}</td>
+            <td>${item.manualMachine}</td>
+            <td>${item.materialCode}</td>
+            <td>${item.productName}</td>
+            <td>${item.dueDate}</td>
+            <td>${item.batchTime}</td>
+            <td class="num">${item.orderQty}套</td>
+            <td class="num">${item.originalQty}套</td>
+            <td class="num">${item.scannedQty}套</td>
+            <td>${item.mesPushTime}</td>
+            <td>${item.plantLaunchTime}</td>
+            <td class="${item.lockFlag === '锁定' ? 'locked' : 'unlocked'}">${item.lockFlag}</td>
           </tr>
         `).join('') || `
           <tr>
-            <td colspan="8" style="text-align:center;color:#94a3b8;">未匹配到在制订单</td>
+            <td colspan="15" style="text-align:center;color:#94a3b8;">未匹配到在制订单</td>
           </tr>
         `;
+
+        tbody.querySelectorAll('.wip-seq-input').forEach((input) => {
+          const commit = () => {
+            const fallbackOrder = Number.parseInt(input.dataset.currentOrder || '1', 10) || 1;
+            const nextOrder = parseScheduleOrder(input.value) ?? fallbackOrder;
+            updateScheduleOrder(input.dataset.orderCode || '', nextOrder);
+          };
+
+          input.addEventListener('focus', () => input.select());
+          input.addEventListener('blur', commit);
+          input.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+              event.preventDefault();
+              input.blur();
+            }
+          });
+        });
       }
 
       if (pageInfo) pageInfo.textContent = `${currentPage} / ${totalPages}`;
@@ -249,14 +385,6 @@
 
       renderSummary(rows);
       updateQuery();
-    }
-
-    function renderHeaderClock() {
-      const el = document.getElementById('header-date');
-      if (!el) return;
-      const now = new Date();
-      const pad = (n) => String(n).padStart(2, '0');
-      el.textContent = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -293,10 +421,9 @@
         renderTable();
       });
 
-      renderHeaderClock();
-      setInterval(renderHeaderClock, 1000);
       renderTable();
     });
   </script>
+  <script src="common.js"></script>
 </body>
 </html>

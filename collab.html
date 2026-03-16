@@ -28,7 +28,8 @@
     .wip-order-right { text-align: right; white-space: nowrap; }
     .wip-order-qty { font-size: 12px; font-weight: 700; color: #38bdf8; }
     .wip-order-time { font-size: 10px; color: #64748b; margin-top: 2px; }
-    .wip-pagination { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .wip-pagination { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .wip-pagination-controls { display: inline-flex; align-items: center; justify-content: flex-end; gap: 8px; margin-left: auto; }
     .wip-page-btn { min-width: 66px; border: 1px solid #334155; border-radius: 6px; background: #1e293b; color: #cbd5e1; font-size: 11px; padding: 5px 10px; cursor: pointer; transition: all var(--dur-fast); }
     .wip-page-btn:hover:not(:disabled) { border-color: #2563eb; background: #2563eb; color: #fff; }
     .wip-page-btn:disabled { opacity: 0.45; cursor: not-allowed; }
@@ -218,7 +219,7 @@
           <span class="arrow">▼</span>
         </div>
         <div class="user-dropdown-menu">
-          <a href="settings.html" class="user-dropdown-item">👤 用户信息</a>
+          <a href="settings.html?sub=profile" class="user-dropdown-item">👤 用户信息</a>
           <a href="login.html" class="user-dropdown-item logout">🚪 退出</a>
         </div>
       </div>
@@ -244,13 +245,15 @@
             </div>
             <div class="wip-orders-sub-row">
               <div class="wip-orders-sub" id="wip-orders-sub">近10条在制订单</div>
-              <button class="wip-all-link" type="button" onclick="openAllWipOrders()">查看所有在制订单</button>
             </div>
             <div class="wip-orders-list" id="wip-orders-list"></div>
             <div class="wip-pagination">
-              <button class="wip-page-btn" id="wip-prev-page" onclick="changeWipPage(-1)">上一页</button>
-              <span class="wip-page-info" id="wip-page-info">1 / 1</span>
-              <button class="wip-page-btn" id="wip-next-page" onclick="changeWipPage(1)">下一页</button>
+              <button class="wip-all-link" type="button" onclick="openAllWipOrders()">查看所有在制订单</button>
+              <div class="wip-pagination-controls">
+                <button class="wip-page-btn" id="wip-prev-page" onclick="changeWipPage(-1)">上一页</button>
+                <span class="wip-page-info" id="wip-page-info">1 / 1</span>
+                <button class="wip-page-btn" id="wip-next-page" onclick="changeWipPage(1)">下一页</button>
+              </div>
             </div>
           </article>
 

@@ -16,6 +16,19 @@
     .settings-subview { display: none; }
     .settings-subview.active { display: block; }
     .settings-form-grid { display: grid; grid-template-columns: repeat(2, minmax(180px, 1fr)); gap: 10px; }
+    .user-profile-panel { border: 1px solid #334155; border-radius: 14px; background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.9)); overflow: hidden; }
+    .user-profile-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 18px 20px; border-bottom: 1px solid rgba(51, 65, 85, 0.75); background: linear-gradient(135deg, rgba(37, 99, 235, 0.18), rgba(14, 165, 233, 0.08)); }
+    .user-profile-head-main { display: flex; align-items: center; gap: 14px; }
+    .user-profile-avatar { width: 54px; height: 54px; border-radius: 16px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #2563eb, #38bdf8); color: #eff6ff; font-size: 22px; font-weight: 800; box-shadow: 0 12px 28px rgba(37, 99, 235, 0.28); }
+    .user-profile-head-title { display: flex; flex-direction: column; gap: 4px; }
+    .user-profile-head-title strong { font-size: 18px; color: #e2e8f0; }
+    .user-profile-head-title span { font-size: 12px; color: #93c5fd; }
+    .user-profile-readonly { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; border: 1px solid rgba(125, 211, 252, 0.28); background: rgba(8, 47, 73, 0.6); color: #bae6fd; font-size: 11px; font-weight: 700; white-space: nowrap; }
+    .user-profile-grid { display: grid; grid-template-columns: repeat(2, minmax(220px, 1fr)); gap: 12px; padding: 18px 20px 20px; }
+    .user-profile-item { border: 1px solid #334155; border-radius: 12px; background: #111b2d; padding: 12px 14px; min-height: 78px; }
+    .user-profile-item label { display: block; font-size: 11px; letter-spacing: 0.2px; color: #94a3b8; margin-bottom: 8px; }
+    .user-profile-value { font-size: 14px; color: #e2e8f0; font-weight: 700; line-height: 1.5; word-break: break-word; }
+    .user-profile-note { padding: 0 20px 20px; font-size: 12px; color: #64748b; }
     .settings-ann-item { border: 1px solid #334155; border-radius: 8px; padding: 8px; background: #111b2d; margin-bottom: 8px; }
     .settings-ann-item .hd { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; font-size: 12px; color: #dbeafe; }
     .settings-ann-item .bd { font-size: 12px; color: var(--muted); line-height: 1.5; }
@@ -91,7 +104,7 @@
     .sync-progress-fill { height: 100%; background: linear-gradient(90deg, #2563eb, #38bdf8); transition: width 0.3s; }
     
     @media (max-width: 1200px) { .usage-hero-grid { grid-template-columns: repeat(2, minmax(160px, 1fr)); } .usage-section-grid { grid-template-columns: 1fr; } }
-    @media (max-width: 960px) { .resource-layout { grid-template-columns: 1fr; } .resource-sidebar { position: static; max-height: none; } .settings-form-grid { grid-template-columns: 1fr; } .integration-grid { grid-template-columns: 1fr; } .sync-status-bar { flex-wrap: wrap; } .usage-trend-chart { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+    @media (max-width: 960px) { .resource-layout { grid-template-columns: 1fr; } .resource-sidebar { position: static; max-height: none; } .settings-form-grid { grid-template-columns: 1fr; } .user-profile-grid { grid-template-columns: 1fr; } .integration-grid { grid-template-columns: 1fr; } .sync-status-bar { flex-wrap: wrap; } .usage-trend-chart { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
     @media (max-width: 640px) { .usage-hero-grid { grid-template-columns: 1fr; } .usage-filter-bar input, .usage-filter-bar select { min-width: 0; width: 100%; } .usage-trend-chart { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   </style>
 </head>
@@ -130,7 +143,7 @@
           <span class="arrow">▼</span>
         </div>
         <div class="user-dropdown-menu">
-          <a href="settings.html" class="user-dropdown-item">👤 用户信息</a>
+          <a href="settings.html?sub=profile" class="user-dropdown-item">👤 用户信息</a>
           <a href="login.html" class="user-dropdown-item logout">🚪 退出</a>
         </div>
       </div>
@@ -142,20 +155,76 @@
       <div class="resource-layout">
         <aside class="resource-sidebar">
           <div class="resource-menu">
-            <button class="resource-menu-item active" onclick="switchSettingsSub('version', this)">版本公告</button>
-            <button class="resource-menu-item" onclick="switchSettingsSub('integration', this)">系统对接</button>
-            <button class="resource-menu-item" onclick="switchSettingsSub('sync', this)">数据同步</button>
-            <button class="resource-menu-item" onclick="switchSettingsSub('users', this)">账号管理</button>
-            <button class="resource-menu-item" onclick="switchSettingsSub('roles', this)">角色权限</button>
-            <button class="resource-menu-item" onclick="switchSettingsSub('audit', this)">审计日志</button>
-            <button class="resource-menu-item" onclick="switchSettingsSub('usage', this)">使用统计</button>
-            <button class="resource-menu-item" onclick="switchSettingsSub('base', this)">基础设置</button>
-            <button class="resource-menu-item" onclick="switchSettingsSub('report', this)">报表中心</button>
+            <button class="resource-menu-item active" data-settings-sub="base" onclick="switchSettingsSub('base', this)">基础设置</button>
+            <button class="resource-menu-item" data-settings-sub="version" onclick="switchSettingsSub('version', this)">版本公告</button>
+            <button class="resource-menu-item" data-settings-sub="integration" onclick="switchSettingsSub('integration', this)">系统对接</button>
+            <button class="resource-menu-item" data-settings-sub="sync" onclick="switchSettingsSub('sync', this)">数据同步</button>
+            <button class="resource-menu-item" data-settings-sub="users" onclick="switchSettingsSub('users', this)">账号管理</button>
+            <button class="resource-menu-item" data-settings-sub="roles" onclick="switchSettingsSub('roles', this)">角色权限</button>
+            <button class="resource-menu-item" data-settings-sub="audit" onclick="switchSettingsSub('audit', this)">审计日志</button>
+            <button class="resource-menu-item" data-settings-sub="usage" onclick="switchSettingsSub('usage', this)">使用统计</button>
+            <button class="resource-menu-item" data-settings-sub="report" onclick="switchSettingsSub('report', this)">报表中心</button>
+            <button class="resource-menu-item" data-settings-sub="profile" onclick="switchSettingsSub('profile', this)">用户设置</button>
           </div>
         </aside>
 
         <div class="resource-main">
-          <div class="settings-subview active" id="settings-sub-version">
+          <div class="settings-subview" id="settings-sub-profile">
+            <article class="card">
+              <div class="card-hd"><span>用户设置</span></div>
+              <div class="card-bd">
+                <div class="user-profile-panel">
+                  <div class="user-profile-head">
+                    <div class="user-profile-head-main">
+                      <div class="user-profile-avatar">张</div>
+                      <div class="user-profile-head-title">
+                        <strong>张伟</strong>
+                        <span>计划平台主管 · 珠海格力总部</span>
+                      </div>
+                    </div>
+                    <div class="user-profile-readonly">只读信息，禁止编辑</div>
+                  </div>
+                  <div class="user-profile-grid">
+                    <div class="user-profile-item">
+                      <label>姓名</label>
+                      <div class="user-profile-value">张伟</div>
+                    </div>
+                    <div class="user-profile-item">
+                      <label>岗位</label>
+                      <div class="user-profile-value">计划平台主管</div>
+                    </div>
+                    <div class="user-profile-item">
+                      <label>手机号</label>
+                      <div class="user-profile-value">138 0000 1268</div>
+                    </div>
+                    <div class="user-profile-item">
+                      <label>邮箱号</label>
+                      <div class="user-profile-value">zhangwei@gree.com.cn</div>
+                    </div>
+                    <div class="user-profile-item">
+                      <label>总部/基地</label>
+                      <div class="user-profile-value">珠海格力总部</div>
+                    </div>
+                    <div class="user-profile-item">
+                      <label>部门</label>
+                      <div class="user-profile-value">制造运营中心</div>
+                    </div>
+                    <div class="user-profile-item">
+                      <label>科室</label>
+                      <div class="user-profile-value">APS推进科</div>
+                    </div>
+                    <div class="user-profile-item">
+                      <label>组</label>
+                      <div class="user-profile-value">协同排程组</div>
+                    </div>
+                  </div>
+                  <div class="user-profile-note">个人信息由总部统一维护，当前页面仅提供查看，不支持本地修改。</div>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <div class="settings-subview" id="settings-sub-version">
             <article class="card">
               <div class="card-hd"><span>版本公告</span><button class="btn primary" onclick="publishVersionAnnouncement()">发布公告</button></div>
               <div class="card-bd">
@@ -252,7 +321,7 @@
             </article>
           </div>
 
-          <div class="settings-subview" id="settings-sub-base">
+          <div class="settings-subview active" id="settings-sub-base">
             <article class="card">
               <div class="card-hd"><span>基础设置</span><button class="btn ok" onclick="saveBaseSettings()">保存设置</button></div>
               <div class="card-bd">
@@ -337,17 +406,30 @@
   <div id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
   <script src="common.js"></script>
   <script>
-    function switchSettingsSub(sub, btn) {
+    function switchSettingsSub(sub, btn, options = {}) {
+      const { syncUrl = true } = options;
+      const targetPanel = document.getElementById('settings-sub-' + sub) || document.getElementById('settings-sub-base');
+      const targetSub = targetPanel?.id?.replace('settings-sub-', '') || 'base';
       document.querySelectorAll('.settings-subview').forEach(v => v.classList.remove('active'));
-      document.getElementById('settings-sub-' + sub).classList.add('active');
+      targetPanel.classList.add('active');
       document.querySelectorAll('.resource-menu-item').forEach(m => m.classList.remove('active'));
-      if (btn) btn.classList.add('active');
+      const targetBtn = btn || document.querySelector(`.resource-menu-item[data-settings-sub="${targetSub}"]`);
+      if (targetBtn) targetBtn.classList.add('active');
+      if (syncUrl) {
+        const url = new URL(window.location.href);
+        if (targetSub === 'base') {
+          url.searchParams.delete('sub');
+        } else {
+          url.searchParams.set('sub', targetSub);
+        }
+        window.history.replaceState({}, '', url.toString());
+      }
       
-      if (sub === 'users') renderSettingsUsers();
-      if (sub === 'roles') renderSettingsRoles();
-      if (sub === 'audit') renderSettingsAuditLogs();
-      if (sub === 'usage') renderUsageStats();
-      if (sub === 'report') renderReportCenter();
+      if (targetSub === 'users') renderSettingsUsers();
+      if (targetSub === 'roles') renderSettingsRoles();
+      if (targetSub === 'audit') renderSettingsAuditLogs();
+      if (targetSub === 'usage') renderUsageStats();
+      if (targetSub === 'report') renderReportCenter();
     }
 
     function renderVersionList() {
@@ -994,6 +1076,8 @@ ${name}
     document.getElementById('sync-system-filter')?.addEventListener('change', renderSyncTable);
 
     document.addEventListener('DOMContentLoaded', () => {
+      const initialSub = new URLSearchParams(window.location.search).get('sub') || 'base';
+      switchSettingsSub(initialSub, null, { syncUrl: false });
       renderVersionList();
       renderIntegrationList();
       renderSyncTable();

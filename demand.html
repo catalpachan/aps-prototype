@@ -337,30 +337,33 @@
   </style>
 </head>
 <body>
-  <header>
+  <header class="aps-header-layout">
     <div class="brand-block">
       <img class="header-logo" src="1c5703c9-aca0-43d1-9843-9d502cb66fd0.png" alt="APS Logo" width="143" height="44" />
-      
+      <div class="aps-console-title">
+        <div class="aps-console-title-main">格力高级计划排程系统</div>
+        <div class="aps-console-title-sub">跨厂协同排程控制台</div>
+      </div>
     </div>
-    <nav class="nav" id="nav">
-      <a href="decision.html" class="nav-item">决策中心</a>
-      <a href="collab.html" class="nav-item">协同中心</a>
-      <a href="demand.html" class="nav-item active">需求中心</a>
-      <a href="resource.html" class="nav-item">资源中心</a>
-      <a href="rule.html" class="nav-item">规则中心</a>
-      <a href="monitor.html" class="nav-item">监控中心</a>
-      <a href="report.html" class="nav-item">报表中心</a>
+    <nav class="nav aps-main-nav" id="nav">
+      <a href="collab.html" class="nav-item">排产操作</a>
+      <a href="decision.html" class="nav-item active">决策分析</a>
       <a href="settings.html" class="nav-item">系统设置</a>
     </nav>
-    <div class="header-meta" id="header-meta">
-      <span id="header-date">2026-02-28 08:56:33</span> |
-      <select id="hq-select" class="role-select" aria-label="基地切换">
-        <option>珠海格力总部</option>
-        <option>金湾基地</option>
-        <option>武汉基地</option>
-        <option>洛阳基地</option>
-      </select>
-      | 
+    <div class="header-meta aps-header-meta" id="header-meta">
+      <div class="aps-site-switch">
+        <span class="aps-site-switch-label">制造基地</span>
+        <select id="hq-select" class="role-select" aria-label="基地切换">
+          <option>珠海格力总部</option>
+          <option>金湾基地</option>
+          <option>武汉基地</option>
+          <option>洛阳基地</option>
+        </select>
+      </div>
+      <span id="header-date" class="aps-clock-chip">2026-02-28 08:56:33</span>
+      <button type="button" class="aps-notify-btn" id="aps-notify-btn" aria-label="打开消息通知">
+        🔔<span class="aps-notify-badge" id="aps-notify-badge">0</span>
+      </button>
       <div class="user-dropdown" id="user-dropdown">
         <div class="user-dropdown-toggle" onclick="toggleUserDropdown()">
           <div class="avatar">张</div>
@@ -368,7 +371,7 @@
           <span class="arrow">▼</span>
         </div>
         <div class="user-dropdown-menu">
-          <a href="settings.html" class="user-dropdown-item">👤 用户信息</a>
+          <a href="settings.html?sub=profile" class="user-dropdown-item">👤 用户信息</a>
           <a href="login.html" class="user-dropdown-item logout">🚪 退出</a>
         </div>
       </div>
