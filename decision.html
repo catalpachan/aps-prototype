@@ -1579,19 +1579,24 @@
                   </div>
                 </div>
 
-                <div class="kpi-card kpi-oee">
+                <div class="kpi-card kpi-oee" role="button" tabindex="0" onclick="openInventoryBoardPage()" onkeydown="handleInventoryCardKey(event)">
                   <div class="kpi-card-bg"></div>
                   <div class="kpi-card-content">
                     <div class="kpi-card-header">
-                      <div class="kpi-icon">⚙️</div>
+                      <div class="kpi-icon">📦</div>
                       <div class="kpi-trend up">
                         <span class="trend-arrow">↑</span>
-                        <span class="trend-value">1.2%</span>
+                        <span class="trend-value">6.4%</span>
                       </div>
                     </div>
-                    <div class="kpi-value" id="d-kpi-oee">88.4%</div>
-                    <div class="kpi-label">实时产能 (OEE)</div>
-                    <div class="kpi-sub">较上周同期</div>
+                    <div class="kpi-value" id="d-kpi-oee">5.6<span class="kpi-unit">次/月</span></div>
+                    <div class="kpi-label">库存周转率</div>
+                    <div class="kpi-sub">
+                      <span class="sub-item">今日出货 1286 台</span>
+                      <span class="sub-divider">|</span>
+                      <span class="sub-item">较上周 +6.4%</span>
+                    </div>
+                    <div class="todo-focus-hint">点击卡片进入库存看板页面</div>
                   </div>
                 </div>
 
@@ -1683,38 +1688,6 @@
             </div>
           </div>
 
-          <div class="ai-suggestions-panel" style="margin-top:4px;">
-            <div class="ai-panel-head">
-              <div>
-                <div class="ai-panel-title">
-                  <span>🤖</span>
-                  <span>AI智能建议中心</span>
-                </div>
-                <div class="ai-panel-subtitle">按风险与收益自动排序，辅助计划员快速决策</div>
-              </div>
-              <div class="ai-panel-actions">
-                <button class="btn sm" onclick="refreshAISuggestions()">刷新建议</button>
-                <button class="btn sm primary" onclick="batchApproveAI()">一键采纳</button>
-              </div>
-            </div>
-            <div class="ai-overview">
-              <div class="ai-overview-item">
-                <div class="ai-overview-label">待确认建议</div>
-                <div class="ai-overview-value pending" id="ai-overview-pending">0</div>
-              </div>
-              <div class="ai-overview-item">
-                <div class="ai-overview-label">平均置信度</div>
-                <div class="ai-overview-value confidence" id="ai-overview-confidence">0%</div>
-              </div>
-              <div class="ai-overview-item">
-                <div class="ai-overview-label">高优先级</div>
-                <div class="ai-overview-value priority" id="ai-overview-priority">0</div>
-              </div>
-            </div>
-            <div id="ai-suggestions-list">
-              <!-- AI建议动态生成 -->
-            </div>
-          </div>
         </div>
       </article>
 
@@ -1761,11 +1734,11 @@
 
     function renderDecisionCenter() {
       renderTodoList();
-      renderAISuggestions();
     }
 
     function renderAISuggestions() {
       const container = document.getElementById('ai-suggestions-list');
+      if (!container) return;
       container.innerHTML = aiSuggestions.map(s => `
         <div class="ai-suggestion-item ${s.status} ${s.type}" id="ai-suggestion-${s.id}">
           <div class="ai-suggestion-header">
@@ -2166,14 +2139,19 @@
       window.location.href = 'wip-orders.html';
     }
 
-    function focusAISuggestionsPanel() {
-      const panel = document.querySelector('.ai-suggestions-panel');
-      if (!panel) return;
-      panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      const firstAction = panel.querySelector('.ai-suggestion-actions button');
-      if (firstAction) {
-        setTimeout(() => firstAction.focus(), 260);
+    function handleInventoryCardKey(event) {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        openInventoryBoardPage();
       }
+    }
+
+    function openInventoryBoardPage() {
+      window.location.href = 'inventory-board.html';
+    }
+
+    function focusAISuggestionsPanel() {
+      window.location.href = 'planner-todo.html?focus=ai';
     }
 
     function handleTodo(id) {

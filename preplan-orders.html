@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>所有预排订单 - 格力高级计划排程系统</title>
+  <link rel="stylesheet" href="common.css" />
+  <style>
+    .preplan-detail-page { display: flex; flex-direction: column; gap: 14px; }
+    .preplan-detail-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+    .preplan-detail-filters { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .preplan-filter-field { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #94a3b8; }
+    .preplan-filter-field select, .preplan-filter-field input { height: 32px; border: 1px solid #334155; border-radius: 8px; background: #111b2d; color: #e2e8f0; font-size: 12px; padding: 0 10px; }
+    .preplan-filter-field input { min-width: 200px; }
+    .preplan-summary { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .preplan-summary-chip { border: 1px solid #334155; border-radius: 999px; padding: 5px 10px; font-size: 11px; color: #cbd5e1; background: #10192b; }
+    .preplan-summary-chip b { color: #38bdf8; font-size: 12px; margin-left: 4px; }
+    .preplan-detail-table-wrap { max-height: 620px; overflow: auto; border: 1px solid #334155; border-radius: 10px; background: #0f172a; }
+    .preplan-detail-table-wrap { -ms-overflow-style: none; scrollbar-width: none; }
+    .preplan-detail-table-wrap::-webkit-scrollbar { width: 0; height: 0; display: none; }
+    .preplan-detail-table { width: 100%; min-width: 1880px; border-collapse: collapse; }
+    .preplan-detail-table th, .preplan-detail-table td { padding: 9px 10px; border-bottom: 1px solid #243246; text-align: left; font-size: 12px; white-space: nowrap; }
+    .preplan-detail-table th { position: sticky; top: 0; z-index: 1; background: #172033; color: #dbe5f7; font-weight: 700; }
+    .preplan-detail-table td { color: #d1d5db; }
+    .preplan-detail-table td.num { color: #38bdf8; font-weight: 700; }
+    .preplan-detail-table td.locked { color: #fbbf24; font-weight: 700; }
+    .preplan-detail-table td.unlocked { color: #86efac; }
+    .preplan-seq-input {
+      width: 52px;
+      height: 28px;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      background: #111b2d;
+      color: #e2e8f0;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 700;
+      outline: none;
+    }
+    .preplan-seq-input:focus {
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.15);
+    }
+    .preplan-detail-pagination { margin-top: 10px; display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+    .preplan-page-btn { min-width: 72px; border: 1px solid #334155; border-radius: 6px; background: #1e293b; color: #cbd5e1; font-size: 11px; padding: 5px 10px; cursor: pointer; transition: all var(--dur-fast); }
+    .preplan-page-btn:hover:not(:disabled) { border-color: #2563eb; background: #2563eb; color: #fff; }
+    .preplan-page-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .preplan-page-info { font-size: 12px; color: #94a3b8; font-weight: 700; }
+    @media (max-width: 960px) {
+      .preplan-filter-field input { min-width: 160px; }
+      .preplan-detail-table { min-width: 1480px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="aps-header-layout">
+    <div class="brand-block">
+      <img class="header-logo" src="1c5703c9-aca0-43d1-9843-9d502cb66fd0.png" alt="APS Logo" width="143" height="44" />
+      <div class="aps-console-title">
+        <div class="aps-console-title-main">格力高级计划排程系统</div>
+        <div class="aps-console-title-sub">跨厂协同排程控制台</div>
+      </div>
+    </div>
+    <nav class="nav aps-main-nav" id="nav">
+      <a href="collab.html" class="nav-item active">排产操作</a>
+      <a href="decision.html" class="nav-item">决策分析</a>
+      <a href="settings.html" class="nav-item">系统设置</a>
+    </nav>
+    <div class="header-meta aps-header-meta" id="header-meta">
+      <div class="aps-site-switch">
+        <span class="aps-site-switch-label">制造基地</span>
+        <select id="hq-select" class="role-select" aria-label="基地切换">
+          <option>珠海格力总部</option>
+          <option>金湾基地</option>
+          <option>武汉基地</option>
+          <option>洛阳基地</option>
+        </select>
+      </div>
+      <span id="header-date" class="aps-clock-chip">2026-02-28 08:56:33</span>
+      <button type="button" class="aps-notify-btn" id="aps-notify-btn" aria-label="打开消息通知">
+        🔔<span class="aps-notify-badge" id="aps-notify-badge">0</span>
+      </button>
+      <div class="user-dropdown" id="user-dropdown">
+        <div class="user-dropdown-toggle" onclick="toggleUserDropdown()">
+          <div class="avatar">张</div>
+          <span class="name">张伟</span>
+          <span class="arrow">▼</span>
+        </div>
+        <div class="user-dropdown-menu">
+          <a href="settings.html?sub=profile" class="user-dropdown-item">👤 用户信息</a>
+          <a href="login.html" class="user-dropdown-item logout">🚪 退出</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="app">
+    <section class="view preplan-detail-page">
+      <article class="card">
+        <div class="card-hd">
+          <span>预排订单</span>
+          <div class="row" style="gap:8px;">
+            <span class="muted" id="preplan-page-title-sub">按分厂查看预排订单明细</span>
+            <a href="collab.html" class="btn sm">返回排产操作</a>
+          </div>
+        </div>
+        <div class="card-bd">
+          <div class="preplan-detail-toolbar">
+            <div class="preplan-detail-filters">
+              <label class="preplan-filter-field" for="preplan-detail-plant">
+                分厂
+                <select id="preplan-detail-plant" aria-label="分厂筛选">
+                  <option value="all">全部分厂</option>
+                  <option value="east">东区总装</option>
+                  <option value="west">西区总装</option>
+                  <option value="inject">注塑分厂</option>
+                  <option value="hx">两器分厂</option>
+                  <option value="ctrl">控制器分厂</option>
+                </select>
+              </label>
+              <label class="preplan-filter-field" for="preplan-detail-search">
+                订单搜索
+                <input id="preplan-detail-search" type="search" placeholder="输入订单代码/物料编码/产品名称" />
+              </label>
+            </div>
+            <div class="preplan-summary" id="preplan-summary"></div>
+          </div>
+
+          <div class="preplan-detail-table-wrap">
+            <table class="preplan-detail-table">
+              <thead>
+                <tr>
+                  <th>排产顺序</th>
+                  <th>分厂</th>
+                  <th>机台</th>
+                  <th>订单代码</th>
+                  <th>手工指定机台</th>
+                  <th>物料编码</th>
+                  <th>产品名称</th>
+                  <th>交货期</th>
+                  <th>合批时间</th>
+                  <th>订单数量</th>
+                  <th>原订单数量</th>
+                  <th>扫描数量</th>
+                  <th>MES推送时间</th>
+                  <th>分厂上线时间</th>
+                  <th>锁定标识</th>
+                </tr>
+              </thead>
+              <tbody id="preplan-detail-tbody"></tbody>
+            </table>
+          </div>
+
+          <div class="preplan-detail-pagination">
+            <button class="preplan-page-btn" id="preplan-detail-prev">上一页</button>
+            <span class="preplan-page-info" id="preplan-detail-page-info">1 / 1</span>
+            <button class="preplan-page-btn" id="preplan-detail-next">下一页</button>
+          </div>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const PREPLAN_DETAIL_PAGE_SIZE = 20;
+    const preplanPlants = [
+      { key: 'east', name: '东区总装' },
+      { key: 'west', name: '西区总装' },
+      { key: 'inject', name: '注塑分厂' },
+      { key: 'hx', name: '两器分厂' },
+      { key: 'ctrl', name: '控制器分厂' }
+    ];
+    const preplanPlantMap = preplanPlants.reduce((acc, plant) => {
+      acc[plant.key] = plant.name;
+      return acc;
+    }, {});
+
+    let currentPlantKey = 'all';
+    let currentPage = 1;
+    let searchKeyword = '';
+
+    function createPreplanOrderData(plantIndex) {
+      const productNames = ['臻净风挂机', '云锦柜机', '商用多联机', '变频风管机', '静音新风模块'];
+      const machinePrefixes = ['E', 'W', 'I', 'H', 'C'];
+      const materialFamilies = ['MAT-GJ', 'MAT-GM', 'MAT-KT', 'MAT-XF', 'MAT-DL'];
+      return Array.from({ length: 24 }, (_, idx) => {
+        const seq = plantIndex * 100 + idx + 1;
+        const machinePrefix = machinePrefixes[plantIndex] || 'A';
+        const machineIndex = ((idx % 8) + 1).toString().padStart(2, '0');
+        const machine = `${machinePrefix}-JT-${machineIndex}`;
+        const manualMachine = idx % 5 === 0 ? `${machinePrefix}-JT-${(((idx + 3) % 8) + 1).toString().padStart(2, '0')}` : '否';
+        const orderQty = 90 + ((plantIndex * 27 + idx * 19) % 210);
+        const originalQty = orderQty + ((idx + plantIndex) % 5) * 12;
+        const scannedQty = Math.max(0, orderQty - ((idx * 9 + plantIndex * 5) % 28));
+        const dueDay = 19 + (idx % 8);
+        const batchDay = 17 + (idx % 5);
+        const mesDay = 16 + (idx % 4);
+        const onlineDay = 18 + (idx % 5);
+        const locked = (idx + plantIndex) % 7 === 0;
+        return {
+          plantKey: preplanPlants[plantIndex].key,
+          plantName: preplanPlants[plantIndex].name,
+          machine,
+          orderCode: `PP-2603-${String(seq + 2400).padStart(5, '0')}`,
+          manualMachine,
+          materialCode: `${materialFamilies[(plantIndex + idx) % materialFamilies.length]}-${String(6200 + seq).padStart(5, '0')}`,
+          productName: `${productNames[(plantIndex + idx) % productNames.length]} ${12 + ((idx + plantIndex) % 6)}P`,
+          dueDate: `2026-03-${String(dueDay).padStart(2, '0')} 18:00`,
+          batchTime: `2026-03-${String(batchDay).padStart(2, '0')} ${String(9 + (idx % 8)).padStart(2, '0')}:${idx % 2 === 0 ? '10' : '40'}`,
+          orderQty,
+          originalQty,
+          scannedQty,
+          mesPushTime: `2026-03-${String(mesDay).padStart(2, '0')} ${String(8 + (idx % 7)).padStart(2, '0')}:${idx % 3 === 0 ? '20' : '50'}`,
+          plantLaunchTime: `2026-03-${String(onlineDay).padStart(2, '0')} ${String(10 + (idx % 6)).padStart(2, '0')}:${idx % 2 === 0 ? '15' : '45'}`,
+          lockFlag: locked ? '锁定' : '未锁定'
+        };
+      });
+    }
+
+    let allPreplanOrders = preplanPlants.flatMap((_, idx) => createPreplanOrderData(idx));
+
+    function clamp(value, min, max) {
+      return Math.min(max, Math.max(min, value));
+    }
+
+    function formatScheduleOrder(value) {
+      return String(Math.max(1, value)).padStart(2, '0');
+    }
+
+    function parseScheduleOrder(value) {
+      const parsed = Number.parseInt(String(value || '').replace(/[^\d]/g, ''), 10);
+      return Number.isFinite(parsed) ? parsed : null;
+    }
+
+    function parsePlantFromQuery() {
+      const plantParam = new URLSearchParams(window.location.search).get('plant');
+      if (plantParam && (plantParam === 'all' || preplanPlantMap[plantParam])) {
+        currentPlantKey = plantParam;
+      }
+    }
+
+    function updateQuery() {
+      const url = new URL(window.location.href);
+      if (currentPlantKey === 'all') {
+        url.searchParams.delete('plant');
+      } else {
+        url.searchParams.set('plant', currentPlantKey);
+      }
+      window.history.replaceState({}, '', url.toString());
+    }
+
+    function getFilteredOrders() {
+      const keyword = searchKeyword.trim().toLowerCase();
+      return allPreplanOrders.filter((item) => {
+        if (currentPlantKey !== 'all' && item.plantKey !== currentPlantKey) return false;
+        if (!keyword) return true;
+        return [
+          item.orderCode,
+          item.materialCode,
+          item.productName,
+          item.machine,
+          item.manualMachine,
+          item.plantName
+        ].some((value) => value.toLowerCase().includes(keyword));
+      });
+    }
+
+    function updateScheduleOrder(orderCode, nextOrder) {
+      const filteredRows = getFilteredOrders();
+      const sourceIndex = filteredRows.findIndex((item) => item.orderCode === orderCode);
+      if (sourceIndex === -1) {
+        renderTable();
+        return;
+      }
+
+      const targetIndex = clamp(nextOrder, 1, filteredRows.length) - 1;
+      if (sourceIndex === targetIndex) {
+        renderTable();
+        return;
+      }
+
+      const movedItem = filteredRows[sourceIndex];
+      const reorderedRows = filteredRows.filter((item) => item.orderCode !== orderCode);
+      reorderedRows.splice(targetIndex, 0, movedItem);
+
+      const filteredCodes = new Set(filteredRows.map((item) => item.orderCode));
+      let pointer = 0;
+      allPreplanOrders = allPreplanOrders.map((item) => (
+        filteredCodes.has(item.orderCode) ? reorderedRows[pointer++] : item
+      ));
+
+      currentPage = clamp(Math.ceil((targetIndex + 1) / PREPLAN_DETAIL_PAGE_SIZE), 1, Math.max(1, Math.ceil(filteredRows.length / PREPLAN_DETAIL_PAGE_SIZE)));
+      renderTable();
+    }
+
+    function renderSummary(items) {
+      const summaryEl = document.getElementById('preplan-summary');
+      if (!summaryEl) return;
+      const totalQty = items.reduce((sum, item) => sum + item.orderQty, 0);
+      const totalScanned = items.reduce((sum, item) => sum + item.scannedQty, 0);
+      const lockedCount = items.filter((item) => item.lockFlag === '锁定').length;
+      const statusText = currentPlantKey === 'all' ? '全部分厂' : (preplanPlantMap[currentPlantKey] || '未知分厂');
+      summaryEl.innerHTML = `
+        <span class="preplan-summary-chip">范围<b>${statusText}</b></span>
+        <span class="preplan-summary-chip">预排订单数<b>${items.length}</b></span>
+        <span class="preplan-summary-chip">总数量<b>${totalQty}套</b></span>
+        <span class="preplan-summary-chip">扫描数量<b>${totalScanned}套</b></span>
+        <span class="preplan-summary-chip">锁定订单<b>${lockedCount}</b></span>
+      `;
+    }
+
+    function renderTable() {
+      const rows = getFilteredOrders();
+      const totalPages = Math.max(1, Math.ceil(rows.length / PREPLAN_DETAIL_PAGE_SIZE));
+      currentPage = clamp(currentPage, 1, totalPages);
+      const start = (currentPage - 1) * PREPLAN_DETAIL_PAGE_SIZE;
+      const currentRows = rows.slice(start, start + PREPLAN_DETAIL_PAGE_SIZE);
+
+      const tbody = document.getElementById('preplan-detail-tbody');
+      const pageInfo = document.getElementById('preplan-detail-page-info');
+      const prevBtn = document.getElementById('preplan-detail-prev');
+      const nextBtn = document.getElementById('preplan-detail-next');
+      const subTitle = document.getElementById('preplan-page-title-sub');
+
+      if (tbody) {
+        tbody.innerHTML = currentRows.map((item, idx) => `
+          <tr>
+            <td>
+              <input
+                class="preplan-seq-input"
+                type="text"
+                inputmode="numeric"
+                value="${formatScheduleOrder(start + idx + 1)}"
+                data-order-code="${item.orderCode}"
+                data-current-order="${start + idx + 1}"
+                aria-label="${item.orderCode} 排产顺序"
+              />
+            </td>
+            <td>${item.plantName}</td>
+            <td>${item.machine}</td>
+            <td>${item.orderCode}</td>
+            <td>${item.manualMachine}</td>
+            <td>${item.materialCode}</td>
+            <td>${item.productName}</td>
+            <td>${item.dueDate}</td>
+            <td>${item.batchTime}</td>
+            <td class="num">${item.orderQty}套</td>
+            <td class="num">${item.originalQty}套</td>
+            <td class="num">${item.scannedQty}套</td>
+            <td>${item.mesPushTime}</td>
+            <td>${item.plantLaunchTime}</td>
+            <td class="${item.lockFlag === '锁定' ? 'locked' : 'unlocked'}">${item.lockFlag}</td>
+          </tr>
+        `).join('') || `
+          <tr>
+            <td colspan="15" style="text-align:center;color:#94a3b8;">未匹配到预排订单</td>
+          </tr>
+        `;
+
+        tbody.querySelectorAll('.preplan-seq-input').forEach((input) => {
+          const commit = () => {
+            const fallbackOrder = Number.parseInt(input.dataset.currentOrder || '1', 10) || 1;
+            const nextOrder = parseScheduleOrder(input.value) ?? fallbackOrder;
+            updateScheduleOrder(input.dataset.orderCode || '', nextOrder);
+          };
+
+          input.addEventListener('focus', () => input.select());
+          input.addEventListener('blur', commit);
+          input.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+              event.preventDefault();
+              input.blur();
+            }
+          });
+        });
+      }
+
+      if (pageInfo) pageInfo.textContent = `${currentPage} / ${totalPages}`;
+      if (prevBtn) prevBtn.disabled = currentPage <= 1;
+      if (nextBtn) nextBtn.disabled = currentPage >= totalPages;
+      if (subTitle) subTitle.textContent = `当前筛选：${currentPlantKey === 'all' ? '全部分厂' : preplanPlantMap[currentPlantKey]}，共 ${rows.length} 条`;
+
+      renderSummary(rows);
+      updateQuery();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      parsePlantFromQuery();
+
+      const plantSelect = document.getElementById('preplan-detail-plant');
+      const searchInput = document.getElementById('preplan-detail-search');
+      const prevBtn = document.getElementById('preplan-detail-prev');
+      const nextBtn = document.getElementById('preplan-detail-next');
+
+      if (plantSelect) {
+        plantSelect.value = currentPlantKey;
+        plantSelect.addEventListener('change', (event) => {
+          currentPlantKey = event.target.value || 'all';
+          currentPage = 1;
+          renderTable();
+        });
+      }
+
+      if (searchInput) {
+        searchInput.addEventListener('input', (event) => {
+          searchKeyword = event.target.value || '';
+          currentPage = 1;
+          renderTable();
+        });
+      }
+
+      prevBtn?.addEventListener('click', () => {
+        currentPage -= 1;
+        renderTable();
+      });
+      nextBtn?.addEventListener('click', () => {
+        currentPage += 1;
+        renderTable();
+      });
+
+      renderTable();
+    });
+  </script>
+  <script src="common.js"></script>
+</body>
+</html>

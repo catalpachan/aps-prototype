@@ -418,10 +418,13 @@
         background: linear-gradient(160deg, #0f1a2d 0%, #0f172a 100%);
         padding: 12px;
         margin-bottom: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
       }
 
       .aps-upgrade-card h4 {
-        margin: 0 0 10px;
+        margin: 0;
         font-size: 13px;
         font-weight: 600;
         color: var(--txt);
@@ -432,10 +435,19 @@
         gap: 8px;
       }
 
+      .aps-order-table-wrap {
+        max-height: 520px;
+        overflow: auto;
+        border: 1px solid #263346;
+        border-radius: 8px;
+        background: rgba(15, 23, 42, 0.44);
+      }
+
       .aps-order-table {
         width: 100%;
         border-collapse: collapse;
         font-size: 12px;
+        min-width: 100%;
       }
 
       .aps-order-table th,
@@ -445,10 +457,58 @@
         text-align: left;
       }
 
-      .aps-order-summary {
-        margin-top: 6px;
-        font-size: 14px;
-        line-height: 1.6;
+      .aps-order-table th {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        background: #172033;
+      }
+
+      .aps-order-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .aps-order-pager {
+        display: inline-flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-left: auto;
+      }
+
+      .aps-order-page-btn {
+        min-width: 66px;
+        border: 1px solid #334155;
+        border-radius: 6px;
+        background: #1e293b;
+        color: #cbd5e1;
+        font-size: 11px;
+        padding: 5px 10px;
+        cursor: pointer;
+        transition: all var(--dur-fast);
+      }
+
+      .aps-order-page-btn:hover:not(:disabled) {
+        border-color: #2563eb;
+        background: #2563eb;
+        color: #fff;
+      }
+
+      .aps-order-page-btn:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+
+      .aps-order-page-info {
+        font-size: 11px;
+        color: #94a3b8;
+        font-weight: 700;
+        min-width: 52px;
+        text-align: center;
       }
 
       .aps-order-status {
@@ -1010,53 +1070,212 @@
         color: #e2e8f0;
       }
 
-      .aps-slider-panel {
-        display: flex;
-        flex-direction: column;
+      .aps-sim-card .aps-slider-panel {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 10px;
       }
 
-      .aps-slider-row {
-        display: grid;
-        grid-template-columns: 80px 1fr 56px;
-        align-items: center;
+      .aps-sim-card .aps-slider-row {
+        display: flex;
+        flex-direction: column;
         gap: 8px;
         font-size: 12px;
+        border: 1px solid #334155;
+        border-radius: 12px;
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0.96) 0%, rgba(15, 27, 45, 0.92) 100%);
+        padding: 10px 12px;
+        min-width: 0;
+      }
+
+      .aps-sim-card .aps-slider-row > span {
+        color: #cbd5e1;
+        font-weight: 600;
+        padding-top: 0;
+        line-height: 1.2;
+        letter-spacing: 0.02em;
+      }
+
+      .aps-sim-multi details {
+        border: 1px solid #334155;
+        border-radius: 10px;
+        background: #111b2d;
+        overflow: hidden;
+      }
+
+      .aps-sim-multi details[open] {
+        border-color: rgba(96, 165, 250, 0.55);
+        box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.12);
+      }
+
+      .aps-sim-summary {
+        list-style: none;
+        min-height: 34px;
+        padding: 0 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        color: #e2e8f0;
+        cursor: pointer;
+        font-size: 12px;
+      }
+
+      .aps-sim-summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .aps-sim-summary-text {
+        display: inline-flex;
+        align-items: center;
+        min-width: 0;
+        line-height: 1.35;
+      }
+
+      .aps-sim-summary-caret {
+        color: #94a3b8;
+        font-size: 11px;
+        flex-shrink: 0;
+        padding: 2px 6px;
+        border-radius: 999px;
+        background: rgba(30, 41, 59, 0.8);
+      }
+
+      .aps-sim-note {
+        font-size: 11px;
+        color: #64748b;
+        line-height: 1.45;
+      }
+
+      .aps-sim-menu {
+        display: grid;
+        gap: 6px;
+        padding: 8px 10px 10px;
+        border-top: 1px solid rgba(51, 65, 85, 0.75);
+        max-height: 156px;
+        overflow: auto;
+      }
+
+      .aps-sim-option {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        font-size: 12px;
+        color: #e2e8f0;
+        padding: 4px 0;
+      }
+
+      .aps-sim-option input {
+        margin-top: 2px;
+      }
+
+      .aps-sim-option small {
+        display: block;
+        margin-top: 2px;
+        color: #64748b;
+        font-size: 11px;
       }
 
       .aps-sim-bars {
-        height: 242px;
+        grid-column: 1 / -1;
         border: 1px solid #334155;
         border-radius: 10px;
         background: linear-gradient(180deg, #0f172a 0%, #0b1220 100%);
-        padding: 6px;
+        padding: 12px;
         position: relative;
+        display: grid;
+        grid-template-columns: 220px minmax(0, 1fr);
+        gap: 10px 14px;
+        align-items: start;
       }
 
-      .aps-sim-fallback {
+      .aps-sim-compose-head {
         display: grid;
         gap: 8px;
-        padding: 6px;
+        align-content: start;
       }
 
-      .aps-sim-bar {
-        display: grid;
-        grid-template-columns: 84px 1fr 60px;
-        align-items: center;
+      .aps-sim-progress-shell {
+        display: none;
         gap: 8px;
-        font-size: 12px;
+        align-content: start;
       }
 
-      .aps-sim-track {
-        height: 8px;
+      .aps-sim-progress-shell.is-visible {
+        display: grid;
+      }
+
+      .aps-sim-progress-track {
+        height: 10px;
         border-radius: 999px;
         background: #1e293b;
         overflow: hidden;
       }
 
-      .aps-sim-fill {
+      .aps-sim-progress-fill {
         height: 100%;
-        background: linear-gradient(90deg, #38bdf8, #2563eb);
+        width: 0;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #38bdf8, #22c55e);
+        transition: width 0.2s ease;
+      }
+
+      .aps-sim-progress-text {
+        font-size: 12px;
+        color: #cbd5e1;
+      }
+
+      .aps-sim-report {
+        grid-column: 2;
+        grid-row: 1 / span 2;
+        min-height: 124px;
+        border: 1px dashed rgba(96, 165, 250, 0.35);
+        border-radius: 10px;
+        padding: 12px;
+        background: rgba(15, 23, 42, 0.72);
+        color: #dbeafe;
+        font-size: 12px;
+        line-height: 1.7;
+      }
+
+      .aps-sim-report.empty {
+        color: #64748b;
+      }
+
+      .aps-sim-report-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: #f8fafc;
+        margin-bottom: 6px;
+      }
+
+      .aps-sim-report-meta {
+        font-size: 11px;
+        color: #94a3b8;
+        margin-bottom: 8px;
+      }
+
+      .aps-sim-report p {
+        margin: 0 0 8px;
+      }
+
+      .aps-sim-report p:last-child {
+        margin-bottom: 0;
+      }
+
+      @media (max-width: 1280px) {
+        .aps-sim-card .aps-slider-panel {
+          grid-template-columns: 1fr;
+        }
+
+        .aps-sim-bars {
+          grid-template-columns: 1fr;
+        }
+
+        .aps-sim-report {
+          grid-column: 1;
+          grid-row: auto;
+        }
       }
 
       .aps-setting-block {
@@ -1516,13 +1735,22 @@
             <button class="btn sm primary" id="aps-preplan-start-btn">启动预排</button>
           </div>
         </h4>
-        <table class="aps-order-table">
-          <thead>
-            <tr><th>订单号</th><th>来源</th><th>交期</th><th>数量</th><th>状态</th></tr>
-          </thead>
-          <tbody id="aps-order-tbody"></tbody>
-        </table>
-        <div class="muted aps-order-summary" id="aps-order-summary"></div>
+        <div class="aps-order-table-wrap">
+          <table class="aps-order-table">
+            <thead>
+              <tr><th>订单号</th><th>来源</th><th>交期</th><th>数量</th><th>状态</th></tr>
+            </thead>
+            <tbody id="aps-order-tbody"></tbody>
+          </table>
+        </div>
+        <div class="aps-order-footer">
+          <button class="btn sm" id="aps-all-preplan-orders-btn">所有预排订单</button>
+          <div class="aps-order-pager">
+            <button class="aps-order-page-btn" id="aps-order-prev-page">上一页</button>
+            <span class="aps-order-page-info" id="aps-order-page-info">1 / 1</span>
+            <button class="aps-order-page-btn" id="aps-order-next-page">下一页</button>
+          </div>
+        </div>
         <div class="aps-preplan-result" id="aps-preplan-result"></div>
       </article>
 
@@ -1554,12 +1782,25 @@
       leftCol.insertBefore(wipCard, preplanCard);
     }
 
-    const orders = [
-      { no: 'SO-20260309-018', source: 'ERP', delivery: '2026-03-10', qty: 560, status: 'ready' },
-      { no: 'SO-20260309-019', source: 'EDI', delivery: '2026-03-11', qty: 420, status: 'ready' },
-      { no: 'SO-20260309-020', source: 'ERP', delivery: '2026-03-12', qty: 300, status: 'ready' },
-      { no: 'SO-20260309-021', source: 'CRM', delivery: '2026-03-12', qty: 260, status: 'ready' }
-    ];
+    const ORDER_PAGE_SIZE = 8;
+    let currentOrderPage = 1;
+    const orderSources = ['ERP', 'EDI', 'CRM', 'APS'];
+    const orders = Array.from({ length: 36 }, (_, idx) => {
+      const seq = 18 + idx;
+      const source = orderSources[idx % orderSources.length];
+      const deliveryDay = 10 + (idx % 9);
+      const qty = 180 + ((idx * 37) % 420);
+      let status = 'ready';
+      if (idx === 2 || idx === 11 || idx === 24) status = 'rush';
+      if (idx === 15 || idx === 29) status = 'cancelled';
+      return {
+        no: `SO-20260309-${String(seq).padStart(3, '0')}`,
+        source,
+        delivery: `2026-03-${String(deliveryDay).padStart(2, '0')}`,
+        qty,
+        status
+      };
+    });
 
     const sharedState = getSharedState();
     const schedulePlans = [
@@ -1606,13 +1847,18 @@
 
     function renderOrderTable() {
       const tbody = document.getElementById('aps-order-tbody');
-      const summary = document.getElementById('aps-order-summary');
+      const pageInfo = document.getElementById('aps-order-page-info');
+      const prevBtn = document.getElementById('aps-order-prev-page');
+      const nextBtn = document.getElementById('aps-order-next-page');
       if (!tbody) return;
       const sortWeight = { rush: 0, ready: 1, cancelled: 2 };
       orders.sort((a, b) => sortWeight[a.status] - sortWeight[b.status]);
       const visibleOrders = orders.filter((order) => order.status !== 'cancelled');
-      const cancelledCount = orders.length - visibleOrders.length;
-      tbody.innerHTML = visibleOrders
+      const totalPages = Math.max(1, Math.ceil(visibleOrders.length / ORDER_PAGE_SIZE));
+      currentOrderPage = Math.min(Math.max(currentOrderPage, 1), totalPages);
+      const start = (currentOrderPage - 1) * ORDER_PAGE_SIZE;
+      const currentRows = visibleOrders.slice(start, start + ORDER_PAGE_SIZE);
+      tbody.innerHTML = currentRows
         .map((order) => {
           const labels = {
             ready: '可排',
@@ -1630,9 +1876,18 @@
           `;
         })
         .join('');
-      if (summary) {
-        summary.textContent = `当前可排订单 ${visibleOrders.length} 条，已自动隐藏撤销订单 ${cancelledCount} 条。`;
-      }
+      if (pageInfo) pageInfo.textContent = `${currentOrderPage} / ${totalPages}`;
+      if (prevBtn) prevBtn.disabled = currentOrderPage <= 1;
+      if (nextBtn) nextBtn.disabled = currentOrderPage >= totalPages;
+    }
+
+    function changeOrderPage(offset) {
+      const visibleCount = orders.filter((order) => order.status !== 'cancelled').length;
+      const totalPages = Math.max(1, Math.ceil(visibleCount / ORDER_PAGE_SIZE));
+      const nextPage = currentOrderPage + offset;
+      if (nextPage < 1 || nextPage > totalPages) return;
+      currentOrderPage = nextPage;
+      renderOrderTable();
     }
 
     const ORDER_SYNC_FLOW_STEPS = [
@@ -1892,7 +2147,8 @@
       orders.unshift(rushOrder);
       const cancellable = orders.find((item) => item.status === 'ready');
       if (cancellable) cancellable.status = 'cancelled';
-      if (orders.length > 7) orders.pop();
+      if (orders.length > 48) orders.pop();
+      currentOrderPage = 1;
       renderOrderTable();
     }
 
@@ -2123,11 +2379,19 @@
       });
     }
 
+    const allPreplanOrdersBtn = document.getElementById('aps-all-preplan-orders-btn');
+    const orderPrevPageBtn = document.getElementById('aps-order-prev-page');
+    const orderNextPageBtn = document.getElementById('aps-order-next-page');
     const orderSyncBtn = document.getElementById('aps-order-sync-btn');
     const preplanBtn = document.getElementById('aps-preplan-start-btn');
     const resourceBtn = document.getElementById('aps-resource-match-btn');
     const smartBtn = document.getElementById('aps-smart-schedule-btn');
 
+    allPreplanOrdersBtn?.addEventListener('click', () => {
+      window.location.href = 'preplan-orders.html';
+    });
+    orderPrevPageBtn?.addEventListener('click', () => changeOrderPage(-1));
+    orderNextPageBtn?.addEventListener('click', () => changeOrderPage(1));
     orderSyncBtn?.addEventListener('click', syncOrders);
     preplanBtn?.addEventListener('click', runPreplanWizard);
     resourceBtn?.addEventListener('click', runResourceMatch);
@@ -2186,7 +2450,7 @@
     module.id = 'aps-decision-upgrade';
     module.className = 'aps-decision-grid';
     module.innerHTML = `
-      <article class="card">
+      <article class="card aps-sim-card">
         <div class="card-hd">
           <span>全链路进度与预警大屏</span>
           <button class="btn sm" id="aps-feedback-btn">生成反哺建议</button>
@@ -2199,26 +2463,43 @@
 
       <article class="card">
         <div class="card-hd">
-          <span>滑动推演工作台</span>
-          <button class="btn sm" id="aps-sim-apply-btn">刷新对比图</button>
+          <span>AI推演工作台</span>
         </div>
         <div class="card-bd aps-slider-panel">
           <div class="aps-slider-row">
             <span>缺料冲击</span>
-            <input type="range" min="0" max="100" value="35" id="aps-sim-shortage" />
-            <span id="aps-sim-shortage-v">35%</span>
+            <div>
+              <div id="aps-sim-shortage" class="aps-sim-multi"></div>
+              <div class="aps-sim-note">选择缺料突发事件，系统将自动评估交付与成本波动。</div>
+            </div>
           </div>
           <div class="aps-slider-row">
             <span>设备故障</span>
-            <input type="range" min="0" max="100" value="22" id="aps-sim-breakdown" />
-            <span id="aps-sim-breakdown-v">22%</span>
+            <div>
+              <div id="aps-sim-breakdown" class="aps-sim-multi"></div>
+              <div class="aps-sim-note">切换设备事件类型，推演产能利用率与停机影响范围。</div>
+            </div>
           </div>
           <div class="aps-slider-row">
             <span>插单压力</span>
-            <input type="range" min="0" max="100" value="48" id="aps-sim-rush" />
-            <span id="aps-sim-rush-v">48%</span>
+            <div>
+              <div id="aps-sim-rush" class="aps-sim-multi"></div>
+              <div class="aps-sim-note">插单场景会联动影响资源占用、交期承诺与优先级排序。</div>
+            </div>
           </div>
-          <div class="aps-sim-bars" id="aps-sim-bars"></div>
+          <div class="aps-sim-bars" id="aps-sim-bars">
+            <div class="aps-sim-compose-head">
+              <button class="btn sm" id="aps-sim-generate-btn">生成AI推演</button>
+              <span class="muted" id="aps-sim-selection-hint">请至少选择一个突发事件后生成推演建议。</span>
+            </div>
+            <div class="aps-sim-progress-shell" id="aps-sim-progress-shell">
+              <div class="aps-sim-progress-track">
+                <div class="aps-sim-progress-fill" id="aps-sim-progress-fill"></div>
+              </div>
+              <div class="aps-sim-progress-text" id="aps-sim-progress-text">正在初始化推演上下文...</div>
+            </div>
+            <div class="aps-sim-report empty" id="aps-sim-report">推演结果会在这里生成。先从上方三个类别中勾选本次排程需要考虑的突发事件。</div>
+          </div>
         </div>
       </article>
     `;
@@ -2274,8 +2555,43 @@
         suggestion: '执行局部重排，将高优订单切换至西区总装。'
       }
     ];
-    let simChart = null;
-    let simResizeBound = false;
+    const SIM_SCENARIO_GROUPS = {
+      shortage: {
+        id: 'aps-sim-shortage',
+        emptyText: '请选择缺料场景',
+        options: [
+          { id: 'shortage-machine', label: '机台缺料', hint: '关键工位缺少主材，影响当前机台节拍。', impact: 24, advice: '优先切换同物料库存充足的机台，并冻结后续 2 小时插单。'},
+          { id: 'shortage-supplier', label: '等待供应商备料', hint: '来料准备滞后，需要缓冲替代物料。', impact: 31, advice: '把供应商待齐套订单移至夜班窗口，同时提前触发催料提醒。'},
+          { id: 'shortage-parts', label: '配套缺料', hint: '辅料或配套件不齐，影响整单上线。', impact: 28, advice: '按缺件维度拆分批次，先放行齐套订单。'}
+        ]
+      },
+      breakdown: {
+        id: 'aps-sim-breakdown',
+        emptyText: '请选择设备事件',
+        options: [
+          { id: 'breakdown-repair', label: '设备维修', hint: '突发故障需要停机抢修。', impact: 34, advice: '把高优先订单切至备机，维修机台只保留锁定工单。'},
+          { id: 'breakdown-maintain', label: '设备维保', hint: '计划性维保占用设备窗口。', impact: 18, advice: '把维保窗口前移到低峰时段，提前完成高优订单预投料。'},
+          { id: 'breakdown-monthly', label: '设备月度检修', hint: '长时段检修，会造成产能缺口。', impact: 26, advice: '按产线族群重新分摊产量，优先保障交期最紧的两批订单。'}
+        ]
+      },
+      rush: {
+        id: 'aps-sim-rush',
+        emptyText: '请选择插单压力',
+        options: [
+          { id: 'rush-sales', label: '销售插单', hint: '临时新增高优订单。', impact: 29, advice: '插单单独建批，避免打乱已锁定的白班节奏。'},
+          { id: 'rush-schedule', label: '排期紧急变动', hint: '客户交付窗口突然提前。', impact: 22, advice: '重新排序最近 8 小时工单，把可跨线订单优先调拨。'},
+          { id: 'rush-gov', label: '政府订单', hint: '必须优先保障的紧急指令订单。', impact: 37, advice: '开辟绿色排程通道，暂停低优订单释单。'},
+          { id: 'rush-contract', label: '合同订单', hint: '合同约束强，违约成本较高。', impact: 25, advice: '维持合同订单优先级在前 20%，同步压缩普通订单上线节奏。'}
+        ]
+      }
+    };
+    const SIM_PROGRESS_TEXT = [
+      '正在读取当前排程快照...',
+      '正在比对事件组合对产能与交期的影响...',
+      '正在生成调整建议与优先级排序...',
+      '正在汇总 AI 推演结论...'
+    ];
+    let simProgressTimer = null;
 
     function renderStageDiagnosis(stage) {
       const statusClass = stage.status === '正常' ? 'normal' : stage.status === '延误' ? 'delay' : 'risk';
@@ -2340,131 +2656,175 @@
       });
     }
 
-    function simulateBars() {
-      const shortage = Number(document.getElementById('aps-sim-shortage')?.value || 0);
-      const breakdown = Number(document.getElementById('aps-sim-breakdown')?.value || 0);
-      const rush = Number(document.getElementById('aps-sim-rush')?.value || 0);
-      const container = document.getElementById('aps-sim-bars');
-      if (!container) return;
-
-      const onTime = Math.max(70, 98 - shortage * 0.12 - breakdown * 0.15 - rush * 0.08);
-      const oee = Math.max(65, 93 - shortage * 0.08 - breakdown * 0.2 - rush * 0.07);
-      const cost = Math.min(138, 88 + shortage * 0.16 + breakdown * 0.1 + rush * 0.14);
-
-      const metrics = [
-        { label: '准时交付率', value: onTime, suffix: '%' },
-        { label: '产能利用率', value: oee, suffix: '%' },
-        { label: '成本指数', value: cost, suffix: '' }
-      ];
-
-      const renderFallback = (note = '') => {
-        container.innerHTML = `
-          <div class="aps-sim-fallback">
-            ${note ? `<div class="muted" style="font-size:11px;">${note}</div>` : ''}
-            ${metrics
-              .map(
-                (item) => `
-                  <div class="aps-sim-bar">
-                    <span>${item.label}</span>
-                    <span class="aps-sim-track"><span class="aps-sim-fill" style="width:${Math.min(100, item.value)}%"></span></span>
-                    <span>${item.value.toFixed(1)}${item.suffix}</span>
-                  </div>
-                `
-              )
-              .join('')}
-          </div>
+    function renderScenarioControls() {
+      Object.entries(SIM_SCENARIO_GROUPS).forEach(([groupKey, group]) => {
+        const host = document.getElementById(group.id);
+        if (!host) return;
+        host.innerHTML = `
+          <details>
+            <summary class="aps-sim-summary">
+              <span class="aps-sim-summary-text" id="${group.id}-summary">${group.emptyText}</span>
+              <span class="aps-sim-summary-caret">多选</span>
+            </summary>
+            <div class="aps-sim-menu">
+              ${group.options
+                .map(
+                  (option) => `
+                    <label class="aps-sim-option">
+                      <input type="checkbox" data-sim-group="${groupKey}" value="${option.id}" />
+                      <span>
+                        ${option.label}
+                        <small>${option.hint}</small>
+                      </span>
+                    </label>
+                  `
+                )
+                .join('')}
+            </div>
+          </details>
         `;
-      };
-
-      loadEChartsLibrary()
-        .then((echarts) => {
-          if (!simChart) {
-            simChart = echarts.init(container);
-          }
-          const values = metrics.map((item) => Number(item.value.toFixed(1)));
-          const maxValue = Math.max(100, ...values);
-          const axisMax = Math.ceil((maxValue + 5) / 10) * 10;
-          simChart.setOption(
-            {
-              animationDuration: 420,
-              backgroundColor: 'transparent',
-              grid: { left: 90, right: 24, top: 28, bottom: 30 },
-              tooltip: {
-                trigger: 'axis',
-                axisPointer: { type: 'shadow' },
-                backgroundColor: '#0b1220',
-                borderColor: '#334155',
-                textStyle: { color: '#e2e8f0' },
-                formatter: (params) => {
-                  const row = params?.[0];
-                  if (!row) return '';
-                  const suffix = metrics[row.dataIndex]?.suffix || '';
-                  return `${row.name}<br/><b>${row.value}${suffix}</b>`;
-                }
-              },
-              xAxis: {
-                type: 'value',
-                min: 0,
-                max: axisMax,
-                axisLabel: { color: '#94a3b8', fontSize: 11 },
-                splitLine: { lineStyle: { color: 'rgba(148, 163, 184, 0.18)' } },
-                axisLine: { lineStyle: { color: '#334155' } }
-              },
-              yAxis: {
-                type: 'category',
-                data: metrics.map((item) => item.label),
-                axisTick: { show: false },
-                axisLabel: { color: '#f1f5f9', fontSize: 12, fontWeight: 600 },
-                axisLine: { lineStyle: { color: '#334155' } }
-              },
-              series: [
-                {
-                  type: 'bar',
-                  data: values,
-                  barWidth: 14,
-                  label: {
-                    show: true,
-                    position: 'right',
-                    color: '#e2e8f0',
-                    fontSize: 12,
-                    formatter: ({ value, dataIndex }) => `${value}${metrics[dataIndex]?.suffix || ''}`
-                  },
-                  itemStyle: {
-                    borderRadius: [0, 8, 8, 0],
-                    color: (params) => {
-                      if (params.dataIndex === 0) return '#22c55e';
-                      if (params.dataIndex === 1) return '#38bdf8';
-                      return '#f59e0b';
-                    }
-                  }
-                }
-              ]
-            },
-            true
-          );
-
-          if (!simResizeBound) {
-            window.addEventListener('resize', () => {
-              if (simChart) simChart.resize();
-            });
-            simResizeBound = true;
-          }
-        })
-        .catch(() => {
-          renderFallback('ECharts 加载失败，已切换简化视图。');
+        host.querySelectorAll(`input[data-sim-group="${groupKey}"]`).forEach((input) => {
+          input.addEventListener('change', () => {
+            updateScenarioSummary(groupKey);
+            markScenarioDirty();
+          });
         });
+        updateScenarioSummary(groupKey);
+      });
     }
 
-    function bindSlider(inputId, valueId) {
-      const input = document.getElementById(inputId);
-      const value = document.getElementById(valueId);
-      if (!input || !value) return;
-      const onUpdate = () => {
-        value.textContent = `${input.value}%`;
-        simulateBars();
-      };
-      input.addEventListener('input', onUpdate);
-      onUpdate();
+    function getScenarioGroupSelection(groupKey) {
+      const group = SIM_SCENARIO_GROUPS[groupKey];
+      if (!group) return [];
+      const checked = Array.from(
+        document.querySelectorAll(`#${group.id} input[data-sim-group="${groupKey}"]:checked`)
+      ).map((input) => input.value);
+      return group.options.filter((option) => checked.includes(option.id));
+    }
+
+    function updateScenarioSummary(groupKey) {
+      const group = SIM_SCENARIO_GROUPS[groupKey];
+      if (!group) return;
+      const summary = document.getElementById(`${group.id}-summary`);
+      if (!summary) return;
+      const selected = getScenarioGroupSelection(groupKey);
+      if (!selected.length) {
+        summary.textContent = group.emptyText;
+        return;
+      }
+      if (selected.length <= 2) {
+        summary.textContent = selected.map((item) => item.label).join('、');
+        return;
+      }
+      summary.textContent = `${selected.slice(0, 2).map((item) => item.label).join('、')} 等 ${selected.length} 项`;
+    }
+
+    function getScenarioSnapshot() {
+      const shortage = getScenarioGroupSelection('shortage');
+      const breakdown = getScenarioGroupSelection('breakdown');
+      const rush = getScenarioGroupSelection('rush');
+      const all = [...shortage, ...breakdown, ...rush];
+      return { shortage, breakdown, rush, all };
+    }
+
+    function getScenarioScore(items) {
+      return items.reduce((total, item) => total + item.impact, 0);
+    }
+
+    function clearSimulationProgress() {
+      if (simProgressTimer) {
+        window.clearInterval(simProgressTimer);
+        simProgressTimer = null;
+      }
+      const shell = document.getElementById('aps-sim-progress-shell');
+      const fill = document.getElementById('aps-sim-progress-fill');
+      const text = document.getElementById('aps-sim-progress-text');
+      if (shell) shell.classList.remove('is-visible');
+      if (fill) fill.style.width = '0%';
+      if (text) text.textContent = '正在初始化推演上下文...';
+    }
+
+    function markScenarioDirty() {
+      clearSimulationProgress();
+      const snapshot = getScenarioSnapshot();
+      const hint = document.getElementById('aps-sim-selection-hint');
+      const report = document.getElementById('aps-sim-report');
+      if (hint) {
+        hint.textContent = snapshot.all.length
+          ? `已选择 ${snapshot.all.length} 个突发事件，点击生成 AI 推演。`
+          : '请至少选择一个突发事件后生成推演建议。';
+      }
+      if (report) {
+        report.classList.add('empty');
+        report.textContent = snapshot.all.length
+          ? '事件组合已更新，点击“生成AI推演”输出新的排程建议。'
+          : '推演结果会在这里生成。先从上方三个类别中勾选本次排程需要考虑的突发事件。';
+      }
+      const button = document.getElementById('aps-sim-generate-btn');
+      if (button) button.disabled = false;
+    }
+
+    function buildSimulationAdvice(snapshot) {
+      const shortageScore = getScenarioScore(snapshot.shortage);
+      const breakdownScore = getScenarioScore(snapshot.breakdown);
+      const rushScore = getScenarioScore(snapshot.rush);
+      const totalScore = shortageScore + breakdownScore + rushScore;
+      const riskLevel = totalScore >= 78 ? '高' : totalScore >= 42 ? '中' : '低';
+      const sortedGroups = [
+        { label: '缺料冲击', score: shortageScore, items: snapshot.shortage },
+        { label: '设备故障', score: breakdownScore, items: snapshot.breakdown },
+        { label: '插单压力', score: rushScore, items: snapshot.rush }
+      ].sort((a, b) => b.score - a.score);
+      const primary = sortedGroups[0];
+      const primaryNames = primary.items.map((item) => item.label).join('、') || '当前事件';
+      const actions = snapshot.all.slice(0, 3).map((item) => item.advice);
+      const leadHours = Math.min(10, Math.max(3, Math.round(totalScore / 9)));
+
+      return `
+        <div class="aps-sim-report-title">AI 推演结论：本次排程风险等级 ${riskLevel}</div>
+        <div class="aps-sim-report-meta">生成时间：${new Date().toLocaleString('zh-CN', { hour12: false })}</div>
+        <p>综合当前勾选的突发事件，系统判断 <strong>${primary.label}</strong> 是本轮排程最需要优先处置的变量，其中 ${primaryNames} 会直接压缩未来 ${leadHours} 小时的可用排程窗口。</p>
+        <p>建议先锁定已承诺交期且齐套率高的订单，把受影响机台上的普通订单后移一个批次，再将跨线可切换订单分摊到备用产线，避免所有风险同时堆到白班窗口。</p>
+        <p>执行动作建议：${actions.join('；')}。</p>
+        <p>如果今天必须保交付，优先维持高优订单与合同订单的上线节奏，同时把低优订单释放节拍下调 10% 到 15%，给插单和故障恢复留出缓冲。</p>
+      `;
+    }
+
+    function generateSimulationAdvice() {
+      const snapshot = getScenarioSnapshot();
+      const button = document.getElementById('aps-sim-generate-btn');
+      const shell = document.getElementById('aps-sim-progress-shell');
+      const fill = document.getElementById('aps-sim-progress-fill');
+      const text = document.getElementById('aps-sim-progress-text');
+      const report = document.getElementById('aps-sim-report');
+
+      if (!button || !shell || !fill || !text || !report) return;
+      if (!snapshot.all.length) {
+        toast('请先选择至少一个突发事件。');
+        return;
+      }
+
+      clearSimulationProgress();
+      button.disabled = true;
+      report.classList.add('empty');
+      report.textContent = 'AI 正在结合当前事件组合生成排程建议，请稍候...';
+      shell.classList.add('is-visible');
+
+      let progress = 0;
+      simProgressTimer = window.setInterval(() => {
+        progress = Math.min(100, progress + 12 + Math.round(Math.random() * 10));
+        fill.style.width = `${progress}%`;
+        text.textContent = SIM_PROGRESS_TEXT[Math.min(SIM_PROGRESS_TEXT.length - 1, Math.floor(progress / 28))];
+
+        if (progress >= 100) {
+          window.clearInterval(simProgressTimer);
+          simProgressTimer = null;
+          report.classList.remove('empty');
+          report.innerHTML = buildSimulationAdvice(snapshot);
+          text.textContent = 'AI 推演已完成，建议已生成。';
+          button.disabled = false;
+        }
+      }, 320);
     }
 
     function ensureKpiTrendModal() {
@@ -2615,20 +2975,14 @@
     document.getElementById('aps-feedback-btn')?.addEventListener('click', generateFeedbackSuggestion);
     document.getElementById('aps-kpi-feedback-btn')?.addEventListener('click', generateFeedbackSuggestion);
     document.getElementById('aps-kpi-trend-btn')?.addEventListener('click', openKpiTrendModal);
-    document.getElementById('aps-sim-apply-btn')?.addEventListener('click', () => {
-      simulateBars();
-      toast('推演结果已刷新并覆写对比图。');
-    });
-
-    bindSlider('aps-sim-shortage', 'aps-sim-shortage-v');
-    bindSlider('aps-sim-breakdown', 'aps-sim-breakdown-v');
-    bindSlider('aps-sim-rush', 'aps-sim-rush-v');
+    renderScenarioControls();
+    document.getElementById('aps-sim-generate-btn')?.addEventListener('click', generateSimulationAdvice);
     renderStages(1);
     const initialDiag = document.getElementById('aps-stage-diagnosis');
     if (initialDiag) {
       initialDiag.innerHTML = renderStageDiagnosis(stages[1]);
     }
-    simulateBars();
+    markScenarioDirty();
   }
 
   function enhanceSettingsPage() {

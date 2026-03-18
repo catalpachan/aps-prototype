@@ -237,6 +237,332 @@
       gap: 10px;
     }
 
+    .ai-suggestions-panel {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(160deg, #0b1220 0%, #101c35 48%, #0f1b31 100%);
+      border: 1px solid #334155;
+      border-radius: 14px;
+      padding: 18px;
+      margin-top: 16px;
+      box-shadow: inset 0 1px 0 rgba(148, 163, 184, 0.08);
+    }
+
+    .ai-suggestions-panel::before {
+      content: "";
+      position: absolute;
+      top: -50px;
+      right: -50px;
+      width: 220px;
+      height: 220px;
+      background: radial-gradient(circle, rgba(37, 99, 235, 0.25) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .ai-panel-head {
+      position: relative;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+      z-index: 1;
+    }
+
+    .ai-panel-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #f8fafc;
+      letter-spacing: 0.2px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .ai-panel-subtitle {
+      font-size: 12px;
+      color: #94a3b8;
+      line-height: 1.4;
+    }
+
+    .ai-panel-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .ai-overview {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+      z-index: 1;
+    }
+
+    .ai-overview-item {
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(51, 65, 85, 0.9);
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+
+    .ai-overview-label {
+      font-size: 11px;
+      color: #94a3b8;
+      margin-bottom: 6px;
+    }
+
+    .ai-overview-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: #e2e8f0;
+      line-height: 1;
+    }
+
+    .ai-overview-value.pending {
+      color: #fbbf24;
+    }
+
+    .ai-overview-value.confidence {
+      color: #60a5fa;
+    }
+
+    .ai-overview-value.priority {
+      color: #f87171;
+    }
+
+    .ai-suggestion-item {
+      position: relative;
+      background: linear-gradient(180deg, rgba(15, 27, 45, 0.96) 0%, rgba(12, 23, 41, 0.96) 100%);
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 12px;
+      transition: border-color var(--dur-fast), transform var(--dur-fast), box-shadow var(--dur-fast);
+    }
+
+    .ai-suggestion-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .ai-suggestion-item:hover {
+      transform: translateY(-2px);
+      border-color: #2563eb;
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.16);
+    }
+
+    .ai-suggestion-item.pending {
+      border-left: 3px solid #f59e0b;
+    }
+
+    .ai-suggestion-item.approved {
+      border-left: 3px solid #22c55e;
+      background: linear-gradient(180deg, rgba(6, 78, 59, 0.22) 0%, rgba(12, 23, 41, 0.95) 100%);
+    }
+
+    .ai-suggestion-item.rejected {
+      border-left: 3px solid #64748b;
+      background: linear-gradient(180deg, rgba(30, 41, 59, 0.6) 0%, rgba(12, 23, 41, 0.9) 100%);
+      opacity: 0.88;
+    }
+
+    .ai-suggestion-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .ai-suggestion-main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .ai-suggestion-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .ai-suggestion-type {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+
+    .ai-suggestion-type.optimize {
+      background: rgba(37, 99, 235, 0.2);
+      color: #60a5fa;
+    }
+
+    .ai-suggestion-type.warning {
+      background: rgba(245, 158, 11, 0.2);
+      color: #fbbf24;
+    }
+
+    .ai-suggestion-type.urgent {
+      background: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+    }
+
+    .ai-suggestion-state {
+      display: inline-flex;
+      align-items: center;
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid;
+    }
+
+    .ai-suggestion-state.pending {
+      color: #fbbf24;
+      border-color: rgba(245, 158, 11, 0.5);
+      background: rgba(245, 158, 11, 0.14);
+    }
+
+    .ai-suggestion-state.approved {
+      color: #4ade80;
+      border-color: rgba(34, 197, 94, 0.5);
+      background: rgba(34, 197, 94, 0.14);
+    }
+
+    .ai-suggestion-state.rejected {
+      color: #94a3b8;
+      border-color: rgba(100, 116, 139, 0.45);
+      background: rgba(100, 116, 139, 0.14);
+    }
+
+    .ai-confidence {
+      width: 128px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .ai-confidence-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: #94a3b8;
+    }
+
+    .ai-confidence-value {
+      font-size: 14px;
+      font-weight: 700;
+      color: #dbeafe;
+    }
+
+    .ai-confidence-bar {
+      display: inline-block;
+      width: 100%;
+      height: 4px;
+      background: #334155;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .ai-confidence-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #22c55e, #10b981);
+      border-radius: 2px;
+    }
+
+    .ai-suggestion-content {
+      font-size: 14px;
+      font-weight: 600;
+      color: #e2e8f0;
+      line-height: 1.6;
+      margin-bottom: 10px;
+    }
+
+    .ai-suggestion-reason {
+      font-size: 12px;
+      color: #94a3b8;
+      line-height: 1.6;
+      background: rgba(15, 26, 45, 0.95);
+      border: 1px dashed #334155;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+
+    .ai-reason-label {
+      display: block;
+      color: #cbd5e1;
+      font-size: 11px;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .ai-suggestion-actions {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .ai-suggestion-actions button {
+      padding: 7px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 6px;
+      border: 1px solid #334155;
+      background: #1e293b;
+      color: #e2e8f0;
+      cursor: pointer;
+      transition: background var(--dur-fast), border-color var(--dur-fast), transform var(--dur-fast), box-shadow var(--dur-fast);
+    }
+
+    .ai-suggestion-actions button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 14px rgba(30, 58, 138, 0.2);
+    }
+
+    .ai-suggestion-actions button.approve {
+      background: linear-gradient(135deg, #1d4ed8, #2563eb);
+      border-color: rgba(59, 130, 246, 0.8);
+      color: #fff;
+    }
+
+    .ai-suggestion-actions button.alternative:hover {
+      background: #0f172a;
+      border-color: #475569;
+    }
+
+    .ai-suggestion-actions button.reject:hover {
+      background: #7f1d1d;
+      border-color: #ef4444;
+    }
+
+    .ai-suggestion-result {
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+    }
+
+    .ai-suggestion-result.approved {
+      color: #4ade80;
+    }
+
+    .ai-suggestion-result.rejected {
+      color: #94a3b8;
+    }
+
     .empty-panel {
       border: 1px dashed #334155;
       border-radius: 12px;
@@ -265,6 +591,29 @@
         grid-template-columns: 1fr;
       }
       .todo-form-actions {
+        grid-template-columns: 1fr;
+      }
+      .ai-panel-head {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .ai-panel-actions {
+        width: 100%;
+      }
+      .ai-panel-actions .btn {
+        flex: 1;
+      }
+      .ai-overview {
+        grid-template-columns: 1fr 1fr;
+      }
+      .ai-suggestion-header {
+        flex-direction: column;
+      }
+      .ai-confidence {
+        width: 100%;
+        align-items: flex-start;
+      }
+      .ai-suggestion-actions {
         grid-template-columns: 1fr;
       }
     }
@@ -365,6 +714,37 @@
                   <tbody id="planner-todo-tbody"></tbody>
                 </table>
               </div>
+
+              <div class="ai-suggestions-panel" id="planner-ai-panel">
+                <div class="ai-panel-head">
+                  <div>
+                    <div class="ai-panel-title">
+                      <span>🤖</span>
+                      <span>AI智能建议中心</span>
+                    </div>
+                    <div class="ai-panel-subtitle">按风险与收益自动排序，辅助计划员快速决策</div>
+                  </div>
+                  <div class="ai-panel-actions">
+                    <button class="btn sm" type="button" onclick="refreshAISuggestions()">刷新建议</button>
+                    <button class="btn sm primary" type="button" onclick="batchApproveAI()">一键采纳</button>
+                  </div>
+                </div>
+                <div class="ai-overview">
+                  <div class="ai-overview-item">
+                    <div class="ai-overview-label">待确认建议</div>
+                    <div class="ai-overview-value pending" id="ai-overview-pending">0</div>
+                  </div>
+                  <div class="ai-overview-item">
+                    <div class="ai-overview-label">平均置信度</div>
+                    <div class="ai-overview-value confidence" id="ai-overview-confidence">0%</div>
+                  </div>
+                  <div class="ai-overview-item">
+                    <div class="ai-overview-label">高优先级</div>
+                    <div class="ai-overview-value priority" id="ai-overview-priority">0</div>
+                  </div>
+                </div>
+                <div id="ai-suggestions-list"></div>
+              </div>
             </div>
           </article>
 
@@ -429,6 +809,38 @@
 
   <script src="common.js"></script>
   <script>
+    const aiSuggestions = [
+      {
+        id: 1,
+        type: 'optimize',
+        typeText: '优化建议',
+        confidence: 94,
+        content: '建议将 SO-20260227-018 订单从东区总装调整至西区总装',
+        reason: 'AI分析：东区总装当前负载92%，西区仅76%。调整后可减少等待时间35分钟，提升整体OEE 2.1%。历史类似调整成功率96%。',
+        status: 'pending'
+      },
+      {
+        id: 2,
+        type: 'warning',
+        typeText: '风险预警',
+        confidence: 87,
+        content: '注塑分厂模具 M-1002 寿命即将耗尽',
+        reason: 'AI预测：基于当前生产节奏，模具剩余寿命约4小时。建议提前调度备用模具，避免产线停机。预计影响3个订单交期。',
+        status: 'pending'
+      },
+      {
+        id: 3,
+        type: 'urgent',
+        typeText: '紧急插单',
+        confidence: 91,
+        content: '战略客户订单 SO-20260227-035 申请加急插单',
+        reason: 'AI评估：该客户为A+级战略客户，本月已贡献营收12%。插单将导致2个普通订单延后2小时，但整体影响可控。建议批准。',
+        status: 'pending'
+      }
+    ];
+
+    let approvedSuggestions = [];
+    let rejectedSuggestions = [];
     const PLANNER_TODO_STORAGE_KEY = 'aps.planner.todo.items.v1';
     const DEFAULT_PLANNER_TODO_ITEMS = [
       { id: 1, type: 'urgent', status: 'urgent', icon: '🔴', title: '设备故障: 东区ZZW05停机', meta: '需立即调整排程', time: '2分钟前', owner: '设备维修协同组', source: '设备监控中心', detail: '东区总装 ZZW05 因伺服驱动异常停机，当前已影响 2 个在制订单。需要立即锁定受影响产能，并协调维修班组确认恢复时间。', suggestion: '优先将 SO-20260227-021 和 SO-20260227-024 临时切换至备用产线，避免后续班次累计延误。', primaryAction: 'dispatch-repair', primaryLabel: '派发维修协同' },
@@ -494,6 +906,167 @@
           <div class="todo-stat-note">${item.note}</div>
         </div>
       `).join('');
+    }
+
+    function renderAISuggestions() {
+      const container = document.getElementById('ai-suggestions-list');
+      if (!container) return;
+      container.innerHTML = aiSuggestions.map(s => `
+        <div class="ai-suggestion-item ${s.status} ${s.type}" id="ai-suggestion-${s.id}">
+          <div class="ai-suggestion-header">
+            <div class="ai-suggestion-main">
+              <div class="ai-suggestion-meta">
+                <span class="ai-suggestion-type ${s.type}">${s.typeText}</span>
+                <span class="ai-suggestion-state ${s.status}">
+                  ${s.status === 'pending' ? '待决策' : s.status === 'approved' ? '已采纳' : '已拒绝'}
+                </span>
+              </div>
+              <div class="ai-suggestion-content">${s.content}</div>
+            </div>
+            <div class="ai-confidence">
+              <div class="ai-confidence-row">
+                <span>置信度</span>
+                <span class="ai-confidence-value">${s.confidence}%</span>
+              </div>
+              <span class="ai-confidence-bar">
+                <span class="ai-confidence-fill" style="width:${s.confidence}%"></span>
+              </span>
+            </div>
+          </div>
+          <div class="ai-suggestion-reason">
+            <span class="ai-reason-label">AI依据</span>
+            ${s.reason}
+          </div>
+          ${s.status === 'pending' ? `
+            <div class="ai-suggestion-actions">
+              <button class="approve" type="button" onclick="approveSuggestion(${s.id})">✓ 采纳建议</button>
+              <button class="alternative" type="button" onclick="showAlternative(${s.id})">查看替代方案</button>
+              <button class="reject" type="button" onclick="rejectSuggestion(${s.id})">✗ 拒绝</button>
+            </div>
+          ` : s.status === 'approved' ? `
+            <div class="ai-suggestion-result approved">
+              <span>✓</span> 已采纳并执行
+            </div>
+          ` : `
+            <div class="ai-suggestion-result rejected">
+              <span>✗</span> 已拒绝
+            </div>
+          `}
+        </div>
+      `).join('');
+
+      const pendingCount = aiSuggestions.filter(s => s.status === 'pending').length;
+      const avgConfidence = aiSuggestions.length
+        ? Math.round(aiSuggestions.reduce((sum, s) => sum + s.confidence, 0) / aiSuggestions.length)
+        : 0;
+      const priorityCount = aiSuggestions.filter(s => s.status === 'pending' && (s.type === 'urgent' || s.type === 'warning')).length;
+
+      const overviewPendingEl = document.getElementById('ai-overview-pending');
+      const overviewConfidenceEl = document.getElementById('ai-overview-confidence');
+      const overviewPriorityEl = document.getElementById('ai-overview-priority');
+      if (overviewPendingEl) overviewPendingEl.textContent = pendingCount;
+      if (overviewConfidenceEl) overviewConfidenceEl.textContent = `${avgConfidence}%`;
+      if (overviewPriorityEl) overviewPriorityEl.textContent = priorityCount;
+    }
+
+    function approveSuggestion(id) {
+      const suggestion = aiSuggestions.find(s => s.id === id);
+      if (!suggestion) return;
+      suggestion.status = 'approved';
+      approvedSuggestions.push(suggestion);
+      toast(`✅ 已采纳AI建议: ${suggestion.content}`);
+      renderAISuggestions();
+      setTimeout(() => {
+        toast('🤖 AI建议已加入计划员执行队列。');
+      }, 1000);
+    }
+
+    function rejectSuggestion(id) {
+      const suggestion = aiSuggestions.find(s => s.id === id);
+      if (!suggestion) return;
+      suggestion.status = 'rejected';
+      rejectedSuggestions.push(suggestion);
+      toast('已拒绝AI建议，将反馈给AI学习系统');
+      renderAISuggestions();
+    }
+
+    function showAlternative(id) {
+      const suggestion = aiSuggestions.find(s => s.id === id);
+      if (!suggestion) return;
+      toast('🤖 AI正在生成替代方案...');
+      setTimeout(() => {
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:220;display:flex;align-items:center;justify-content:center;';
+        modal.innerHTML = `
+          <div style="background:#0b1220;border:1px solid #334155;border-radius:12px;width:min(680px,calc(100vw - 32px));padding:20px;">
+            <h3 style="margin-bottom:12px;display:flex;align-items:center;gap:8px;">🧠 AI替代方案建议</h3>
+            <div style="font-size:12px;color:#94a3b8;margin-bottom:10px;">原建议</div>
+            <div style="background:#111b2d;border:1px solid #334155;border-radius:8px;padding:10px;font-size:12px;line-height:1.6;">${suggestion.content}</div>
+            <div style="font-size:12px;color:#94a3b8;margin:12px 0 10px;">替代方案</div>
+            <div style="background:#0f172a;border:1px solid #1e3a8a;border-radius:8px;padding:12px;font-size:12px;line-height:1.6;color:#dbeafe;">
+              分阶段执行，先完成 50% 订单，剩余部分延至明日首班。预计可减少对现有排程影响 60%，并将交付风险控制在可接受区间。
+            </div>
+            <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px;">
+              <button class="btn" type="button" onclick="this.closest('.modal').remove()">关闭</button>
+              <button class="btn primary" type="button" onclick="this.closest('.modal').remove();toast('已采纳替代方案并加入执行队列')">采纳方案</button>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(modal);
+        modal.onclick = (event) => {
+          if (event.target === modal) modal.remove();
+        };
+      }, 800);
+    }
+
+    function refreshAISuggestions() {
+      toast('🤖 AI正在分析最新数据...');
+      setTimeout(() => {
+        aiSuggestions.push({
+          id: Date.now(),
+          type: 'optimize',
+          typeText: '优化建议',
+          confidence: Math.floor(85 + Math.random() * 12),
+          content: '检测到两器分厂产能富余，建议承接西区总装转移任务',
+          reason: 'AI分析：两器分厂当前负载仅68%，可承接200套产能。可减少跨厂物流成本15%。',
+          status: 'pending'
+        });
+        renderAISuggestions();
+      }, 1000);
+    }
+
+    async function batchApproveAI() {
+      const pending = aiSuggestions.filter(s => s.status === 'pending');
+      if (!pending.length) {
+        toast('没有待确认的AI建议');
+        return;
+      }
+      const confirmed = typeof showConfirmDialog === 'function'
+        ? await showConfirmDialog({
+            title: '批量采纳确认',
+            message: `确定一键采纳 ${pending.length} 条AI建议吗？`,
+            confirmText: '确认采纳',
+            cancelText: '取消'
+          })
+        : false;
+      if (!confirmed) return;
+      pending.forEach(s => {
+        s.status = 'approved';
+        approvedSuggestions.push(s);
+      });
+      toast(`✅ 已批量采纳 ${pending.length} 条AI建议`);
+      renderAISuggestions();
+    }
+
+    function focusAISuggestionsPanel() {
+      const panel = document.getElementById('planner-ai-panel');
+      if (!panel) return;
+      panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const firstAction = panel.querySelector('.ai-suggestion-actions button');
+      if (firstAction) {
+        setTimeout(() => firstAction.focus(), 260);
+      }
     }
 
     function buildTableActionCell(item) {
@@ -718,6 +1291,10 @@
       selectedPlannerTodoId = plannerTodoItems[0]?.id || null;
       savePlannerTodoItems();
       syncPlannerTodoPage();
+      renderAISuggestions();
+      if (new URLSearchParams(window.location.search).get('focus') === 'ai') {
+        setTimeout(() => focusAISuggestionsPanel(), 260);
+      }
     });
   </script>
 </body>
