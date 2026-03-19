@@ -142,6 +142,24 @@
         font-weight: 800;
         color: #e2e8f0;
         letter-spacing: 0.3px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .aps-console-title-main::after {
+        content: "v3.6";
+        display: inline-flex;
+        align-items: center;
+        height: 20px;
+        padding: 0 8px;
+        border-radius: 999px;
+        background: rgba(37, 99, 235, 0.18);
+        border: 1px solid rgba(96, 165, 250, 0.4);
+        color: #93c5fd;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.2px;
       }
 
       .aps-console-title-sub {
@@ -1073,18 +1091,18 @@
       .aps-sim-card .aps-slider-panel {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 10px;
+        gap: 14px;
       }
 
       .aps-sim-card .aps-slider-row {
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 14px;
         font-size: 12px;
         border: 1px solid #334155;
         border-radius: 12px;
         background: linear-gradient(180deg, rgba(15, 23, 42, 0.96) 0%, rgba(15, 27, 45, 0.92) 100%);
-        padding: 10px 12px;
+        padding: 14px;
         min-width: 0;
       }
 
@@ -1278,19 +1296,32 @@
         }
       }
 
+      #aps-settings-upgrade {
+        display: grid;
+        gap: 14px;
+      }
+
       .aps-setting-block {
         border: 1px solid #334155;
-        border-radius: 10px;
-        background: #0f1a2d;
-        padding: 12px;
-        margin-top: 10px;
+        border-radius: 14px;
+        background: linear-gradient(180deg, rgba(15, 26, 45, 0.98), rgba(15, 23, 42, 0.9));
+        padding: 14px;
+        margin-top: 0;
+        overflow: hidden;
       }
 
       .aps-setting-title {
-        font-size: 13px;
+        font-size: 14px;
         font-weight: 700;
         color: #dbeafe;
-        margin-bottom: 10px;
+        margin-bottom: 6px;
+      }
+
+      .aps-setting-subtitle {
+        font-size: 11px;
+        line-height: 1.55;
+        color: #94a3b8;
+        margin-bottom: 12px;
       }
 
       .aps-switch-row,
@@ -1299,7 +1330,7 @@
       .aps-feedback-box {
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 10px;
       }
 
       .aps-toggle {
@@ -1308,26 +1339,78 @@
         justify-content: space-between;
         gap: 10px;
         border: 1px solid #334155;
-        border-radius: 8px;
-        background: #111b2d;
-        padding: 8px 10px;
+        border-radius: 10px;
+        background: rgba(17, 27, 45, 0.9);
+        padding: 10px 12px;
         font-size: 12px;
+      }
+
+      .aps-toggle span {
+        color: #e2e8f0;
+        font-weight: 600;
+      }
+
+      .aps-setting-block .aps-slider-row {
+        display: grid;
+        grid-template-columns: 72px minmax(0, 1fr) 52px;
+        align-items: center;
+        gap: 10px;
+        border: 1px solid rgba(51, 65, 85, 0.92);
+        border-radius: 10px;
+        background: rgba(17, 27, 45, 0.9);
+        padding: 10px 12px;
+        font-size: 12px;
+      }
+
+      .aps-setting-block .aps-slider-row span:first-child {
+        color: #cbd5e1;
+        font-weight: 600;
+      }
+
+      .aps-setting-block .aps-slider-row span:last-child {
+        color: #7dd3fc;
+        font-weight: 700;
+        text-align: right;
+      }
+
+      .aps-setting-block .aps-slider-row input[type="range"] {
+        width: 100%;
+      }
+
+      .aps-setting-chip-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .aps-setting-chip {
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(51, 65, 85, 0.92);
+        background: rgba(17, 27, 45, 0.82);
+        color: #cbd5e1;
+        font-size: 11px;
+      }
+
+      .aps-setting-chip b {
+        color: #7dd3fc;
+        margin-left: 4px;
       }
 
       .aps-scene-options {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 8px;
+        gap: 10px;
       }
 
       .aps-scene-btn {
         border: 1px solid #334155;
-        border-radius: 10px;
-        background: #0f172a;
+        border-radius: 12px;
+        background: rgba(15, 23, 42, 0.86);
         color: #dbeafe;
         font-size: 12px;
         font-weight: 700;
-        padding: 10px 8px;
+        padding: 12px 10px;
         cursor: pointer;
       }
 
@@ -1338,9 +1421,9 @@
 
       .aps-feedback-content {
         border: 1px dashed #334155;
-        border-radius: 8px;
-        padding: 10px;
-        background: #0f172a;
+        border-radius: 10px;
+        padding: 12px;
+        background: rgba(15, 23, 42, 0.8);
         font-size: 12px;
         line-height: 1.6;
       }
@@ -2461,30 +2544,30 @@
         </div>
       </article>
 
-      <article class="card">
+      <article class="card aps-sim-card">
         <div class="card-hd">
           <span>AI推演工作台</span>
         </div>
         <div class="card-bd aps-slider-panel">
           <div class="aps-slider-row">
-            <span>缺料冲击</span>
+            <span>物料异常</span>
             <div>
               <div id="aps-sim-shortage" class="aps-sim-multi"></div>
-              <div class="aps-sim-note">选择缺料突发事件，系统将自动评估交付与成本波动。</div>
+              <div class="aps-sim-note">聚焦供应商、配送、检验与现场到料问题，推演物料异常对排程的影响。</div>
             </div>
           </div>
           <div class="aps-slider-row">
-            <span>设备故障</span>
+            <span>设备/模具异常</span>
             <div>
               <div id="aps-sim-breakdown" class="aps-sim-multi"></div>
-              <div class="aps-sim-note">切换设备事件类型，推演产能利用率与停机影响范围。</div>
+              <div class="aps-sim-note">覆盖设备维修、模具备件与机型适配限制，评估产能缺口与切线压力。</div>
             </div>
           </div>
           <div class="aps-slider-row">
-            <span>插单压力</span>
+            <span>插单/跳单异常</span>
             <div>
               <div id="aps-sim-rush" class="aps-sim-multi"></div>
-              <div class="aps-sim-note">插单场景会联动影响资源占用、交期承诺与优先级排序。</div>
+              <div class="aps-sim-note">覆盖客户紧急插单与齐套、供货导致的跳单场景，联动评估交期承诺。</div>
             </div>
           </div>
           <div class="aps-sim-bars" id="aps-sim-bars">
@@ -2558,30 +2641,32 @@
     const SIM_SCENARIO_GROUPS = {
       shortage: {
         id: 'aps-sim-shortage',
-        emptyText: '请选择缺料场景',
+        emptyText: '请选择物料异常',
         options: [
-          { id: 'shortage-machine', label: '机台缺料', hint: '关键工位缺少主材，影响当前机台节拍。', impact: 24, advice: '优先切换同物料库存充足的机台，并冻结后续 2 小时插单。'},
-          { id: 'shortage-supplier', label: '等待供应商备料', hint: '来料准备滞后，需要缓冲替代物料。', impact: 31, advice: '把供应商待齐套订单移至夜班窗口，同时提前触发催料提醒。'},
-          { id: 'shortage-parts', label: '配套缺料', hint: '辅料或配套件不齐，影响整单上线。', impact: 28, advice: '按缺件维度拆分批次，先放行齐套订单。'}
+          { id: 'shortage-supplier-lack', label: '供应商缺料', hint: '上游供应商缺料，影响关键物料到厂节奏。', impact: 32, advice: '优先锁定高优订单物料配额，并同步供应商补料窗口。'},
+          { id: 'shortage-delivery', label: '配送问题', hint: '厂内外配送异常，造成上线物料未按时到位。', impact: 26, advice: '调整配送优先级，先保障即将上线批次的物料直送。'},
+          { id: 'shortage-detection', label: '检测问题', hint: '来料或过程检测卡滞，影响物料放行。', impact: 24, advice: '将待检批次前置复检，同时给齐套订单预留替代上线窗口。'},
+          { id: 'shortage-quality-fail', label: '检验不合格', hint: '检验判退导致可用库存低于预期。', impact: 29, advice: '立即拆分不合格批次，并将可用合格料优先分配给锁定工单。'},
+          { id: 'shortage-no-delivery', label: '物资库未配送到现场', hint: '库位有料但未完成现场配送。', impact: 21, advice: '先补齐现场待料工位，再延后低优订单释放。'},
+          { id: 'shortage-under-delivery', label: '送货不足', hint: '实际送达数量少于排程需求。', impact: 27, advice: '按欠料缺口重排批次，优先释放可完成整单的订单。'}
         ]
       },
       breakdown: {
         id: 'aps-sim-breakdown',
-        emptyText: '请选择设备事件',
+        emptyText: '请选择设备/模具异常',
         options: [
-          { id: 'breakdown-repair', label: '设备维修', hint: '突发故障需要停机抢修。', impact: 34, advice: '把高优先订单切至备机，维修机台只保留锁定工单。'},
-          { id: 'breakdown-maintain', label: '设备维保', hint: '计划性维保占用设备窗口。', impact: 18, advice: '把维保窗口前移到低峰时段，提前完成高优订单预投料。'},
-          { id: 'breakdown-monthly', label: '设备月度检修', hint: '长时段检修，会造成产能缺口。', impact: 26, advice: '按产线族群重新分摊产量，优先保障交期最紧的两批订单。'}
+          { id: 'breakdown-repair', label: '设备维修', hint: '设备故障停机，当前机台需要抢修。', impact: 34, advice: '高优订单切换至备机运行，故障机台仅保留锁定工单待恢复。'},
+          { id: 'breakdown-mould-parts', label: '模具备件问题', hint: '模具或备件缺失，造成换型与生产受阻。', impact: 28, advice: '减少换型频次，把同机型工单合并到连续时段执行。'},
+          { id: 'breakdown-model-mismatch', label: '机型不通用', hint: '现有设备与订单机型不兼容，无法直接承接。', impact: 23, advice: '优先分配可通用设备承接高优订单，其他订单后移至适配产线。'}
         ]
       },
       rush: {
         id: 'aps-sim-rush',
-        emptyText: '请选择插单压力',
+        emptyText: '请选择插单/跳单异常',
         options: [
-          { id: 'rush-sales', label: '销售插单', hint: '临时新增高优订单。', impact: 29, advice: '插单单独建批，避免打乱已锁定的白班节奏。'},
-          { id: 'rush-schedule', label: '排期紧急变动', hint: '客户交付窗口突然提前。', impact: 22, advice: '重新排序最近 8 小时工单，把可跨线订单优先调拨。'},
-          { id: 'rush-gov', label: '政府订单', hint: '必须优先保障的紧急指令订单。', impact: 37, advice: '开辟绿色排程通道，暂停低优订单释单。'},
-          { id: 'rush-contract', label: '合同订单', hint: '合同约束强，违约成本较高。', impact: 25, advice: '维持合同订单优先级在前 20%，同步压缩普通订单上线节奏。'}
+          { id: 'rush-customer-urgent', label: '客户紧急插单', hint: '客户临时插入高优先订单，需要抢占排程窗口。', impact: 31, advice: '紧急插单单独建批，冻结最近两小时已锁定顺序避免连锁扰动。'},
+          { id: 'rush-skip-incomplete', label: '不齐套造成跳单', hint: '订单不齐套，导致现场被迫跳单切换。', impact: 26, advice: '把不齐套订单移至待齐套池，优先释放齐套率更高的订单。'},
+          { id: 'rush-late-supply', label: '供货不及时跳单', hint: '供货节奏跟不上，现场需要临时跳过原计划订单。', impact: 28, advice: '重排受影响时段的上线顺序，并为延迟供货订单预留补位窗口。'}
         ]
       }
     };
@@ -2771,9 +2856,9 @@
       const totalScore = shortageScore + breakdownScore + rushScore;
       const riskLevel = totalScore >= 78 ? '高' : totalScore >= 42 ? '中' : '低';
       const sortedGroups = [
-        { label: '缺料冲击', score: shortageScore, items: snapshot.shortage },
-        { label: '设备故障', score: breakdownScore, items: snapshot.breakdown },
-        { label: '插单压力', score: rushScore, items: snapshot.rush }
+        { label: '物料异常', score: shortageScore, items: snapshot.shortage },
+        { label: '设备/模具异常', score: breakdownScore, items: snapshot.breakdown },
+        { label: '插单/跳单异常', score: rushScore, items: snapshot.rush }
       ].sort((a, b) => b.score - a.score);
       const primary = sortedGroups[0];
       const primaryNames = primary.items.map((item) => item.label).join('、') || '当前事件';
@@ -2986,28 +3071,34 @@
   }
 
   function enhanceSettingsPage() {
-    const baseCardBody = document.querySelector('#settings-sub-base .card-bd');
-    if (!baseCardBody || document.getElementById('aps-settings-upgrade')) return;
+    const upgradeHost = document.getElementById('aps-settings-upgrade-host');
+    if (!upgradeHost || document.getElementById('aps-settings-upgrade')) return;
 
     const block = document.createElement('div');
     block.id = 'aps-settings-upgrade';
     block.innerHTML = `
       <div class="aps-setting-block">
         <div class="aps-setting-title">约束规则与参数滑动配置</div>
+        <div class="aps-setting-subtitle">把基础排程策略拆成开关与权重，方便计划员按总部基线做局部微调。</div>
         <div class="aps-switch-row">
           <div class="aps-toggle"><span>硬约束实时校验</span><input type="checkbox" id="aps-hard-check" checked /></div>
           <div class="aps-toggle"><span>软约束评分引擎</span><input type="checkbox" id="aps-soft-check" checked /></div>
           <div class="aps-toggle"><span>跨厂协同优先级加权</span><input type="checkbox" id="aps-cross-check" checked /></div>
         </div>
-        <div class="aps-slider-config" style="margin-top:8px;">
+        <div class="aps-slider-config">
           <div class="aps-slider-row"><span>交期权重</span><input type="range" min="0" max="100" value="68" id="aps-weight-delivery" /><span id="aps-weight-delivery-v">68%</span></div>
           <div class="aps-slider-row"><span>成本权重</span><input type="range" min="0" max="100" value="22" id="aps-weight-cost" /><span id="aps-weight-cost-v">22%</span></div>
           <div class="aps-slider-row"><span>库存权重</span><input type="range" min="0" max="100" value="10" id="aps-weight-stock" /><span id="aps-weight-stock-v">10%</span></div>
+        </div>
+        <div class="aps-setting-chip-row">
+          <div class="aps-setting-chip">当前策略包<b>总部默认</b></div>
+          <div class="aps-setting-chip">回写状态<b>自动同步</b></div>
         </div>
       </div>
 
       <div class="aps-setting-block">
         <div class="aps-setting-title">一键场景换挡机制</div>
+        <div class="aps-setting-subtitle">把常规、旺季和极端缺料三套策略包直接固化为快捷入口，减少手工调参次数。</div>
         <div class="aps-scene-options" id="aps-scene-options">
           <button type="button" class="aps-scene-btn active" data-scene="常规平稳">常规平稳</button>
           <button type="button" class="aps-scene-btn" data-scene="旺季抢产">旺季抢产</button>
@@ -3017,6 +3108,7 @@
 
       <div class="aps-setting-block">
         <div class="aps-setting-title">跨厂时间尺图形化对齐</div>
+        <div class="aps-setting-subtitle">以总装厂作息为主时间尺，对分厂班次盲区和偏移窗口做统一覆盖修正。</div>
         <div class="aps-feedback-box">
           <button class="btn sm" id="aps-align-btn">以总装厂作息为准强制覆盖</button>
           <div class="aps-feedback-content" id="aps-align-result">等待执行时间尺对齐...</div>
@@ -3025,7 +3117,7 @@
 
     `;
 
-    baseCardBody.appendChild(block);
+    upgradeHost.appendChild(block);
 
     function applyScene(sceneName) {
       const buttons = Array.from(document.querySelectorAll('#aps-scene-options .aps-scene-btn'));

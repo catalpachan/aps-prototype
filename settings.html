@@ -16,6 +16,85 @@
     .settings-subview { display: none; }
     .settings-subview.active { display: block; }
     .settings-form-grid { display: grid; grid-template-columns: repeat(2, minmax(180px, 1fr)); gap: 10px; }
+    .settings-base-page { display: grid; gap: 16px; }
+    .settings-base-hero-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+    .settings-base-hero-card {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid #334155;
+      border-radius: 14px;
+      padding: 14px;
+      background: linear-gradient(160deg, rgba(15, 23, 42, 0.98) 0%, rgba(20, 32, 54, 0.92) 100%);
+      min-width: 0;
+    }
+    .settings-base-hero-card::after {
+      content: "";
+      position: absolute;
+      inset: auto -24px -28px auto;
+      width: 96px;
+      height: 96px;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.22) 0%, rgba(56, 189, 248, 0) 72%);
+      pointer-events: none;
+    }
+    .settings-base-hero-label { color: #94a3b8; font-size: 12px; margin-bottom: 8px; }
+    .settings-base-hero-value { color: #f8fafc; font-size: 24px; font-weight: 800; line-height: 1.1; }
+    .settings-base-hero-value .unit { font-size: 12px; color: #7dd3fc; margin-left: 4px; font-weight: 700; }
+    .settings-base-hero-note { margin-top: 8px; color: #64748b; font-size: 11px; line-height: 1.5; }
+    .settings-base-layout { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr); gap: 14px; align-items: start; }
+    .settings-base-column { display: grid; gap: 14px; min-width: 0; }
+    .settings-base-panel {
+      border: 1px solid #334155;
+      border-radius: 14px;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(15, 27, 45, 0.9));
+      overflow: hidden;
+    }
+    .settings-base-panel-hd {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.75);
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(14, 165, 233, 0.04));
+    }
+    .settings-base-panel-title { display: flex; flex-direction: column; gap: 4px; }
+    .settings-base-panel-title strong { color: #e2e8f0; font-size: 15px; }
+    .settings-base-panel-title span { color: #94a3b8; font-size: 12px; line-height: 1.5; }
+    .settings-base-panel-bd { padding: 16px; display: grid; gap: 14px; }
+    .settings-base-form-grid { display: grid; grid-template-columns: repeat(2, minmax(200px, 1fr)); gap: 12px; }
+    .settings-base-form-grid .modal-field {
+      border: 1px solid rgba(51, 65, 85, 0.92);
+      border-radius: 12px;
+      background: rgba(15, 23, 42, 0.7);
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+    }
+    .settings-base-form-grid .modal-field label { color: #94a3b8; font-size: 11px; letter-spacing: 0.2px; }
+    .settings-base-form-grid .modal-field input,
+    .settings-base-form-grid .modal-field select { width: 100%; }
+    .settings-base-field-note { color: #64748b; font-size: 11px; line-height: 1.45; }
+    .settings-base-chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .settings-base-chip {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(51, 65, 85, 0.9);
+      background: rgba(17, 27, 45, 0.9);
+      color: #cbd5e1;
+      font-size: 11px;
+    }
+    .settings-base-chip b { color: #7dd3fc; margin-left: 4px; }
+    .settings-base-side-note {
+      border: 1px dashed rgba(96, 165, 250, 0.35);
+      border-radius: 12px;
+      background: rgba(15, 23, 42, 0.62);
+      padding: 14px;
+      color: #cbd5e1;
+      font-size: 12px;
+      line-height: 1.65;
+    }
+    .settings-base-side-note strong { color: #f8fafc; display: block; margin-bottom: 6px; }
     .user-profile-panel { border: 1px solid #334155; border-radius: 14px; background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.9)); overflow: hidden; }
     .user-profile-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 18px 20px; border-bottom: 1px solid rgba(51, 65, 85, 0.75); background: linear-gradient(135deg, rgba(37, 99, 235, 0.18), rgba(14, 165, 233, 0.08)); }
     .user-profile-head-main { display: flex; align-items: center; gap: 14px; }
@@ -45,6 +124,14 @@
     .usage-block-title span { font-size: 14px; font-weight: 700; color: #e2e8f0; }
     .usage-block-title small { font-size: 11px; color: #94a3b8; }
     .usage-block-bd { padding: 14px; }
+    @media (max-width: 1180px) {
+      .settings-base-hero-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .settings-base-layout { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 860px) {
+      .settings-base-hero-grid,
+      .settings-base-form-grid { grid-template-columns: 1fr; }
+    }
     .usage-module-list, .usage-insight-list, .usage-report-list { display: flex; flex-direction: column; gap: 10px; }
     .usage-module-item { padding: 10px 12px; border-radius: 10px; background: rgba(15, 23, 42, 0.78); border: 1px solid rgba(51, 65, 85, 0.85); }
     .usage-module-meta { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 12px; color: #cbd5e1; }
@@ -325,11 +412,79 @@
             <article class="card">
               <div class="card-hd"><span>基础设置</span><button class="btn ok" onclick="saveBaseSettings()">保存设置</button></div>
               <div class="card-bd">
-                <div class="settings-form-grid">
-                  <div class="modal-field"><label>系统时区</label><select aria-label="系统时区"><option>Asia/Shanghai (UTC+8)</option><option>UTC (UTC+0)</option></select></div>
-                  <div class="modal-field"><label>会话超时（分钟）</label><input type="number" aria-label="会话超时分钟数" value="30" min="5" max="180" /></div>
-                  <div class="modal-field"><label>告警推送渠道</label><select aria-label="告警推送渠道"><option>系统站内 + 邮件</option><option>仅系统站内</option><option>仅邮件</option></select></div>
-                  <div class="modal-field"><label>自动备份周期</label><select aria-label="自动备份周期"><option>每天</option><option>每周</option><option>每月</option></select></div>
+                <div class="settings-base-page">
+                  <div class="settings-base-hero-grid">
+                    <div class="settings-base-hero-card">
+                      <div class="settings-base-hero-label">系统时区</div>
+                      <div class="settings-base-hero-value">UTC+8<span class="unit">上海</span></div>
+                      <div class="settings-base-hero-note">当前所有计划、日志与告警时间统一按总部时区输出。</div>
+                    </div>
+                    <div class="settings-base-hero-card">
+                      <div class="settings-base-hero-label">会话超时</div>
+                      <div class="settings-base-hero-value">30<span class="unit">分钟</span></div>
+                      <div class="settings-base-hero-note">用于控制计划员控制台安全退出与会话续期策略。</div>
+                    </div>
+                    <div class="settings-base-hero-card">
+                      <div class="settings-base-hero-label">告警推送</div>
+                      <div class="settings-base-hero-value">双通道<span class="unit">站内+邮件</span></div>
+                      <div class="settings-base-hero-note">关键告警同步进入系统通知与邮箱，避免排程风险遗漏。</div>
+                    </div>
+                    <div class="settings-base-hero-card">
+                      <div class="settings-base-hero-label">自动备份</div>
+                      <div class="settings-base-hero-value">每日<span class="unit">02:00</span></div>
+                      <div class="settings-base-hero-note">基础配置与策略参数每天自动归档，保留最近 30 个版本。</div>
+                    </div>
+                  </div>
+
+                  <div class="settings-base-layout">
+                    <div class="settings-base-column">
+                      <section class="settings-base-panel">
+                        <div class="settings-base-panel-hd">
+                          <div class="settings-base-panel-title">
+                            <strong>基础运行参数</strong>
+                            <span>聚焦时区、会话、安全通知与备份节奏，作为系统级默认基线。</span>
+                          </div>
+                        </div>
+                        <div class="settings-base-panel-bd">
+                          <div class="settings-base-form-grid">
+                            <div class="modal-field">
+                              <label>系统时区</label>
+                              <select aria-label="系统时区"><option>Asia/Shanghai (UTC+8)</option><option>UTC (UTC+0)</option></select>
+                              <div class="settings-base-field-note">排程时间轴、日志记录与通知提醒统一按此时区展示。</div>
+                            </div>
+                            <div class="modal-field">
+                              <label>会话超时（分钟）</label>
+                              <input type="number" aria-label="会话超时分钟数" value="30" min="5" max="180" />
+                              <div class="settings-base-field-note">超过设定时间未操作时自动退出，减少共享终端风险。</div>
+                            </div>
+                            <div class="modal-field">
+                              <label>告警推送渠道</label>
+                              <select aria-label="告警推送渠道"><option>系统站内 + 邮件</option><option>仅系统站内</option><option>仅邮件</option></select>
+                              <div class="settings-base-field-note">生产风险、同步异常和越权操作将按通道联动提醒。</div>
+                            </div>
+                            <div class="modal-field">
+                              <label>自动备份周期</label>
+                              <select aria-label="自动备份周期"><option>每天</option><option>每周</option><option>每月</option></select>
+                              <div class="settings-base-field-note">建议基础环境保持每日备份，支持快速回退到最近稳定参数包。</div>
+                            </div>
+                          </div>
+                          <div class="settings-base-chip-row">
+                            <div class="settings-base-chip">当前策略组<b>总部默认</b></div>
+                            <div class="settings-base-chip">配置版本<b>V3.6</b></div>
+                            <div class="settings-base-chip">最近备份<b>今日 02:00</b></div>
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+
+                    <div class="settings-base-column">
+                      <div class="settings-base-side-note">
+                        <strong>配置说明</strong>
+                        基础设置用于控制系统级默认行为，建议先确认运行参数，再调整约束权重与场景换挡。右侧区域会继续承载约束规则、参数权重、场景包和时间尺对齐操作，所有内容会统一收纳在同一版式里。
+                      </div>
+                      <div id="aps-settings-upgrade-host"></div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </article>
