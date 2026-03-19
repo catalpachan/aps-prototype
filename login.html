@@ -6,14 +6,29 @@
     <title>格力高级计划排程系统</title>
     <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body class="login-page">
+    <div class="login-video-shell" aria-hidden="true">
+        <video
+            id="loginBgVideo"
+            class="login-bg-video"
+            src="assets/videos/login-bg.mp4"
+            muted
+            loop
+            playsinline
+            autoplay
+            webkit-playsinline="true"
+        ></video>
+        <div class="login-video-overlay"></div>
+        <div class="login-video-gradient left"></div>
+        <div class="login-video-gradient right"></div>
+    </div>
     <div class="login-container">
         <div class="login-card">
             <div class="login-header">
                 <div class="login-logo">
                     <img src="1c5703c9-aca0-43d1-9843-9d502cb66fd0.png" alt="APS Logo" width="260" height="80">
                 </div>
-                <div class="login-subtitle">格力高级计划排程系统 V3.5</div>
+                <div class="login-subtitle">格力高级计划排程系统 V3.6</div>
             </div>
             
             <form class="login-form" id="loginForm">
@@ -54,7 +69,6 @@
             </div>
         </div>
     </div>
-
     <script>
         // 表单验证
         document.getElementById('loginForm').addEventListener('submit', function(e) {
@@ -130,13 +144,20 @@
         }
         
         // 页面加载时检查是否有记住的用户名
-        window.onload = function() {
+        window.addEventListener('load', function() {
             const savedUsername = localStorage.getItem('mimo_username');
             if (savedUsername) {
                 document.getElementById('username').value = savedUsername;
                 document.getElementById('rememberMe').checked = true;
             }
-        };
+            const video = document.getElementById('loginBgVideo');
+            if (video) {
+                const playPromise = video.play();
+                if (playPromise && typeof playPromise.catch === 'function') {
+                    playPromise.catch(() => {});
+                }
+            }
+        });
     </script>
 </body>
 </html>
