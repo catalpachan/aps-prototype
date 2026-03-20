@@ -927,7 +927,14 @@
       toast('使用统计摘要已导出');
     }
 
-    function saveBaseSettings() {
+    async function saveBaseSettings() {
+      const confirmed = await showConfirmDialog({
+        title: '确认保存基础设置',
+        message: '将按当前页面内容保存基础设置。是否继续？',
+        confirmText: '确认保存',
+        cancelText: '取消'
+      });
+      if (!confirmed) return;
       toast('基础设置已保存');
     }
 

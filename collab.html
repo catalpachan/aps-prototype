@@ -60,9 +60,9 @@
     .gantt-resize-handle.right { right: 0; cursor: ew-resize; }
     .gantt-resize-handle:hover { background: rgba(255,255,255,0.18); }
     .gantt-task.a { background: linear-gradient(90deg, #2563eb, #1d4ed8); }
-    .gantt-task.b { background: linear-gradient(90deg, #0f766e, #0d9488); }
-    .gantt-task.c { background: linear-gradient(90deg, #b45309, #d97706); }
-    .gantt-task.d { background: linear-gradient(90deg, #7c3aed, #9333ea); }
+    .gantt-task.b { background: linear-gradient(90deg, #ca8a04, #eab308); color: #1f2937; }
+    .gantt-task.c { background: linear-gradient(90deg, #dc2626, #ef4444); }
+    .gantt-task.d { background: linear-gradient(90deg, #2563eb, #1d4ed8); }
     .view-switch { display: inline-flex; align-items: center; border: 1px solid #334155; border-radius: 8px; overflow: hidden; background: #0f172a; }
     .view-btn { border: 0; background: transparent; color: #94a3b8; font-size: 12px; font-weight: 700; padding: 6px 12px; cursor: pointer; }
     .view-btn + .view-btn { border-left: 1px solid #334155; }
@@ -108,13 +108,13 @@
     .week-gantt-row-label { padding: 8px 10px; font-size: 12px; color: #cbd5e1; font-weight: 700; border-right: 1px solid #2b3548; display: flex; flex-direction: column; gap: 2px; }
     .week-gantt-row-plant { font-size: 10px; color: #94a3b8; font-weight: 500; }
     .week-gantt-row-track { position: relative; background-image: linear-gradient(to right, transparent calc((100% / 7) - 1px), #23324b calc((100% / 7) - 1px), #23324b calc(100% / 7)); background-size: calc(100% / 7) 100%; }
-    .week-gantt-bar { position: absolute; top: 8px; height: 24px; border-radius: 6px; color: #fff; font-size: 11px; padding: 0 8px; display: flex; align-items: center; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; border: 1px solid rgba(255,255,255,0.2); }
+    .week-gantt-bar { position: absolute; top: 8px; height: 24px; border-radius: 2px; color: #fff; font-size: 11px; padding: 0 8px; display: flex; align-items: center; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; border: 1px solid rgba(255,255,255,0.2); }
     .week-gantt-bar.editable { cursor: pointer; transition: transform var(--dur-fast), box-shadow var(--dur-fast), filter var(--dur-fast); }
     .week-gantt-bar.editable:hover { transform: translateY(-1px); box-shadow: 0 6px 14px rgba(2, 6, 23, 0.36); filter: brightness(1.06); }
     .week-gantt-bar.editable:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(191, 219, 254, 0.34); }
     .week-gantt-bar.a { background: linear-gradient(90deg, #2563eb, #1d4ed8); }
-    .week-gantt-bar.b { background: linear-gradient(90deg, #0f766e, #0d9488); }
-    .week-gantt-bar.c { background: linear-gradient(90deg, #b45309, #d97706); }
+    .week-gantt-bar.b { background: linear-gradient(90deg, #ca8a04, #eab308); color: #1f2937; }
+    .week-gantt-bar.c { background: linear-gradient(90deg, #dc2626, #ef4444); }
     .week-day-tables { display: block; }
     .week-day-table-card { border: 1px solid #334155; border-radius: 8px; background: #101a2d; overflow: hidden; }
     .week-day-table-head { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 8px 10px; border-bottom: 1px solid #334155; background: #172033; }
@@ -146,7 +146,7 @@
     .month-calendar { border: 1px solid #334155; border-radius: 10px; overflow: hidden; background: #0f172a; }
     .month-weekdays, .month-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
     .month-weekdays div { padding: 8px 6px; text-align: center; font-size: 11px; color: #94a3b8; border-bottom: 1px solid #334155; background: #172033; font-weight: 700; }
-    .month-day { min-height: 108px; border-right: 1px solid #223147; border-bottom: 1px solid #223147; padding: 8px; position: relative; display: flex; flex-direction: column; gap: 6px; }
+    .month-day { min-height: 150px; border-right: 1px solid #223147; border-bottom: 1px solid #223147; padding: 8px; position: relative; display: flex; flex-direction: column; gap: 6px; }
     .month-day:nth-child(7n) { border-right: 0; }
     .month-day.selectable { cursor: pointer; transition: transform var(--dur-fast), box-shadow var(--dur-fast), border-color var(--dur-fast); }
     .month-day.selectable:hover { transform: translateY(-1px); box-shadow: 0 8px 16px rgba(2, 6, 23, 0.28); border-color: #3b82f6; }
@@ -169,19 +169,29 @@
     .month-day.load-high .month-load-fill { background: #fb923c; }
     .month-day.load-full .month-load-fill { background: #ef4444; width: 100% !important; }
     .month-day.load-over .month-load-fill { background: #ef4444; width: 100% !important; }
-    .month-task-list { display: flex; flex-direction: column; gap: 4px; min-height: 0; }
-    .month-task-chip { font-size: 10px; color: #dbeafe; background: rgba(15, 23, 42, 0.72); border: 1px solid #334155; border-radius: 6px; padding: 2px 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .month-task-list { display: flex; flex-direction: column; gap: 3px; min-height: 0; }
+    .month-task-chip { font-size: 10px; color: #dbeafe; background: rgba(15, 23, 42, 0.72); border: 1px solid #334155; border-radius: 6px; padding: 2px 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.25; }
+    .month-task-chip.load-low { color: #bbf7d0; border-color: rgba(34, 197, 94, 0.4); background: rgba(20, 83, 45, 0.36); }
+    .month-task-chip.load-mid { color: #fef08a; border-color: rgba(250, 204, 21, 0.4); background: rgba(113, 63, 18, 0.34); }
+    .month-task-chip.load-high { color: #fdba74; border-color: rgba(251, 146, 60, 0.42); background: rgba(124, 45, 18, 0.34); }
+    .month-task-chip.load-over,
+    .month-task-chip.load-full { color: #fecaca; border-color: rgba(239, 68, 68, 0.48); background: rgba(127, 29, 29, 0.38); }
     .month-day.ended .month-load { color: #cbd5e1; }
     .month-day.ended .month-load-fill { background: #94a3b8; }
     .month-day.ended .month-load-overfill { display: none; }
-    .month-day.ended .month-task-chip { color: #cbd5e1; background: rgba(30, 41, 59, 0.75); border-color: #475569; }
+    .month-day.ended .month-task-chip,
+    .month-day.ended .month-task-chip.load-low,
+    .month-day.ended .month-task-chip.load-mid,
+    .month-day.ended .month-task-chip.load-high,
+    .month-day.ended .month-task-chip.load-full,
+    .month-day.ended .month-task-chip.load-over { color: #cbd5e1; background: rgba(30, 41, 59, 0.75); border-color: #475569; }
     .task-editor-status { border: 1px solid #334155; border-radius: 8px; padding: 8px 10px; font-size: 12px; line-height: 1.45; background: #111b2d; color: #cbd5e1; }
     .task-editor-status.ok { border-color: #1f6a48; background: rgba(34, 197, 94, 0.12); color: #bbf7d0; }
     .task-editor-status.error { border-color: #7f1d1d; background: rgba(239, 68, 68, 0.12); color: #fecaca; }
     .lock-strip { display: flex; align-items: center; justify-content: space-between; gap: 8px; border: 1px solid #334155; border-radius: 8px; padding: 8px; background: #111a2a; margin-bottom: 8px; font-size: 12px; }
     .preplan-btn { border: 1px solid #3b82f6; border-radius: 8px; padding: 6px 10px; color: #dbeafe; font-weight: 700; background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 55%, #38bdf8 100%); cursor: pointer; font-size: 12px; }
     .execute-btn { border: 1px solid #22c55e; border-radius: 8px; padding: 6px 10px; color: #dcfce7; font-weight: 700; background: linear-gradient(135deg, #166534 0%, #16a34a 55%, #4ade80 100%); cursor: pointer; font-size: 12px; }
-    @media (max-width: 960px) { .collab-layout { grid-template-columns: 1fr; } .collab-right { position: static; height: auto; } .week-calendar { grid-template-columns: repeat(2, minmax(0, 1fr)); } .month-day { min-height: 96px; } }
+    @media (max-width: 960px) { .collab-layout { grid-template-columns: 1fr; } .collab-right { position: static; height: auto; } .week-calendar { grid-template-columns: repeat(2, minmax(0, 1fr)); } .month-day { min-height: 136px; } }
   </style>
 </head>
 <body>
@@ -552,6 +562,29 @@
       return map[plantKey] || '生产车间';
     }
 
+    function getScheduleOrderType(seed) {
+      const bucket = Math.abs(Math.round(Number(seed) || 0)) % 100;
+      if (bucket < 5) return { cls: 'c', status: '紧急插单' };
+      if (bucket < 15) return { cls: 'b', status: '锁定订单' };
+      return { cls: 'a', status: '预排订单' };
+    }
+
+    function normalizeScheduleTask(task, seed = 0) {
+      if (!task) return;
+      const statusMap = {
+        '预排订单': { cls: 'a', status: '预排订单' },
+        '锁定订单': { cls: 'b', status: '锁定订单' },
+        '紧急插单': { cls: 'c', status: '紧急插单' }
+      };
+      const normalized = statusMap[task.status]
+        || (task.cls === 'b' ? statusMap['锁定订单']
+          : task.cls === 'c' ? statusMap['紧急插单']
+          : task.cls === 'a' ? statusMap['预排订单']
+          : getScheduleOrderType(seed));
+      task.cls = normalized.cls;
+      task.status = normalized.status;
+    }
+
     function formatDateYMD(date) {
       return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
     }
@@ -637,6 +670,12 @@
       return Math.round(ratio);
     }
 
+    function getFinishedMonthLoadPercent(plantKey, date) {
+      const idx = Math.max(0, wipPlants.findIndex((p) => p.key === plantKey));
+      const seed = ((date.getMonth() + 1) * 1000) + (date.getDate() * 17) + (idx * 13);
+      return 90 + (seed % 11);
+    }
+
     function getLoadClass(ratio) {
       if (ratio > 100) return 'load-over';
       if (ratio >= 100) return 'load-full';
@@ -717,7 +756,7 @@
         id: 'VIRTUAL-0',
         name: '排产任务',
         cls: 'a',
-        status: '生产中',
+        status: '预排订单',
         qty: 120,
         orderNo: 'ORD-VIRTUAL-001'
       }];
@@ -754,6 +793,9 @@
             const originalQty = Math.round(orderQty * (1.08 + (slot % 3) * 0.04));
             const deliveryDateObj = new Date(date);
             deliveryDateObj.setDate(deliveryDateObj.getDate() + 1 + (slot % 2));
+            const orderType = hasRealTasks
+              ? (normalizeScheduleTask(src, seed), { cls: src.cls, status: src.status })
+              : getScheduleOrderType(seed);
 
             row.bars.push({
               taskIndex: hasRealTasks ? sourceIdx : -1,
@@ -762,7 +804,7 @@
               taskName: src.name || '任务',
               startDay: dayIdx + startOffset,
               durationDays,
-              cls: src.cls || ['a', 'b', 'c'][seed % 3],
+              cls: orderType.cls,
               startTime,
               endTime
             });
@@ -780,7 +822,7 @@
               mergeTime: toHourLabel(startHour + Math.min(1, durationHours / 2)),
               orderQty,
               originalOrderQty: originalQty,
-              orderStatus: src.status || (slot % 2 ? '生产中' : '待上线'),
+              orderStatus: orderType.status,
               taskName: src.name || '任务',
               timeRange: `${startTime}-${endTime}`
             });
@@ -980,7 +1022,7 @@
           mergeTime: toHourLabel((task.start + 1) % 24),
           orderQty,
           originalOrderQty,
-          orderStatus: task.status || '生产中'
+          orderStatus: task.status || '预排订单'
         });
       });
 
@@ -1103,16 +1145,9 @@
         const fill = Math.min(100, ratio);
         const overflow = ratio > 100 ? Math.min(40, ratio - 100) : 0;
 
-        const chips = (selectedKeys.length === 1
-          ? [selectedKeys[0]]
-          : selectedKeys
-            .map((key) => ({ key, ratio: getDailyLoadPercent(key, date) }))
-            .sort((a, b) => b.ratio - a.ratio)
-            .slice(0, 2)
-            .map((item) => item.key)
-        ).map((key) => {
-          const load = getDailyLoadPercent(key, date);
-          return `<div class="month-task-chip">${getPlantNameByKey(key)} · ${load}%</div>`;
+        const chips = wipPlants.map(({ key }) => {
+          const load = isFinishedTaskDate ? getFinishedMonthLoadPercent(key, date) : getDailyLoadPercent(key, date);
+          return `<div class="month-task-chip ${getLoadClass(load)}">${getPlantNameByKey(key)} · ${load}%</div>`;
         }).join('');
 
         const dateStr = formatDateYMD(date);
@@ -1176,6 +1211,7 @@
     }
 
     function sanitizeTask(task) {
+      normalizeScheduleTask(task, (Number(task.line) || 0) * 31 + Math.round((Number(task.start) || 0) * 10) + Math.round((Number(task.duration) || 0) * 100));
       task.start = Math.max(0, Number(task.start) || 0);
       task.duration = Math.max(1 / 60, Number(task.duration) || 1 / 60);
       task.line = clamp(Math.round(Number(task.line) || 0), 0, GANTT_LINE_TOTAL - 1);

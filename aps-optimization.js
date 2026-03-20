@@ -2021,10 +2021,10 @@
 
     const ORDER_PAGE_SIZE = 8;
     let currentOrderPage = 1;
-    const orderSources = ['ERP', 'EDI', 'CRM', 'APS'];
+    const orderSources = ['ERP', 'MES', 'CRM'];
     const orders = Array.from({ length: 36 }, (_, idx) => {
       const seq = 18 + idx;
-      const source = orderSources[idx % orderSources.length];
+      const source = orderSources[((idx * 17) + 5) % orderSources.length];
       const deliveryDay = 10 + (idx % 9);
       const qty = 180 + ((idx * 37) % 420);
       let status = 'ready';
@@ -2128,7 +2128,7 @@
     }
 
     const ORDER_SYNC_FLOW_STEPS = [
-      { title: '基础数据导入', desc: '读取 ERP / CRM 订单主数据与交期基线。' },
+      { title: '基础数据导入', desc: '读取 ERP / MES / CRM 订单主数据与交期基线。' },
       { title: '排产记录复原', desc: '恢复最近一次排产快照与执行留痕。' },
       { title: '数据初始化', desc: '建立本轮同步的工厂、产线与任务索引。' },
       { title: '一模多物订单处理', desc: '识别需拆分的组合订单与共模约束关系。' },

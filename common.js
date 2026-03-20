@@ -347,8 +347,6 @@ const state = {
 
 function buildInitialGanttTasks() {
   const products = ["KFR-26GW", "KFR-35GW", "KFR-50GW", "KFR-72GW", "KFR-120LW"];
-  const statuses = ["待产", "生产中", "生产中", "已完成"];
-  const classes = ["a", "b", "c", "d"];
   const tasks = [];
   let seq = 1;
 
@@ -389,18 +387,45 @@ function buildInitialGanttTasks() {
         productName: products[(line + j) % products.length],
         qty: 80 + ((line * 17 + j * 23) % 260),
         process: processByLine(line),
-        status: statuses[(line + j) % statuses.length],
+        status: "预排订单",
         line,
         start,
         duration,
         name: `WO-${7000 + seq}`,
-        cls: classes[(line + j) % classes.length]
+        cls: "a"
       });
 
       prevEnd = start + duration;
       seq += 1;
     }
   }
+
+  const rankedTasks = tasks
+    .map((task, idx) => ({
+      idx,
+      seed: ((task.line + 1) * 97) + (Math.round(task.start * 10) * 13) + (Math.round(task.duration * 10) * 17) + idx * 19
+    }))
+    .sort((a, b) => a.seed - b.seed);
+  const emergencyCount = Math.min(5, Math.max(3, 3 + (tasks.length % 3)));
+  const lockedCount = Math.max(4, Math.round(tasks.length * 0.1));
+
+  rankedTasks.forEach(({ idx }, orderIdx) => {
+    const task = tasks[idx];
+    if (!task) return;
+    if (orderIdx < emergencyCount) {
+      task.cls = "c";
+      task.status = "紧急插单";
+      return;
+    }
+    if (orderIdx < emergencyCount + lockedCount) {
+      task.cls = "b";
+      task.status = "锁定订单";
+      return;
+    }
+    task.cls = "a";
+    task.status = "预排订单";
+  });
+
   return tasks;
 }
 
