@@ -978,6 +978,9 @@ function initAIAssistant() {
       <button type="button" class="ai-assistant-close" aria-label="关闭AI助手" onclick="toggleAIAssistant()">×</button>
     </div>
     <div class="ai-assistant-body" id="ai-chat-body"></div>
+    <div class="ai-assistant-quickbar">
+      ${getAIPresetCardsHTML()}
+    </div>
     <div class="ai-assistant-footer">
       <div class="ai-input-row">
         <input type="text" class="ai-assistant-input" id="ai-chat-input" placeholder="请输入您的问题..." onkeydown="handleAIInputKeydown(event)">
@@ -993,6 +996,40 @@ function initAIAssistant() {
   setTimeout(() => {
     addAIMessage('ai', '您好！我是格力APS智能助手，可以帮您分析排产情况、提供优化建议或执行排程操作。有什么可以帮您的吗？');
   }, 500);
+}
+
+function getAIPresetCardsHTML() {
+  return `
+    <div class="ai-preset-cards">
+      <button class="ai-preset-card" type="button" onclick="sendAIQuickMessage('排程优化建议')" aria-label="排程优化建议">
+        <span class="ai-preset-card-media">
+          <img class="ai-preset-card-icon" src="排程优化建议.svg" alt="" />
+        </span>
+        <span class="ai-preset-card-copy">
+          <span class="ai-preset-card-title">排程优化建议</span>
+          <span class="ai-preset-card-desc">聚焦瓶颈工序、交期冲突与资源紧张点，快速给出优化动作。</span>
+        </span>
+      </button>
+      <button class="ai-preset-card" type="button" onclick="sendAIQuickMessage('深度自主规划')" aria-label="深度自主规划">
+        <span class="ai-preset-card-media">
+          <img class="ai-preset-card-icon" src="深度自主规划.svg" alt="" />
+        </span>
+        <span class="ai-preset-card-copy">
+          <span class="ai-preset-card-title">深度自主规划</span>
+          <span class="ai-preset-card-desc">联动产能、物料与约束规则，生成更完整的自主规划路径。</span>
+        </span>
+      </button>
+      <button class="ai-preset-card" type="button" onclick="sendAIQuickMessage('生成当日报告')" aria-label="生成当日报告">
+        <span class="ai-preset-card-media">
+          <img class="ai-preset-card-icon" src="生成当日报告.svg" alt="" />
+        </span>
+        <span class="ai-preset-card-copy">
+          <span class="ai-preset-card-title">生成当日报告</span>
+          <span class="ai-preset-card-desc">汇总当日产线执行、异常处置与交付预测，快速形成日报输出。</span>
+        </span>
+      </button>
+    </div>
+  `;
 }
 
 function toggleAIAssistant(forceOpen) {
@@ -1055,18 +1092,7 @@ function addAIMessage(sender, text) {
   const body = document.getElementById('ai-chat-body');
   if (!body) return;
 
-  if (sender === 'ai') {
-    body.querySelectorAll('.ai-preset-cards').forEach((el) => el.remove());
-  }
-
   const time = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
-  const cardsHtml = sender === 'ai' ? `
-      <div class="ai-preset-cards">
-        <button class="ai-preset-card" onclick="sendAIQuickMessage('排程优化建议')">排程优化建议</button>
-        <button class="ai-preset-card" onclick="sendAIQuickMessage('深度自主规划')">深度自主规划</button>
-        <button class="ai-preset-card" onclick="sendAIQuickMessage('生成当日报告')">生成当日报告</button>
-      </div>
-  ` : '';
   const content = sender === 'user' ? escapeHTML(text).replace(/\n/g, '<br>') : text;
 
   const messageDiv = document.createElement('div');
@@ -1076,7 +1102,6 @@ function addAIMessage(sender, text) {
     <div class="ai-message-main">
       <div class="ai-message-content">${content}</div>
       <div class="ai-message-time">${time}</div>
-      ${cardsHtml}
     </div>
   `;
   body.appendChild(messageDiv);
