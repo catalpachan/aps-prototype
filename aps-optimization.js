@@ -918,7 +918,7 @@
 
       .aps-decision-grid {
         display: grid;
-        grid-template-columns: minmax(0, 1.9fr) minmax(320px, 0.95fr);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 14px;
         margin-bottom: 16px;
         align-items: start;
@@ -1088,6 +1088,22 @@
         color: #e2e8f0;
       }
 
+      .aps-sim-card .card-bd {
+        display: grid;
+        gap: 16px;
+      }
+
+      .aps-sim-title-stack {
+        display: grid;
+        gap: 4px;
+      }
+
+      .aps-sim-subtitle {
+        color: #64748b;
+        font-size: 12px;
+        line-height: 1.4;
+      }
+
       .aps-sim-card .aps-slider-panel {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1095,122 +1111,259 @@
       }
 
       .aps-sim-card .aps-slider-row {
-        display: flex;
-        flex-direction: column;
+        display: grid;
         gap: 14px;
-        font-size: 12px;
-        border: 1px solid #334155;
-        border-radius: 12px;
-        background: linear-gradient(180deg, rgba(15, 23, 42, 0.96) 0%, rgba(15, 27, 45, 0.92) 100%);
-        padding: 14px;
         min-width: 0;
+        padding: 16px;
+        border: 1px solid rgba(51, 65, 85, 0.96);
+        border-radius: 16px;
+        background:
+          radial-gradient(circle at top left, rgba(59, 130, 246, 0.16), transparent 42%),
+          linear-gradient(180deg, rgba(15, 23, 42, 0.98) 0%, rgba(13, 20, 36, 0.96) 100%);
+        box-shadow: inset 0 1px 0 rgba(148, 163, 184, 0.08);
       }
 
-      .aps-sim-card .aps-slider-row > span {
-        color: #cbd5e1;
-        font-weight: 600;
-        padding-top: 0;
-        line-height: 1.2;
+      .aps-sim-row-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .aps-sim-row-title {
+        color: #e2e8f0;
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 1.3;
         letter-spacing: 0.02em;
       }
 
-      .aps-sim-multi details {
-        border: 1px solid #334155;
-        border-radius: 10px;
-        background: #111b2d;
-        overflow: hidden;
+      .aps-sim-row-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 24px;
+        padding: 0 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(71, 85, 105, 0.9);
+        background: rgba(15, 23, 42, 0.84);
+        color: #94a3b8;
+        font-size: 11px;
+        font-weight: 600;
+        white-space: nowrap;
+        flex-shrink: 0;
       }
 
-      .aps-sim-multi details[open] {
+      .aps-sim-row-badge.is-active {
         border-color: rgba(96, 165, 250, 0.55);
-        box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.12);
+        background: rgba(30, 64, 175, 0.24);
+        color: #dbeafe;
+      }
+
+      .aps-sim-multi {
+        position: relative;
+      }
+
+      .aps-sim-select-shell {
+        position: relative;
+      }
+
+      .aps-sim-selectbox {
+        min-height: 44px;
+        padding: 7px 12px;
+        border: 1px solid rgba(51, 65, 85, 0.92);
+        border-radius: 12px;
+        background: rgba(15, 23, 42, 0.74);
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+        cursor: pointer;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      }
+
+      .aps-sim-select-shell.is-open .aps-sim-selectbox {
+        border-color: rgba(96, 165, 250, 0.62);
+        box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.16);
+        background: rgba(15, 23, 42, 0.92);
       }
 
       .aps-sim-summary {
-        list-style: none;
-        min-height: 34px;
-        padding: 0 10px;
         display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        min-width: 0;
+        flex: 1;
+      }
+
+      .aps-sim-placeholder {
+        display: inline-flex;
         align-items: center;
-        justify-content: space-between;
-        gap: 8px;
-        color: #e2e8f0;
-        cursor: pointer;
+        min-height: 28px;
+        color: #64748b;
         font-size: 12px;
       }
 
-      .aps-sim-summary::-webkit-details-marker {
-        display: none;
-      }
-
-      .aps-sim-summary-text {
+      .aps-sim-chip {
         display: inline-flex;
         align-items: center;
-        min-width: 0;
-        line-height: 1.35;
+        min-height: 28px;
+        max-width: 100%;
+        padding: 0 10px;
+        border-radius: 999px;
+        background: rgba(30, 41, 59, 0.92);
+        color: #dbeafe;
+        font-size: 12px;
+        line-height: 1.2;
       }
 
-      .aps-sim-summary-caret {
+      .aps-sim-chip.is-muted {
+        color: #94a3b8;
+        background: rgba(30, 41, 59, 0.7);
+      }
+
+      .aps-sim-select-caret {
         color: #94a3b8;
         font-size: 11px;
         flex-shrink: 0;
-        padding: 2px 6px;
+        padding: 7px 8px;
         border-radius: 999px;
-        background: rgba(30, 41, 59, 0.8);
+        background: rgba(30, 41, 59, 0.82);
+        line-height: 1;
       }
 
       .aps-sim-note {
         font-size: 11px;
-        color: #64748b;
-        line-height: 1.45;
+        color: #94a3b8;
+        line-height: 1.55;
+        min-height: 34px;
       }
 
       .aps-sim-menu {
-        display: grid;
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 0;
+        right: 0;
+        z-index: 12;
+        display: none;
         gap: 6px;
-        padding: 8px 10px 10px;
-        border-top: 1px solid rgba(51, 65, 85, 0.75);
-        max-height: 156px;
+        padding: 8px;
+        border: 1px solid rgba(51, 65, 85, 0.92);
+        border-radius: 14px;
+        background: rgba(9, 15, 28, 0.98);
+        box-shadow: 0 18px 32px rgba(2, 6, 23, 0.48);
+        max-height: 228px;
         overflow: auto;
       }
 
-      .aps-sim-option {
-        display: flex;
-        align-items: flex-start;
-        gap: 8px;
-        font-size: 12px;
-        color: #e2e8f0;
-        padding: 4px 0;
+      .aps-sim-select-shell.is-open .aps-sim-menu {
+        display: grid;
       }
 
-      .aps-sim-option input {
-        margin-top: 2px;
+      .aps-sim-option {
+        width: 100%;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 10px 12px;
+        border: 1px solid transparent;
+        border-radius: 12px;
+        background: rgba(15, 23, 42, 0.78);
+        color: #e2e8f0;
+        text-align: left;
+        cursor: pointer;
+        transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+      }
+
+      .aps-sim-option:hover {
+        border-color: rgba(59, 130, 246, 0.32);
+        background: rgba(17, 24, 39, 0.96);
+      }
+
+      .aps-sim-option.is-selected {
+        border-color: rgba(96, 165, 250, 0.55);
+        background: linear-gradient(180deg, rgba(23, 37, 84, 0.86) 0%, rgba(30, 41, 59, 0.92) 100%);
+      }
+
+      .aps-sim-option-content {
+        min-width: 0;
+        display: grid;
+        gap: 4px;
+      }
+
+      .aps-sim-option-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: #f8fafc;
       }
 
       .aps-sim-option small {
         display: block;
-        margin-top: 2px;
-        color: #64748b;
+        color: #94a3b8;
         font-size: 11px;
+        line-height: 1.5;
+      }
+
+      .aps-sim-option-check {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 18px;
+        height: 18px;
+        margin-top: 2px;
+        border-radius: 999px;
+        border: 1px solid rgba(71, 85, 105, 0.96);
+        color: transparent;
+        flex-shrink: 0;
+      }
+
+      .aps-sim-option.is-selected .aps-sim-option-check {
+        border-color: rgba(96, 165, 250, 0.62);
+        background: rgba(37, 99, 235, 0.24);
+        color: #dbeafe;
       }
 
       .aps-sim-bars {
         grid-column: 1 / -1;
-        border: 1px solid #334155;
-        border-radius: 10px;
-        background: linear-gradient(180deg, #0f172a 0%, #0b1220 100%);
-        padding: 12px;
         position: relative;
         display: grid;
-        grid-template-columns: 220px minmax(0, 1fr);
-        gap: 10px 14px;
-        align-items: start;
+        gap: 14px;
+        padding: 16px;
+        border: 1px solid rgba(51, 65, 85, 0.96);
+        border-radius: 18px;
+        background:
+          radial-gradient(circle at top right, rgba(14, 165, 233, 0.12), transparent 36%),
+          linear-gradient(180deg, rgba(8, 15, 29, 0.98) 0%, rgba(15, 23, 42, 0.98) 100%);
+        box-shadow: inset 0 1px 0 rgba(148, 163, 184, 0.08);
       }
 
-      .aps-sim-compose-head {
+      .aps-sim-result-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid rgba(51, 65, 85, 0.72);
+      }
+
+      .aps-sim-result-meta {
         display: grid;
-        gap: 8px;
-        align-content: start;
+        gap: 6px;
+        min-width: 0;
+      }
+
+      .aps-sim-result-title {
+        color: #f8fafc;
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+      }
+
+      .aps-sim-result-note {
+        color: #94a3b8;
+        font-size: 12px;
+        line-height: 1.55;
       }
 
       .aps-sim-progress-shell {
@@ -1244,13 +1397,12 @@
       }
 
       .aps-sim-report {
-        grid-column: 2;
-        grid-row: 1 / span 2;
-        min-height: 124px;
+        min-height: 190px;
         border: 1px dashed rgba(96, 165, 250, 0.35);
-        border-radius: 10px;
-        padding: 12px;
-        background: rgba(15, 23, 42, 0.72);
+        border-radius: 14px;
+        padding: 16px;
+        background:
+          linear-gradient(180deg, rgba(15, 23, 42, 0.88) 0%, rgba(15, 23, 42, 0.74) 100%);
         color: #dbeafe;
         font-size: 12px;
         line-height: 1.7;
@@ -1283,16 +1435,18 @@
 
       @media (max-width: 1280px) {
         .aps-sim-card .aps-slider-panel {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 980px) {
+        .aps-sim-card .aps-slider-panel {
           grid-template-columns: 1fr;
         }
 
-        .aps-sim-bars {
-          grid-template-columns: 1fr;
-        }
-
-        .aps-sim-report {
-          grid-column: 1;
-          grid-row: auto;
+        .aps-sim-result-head {
+          flex-direction: column;
+          align-items: stretch;
         }
       }
 
@@ -1532,8 +1686,8 @@
     }
 
     const topTabs = [
-      { href: 'collab.html', label: '排产操作' },
       { href: 'decision.html', label: '决策分析' },
+      { href: 'collab.html', label: '排产操作' },
       { href: 'settings.html', label: '系统设置' }
     ];
     const current = location.pathname.split('/').pop() || 'decision.html';
@@ -2546,42 +2700,53 @@
 
       <article class="card aps-sim-card">
         <div class="card-hd">
-          <span>AI推演工作台</span>
+          <div class="aps-sim-title-stack">
+            <span>AI推演工作台</span>
+            <div class="aps-sim-subtitle">先组合异常来源，再生成一段可执行的排程调整建议。</div>
+          </div>
         </div>
-        <div class="card-bd aps-slider-panel">
-          <div class="aps-slider-row">
-            <span>物料异常</span>
-            <div>
-              <div id="aps-sim-shortage" class="aps-sim-multi"></div>
-              <div class="aps-sim-note">聚焦供应商、配送、检验与现场到料问题，推演物料异常对排程的影响。</div>
-            </div>
-          </div>
-          <div class="aps-slider-row">
-            <span>设备/模具异常</span>
-            <div>
-              <div id="aps-sim-breakdown" class="aps-sim-multi"></div>
-              <div class="aps-sim-note">覆盖设备维修、模具备件与机型适配限制，评估产能缺口与切线压力。</div>
-            </div>
-          </div>
-          <div class="aps-slider-row">
-            <span>插单/跳单异常</span>
-            <div>
-              <div id="aps-sim-rush" class="aps-sim-multi"></div>
-              <div class="aps-sim-note">覆盖客户紧急插单与齐套、供货导致的跳单场景，联动评估交期承诺。</div>
-            </div>
-          </div>
-          <div class="aps-sim-bars" id="aps-sim-bars">
-            <div class="aps-sim-compose-head">
-              <button class="btn sm" id="aps-sim-generate-btn">生成AI推演</button>
-              <span class="muted" id="aps-sim-selection-hint">请至少选择一个突发事件后生成推演建议。</span>
-            </div>
-            <div class="aps-sim-progress-shell" id="aps-sim-progress-shell">
-              <div class="aps-sim-progress-track">
-                <div class="aps-sim-progress-fill" id="aps-sim-progress-fill"></div>
+        <div class="card-bd">
+          <div class="aps-slider-panel">
+            <div class="aps-slider-row">
+              <div class="aps-sim-row-head">
+                <div class="aps-sim-row-title">物料异常</div>
+                <div class="aps-sim-row-badge" id="aps-sim-shortage-badge">待选择</div>
               </div>
-              <div class="aps-sim-progress-text" id="aps-sim-progress-text">正在初始化推演上下文...</div>
+              <div class="aps-sim-note">聚焦供应商、配送、检验与现场到料问题，快速组合会影响上线节奏的物料异常。</div>
+              <div id="aps-sim-shortage" class="aps-sim-multi"></div>
             </div>
-            <div class="aps-sim-report empty" id="aps-sim-report">推演结果会在这里生成。先从上方三个类别中勾选本次排程需要考虑的突发事件。</div>
+            <div class="aps-slider-row">
+              <div class="aps-sim-row-head">
+                <div class="aps-sim-row-title">设备/模具异常</div>
+                <div class="aps-sim-row-badge" id="aps-sim-breakdown-badge">待选择</div>
+              </div>
+              <div class="aps-sim-note">覆盖设备维修、模具备件与机型适配限制，集中评估产能缺口和切线压力。</div>
+              <div id="aps-sim-breakdown" class="aps-sim-multi"></div>
+            </div>
+            <div class="aps-slider-row">
+              <div class="aps-sim-row-head">
+                <div class="aps-sim-row-title">插单/跳单异常</div>
+                <div class="aps-sim-row-badge" id="aps-sim-rush-badge">待选择</div>
+              </div>
+              <div class="aps-sim-note">覆盖客户紧急插单与齐套、供货导致的跳单场景，联动评估交期承诺与局部重排压力。</div>
+              <div id="aps-sim-rush" class="aps-sim-multi"></div>
+            </div>
+            <div class="aps-sim-bars" id="aps-sim-bars">
+              <div class="aps-sim-result-head">
+                <div class="aps-sim-result-meta">
+                  <div class="aps-sim-result-title">AI推演结果舱</div>
+                  <div class="aps-sim-result-note" id="aps-sim-selection-hint">请至少选择一个突发事件后生成推演建议。</div>
+                </div>
+                <button class="btn sm" id="aps-sim-generate-btn">生成AI推演</button>
+              </div>
+              <div class="aps-sim-progress-shell" id="aps-sim-progress-shell">
+                <div class="aps-sim-progress-track">
+                  <div class="aps-sim-progress-fill" id="aps-sim-progress-fill"></div>
+                </div>
+                <div class="aps-sim-progress-text" id="aps-sim-progress-text">正在初始化推演上下文...</div>
+              </div>
+              <div class="aps-sim-report empty" id="aps-sim-report">推演结果会在这里生成。先从上方三个类别中勾选本次排程需要考虑的突发事件。</div>
+            </div>
           </div>
         </div>
       </article>
@@ -2678,6 +2843,15 @@
     ];
     let simProgressTimer = null;
 
+    function closeScenarioSelects(exceptShell = null) {
+      module.querySelectorAll('.aps-sim-select-shell.is-open').forEach((shell) => {
+        if (exceptShell && shell === exceptShell) return;
+        shell.classList.remove('is-open');
+        const trigger = shell.querySelector('.aps-sim-selectbox');
+        if (trigger) trigger.setAttribute('aria-expanded', 'false');
+      });
+    }
+
     function renderStageDiagnosis(stage) {
       const statusClass = stage.status === '正常' ? 'normal' : stage.status === '延误' ? 'delay' : 'risk';
       return `
@@ -2746,30 +2920,43 @@
         const host = document.getElementById(group.id);
         if (!host) return;
         host.innerHTML = `
-          <details>
-            <summary class="aps-sim-summary">
-              <span class="aps-sim-summary-text" id="${group.id}-summary">${group.emptyText}</span>
-              <span class="aps-sim-summary-caret">多选</span>
-            </summary>
-            <div class="aps-sim-menu">
+          <div class="aps-sim-select-shell">
+            <button type="button" class="aps-sim-selectbox" aria-haspopup="listbox" aria-expanded="false">
+              <span class="aps-sim-summary" id="${group.id}-summary"></span>
+              <span class="aps-sim-select-caret">多选</span>
+            </button>
+            <div class="aps-sim-menu" role="listbox" aria-multiselectable="true">
               ${group.options
                 .map(
                   (option) => `
-                    <label class="aps-sim-option">
-                      <input type="checkbox" data-sim-group="${groupKey}" value="${option.id}" />
-                      <span>
-                        ${option.label}
+                    <button type="button" class="aps-sim-option" data-sim-group="${groupKey}" data-sim-value="${option.id}" role="option" aria-selected="false">
+                      <span class="aps-sim-option-content">
+                        <span class="aps-sim-option-label">${option.label}</span>
                         <small>${option.hint}</small>
                       </span>
-                    </label>
+                      <span class="aps-sim-option-check">✓</span>
+                    </button>
                   `
                 )
                 .join('')}
             </div>
-          </details>
+          </div>
         `;
-        host.querySelectorAll(`input[data-sim-group="${groupKey}"]`).forEach((input) => {
-          input.addEventListener('change', () => {
+        const shell = host.querySelector('.aps-sim-select-shell');
+        const trigger = host.querySelector('.aps-sim-selectbox');
+        trigger?.addEventListener('click', (event) => {
+          event.stopPropagation();
+          const willOpen = !shell.classList.contains('is-open');
+          closeScenarioSelects(willOpen ? shell : null);
+          shell.classList.toggle('is-open', willOpen);
+          trigger.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+        });
+        host.querySelectorAll(`button[data-sim-group="${groupKey}"]`).forEach((button) => {
+          button.addEventListener('click', (event) => {
+            event.stopPropagation();
+            const nextSelected = !button.classList.contains('is-selected');
+            button.classList.toggle('is-selected', nextSelected);
+            button.setAttribute('aria-selected', nextSelected ? 'true' : 'false');
             updateScenarioSummary(groupKey);
             markScenarioDirty();
           });
@@ -2781,27 +2968,38 @@
     function getScenarioGroupSelection(groupKey) {
       const group = SIM_SCENARIO_GROUPS[groupKey];
       if (!group) return [];
-      const checked = Array.from(
-        document.querySelectorAll(`#${group.id} input[data-sim-group="${groupKey}"]:checked`)
-      ).map((input) => input.value);
-      return group.options.filter((option) => checked.includes(option.id));
+      const selected = Array.from(
+        document.querySelectorAll(`#${group.id} .aps-sim-option.is-selected[data-sim-group="${groupKey}"]`)
+      ).map((button) => button.dataset.simValue);
+      return group.options.filter((option) => selected.includes(option.id));
     }
 
     function updateScenarioSummary(groupKey) {
       const group = SIM_SCENARIO_GROUPS[groupKey];
       if (!group) return;
       const summary = document.getElementById(`${group.id}-summary`);
+      const badge = document.getElementById(`${group.id}-badge`);
       if (!summary) return;
       const selected = getScenarioGroupSelection(groupKey);
       if (!selected.length) {
-        summary.textContent = group.emptyText;
+        summary.innerHTML = `<span class="aps-sim-placeholder">${group.emptyText}</span>`;
+        if (badge) {
+          badge.textContent = '待选择';
+          badge.classList.remove('is-active');
+        }
         return;
       }
-      if (selected.length <= 2) {
-        summary.textContent = selected.map((item) => item.label).join('、');
-        return;
+      if (badge) {
+        badge.textContent = selected.length === 1 ? selected[0].label : `已选 ${selected.length} 项`;
+        badge.classList.add('is-active');
       }
-      summary.textContent = `${selected.slice(0, 2).map((item) => item.label).join('、')} 等 ${selected.length} 项`;
+      const chips = selected
+        .slice(0, 2)
+        .map((item) => `<span class="aps-sim-chip">${item.label}</span>`);
+      if (selected.length > 2) {
+        chips.push(`<span class="aps-sim-chip is-muted">+${selected.length - 2}</span>`);
+      }
+      summary.innerHTML = chips.join('');
     }
 
     function getScenarioSnapshot() {
@@ -3061,6 +3259,11 @@
     document.getElementById('aps-kpi-feedback-btn')?.addEventListener('click', generateFeedbackSuggestion);
     document.getElementById('aps-kpi-trend-btn')?.addEventListener('click', openKpiTrendModal);
     renderScenarioControls();
+    document.addEventListener('click', (event) => {
+      if (!module.contains(event.target)) {
+        closeScenarioSelects();
+      }
+    });
     document.getElementById('aps-sim-generate-btn')?.addEventListener('click', generateSimulationAdvice);
     renderStages(1);
     const initialDiag = document.getElementById('aps-stage-diagnosis');
