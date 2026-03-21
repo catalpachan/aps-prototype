@@ -104,11 +104,11 @@
     .week-gantt-head-label { padding: 8px 10px; font-size: 11px; color: #a6b7d8; font-weight: 700; }
     .week-gantt-head-track { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
     .week-gantt-head-track span { padding: 8px 6px; border-left: 1px solid #2b3548; font-size: 11px; color: #cbd5e1; text-align: center; font-weight: 700; }
-    .week-gantt-row { border-bottom: 1px solid #243246; min-height: 42px; }
+    .week-gantt-row { border-bottom: 1px solid #243246; min-height: 48.5px; }
     .week-gantt-row-label { padding: 8px 10px; font-size: 12px; color: #cbd5e1; font-weight: 700; border-right: 1px solid #2b3548; display: flex; flex-direction: column; gap: 2px; }
     .week-gantt-row-plant { font-size: 10px; color: #94a3b8; font-weight: 500; }
-    .week-gantt-row-track { position: relative; background-image: linear-gradient(to right, transparent calc((100% / 7) - 1px), #23324b calc((100% / 7) - 1px), #23324b calc(100% / 7)); background-size: calc(100% / 7) 100%; }
-    .week-gantt-bar { position: absolute; top: 8px; height: 24px; border-radius: 2px; color: #fff; font-size: 11px; padding: 0 8px; display: flex; align-items: center; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; border: 1px solid rgba(255,255,255,0.2); }
+    .week-gantt-row-track { position: relative; min-height: 48.5px; }
+    .week-gantt-bar { position: absolute; top: 0; height: 48.5px; border-radius: 2px; color: #fff; font-size: 11px; padding: 0 8px; display: flex; align-items: center; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; border: 1px solid rgba(255,255,255,0.2); }
     .week-gantt-bar.editable { cursor: pointer; transition: transform var(--dur-fast), box-shadow var(--dur-fast), filter var(--dur-fast); }
     .week-gantt-bar.editable:hover { transform: translateY(-1px); box-shadow: 0 6px 14px rgba(2, 6, 23, 0.36); filter: brightness(1.06); }
     .week-gantt-bar.editable:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(191, 219, 254, 0.34); }
@@ -122,6 +122,14 @@
     .week-day-table-head span { font-size: 11px; color: #94a3b8; }
     .week-day-table-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 10px; border-bottom: 1px solid #334155; background: #141f33; }
     .week-day-table-toolbar .muted { font-size: 11px; }
+    .workbench-note-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .workbench-note-row .muted { flex: 1 1 420px; min-width: 0; }
+    .schedule-color-legend { display: inline-flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+    .schedule-color-chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px; border: 1px solid #334155; border-radius: 999px; background: #111b2d; font-size: 10px; color: #cbd5e1; white-space: nowrap; }
+    .schedule-color-dot { width: 8px; height: 8px; border-radius: 999px; display: inline-block; }
+    .schedule-color-dot.blue { background: #2563eb; }
+    .schedule-color-dot.yellow { background: #eab308; }
+    .schedule-color-dot.red { background: #ef4444; }
     .week-day-table-wrap { overflow-x: auto; overflow-y: hidden; }
     .week-day-table-wrap { -ms-overflow-style: none; scrollbar-width: none; }
     .week-day-table-wrap::-webkit-scrollbar { width: 0; height: 0; display: none; }
@@ -199,8 +207,8 @@
     <div class="brand-block">
       <img class="header-logo" src="1c5703c9-aca0-43d1-9843-9d502cb66fd0.png" alt="APS Logo" width="143" height="44" />
       <div class="aps-console-title">
-        <div class="aps-console-title-main">格力高级计划排程系统</div>
-        <div class="aps-console-title-sub">跨厂协同排程控制台</div>
+        <div class="aps-console-title-main">排产智能体</div>
+        <div class="aps-console-title-sub">格力高级计划排程系统</div>
       </div>
     </div>
     <nav class="nav aps-main-nav" id="nav">
@@ -288,7 +296,14 @@
           </div>
           <div class="card-bd">
             <div class="view-panel active" id="view-panel-week">
-              <div class="muted">本周视角（默认）：查看未来一周的生产计划（周日历 + 甘特样式）。点击日期卡片可跳转到对应日期的日视角；双击甘特任务可编辑时间；周视角不支持拖拽与拉长。</div>
+              <div class="workbench-note-row">
+                <div class="muted">本周视角（默认）：查看未来一周的生产计划（周日历 + 甘特样式）。点击日期卡片可跳转到对应日期的日视角；双击甘特任务可编辑时间；周视角不支持拖拽与拉长。</div>
+                <div class="schedule-color-legend" aria-label="排程订单颜色说明">
+                  <span class="schedule-color-chip"><span class="schedule-color-dot blue"></span>排程订单</span>
+                  <span class="schedule-color-chip"><span class="schedule-color-dot yellow"></span>锁定订单</span>
+                  <span class="schedule-color-chip"><span class="schedule-color-dot red"></span>插单订单</span>
+                </div>
+              </div>
               <div class="week-calendar" id="week-calendar"></div>
               <div class="week-gantt-wrap">
                 <div class="week-gantt" id="week-gantt"></div>
@@ -701,10 +716,69 @@
     }
 
     function shouldReduceWeekTaskForDate(date, line, slot) {
-      const dateKey = `${date.getMonth() + 1}/${date.getDate()}`;
-      if (!['3/18', '3/19', '3/20'].includes(dateKey)) return false;
       const seed = ((date.getMonth() + 1) * 10000) + (date.getDate() * 100) + (line * 11) + (slot * 17);
-      return (seed % 100) < 20;
+      return (seed % 100) < 30;
+    }
+
+    function createStableRandom(seed) {
+      let value = (Math.abs(Math.round(seed)) % 2147483647) || 1;
+      return () => {
+        value = (value * 48271) % 2147483647;
+        return value / 2147483647;
+      };
+    }
+
+    function buildWeekSlotLayout(date, line, visibleCount) {
+      if (!visibleCount) return [];
+      const seed = ((date.getMonth() + 1) * 100000) + (date.getDate() * 1000) + (line * 37) + (visibleCount * 13);
+      const random = createStableRandom(seed);
+      const shouldScatter = visibleCount >= 2 && random() < 0.35;
+
+      if (!shouldScatter) {
+        const slotWidth = 1 / visibleCount;
+        return Array.from({ length: visibleCount }, (_, idx) => ({
+          startOffset: idx * slotWidth,
+          durationDays: slotWidth
+        }));
+      }
+
+      const fillRatio = Math.max(0.78, Math.min(0.94, 0.92 - visibleCount * 0.025 + random() * 0.03));
+      const widthWeights = Array.from({ length: visibleCount }, () => 0.94 + random() * 0.18);
+      const widthWeightSum = widthWeights.reduce((sum, val) => sum + val, 0);
+      const widths = widthWeights.map((weight) => (weight / widthWeightSum) * fillRatio);
+      const gaps = Array.from({ length: visibleCount + 1 }, () => 0);
+      const totalGap = Math.max(0.03, 1 - fillRatio);
+      const internalGapSlots = Math.max(1, visibleCount - 1);
+      const scatterGapCount = Math.min(2, internalGapSlots);
+      const gapIndexes = new Set();
+
+      while (gapIndexes.size < scatterGapCount) {
+        gapIndexes.add(1 + Math.floor(random() * internalGapSlots));
+      }
+
+      let remainingGap = totalGap;
+      Array.from(gapIndexes).forEach((gapIdx, idx) => {
+        const isLast = idx === gapIndexes.size - 1;
+        const gapValue = isLast ? remainingGap : Math.max(0.012, remainingGap * (0.35 + random() * 0.3));
+        gaps[gapIdx] = gapValue;
+        remainingGap -= gapValue;
+      });
+      gaps[0] += Math.max(0, remainingGap * 0.4);
+      gaps[gaps.length - 1] += Math.max(0, remainingGap * 0.6);
+
+      const layouts = [];
+      let cursor = gaps[0];
+
+      widths.forEach((width, idx) => {
+        const clampedWidth = Math.max(0.12, width);
+        layouts.push({
+          startOffset: Math.min(0.98, cursor),
+          durationDays: Math.min(clampedWidth, 1 - cursor)
+        });
+        cursor += clampedWidth + (gaps[idx + 1] || 0);
+      });
+
+      return layouts;
     }
 
     function renderWeekView() {
@@ -767,17 +841,20 @@
 
         weekDates.forEach((date, dayIdx) => {
           const orderCount = 1 + ((line * 7 + dayIdx * 3) % 4); // 每天每机台1-4个订单
-          const gap = 0.04;
-          const usable = Math.max(0.24, 1 - gap * (orderCount + 1));
-          const slotWidth = Math.max(0.14, usable / orderCount);
+          const visibleSlots = Array.from({ length: orderCount }, (_, slot) => slot)
+            .filter((slot) => !shouldReduceWeekTaskForDate(date, line, slot));
+          const slotLayouts = buildWeekSlotLayout(date, line, visibleSlots.length);
 
-          for (let slot = 0; slot < orderCount; slot++) {
-            if (shouldReduceWeekTaskForDate(date, line, slot)) continue;
+          visibleSlots.forEach((slot, visibleIdx) => {
             const sourceIdx = (lineIdx * 29 + dayIdx * 11 + slot * 3) % sourceTasks.length;
             const src = sourceTasks[sourceIdx] || sourceTasks[0];
             const seed = line * 97 + dayIdx * 31 + slot * 17;
-            const startOffset = gap + slot * (slotWidth + gap);
-            const durationDays = Math.min(slotWidth, 0.96 - startOffset);
+            const layout = slotLayouts[visibleIdx] || {
+              startOffset: visibleIdx / Math.max(1, visibleSlots.length),
+              durationDays: 1 / Math.max(1, visibleSlots.length)
+            };
+            const startOffset = layout.startOffset;
+            const durationDays = Math.min(layout.durationDays, 1 - startOffset);
             const startHour = Math.round((startOffset * 24) * 60) / 60;
             const durationHours = Math.max(0.5, Math.round((durationDays * 24) * 60) / 60);
             const endHour = startHour + durationHours;
@@ -826,7 +903,7 @@
               taskName: src.name || '任务',
               timeRange: `${startTime}-${endTime}`
             });
-          }
+          });
         });
       });
 
@@ -855,7 +932,7 @@
             </div>
             <div class="week-gantt-row-track">
               ${row.bars.map((bar, barIdx) => `
-                <div class="week-gantt-bar editable ${bar.cls}" data-task-idx="${bar.taskIndex}" data-base-date="${bar.baseDateStr}" role="button" tabindex="0" style="left:${(bar.startDay / 7) * 100}%;width:${(Math.min(7 - bar.startDay, bar.durationDays) / 7) * 100}%;top:8px;" title="${bar.orderNo} | ${bar.taskName} | ${bar.startTime}-${bar.endTime}（双击编辑）" aria-label="${bar.orderNo}，双击编辑排程时间">
+                <div class="week-gantt-bar editable ${bar.cls}" data-task-idx="${bar.taskIndex}" data-base-date="${bar.baseDateStr}" role="button" tabindex="0" style="left:${(bar.startDay / 7) * 100}%;width:${(Math.min(7 - bar.startDay, bar.durationDays) / 7) * 100}%;" title="${bar.orderNo} | ${bar.taskName} | ${bar.startTime}-${bar.endTime}（双击编辑）" aria-label="${bar.orderNo}，双击编辑排程时间">
                   ${bar.orderNo}
                 </div>
               `).join('')}
@@ -1216,6 +1293,37 @@
       task.duration = Math.max(1 / 60, Number(task.duration) || 1 / 60);
       task.line = clamp(Math.round(Number(task.line) || 0), 0, GANTT_LINE_TOTAL - 1);
     }
+
+    function randomizeWorkbenchSchedule(options = {}) {
+      const tasks = Array.isArray(state.ganttTasks) ? state.ganttTasks.slice() : [];
+      if (!tasks.length) return;
+
+      const shuffled = tasks
+        .map((task, idx) => ({ task, weight: Math.random() + idx * 0.0001 }))
+        .sort((a, b) => a.weight - b.weight)
+        .map((item) => item.task);
+      const lineOrder = Array.from({ length: GANTT_LINE_TOTAL }, (_, idx) => idx)
+        .sort(() => Math.random() - 0.5);
+      const baseSlots = [0.3, 3.4, 6.8, 10.2, 13.6, 17.1, 20.1];
+
+      shuffled.forEach((task, idx) => {
+        sanitizeTask(task);
+        const line = lineOrder[idx % lineOrder.length];
+        const slot = baseSlots[(idx + Math.floor(Math.random() * baseSlots.length)) % baseSlots.length];
+        const jitter = (Math.random() * 0.9) - 0.15;
+        const maxStart = Math.max(0, 24 - task.duration - 0.05);
+        task.line = line;
+        task.start = Math.min(maxStart, Math.max(0, slot + jitter));
+      });
+
+      state.ganttTasks = shuffled;
+      renderGanttWorkbench();
+      if (!options.silent) {
+        toast('可视化交互工作台已完成随机重排。');
+      }
+    }
+
+    window.randomizeWorkbenchSchedule = randomizeWorkbenchSchedule;
 
     function lineMatchesFilter(line, filter) {
       if (!filter || filter === 'all') return true;

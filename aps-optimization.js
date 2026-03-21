@@ -1667,8 +1667,8 @@
       const titleBlock = document.createElement('div');
       titleBlock.className = 'aps-console-title';
       titleBlock.innerHTML = `
-        <div class="aps-console-title-main">格力高级计划排程系统</div>
-        <div class="aps-console-title-sub">跨厂协同排程控制台</div>
+        <div class="aps-console-title-main">排产智能体</div>
+        <div class="aps-console-title-sub">格力高级计划排程系统</div>
       `;
       brandBlock.appendChild(titleBlock);
     }
@@ -2600,6 +2600,9 @@
     function executeSmartSchedule() {
       const plan = getSchedulePlan(selectedScheduleMode);
       applyScheduleMode(plan.mode);
+      if (typeof window.randomizeWorkbenchSchedule === 'function') {
+        window.randomizeWorkbenchSchedule({ silent: true });
+      }
       const nowText = typeof formatClockTime === 'function'
         ? formatClockTime()
         : new Date().toLocaleTimeString('zh-CN', { hour12: false });
@@ -2636,11 +2639,14 @@
 
     const originalRunSelfHealing = window.runSelfHealing;
     function executeSelfHealing() {
+      if (typeof window.randomizeWorkbenchSchedule === 'function') {
+        window.randomizeWorkbenchSchedule({ silent: true });
+      }
       const isMajor = Math.random() > 0.45;
       if (!isMajor) {
         const healResult = document.getElementById('heal-result');
         if (healResult) {
-          healResult.textContent = '轻微物料延迟已自动微调，无需人工干预。';
+          healResult.textContent = '轻微物料延迟已自动微调，工作台排程顺序已重新洗排。';
         }
         toast('系统已完成后台无声微调。');
         return;
