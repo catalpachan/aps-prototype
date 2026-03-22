@@ -192,7 +192,7 @@ header {
 .brand-block {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   flex: 0 0 auto;
   min-width: 360px;
 }
@@ -203,10 +203,12 @@ header {
 }
 
 .header-logo {
-  width: auto;
-  height: 54px;
+  width: clamp(188px, 14vw, 228px);
+  max-width: 100%;
+  height: auto;
+  max-height: 34px;
   object-fit: contain;
-  border-radius: 6px;
+  object-position: left center;
   flex: 0 0 auto;
   display: block;
 }

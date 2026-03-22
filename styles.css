@@ -1061,14 +1061,15 @@ body.login-page {
 }
 
 .login-logo {
-    margin-bottom: 8px;
+    margin-bottom: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .login-logo img {
-    width: min(260px, 100%);
+    width: min(360px, 82%);
+    max-width: 100%;
     height: auto;
     display: block;
     object-fit: contain;

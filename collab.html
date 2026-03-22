@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
@@ -108,13 +108,17 @@
     .week-gantt-row-label { padding: 8px 10px; font-size: 12px; color: #cbd5e1; font-weight: 700; border-right: 1px solid #2b3548; display: flex; flex-direction: column; gap: 2px; }
     .week-gantt-row-plant { font-size: 10px; color: #94a3b8; font-weight: 500; }
     .week-gantt-row-track { position: relative; min-height: 48.5px; }
-    .week-gantt-bar { position: absolute; top: 0; height: 48.5px; border-radius: 2px; color: #fff; font-size: 11px; padding: 0 8px; display: flex; align-items: center; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; border: 1px solid rgba(255,255,255,0.2); }
+    .week-gantt-bar { position: absolute; top: 0; height: 48.5px; border-radius: 2px; color: #fff; font-size: 11px; padding: 0 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; border: 1px solid rgba(255,255,255,0.2); }
     .week-gantt-bar.editable { cursor: pointer; transition: transform var(--dur-fast), box-shadow var(--dur-fast), filter var(--dur-fast); }
     .week-gantt-bar.editable:hover { transform: translateY(-1px); box-shadow: 0 6px 14px rgba(2, 6, 23, 0.36); filter: brightness(1.06); }
     .week-gantt-bar.editable:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(191, 219, 254, 0.34); }
-    .week-gantt-bar.a { background: linear-gradient(90deg, #2563eb, #1d4ed8); }
-    .week-gantt-bar.b { background: linear-gradient(90deg, #ca8a04, #eab308); color: #1f2937; }
-    .week-gantt-bar.c { background: linear-gradient(90deg, #dc2626, #ef4444); }
+    .week-gantt-bar__label { opacity: 0; transition: opacity var(--dur-fast), transform var(--dur-fast); transform: translateY(2px); pointer-events: none; }
+    .week-gantt-bar.editable:hover .week-gantt-bar__label,
+    .week-gantt-bar.editable:focus-visible .week-gantt-bar__label { opacity: 1; transform: translateY(0); }
+    .week-gantt-bar.a { background: linear-gradient(90deg, #163f9c, #092771); }
+    .week-gantt-bar.b { background: linear-gradient(90deg, #373c5d, #242946); color: #999999; }
+    .week-gantt-bar.c { background: linear-gradient(90deg, #b4912f, #be6a02); }
+    .week-gantt-bar.d { background: linear-gradient(90deg, #992727, #920b0b); }
     .week-day-tables { display: block; }
     .week-day-table-card { border: 1px solid #334155; border-radius: 8px; background: #101a2d; overflow: hidden; }
     .week-day-table-head { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 8px 10px; border-bottom: 1px solid #334155; background: #172033; }
@@ -127,9 +131,10 @@
     .schedule-color-legend { display: inline-flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
     .schedule-color-chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px; border: 1px solid #334155; border-radius: 999px; background: #111b2d; font-size: 10px; color: #cbd5e1; white-space: nowrap; }
     .schedule-color-dot { width: 8px; height: 8px; border-radius: 999px; display: inline-block; }
-    .schedule-color-dot.blue { background: #2563eb; }
-    .schedule-color-dot.yellow { background: #eab308; }
-    .schedule-color-dot.red { background: #ef4444; }
+    .schedule-color-dot.blue { background: #163f9c; }
+    .schedule-color-dot.yellow { background: #373c5d; }
+    .schedule-color-dot.orange { background: #be6a02; }
+    .schedule-color-dot.red { background: #920b0b; }
     .week-day-table-wrap { overflow-x: auto; overflow-y: hidden; }
     .week-day-table-wrap { -ms-overflow-style: none; scrollbar-width: none; }
     .week-day-table-wrap::-webkit-scrollbar { width: 0; height: 0; display: none; }
@@ -193,13 +198,20 @@
     .month-day.ended .month-task-chip.load-high,
     .month-day.ended .month-task-chip.load-full,
     .month-day.ended .month-task-chip.load-over { color: #cbd5e1; background: rgba(30, 41, 59, 0.75); border-color: #475569; }
+    .task-editor-detail-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .task-editor-detail { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+    .task-editor-detail-label { font-size: 11px; color: #7dd3fc; letter-spacing: 0.02em; }
+    .task-editor-detail-value { min-height: 38px; border: 1px solid #334155; border-radius: 10px; background: linear-gradient(180deg, #111b2d 0%, #0f172a 100%); color: #dbeafe; padding: 9px 10px; font-size: 12px; line-height: 1.45; display: flex; align-items: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .task-editor-detail-value.is-muted { color: #94a3b8; }
+    .task-editor-time-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
     .task-editor-status { border: 1px solid #334155; border-radius: 8px; padding: 8px 10px; font-size: 12px; line-height: 1.45; background: #111b2d; color: #cbd5e1; }
     .task-editor-status.ok { border-color: #1f6a48; background: rgba(34, 197, 94, 0.12); color: #bbf7d0; }
     .task-editor-status.error { border-color: #7f1d1d; background: rgba(239, 68, 68, 0.12); color: #fecaca; }
     .lock-strip { display: flex; align-items: center; justify-content: space-between; gap: 8px; border: 1px solid #334155; border-radius: 8px; padding: 8px; background: #111a2a; margin-bottom: 8px; font-size: 12px; }
     .preplan-btn { border: 1px solid #3b82f6; border-radius: 8px; padding: 6px 10px; color: #dbeafe; font-weight: 700; background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 55%, #38bdf8 100%); cursor: pointer; font-size: 12px; }
     .execute-btn { border: 1px solid #22c55e; border-radius: 8px; padding: 6px 10px; color: #dcfce7; font-weight: 700; background: linear-gradient(135deg, #166534 0%, #16a34a 55%, #4ade80 100%); cursor: pointer; font-size: 12px; }
-    @media (max-width: 960px) { .collab-layout { grid-template-columns: 1fr; } .collab-right { position: static; height: auto; } .week-calendar { grid-template-columns: repeat(2, minmax(0, 1fr)); } .month-day { min-height: 136px; } }
+    @media (max-width: 960px) { .collab-layout { grid-template-columns: 1fr; } .collab-right { position: static; height: auto; } .week-calendar { grid-template-columns: repeat(2, minmax(0, 1fr)); } .month-day { min-height: 136px; } .task-editor-detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 720px) { .task-editor-detail-grid, .task-editor-time-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -363,11 +375,12 @@
         <button type="button" class="btn sm" id="task-edit-close">关闭</button>
       </div>
       <div class="modal-bd single-col">
+        <div class="task-editor-detail-grid" id="task-edit-details"></div>
         <div class="row" style="justify-content:space-between;gap:10px;">
           <div><div class="muted">任务名称</div><div id="task-edit-name" style="font-weight:700;color:#e2e8f0;"></div></div>
           <div><div class="muted">所在产线</div><div id="task-edit-line" style="font-weight:700;color:#e2e8f0;"></div></div>
         </div>
-        <div class="row" style="gap:10px;">
+        <div class="task-editor-time-grid">
           <div class="modal-field" style="min-width:160px;flex:1;">
             <label for="task-edit-start">开始时间</label>
             <input id="task-edit-start" type="datetime-local" step="60" aria-label="任务开始时间" />
@@ -422,7 +435,7 @@
     const GANTT_ROW_H = 30;
     let ganttPointerCtx = null;
     let ganttRafPending = false;
-    const taskEditorState = { taskIndex: -1, lastFocusedEl: null, baseDate: null };
+    const taskEditorState = { taskIndex: -1, lastFocusedEl: null, baseDate: null, detailKey: '' };
     const WIP_PAGE_SIZE = 10;
     const wipPlants = [
       { key: 'east', name: '东区总装' },
@@ -539,6 +552,7 @@
     const WEEK_TASK_PAGE_SIZE = 10;
     let weekDatesCache = [];
     let weekTaskRowsCache = Array.from({ length: 7 }, () => []);
+    const weekBarDetailMap = new Map();
     const weekDayPageByIndex = {};
     const weekSeqOverrides = {};
 
@@ -598,6 +612,43 @@
           : getScheduleOrderType(seed));
       task.cls = normalized.cls;
       task.status = normalized.status;
+    }
+
+    function getScheduleOrderType(seed) {
+      const bucket = Math.abs(Math.round(Number(seed) || 0)) % 100;
+      if (bucket < 5) return { cls: 'd', status: '紧急订单' };
+      if (bucket < 10) return { cls: 'c', status: '插单订单' };
+      if (bucket < 20) return { cls: 'b', status: '锁定订单' };
+      return { cls: 'a', status: '排程订单' };
+    }
+
+    function normalizeScheduleTask(task, seed = 0) {
+      if (!task) return;
+      const statusMap = {
+        '排程订单': { cls: 'a', status: '排程订单' },
+        '锁定订单': { cls: 'b', status: '锁定订单' },
+        '插单订单': { cls: 'c', status: '插单订单' },
+        '紧急订单': { cls: 'd', status: '紧急订单' }
+      };
+      const normalized = statusMap[task.status]
+        || (task.cls === 'd' ? statusMap['紧急订单']
+          : task.cls === 'c' ? statusMap['插单订单']
+          : task.cls === 'b' ? statusMap['锁定订单']
+          : task.cls === 'a' ? statusMap['排程订单']
+          : getScheduleOrderType(seed));
+      task.cls = normalized.cls;
+      task.status = normalized.status;
+    }
+
+    function renderScheduleLegend() {
+      const legend = document.querySelector('.schedule-color-legend');
+      if (!legend) return;
+      legend.innerHTML = `
+        <span class="schedule-color-chip"><span class="schedule-color-dot blue"></span>排程订单</span>
+        <span class="schedule-color-chip"><span class="schedule-color-dot yellow"></span>锁定订单</span>
+        <span class="schedule-color-chip"><span class="schedule-color-dot orange"></span>插单订单</span>
+        <span class="schedule-color-chip"><span class="schedule-color-dot red"></span>紧急订单</span>
+      `;
     }
 
     function formatDateYMD(date) {
@@ -793,6 +844,7 @@
       const selectedLines = getLinesByPlantKeys(selectedKeys);
       const lineSet = new Set(selectedLines);
       const weekTaskRows = Array.from({ length: 7 }, () => []);
+      weekBarDetailMap.clear();
 
       calendar.innerHTML = weekDates.map((date, dayIdx) => {
         const ratio = getScopeLoadPercent(selectedKeys, date);
@@ -870,12 +922,24 @@
             const originalQty = Math.round(orderQty * (1.08 + (slot % 3) * 0.04));
             const deliveryDateObj = new Date(date);
             deliveryDateObj.setDate(deliveryDateObj.getDate() + 1 + (slot % 2));
-            const orderType = hasRealTasks
-              ? (normalizeScheduleTask(src, seed), { cls: src.cls, status: src.status })
-              : getScheduleOrderType(seed);
+            const orderType = getScheduleOrderType(seed);
+            const detailKey = `${uid}-${normalizedOrderNo}`;
+            const plantName = getPlantNameByKey(row.plantKey);
+            const machine = getLineCode(line);
+            const materialCode = `MAT-${String(1000 + ((line * 37 + dayIdx * 17 + slot * 13) % 9000)).padStart(4, '0')}`;
+            const scanQty = Math.max(0, Math.min(orderQty, Math.round(orderQty * (0.52 + ((seed % 4) * 0.08)))));
+            const mesPushDate = new Date(date);
+            mesPushDate.setHours(0, 0, 0, 0);
+            mesPushDate.setMinutes(Math.max(0, Math.round((startHour - 1.5) * 60)));
+            const plantOnlineDate = new Date(date);
+            plantOnlineDate.setHours(0, 0, 0, 0);
+            plantOnlineDate.setMinutes(Math.max(0, Math.round((startHour - 0.5) * 60)));
+            const manualMachine = orderType.cls === 'b' || (seed % 6 === 0) ? machine : '\u672a\u6307\u5b9a';
+            const lockFlag = orderType.cls === 'b' ? '\u662f' : '\u5426';
 
             row.bars.push({
               taskIndex: hasRealTasks ? sourceIdx : -1,
+              detailKey,
               baseDateStr: formatDateYMD(date),
               orderNo: normalizedOrderNo,
               taskName: src.name || '任务',
@@ -891,10 +955,10 @@
               seq: weekSeqOverrides[uid] || defaultSeq,
               startHour,
               workshop: getWorkshopNameByPlantKey(row.plantKey),
-              plantName: getPlantNameByKey(row.plantKey),
-              machine: getLineCode(line),
+              plantName,
+              machine,
               orderCode: normalizedOrderNo,
-              materialCode: `MAT-${String(1000 + ((line * 37 + dayIdx * 17 + slot * 13) % 9000)).padStart(4, '0')}`,
+              materialCode,
               deliveryDate: formatDateYMD(deliveryDateObj),
               mergeTime: toHourLabel(startHour + Math.min(1, durationHours / 2)),
               orderQty,
@@ -902,6 +966,24 @@
               orderStatus: orderType.status,
               taskName: src.name || '任务',
               timeRange: `${startTime}-${endTime}`
+            });
+
+            weekBarDetailMap.set(detailKey, {
+              seq: weekSeqOverrides[uid] || defaultSeq,
+              plantName,
+              machine,
+              orderCode: normalizedOrderNo,
+              manualMachine,
+              materialCode,
+              productName: src.name || '\u6392\u7a0b\u8ba2\u5355',
+              deliveryDate: formatDateYMD(deliveryDateObj),
+              mergeTime: toHourLabel(startHour + Math.min(1, durationHours / 2)),
+              orderQty,
+              originalOrderQty: originalQty,
+              scanQty,
+              mesPushTime: formatDateTimeCN(mesPushDate),
+              plantOnlineTime: formatDateTimeCN(plantOnlineDate),
+              lockFlag
             });
           });
         });
@@ -913,6 +995,7 @@
       weekTaskRows.forEach((rows) => {
         sortWeekRows(rows);
       });
+      const flatWeekBars = machineRows.flatMap((row) => row.bars);
 
       let html = `
         <div class="week-gantt-head">
@@ -933,7 +1016,7 @@
             <div class="week-gantt-row-track">
               ${row.bars.map((bar, barIdx) => `
                 <div class="week-gantt-bar editable ${bar.cls}" data-task-idx="${bar.taskIndex}" data-base-date="${bar.baseDateStr}" role="button" tabindex="0" style="left:${(bar.startDay / 7) * 100}%;width:${(Math.min(7 - bar.startDay, bar.durationDays) / 7) * 100}%;" title="${bar.orderNo} | ${bar.taskName} | ${bar.startTime}-${bar.endTime}（双击编辑）" aria-label="${bar.orderNo}，双击编辑排程时间">
-                  ${bar.orderNo}
+                  <span class="week-gantt-bar__label">${bar.orderNo}</span>
                 </div>
               `).join('')}
             </div>
@@ -941,18 +1024,22 @@
         `;
       });
       gantt.innerHTML = html;
-      gantt.querySelectorAll('.week-gantt-bar[data-task-idx]').forEach((barEl) => {
+      const weekHeadLabel = gantt.querySelector('.week-gantt-head-label');
+      if (weekHeadLabel) weekHeadLabel.textContent = '\u4ea7\u7ebf';
+      gantt.querySelectorAll('.week-gantt-bar[data-task-idx]').forEach((barEl, barIndex) => {
         barEl.addEventListener('dblclick', () => {
           const taskIndex = Number(barEl.dataset.taskIdx);
           if (!Number.isInteger(taskIndex) || taskIndex < 0) return;
-          openTaskEditor(taskIndex, { baseDate: barEl.dataset.baseDate || '' });
+          const detailKey = flatWeekBars[barIndex]?.detailKey || '';
+          openTaskEditor(taskIndex, { baseDate: barEl.dataset.baseDate || '', detailKey });
         });
         barEl.addEventListener('keydown', (event) => {
           if (event.key !== 'Enter') return;
           const taskIndex = Number(barEl.dataset.taskIdx);
           if (!Number.isInteger(taskIndex) || taskIndex < 0) return;
           event.preventDefault();
-          openTaskEditor(taskIndex, { baseDate: barEl.dataset.baseDate || '' });
+          const detailKey = flatWeekBars[barIndex]?.detailKey || '';
+          openTaskEditor(taskIndex, { baseDate: barEl.dataset.baseDate || '', detailKey });
         });
       });
 
@@ -983,6 +1070,9 @@
       const parsed = Math.max(1, Math.round(Number(value)));
       if (!Number.isFinite(parsed)) return;
       weekSeqOverrides[rowUid] = parsed;
+      weekBarDetailMap.forEach((detail, key) => {
+        if (key.startsWith(`${rowUid}-`)) detail.seq = parsed;
+      });
       weekTaskRowsCache.forEach((rows) => {
         rows.forEach((row) => {
           if (row.uid === rowUid) row.seq = parsed;
@@ -1378,6 +1468,7 @@
     function getTaskEditorElements() {
       return {
         mask: document.getElementById('task-editor-mask'),
+        details: document.getElementById('task-edit-details'),
         name: document.getElementById('task-edit-name'),
         line: document.getElementById('task-edit-line'),
         start: document.getElementById('task-edit-start'),
@@ -1385,6 +1476,106 @@
         status: document.getElementById('task-edit-status'),
         save: document.getElementById('task-edit-save')
       };
+    }
+
+    function escapeTaskEditorValue(value) {
+      return String(value ?? '--')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function buildFallbackTaskEditorDetail(task, opts = {}) {
+      const baseDate = opts.baseDate instanceof Date && !Number.isNaN(opts.baseDate.getTime())
+        ? new Date(opts.baseDate)
+        : (selectedDayDate instanceof Date && !Number.isNaN(selectedDayDate.getTime()) ? new Date(selectedDayDate) : new Date());
+      baseDate.setHours(0, 0, 0, 0);
+      const plantKey = getPlantKeyByLine(task.line);
+      const plantName = getPlantNameByKey(plantKey);
+      const machine = getLineCode(task.line);
+      const orderQty = Math.max(1, Number(task.qty) || 120);
+      const originalOrderQty = Math.max(orderQty, Math.round(orderQty * 1.12));
+      const scanQty = Math.max(0, Math.min(orderQty, Math.round(orderQty * 0.68)));
+      const deliveryDate = new Date(baseDate);
+      deliveryDate.setDate(deliveryDate.getDate() + 1);
+      const mesPushDate = new Date(baseDate);
+      mesPushDate.setMinutes(Math.max(0, Math.round((task.start - 1.5) * 60)));
+      const plantOnlineDate = new Date(baseDate);
+      plantOnlineDate.setMinutes(Math.max(0, Math.round((task.start - 0.5) * 60)));
+
+      return {
+        seq: taskIndexToSeq(taskEditorState.taskIndex),
+        plantName,
+        machine,
+        orderCode: task.orderNo || `ORD-${String(task.id || taskEditorState.taskIndex + 1).padStart(6, '0')}`,
+        manualMachine: task.cls === 'b' ? machine : '\u672a\u6307\u5b9a',
+        materialCode: `MAT-${String(1000 + ((task.line * 37 + taskEditorState.taskIndex * 17) % 9000)).padStart(4, '0')}`,
+        productName: task.name || '\u6392\u7a0b\u8ba2\u5355',
+        deliveryDate: formatDateYMD(deliveryDate),
+        mergeTime: toHourLabel(task.start + Math.min(1, task.duration / 2)),
+        orderQty,
+        originalOrderQty,
+        scanQty,
+        mesPushTime: formatDateTimeCN(mesPushDate),
+        plantOnlineTime: formatDateTimeCN(plantOnlineDate),
+        lockFlag: task.cls === 'b' ? '\u662f' : '\u5426'
+      };
+    }
+
+    function taskIndexToSeq(taskIndex) {
+      return Math.max(1, Number.isInteger(taskIndex) ? taskIndex + 1 : 1);
+    }
+
+    function renderTaskEditorDetails(task, opts = {}) {
+      const { details, name, line, start, end } = getTaskEditorElements();
+      if (!details) return;
+
+      const detail = (opts.detailKey && weekBarDetailMap.get(opts.detailKey))
+        ? { ...weekBarDetailMap.get(opts.detailKey) }
+        : buildFallbackTaskEditorDetail(task, opts);
+
+      const fields = [
+        ['\u6392\u4ea7\u987a\u5e8f', detail.seq],
+        ['\u5206\u5382', detail.plantName],
+        ['\u673a\u53f0', detail.machine],
+        ['\u8ba2\u5355\u4ee3\u7801', detail.orderCode],
+        ['\u624b\u5de5\u6307\u5b9a\u673a\u53f0', detail.manualMachine],
+        ['\u7269\u6599\u7f16\u7801', detail.materialCode],
+        ['\u4ea7\u54c1\u540d\u79f0', detail.productName],
+        ['\u4ea4\u8d27\u671f', detail.deliveryDate],
+        ['\u5408\u6279\u65f6\u95f4', detail.mergeTime],
+        ['\u8ba2\u5355\u6570\u91cf', detail.orderQty],
+        ['\u539f\u8ba2\u5355\u6570\u91cf', detail.originalOrderQty],
+        ['\u626b\u63cf\u6570\u91cf', detail.scanQty],
+        ['MES\u63a8\u9001\u65f6\u95f4', detail.mesPushTime],
+        ['\u5206\u5382\u4e0a\u7ebf\u65f6\u95f4', detail.plantOnlineTime],
+        ['\u9501\u5b9a\u6807\u8bc6', detail.lockFlag]
+      ];
+
+      details.innerHTML = fields.map(([label, value]) => {
+        const safeValue = escapeTaskEditorValue(value);
+        const mutedClass = safeValue === '--' ? ' is-muted' : '';
+        return `
+          <div class="task-editor-detail">
+            <div class="task-editor-detail-label">${label}</div>
+            <div class="task-editor-detail-value${mutedClass}" title="${safeValue}">${safeValue}</div>
+          </div>
+        `;
+      }).join('');
+
+      const legacySummaryRow = name?.closest('.row');
+      if (legacySummaryRow) legacySummaryRow.style.display = 'none';
+      if (line?.closest('.row')) line.closest('.row').style.display = 'none';
+      const startLabel = document.querySelector('label[for="task-edit-start"]');
+      const endLabel = document.querySelector('label[for="task-edit-end"]');
+      const titleEl = document.querySelector('#task-editor-mask .modal-hd span');
+      if (titleEl) titleEl.textContent = '\u6392\u7a0b\u8ba2\u5355\u8be6\u60c5';
+      if (startLabel) startLabel.textContent = '\u6392\u7a0b\u5f00\u59cb\u65f6\u95f4';
+      if (endLabel) endLabel.textContent = '\u6392\u7a0b\u7ed3\u675f\u65f6\u95f4';
+      if (start) start.setAttribute('aria-label', '\u6392\u7a0b\u5f00\u59cb\u65f6\u95f4');
+      if (end) end.setAttribute('aria-label', '\u6392\u7a0b\u7ed3\u675f\u65f6\u95f4');
     }
 
     function buildTaskEditorOptions() {
@@ -1491,6 +1682,7 @@
       const parsedBaseDate = opts.baseDate ? parseLocalDate(opts.baseDate) : null;
       taskEditorState.taskIndex = taskIndex;
       taskEditorState.lastFocusedEl = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      taskEditorState.detailKey = opts.detailKey || '';
       taskEditorState.baseDate = parsedBaseDate || (selectedDayDate instanceof Date ? new Date(selectedDayDate) : new Date());
       const baseStart = new Date(taskEditorState.baseDate);
       baseStart.setHours(0, 0, 0, 0);
@@ -1498,6 +1690,7 @@
       startAt.setMinutes(Math.round(task.start * 60));
       const endAt = new Date(baseStart);
       endAt.setMinutes(Math.round((task.start + task.duration) * 60));
+      renderTaskEditorDetails(task, { detailKey: taskEditorState.detailKey, baseDate: taskEditorState.baseDate });
       if (els.name) els.name.textContent = task.name;
       if (els.line) els.line.textContent = `ZZW${String(task.line + 1).padStart(2, '0')}`;
       if (els.start) els.start.value = toDateTimeLocalValue(startAt);
@@ -1523,6 +1716,7 @@
       taskEditorState.lastFocusedEl = null;
       taskEditorState.taskIndex = -1;
       taskEditorState.baseDate = null;
+      taskEditorState.detailKey = '';
     }
 
     function saveTaskEditor() {
@@ -1698,6 +1892,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       updateDayViewDateHead();
+      renderScheduleLegend();
       renderWipOrders();
       renderGanttWorkbench();
       renderWeekView();
@@ -1748,3 +1943,4 @@
   <script src="aps-optimization.js"></script>
 </body>
 </html>
+
