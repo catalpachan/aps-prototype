@@ -303,6 +303,7 @@
                 <button class="view-btn" type="button" data-view="day">日</button>
               </div>
               <select id="gantt-plant-filter" aria-label="分厂筛选"><option value="all">全部分厂</option><option value="east">东区总装</option><option value="west">西区总装</option><option value="inject">注塑分厂</option><option value="hx">两器分厂</option><option value="ctrl">控制器分厂</option></select>
+              <button class="btn" type="button" onclick="window.location.href='inventory-board.html'">库存情况</button>
               <button class="execute-btn" onclick="executePreplan()">执行方案</button>
             </div>
           </div>
@@ -399,6 +400,22 @@
     </div>
   </div>
 
+  <div class="modal-mask" id="wip-order-view-mask" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="wip-order-view-title">
+      <div class="modal-hd">
+        <span id="wip-order-view-title">在制订单详情</span>
+        <button type="button" class="btn sm" id="wip-order-view-close">关闭</button>
+      </div>
+      <div class="modal-bd single-col">
+        <div class="task-editor-detail-grid" id="wip-order-view-details"></div>
+        <div class="task-editor-status" id="wip-order-view-status">当前订单详情将在这里展示。</div>
+      </div>
+      <div class="modal-ft">
+        <button type="button" class="btn primary" id="wip-order-view-ok">确认</button>
+      </div>
+    </div>
+  </div>
+
   <div class="modal-mask" id="execute-confirm-mask" aria-hidden="true">
     <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="execute-confirm-title">
       <div class="modal-hd">
@@ -452,13 +469,36 @@
       const steps = ['总装', '注塑成型', '两器焊接', '控制板装配', '整机测试'];
       return Array.from({ length: 24 }, (_, idx) => {
         const seq = plantIndex * 100 + 201 + idx;
+        const qty = 60 + ((plantIndex * 37 + idx * 29) % 260);
+        const progress = 12 + ((plantIndex * 15 + idx * 9) % 81);
+        const machineIndex = 1 + ((plantIndex * 3 + idx) % 4);
+        const plantName = wipPlants[plantIndex]?.name || '分厂';
+        const materialCode = `MAT-${String(1800 + plantIndex * 160 + idx * 13).padStart(4, '0')}`;
+        const deliveryDate = new Date(2026, 2, 20 + ((plantIndex + idx) % 6));
+        const mesPushDate = new Date(2026, 2, 20, 7 + ((idx + plantIndex) % 8), (idx * 11) % 60);
+        const plantOnlineDate = new Date(mesPushDate.getTime() + 40 * 60000);
+        const lockFlag = (idx + plantIndex) % 7 === 0 ? '是' : '否';
         return {
           orderNo: `SO-20260311-${String(seq).padStart(3, '0')}`,
           model: models[(plantIndex + idx) % models.length],
           step: steps[(plantIndex * 2 + idx) % steps.length],
-          qty: 60 + ((plantIndex * 37 + idx * 29) % 260),
-          progress: 12 + ((plantIndex * 15 + idx * 9) % 81),
-          updated: `${2 + (idx % 10)}分钟前`
+          qty,
+          progress,
+          updated: `${2 + (idx % 10)}分钟前`,
+          seq: String(idx + 1).padStart(2, '0'),
+          plantName,
+          machine: `ZZW${String(plantIndex * 4 + machineIndex).padStart(2, '0')}`,
+          manualMachine: lockFlag === '是' ? `ZZW${String(plantIndex * 4 + machineIndex).padStart(2, '0')}` : '未指定',
+          materialCode,
+          productName: `${models[(plantIndex + idx) % models.length]} 室外机`,
+          deliveryDate: formatDateYMD(deliveryDate),
+          mergeTime: `${String(8 + ((idx + plantIndex) % 9)).padStart(2, '0')}:${String((idx * 7) % 60).padStart(2, '0')}`,
+          orderQty: qty,
+          originalOrderQty: qty + 18 + ((idx * 5) % 36),
+          scanQty: Math.max(0, Math.min(qty, Math.round(qty * progress / 100))),
+          mesPushTime: formatDateTimeCN(mesPushDate),
+          plantOnlineTime: formatDateTimeCN(plantOnlineDate),
+          lockFlag
         };
       });
     }
@@ -489,8 +529,8 @@
       if (subEl) subEl.textContent = `${plant.name}近${WIP_PAGE_SIZE}条在制订单`;
       if (plantSelectEl && plantSelectEl.value !== plant.key) plantSelectEl.value = plant.key;
 
-      listEl.innerHTML = items.map(item => `
-        <div class="wip-order-item" onclick="openWipOrder('${item.orderNo}', '${plant.name}', '${item.model}', '${item.step}', ${item.qty}, ${item.progress})">
+      listEl.innerHTML = items.map((item, idx) => `
+        <div class="wip-order-item" onclick="openWipOrder('${plant.key}', ${start + idx})">
           <div class="wip-order-main">
             <div class="wip-order-no">${item.orderNo}</div>
             <div class="wip-order-meta">${item.model} · ${item.step} · 完成度 ${item.progress}%</div>
@@ -525,8 +565,65 @@
       renderWipOrders();
     }
 
-    function openWipOrder(orderNo, plantName, model, step, qty, progress) {
-      toast(`${plantName} | ${orderNo} | ${model} | ${step} | ${qty}套 | 完成度${progress}%`);
+    function getWipOrderViewerElements() {
+      return {
+        mask: document.getElementById('wip-order-view-mask'),
+        title: document.getElementById('wip-order-view-title'),
+        details: document.getElementById('wip-order-view-details'),
+        status: document.getElementById('wip-order-view-status')
+      };
+    }
+
+    function buildDetailFieldMarkup(fields) {
+      return fields.map(([label, value]) => {
+        const safeValue = escapeTaskEditorValue(value);
+        const mutedClass = safeValue === '--' ? ' is-muted' : '';
+        return `
+          <div class="task-editor-detail">
+            <div class="task-editor-detail-label">${label}</div>
+            <div class="task-editor-detail-value${mutedClass}" title="${safeValue}">${safeValue}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function closeWipOrderViewer() {
+      const { mask } = getWipOrderViewerElements();
+      if (!mask) return;
+      mask.classList.remove('show');
+      mask.setAttribute('aria-hidden', 'true');
+    }
+
+    function openWipOrder(plantKey, orderIndex) {
+      const plant = wipPlants.find((item) => item.key === plantKey);
+      const order = (wipOrdersByPlant[plantKey] || [])[orderIndex];
+      const { mask, title, details, status } = getWipOrderViewerElements();
+      if (!plant || !order || !mask || !details || !status) return;
+
+      const fields = [
+        ['排产顺序', order.seq],
+        ['分厂', order.plantName],
+        ['机台', order.machine],
+        ['订单代码', order.orderNo],
+        ['手工指定机台', order.manualMachine],
+        ['物料编码', order.materialCode],
+        ['产品名称', order.productName],
+        ['交货期', order.deliveryDate],
+        ['合批时间', order.mergeTime],
+        ['订单数量', order.orderQty],
+        ['原订单数量', order.originalOrderQty],
+        ['扫描数量', order.scanQty],
+        ['MES推送时间', order.mesPushTime],
+        ['分厂上线时间', order.plantOnlineTime],
+        ['锁定标识', order.lockFlag]
+      ];
+
+      if (title) title.textContent = `在制订单详情 · ${order.orderNo}`;
+      details.innerHTML = buildDetailFieldMarkup(fields);
+      status.className = 'task-editor-status';
+      status.innerHTML = `<div style="font-weight:700;color:#e2e8f0;margin-bottom:6px;">${plant.name} · ${order.step}</div><div>当前完成度 ${order.progress}% ，最近更新 ${order.updated}。该弹窗仅用于查看订单详情，不展示排程开始/结束时间。</div>`;
+      mask.classList.add('show');
+      mask.setAttribute('aria-hidden', 'false');
     }
 
     function openAllWipOrders() {
@@ -999,7 +1096,7 @@
 
       let html = `
         <div class="week-gantt-head">
-          <div class="week-gantt-head-label">机台</div>
+          <div class="week-gantt-head-label">线体</div>
           <div class="week-gantt-head-track">
             ${weekDates.map((date) => `<span>${date.getMonth() + 1}/${date.getDate()}</span>`).join('')}
           </div>
@@ -1120,7 +1217,7 @@
                   <tr>
                     <th>排产顺序</th>
                     <th>车间</th>
-                    <th>机台</th>
+                    <th>线体</th>
                     <th>订单代码</th>
                     <th>物料编码</th>
                     <th>交货期</th>
@@ -1239,7 +1336,7 @@
                   <tr>
                     <th>排产顺序</th>
                     <th>车间</th>
-                    <th>机台</th>
+                    <th>线体</th>
                     <th>订单代码</th>
                     <th>物料编码</th>
                     <th>交货期</th>
@@ -1554,16 +1651,7 @@
         ['\u9501\u5b9a\u6807\u8bc6', detail.lockFlag]
       ];
 
-      details.innerHTML = fields.map(([label, value]) => {
-        const safeValue = escapeTaskEditorValue(value);
-        const mutedClass = safeValue === '--' ? ' is-muted' : '';
-        return `
-          <div class="task-editor-detail">
-            <div class="task-editor-detail-label">${label}</div>
-            <div class="task-editor-detail-value${mutedClass}" title="${safeValue}">${safeValue}</div>
-          </div>
-        `;
-      }).join('');
+      details.innerHTML = buildDetailFieldMarkup(fields);
 
       const legacySummaryRow = name?.closest('.row');
       if (legacySummaryRow) legacySummaryRow.style.display = 'none';
@@ -1921,6 +2009,11 @@
       document.getElementById('task-editor-mask')?.addEventListener('click', (e) => {
         if (e.target.id === 'task-editor-mask') closeTaskEditor();
       });
+      document.getElementById('wip-order-view-close')?.addEventListener('click', closeWipOrderViewer);
+      document.getElementById('wip-order-view-ok')?.addEventListener('click', closeWipOrderViewer);
+      document.getElementById('wip-order-view-mask')?.addEventListener('click', (e) => {
+        if (e.target.id === 'wip-order-view-mask') closeWipOrderViewer();
+      });
       document.getElementById('execute-confirm-close')?.addEventListener('click', () => closeExecuteConfirm(true));
       document.getElementById('execute-confirm-cancel')?.addEventListener('click', () => closeExecuteConfirm(true));
       document.getElementById('execute-confirm-ok')?.addEventListener('click', confirmExecutePreplan);
@@ -1930,6 +2023,7 @@
       document.addEventListener('keydown', (e) => {
         if (e.key !== 'Escape') return;
         if (document.getElementById('task-editor-mask')?.classList.contains('show')) closeTaskEditor();
+        if (document.getElementById('wip-order-view-mask')?.classList.contains('show')) closeWipOrderViewer();
         if (document.getElementById('execute-confirm-mask')?.classList.contains('show')) closeExecuteConfirm(false);
       });
       document.getElementById('gantt-plant-filter')?.addEventListener('change', () => {
@@ -1943,4 +2037,3 @@
   <script src="aps-optimization.js"></script>
 </body>
 </html>
-

@@ -1865,12 +1865,12 @@
         </div>
       </div>
       <div class="aps-notify-filters">
-        <input type="date" class="aps-notify-filter" id="aps-notify-date-filter" aria-label="按日期筛选消息" />
         <select class="aps-notify-filter" id="aps-notify-type-filter" aria-label="按通知类型筛选">
           <option value="all">全部类型</option>
           <option value="alert">异常告警</option>
           <option value="approval">审批待办</option>
         </select>
+        <input type="date" class="aps-notify-filter" id="aps-notify-date-filter" aria-label="按日期筛选消息" />
       </div>
       <div class="aps-notify-section">
         <div class="aps-notify-section-title">异常告警</div>
