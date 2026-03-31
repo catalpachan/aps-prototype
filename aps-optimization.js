@@ -124,6 +124,7 @@
         grid-template-columns: minmax(280px, 1fr) auto minmax(280px, 1fr);
         align-items: center;
         gap: 16px;
+        background: rgb(17 24 39 / 85%);
       }
 
       .aps-header-layout .brand-block {
@@ -1425,6 +1426,151 @@
         margin-bottom: 8px;
       }
 
+      .aps-sim-report-layout {
+        display: grid;
+        gap: 14px;
+      }
+
+      .aps-sim-risk-grid {
+        display: grid;
+        grid-template-columns: 1.05fr 1.4fr 1.1fr;
+        gap: 12px;
+      }
+
+      .aps-sim-risk-card {
+        border: 1px solid rgba(71, 85, 105, 0.45);
+        border-radius: 12px;
+        padding: 12px 14px;
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0.92) 0%, rgba(17, 24, 39, 0.82) 100%);
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-width: 0;
+      }
+
+      .aps-sim-risk-card.level {
+        border-color: rgba(96, 165, 250, 0.42);
+        background: linear-gradient(180deg, rgba(30, 41, 59, 0.96) 0%, rgba(15, 23, 42, 0.88) 100%);
+      }
+
+      .aps-sim-risk-card.primary {
+        border-color: rgba(96, 165, 250, 0.38);
+      }
+
+      .aps-sim-risk-card.scope {
+        border-color: rgba(148, 163, 184, 0.35);
+      }
+
+      .aps-sim-risk-label {
+        font-size: 11px;
+        color: #7dd3fc;
+        letter-spacing: 0.02em;
+      }
+
+      .aps-sim-risk-value {
+        font-size: 14px;
+        font-weight: 700;
+        color: #f8fafc;
+        line-height: 1.4;
+      }
+
+      .aps-sim-risk-value.level {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 56px;
+        border-radius: 12px;
+        font-size: 24px;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        background: rgba(15, 23, 42, 0.85);
+      }
+
+      .aps-sim-risk-value.level.high {
+        color: #fecaca;
+        box-shadow: inset 0 0 0 1px rgba(239, 68, 68, 0.45);
+      }
+
+      .aps-sim-risk-value.level.medium {
+        color: #fdba74;
+        box-shadow: inset 0 0 0 1px rgba(251, 146, 60, 0.4);
+      }
+
+      .aps-sim-risk-value.level.low {
+        color: #bbf7d0;
+        box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.4);
+      }
+
+      .aps-sim-risk-note {
+        font-size: 11px;
+        color: #94a3b8;
+        line-height: 1.6;
+      }
+
+      .aps-sim-actions {
+        border: 1px solid rgba(96, 165, 250, 0.26);
+        border-radius: 14px;
+        padding: 14px;
+        background: linear-gradient(180deg, rgba(10, 18, 34, 0.96) 0%, rgba(15, 23, 42, 0.82) 100%);
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .aps-sim-actions-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .aps-sim-actions-title {
+        font-size: 12px;
+        font-weight: 700;
+        color: #f8fafc;
+      }
+
+      .aps-sim-actions-note {
+        font-size: 11px;
+        color: #94a3b8;
+      }
+
+      .aps-sim-actions-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .aps-sim-action-item {
+        display: grid;
+        grid-template-columns: 28px minmax(0, 1fr);
+        gap: 10px;
+        align-items: start;
+        padding: 10px 12px;
+        border-radius: 12px;
+        background: rgba(15, 23, 42, 0.72);
+        border: 1px solid rgba(51, 65, 85, 0.5);
+      }
+
+      .aps-sim-action-index {
+        width: 28px;
+        height: 28px;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(37, 99, 235, 0.2);
+        color: #bfdbfe;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .aps-sim-action-copy {
+        font-size: 12px;
+        color: #dbeafe;
+        line-height: 1.7;
+      }
+
       .aps-sim-report p {
         margin: 0 0 8px;
       }
@@ -1436,6 +1582,10 @@
       @media (max-width: 1280px) {
         .aps-sim-card .aps-slider-panel {
           grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .aps-sim-risk-grid {
+          grid-template-columns: 1fr;
         }
       }
 
@@ -3059,6 +3209,7 @@
       const rushScore = getScenarioScore(snapshot.rush);
       const totalScore = shortageScore + breakdownScore + rushScore;
       const riskLevel = totalScore >= 78 ? '高' : totalScore >= 42 ? '中' : '低';
+      const riskLevelClass = riskLevel === '高' ? 'high' : riskLevel === '中' ? 'medium' : 'low';
       const sortedGroups = [
         { label: '物料异常', score: shortageScore, items: snapshot.shortage },
         { label: '设备/模具异常', score: breakdownScore, items: snapshot.breakdown },
@@ -3066,16 +3217,55 @@
       ].sort((a, b) => b.score - a.score);
       const primary = sortedGroups[0];
       const primaryNames = primary.items.map((item) => item.label).join('、') || '当前事件';
+      const impactedScopes = snapshot.all.slice(0, 3).map((item) => item.label).join('、');
       const actions = snapshot.all.slice(0, 3).map((item) => item.advice);
       const leadHours = Math.min(10, Math.max(3, Math.round(totalScore / 9)));
+      const actionItems = [
+        ...actions,
+        `优先锁定已承诺交期且齐套率高的订单，将受影响订单后移一个批次，并为未来 ${leadHours} 小时预留恢复窗口。`,
+        '维持合同订单与高优订单上线节奏，同时将普通订单释放节拍下调 10% 到 15%，避免风险集中堆积在同一班次。'
+      ].slice(0, 4);
 
       return `
-        <div class="aps-sim-report-title">AI 推演结论：本次排程风险等级 ${riskLevel}</div>
+        <div class="aps-sim-report-title">AI 推演结论</div>
         <div class="aps-sim-report-meta">生成时间：${new Date().toLocaleString('zh-CN', { hour12: false })}</div>
-        <p>综合当前勾选的突发事件，系统判断 <strong>${primary.label}</strong> 是本轮排程最需要优先处置的变量，其中 ${primaryNames} 会直接压缩未来 ${leadHours} 小时的可用排程窗口。</p>
-        <p>建议先锁定已承诺交期且齐套率高的订单，把受影响机台上的普通订单后移一个批次，再将跨线可切换订单分摊到备用产线，避免所有风险同时堆到白班窗口。</p>
-        <p>执行动作建议：${actions.join('；')}。</p>
-        <p>如果今天必须保交付，优先维持高优订单与合同订单的上线节奏，同时把低优订单释放节拍下调 10% 到 15%，给插单和故障恢复留出缓冲。</p>
+        <div class="aps-sim-report-layout">
+          <div class="aps-sim-risk-grid">
+            <div class="aps-sim-risk-card level">
+              <div class="aps-sim-risk-label">风险等级</div>
+              <div class="aps-sim-risk-value level ${riskLevelClass}">${riskLevel}</div>
+              <div class="aps-sim-risk-note">综合异常分值 ${totalScore}，当前排程窗口需优先留出恢复缓冲。</div>
+            </div>
+            <div class="aps-sim-risk-card primary">
+              <div class="aps-sim-risk-label">核心风险点</div>
+              <div class="aps-sim-risk-value">${primary.label}</div>
+              <div class="aps-sim-risk-note">${primaryNames} 会直接压缩未来 ${leadHours} 小时的可用排程窗口，是本轮最需要优先处置的变量。</div>
+            </div>
+            <div class="aps-sim-risk-card scope">
+              <div class="aps-sim-risk-label">影响范围</div>
+              <div class="aps-sim-risk-value">${impactedScopes}</div>
+              <div class="aps-sim-risk-note">建议先保障高优先级订单与合同订单，再处理普通订单的节拍释放与跨线分摊。</div>
+            </div>
+          </div>
+          <div class="aps-sim-actions">
+            <div class="aps-sim-actions-head">
+              <div class="aps-sim-actions-title">执行动作建议</div>
+              <div class="aps-sim-actions-note">按优先顺序依次执行，优先保障交付稳定性。</div>
+            </div>
+            <div class="aps-sim-actions-list">
+              ${actionItems
+                .map(
+                  (item, index) => `
+                    <div class="aps-sim-action-item">
+                      <div class="aps-sim-action-index">${index + 1}</div>
+                      <div class="aps-sim-action-copy">${item}</div>
+                    </div>
+                  `
+                )
+                .join('')}
+            </div>
+          </div>
+        </div>
       `;
     }
 
