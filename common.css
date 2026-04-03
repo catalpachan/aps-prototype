@@ -18,6 +18,46 @@
   --dur-mid: 320ms;
 }
 
+[data-theme="light"] {
+  --bg: #f8fafc;
+  --panel: #ffffff;
+  --panel-2: #f1f5f9;
+  --line: #cbd5e1;
+  --txt: #1e293b;
+  --muted: #64748b;
+  --brand: #2563eb;
+  --ok: #059669;
+  --warn: #d97706;
+  --err: #dc2626;
+  --info: #0ea5e9;
+  --blue3: #3b82f6;
+}
+
+.theme-toggle-btn {
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--txt);
+  cursor: pointer;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: all var(--dur-fast);
+  margin-right: 8px;
+}
+
+.theme-toggle-btn:hover {
+  background: var(--panel-2);
+  border-color: var(--brand);
+}
+
+.theme-toggle-icon {
+  margin-right: 6px;
+  font-size: 16px;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -26,10 +66,471 @@
 }
 
 body {
-  background: linear-gradient(160deg, #0b1224 0%, #121d35 45%, #0f172a 100%);
+  background: var(--bg);
+  background-image: linear-gradient(160deg, #0b1224 0%, #121d35 45%, #0f172a 100%);
+  background-attachment: fixed;
   color: var(--txt);
   min-height: 100vh;
   scroll-behavior: smooth;
+}
+
+[data-theme="light"] body {
+  background-image: none;
+}
+
+/* Light Theme Component Overrides */
+[data-theme="light"] .card,
+[data-theme="light"] .panel,
+[data-theme="light"] .ai-suggestions-panel,
+[data-theme="light"] .planner-todo,
+[data-theme="light"] .scenario-compare,
+[data-theme="light"] .priority-panel,
+[data-theme="light"] .todo-item,
+[data-theme="light"] .kpi-card,
+[data-theme="light"] .ai-suggestion-item,
+[data-theme="light"] .ai-overview-item,
+[data-theme="light"] .todo-detail-modal,
+[data-theme="light"] .todo-stat,
+[data-theme="light"] .todo-detail-metric,
+[data-theme="light"] .todo-detail-section,
+[data-theme="light"] .heat-item,
+[data-theme="light"] .decision-time-track,
+[data-theme="light"] .decision-gantt-track,
+[data-theme="light"] .kpi-card-bg,
+[data-theme="light"] .ai-suggestion-reason,
+[data-theme="light"] .todo-detail-section,
+[data-theme="light"] .ai-message.ai .ai-message-content,
+[data-theme="light"] .ai-chat-body,
+[data-theme="light"] .ai-chat-footer {
+  background: var(--panel) !important;
+  background-image: none !important;
+  border-color: var(--line) !important;
+  color: var(--txt) !important;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+[data-theme="light"] .ai-suggestion-reason,
+[data-theme="light"] .todo-detail-section,
+[data-theme="light"] .ai-overview-item,
+[data-theme="light"] .todo-stat,
+[data-theme="light"] .ai-message.user .ai-message-content {
+  background: var(--panel-2) !important;
+}
+
+[data-theme="light"] .ai-panel-title,
+[data-theme="light"] .todo-title,
+[data-theme="light"] .kpi-value,
+[data-theme="light"] .todo-detail-title,
+[data-theme="light"] .scenario-metric-value,
+[data-theme="light"] .heat-item-title,
+[data-theme="light"] .progress-item-title,
+[data-theme="light"] .aps-console-title-main,
+[data-theme="light"] .user-dropdown-toggle .name,
+[data-theme="light"] .ai-panel-title {
+  color: var(--txt) !important;
+}
+
+[data-theme="light"] .ai-panel-subtitle,
+[data-theme="light"] .ai-overview-label,
+[data-theme="light"] .todo-meta,
+[data-theme="light"] .todo-stat-label,
+[data-theme="light"] .scenario-metric-label,
+[data-theme="light"] .todo-detail-label,
+[data-theme="light"] .todo-detail-subtitle,
+[data-theme="light"] .aps-site-switch-label,
+[data-theme="light"] .ai-panel-subtitle {
+  color: var(--muted) !important;
+}
+
+[data-theme="light"] header,
+[data-theme="light"] .aps-header-layout {
+  background: var(--panel) !important;
+  border-bottom: 1px solid var(--line) !important;
+}
+
+[data-theme="light"] .nav-item {
+  color: var(--muted) !important;
+}
+
+[data-theme="light"] .nav-item.active {
+  color: var(--brand) !important;
+}
+
+[data-theme="light"] .aps-clock-chip {
+  background: var(--panel-2) !important;
+  color: var(--txt) !important;
+  border: 1px solid var(--line) !important;
+}
+
+[data-theme="light"] .aps-notify-btn {
+  background: var(--panel-2) !important;
+  border: 1px solid var(--line) !important;
+}
+
+[data-theme="light"] .role-select {
+  background: var(--panel-2) !important;
+  border: 1px solid var(--line) !important;
+  color: var(--txt) !important;
+}
+
+[data-theme="light"] .user-dropdown-toggle {
+  background: var(--panel-2) !important;
+  border: 1px solid var(--line) !important;
+}
+
+[data-theme="light"] .todo-icon {
+  background: var(--panel-2) !important;
+}
+
+[data-theme="light"] .ai-panel-actions button {
+  background: var(--panel-2) !important;
+  color: var(--txt) !important;
+  border-color: var(--line) !important;
+}
+
+[data-theme="light"] .ai-confidence-bar {
+  background: var(--panel-2) !important;
+}
+
+[data-theme="light"] .ai-suggestion-actions button {
+  background: var(--panel-2) !important;
+  color: var(--txt) !important;
+  border-color: var(--line) !important;
+}
+
+[data-theme="light"] .ai-suggestion-actions button.approve {
+  background: var(--brand) !important;
+  color: #fff !important;
+}
+
+[data-theme="light"] #toast {
+  background: var(--panel) !important;
+  color: var(--txt) !important;
+  border-color: var(--line) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+}
+
+[data-theme="light"] .user-dropdown-menu {
+  background: var(--panel) !important;
+  border-color: var(--line) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+}
+
+[data-theme="light"] .user-dropdown-item {
+  color: var(--txt) !important;
+}
+
+[data-theme="light"] .user-dropdown-item:hover {
+  background: var(--panel-2) !important;
+}
+
+[data-theme="light"] .form-prompt-dialog,
+[data-theme="light"] .confirm-dialog,
+[data-theme="light"] .wip-orders-card,
+[data-theme="light"] .collab-result,
+[data-theme="light"] .collab-result-empty,
+[data-theme="light"] .week-day-table-card,
+[data-theme="light"] .inventory-overview-card,
+[data-theme="light"] .warehouse-card,
+[data-theme="light"] .warehouse-metric,
+[data-theme="light"] .inventory-side-card,
+[data-theme="light"] .inventory-side-item,
+[data-theme="light"] .settings-base-hero-card,
+[data-theme="light"] .settings-base-panel,
+[data-theme="light"] .settings-base-form-grid .modal-field,
+[data-theme="light"] .settings-base-chip,
+[data-theme="light"] .settings-base-side-note,
+[data-theme="light"] .user-profile-panel,
+[data-theme="light"] .user-profile-item,
+[data-theme="light"] .settings-ann-item,
+[data-theme="light"] .usage-stat-card,
+[data-theme="light"] .usage-block,
+[data-theme="light"] .usage-module-item,
+[data-theme="light"] .usage-insight-item,
+[data-theme="light"] .usage-report-item,
+[data-theme="light"] .integration-card,
+[data-theme="light"] .sync-status-bar,
+[data-theme="light"] .sync-log-panel,
+[data-theme="light"] .wip-detail-table-wrap,
+[data-theme="light"] .preplan-detail-table-wrap,
+[data-theme="light"] .usage-table-wrap,
+[data-theme="light"] .todo-stat-card,
+[data-theme="light"] .todo-detail-card {
+  background: var(--panel) !important;
+  background-image: none !important;
+  border-color: var(--line) !important;
+  color: var(--txt) !important;
+  box-shadow: 0 10px 28px rgb(15 23 42 / 0.08) !important;
+}
+
+[data-theme="light"] .gantt-wrap,
+[data-theme="light"] .week-gantt-wrap,
+[data-theme="light"] .month-calendar,
+[data-theme="light"] .view-switch,
+[data-theme="light"] .day-view-date-head,
+[data-theme="light"] .wip-detail-table-wrap,
+[data-theme="light"] .preplan-detail-table-wrap,
+[data-theme="light"] .sync-log-content,
+[data-theme="light"] .sync-log-item.info,
+[data-theme="light"] .warehouse-bar,
+[data-theme="light"] .month-load-bar,
+[data-theme="light"] .collab-metric-bar {
+  background: var(--panel-2) !important;
+  background-image: none !important;
+  border-color: var(--line) !important;
+}
+
+[data-theme="light"] .gantt-table th,
+[data-theme="light"] .gantt-line-col,
+[data-theme="light"] .week-gantt-head,
+[data-theme="light"] .week-day-table-head,
+[data-theme="light"] .week-day-table-toolbar,
+[data-theme="light"] .week-day-table th,
+[data-theme="light"] .month-weekdays div,
+[data-theme="light"] .wip-detail-table th,
+[data-theme="light"] .preplan-detail-table th,
+[data-theme="light"] .settings-base-panel-hd,
+[data-theme="light"] .user-profile-head,
+[data-theme="light"] .usage-block-hd,
+[data-theme="light"] .usage-table-note,
+[data-theme="light"] .sync-log-hd {
+  background: #eef2ff !important;
+  color: var(--txt) !important;
+  border-color: var(--line) !important;
+}
+
+[data-theme="light"] .week-gantt-row-label,
+[data-theme="light"] .week-gantt-head-label,
+[data-theme="light"] .week-gantt-head-track span,
+[data-theme="light"] .wip-order-no,
+[data-theme="light"] .warehouse-card-title,
+[data-theme="light"] .inventory-side-title,
+[data-theme="light"] .settings-base-panel-title strong,
+[data-theme="light"] .user-profile-head-title strong,
+[data-theme="light"] .usage-block-title span,
+[data-theme="light"] .usage-user-name strong,
+[data-theme="light"] .integration-name,
+[data-theme="light"] .sync-log-hd,
+[data-theme="light"] .todo-page-title,
+[data-theme="light"] .todo-stat-value,
+[data-theme="light"] .todo-detail-title {
+  color: var(--txt) !important;
+}
+
+[data-theme="light"] .wip-orders-sub,
+[data-theme="light"] .wip-order-meta,
+[data-theme="light"] .wip-order-time,
+[data-theme="light"] .inventory-board-note,
+[data-theme="light"] .inventory-overview-label,
+[data-theme="light"] .inventory-overview-value .unit,
+[data-theme="light"] .inventory-overview-sub,
+[data-theme="light"] .warehouse-metric-label,
+[data-theme="light"] .warehouse-card-foot,
+[data-theme="light"] .inventory-side-caption,
+[data-theme="light"] .settings-base-hero-label,
+[data-theme="light"] .settings-base-hero-note,
+[data-theme="light"] .settings-base-panel-title span,
+[data-theme="light"] .settings-base-form-grid .modal-field label,
+[data-theme="light"] .settings-base-field-note,
+[data-theme="light"] .user-profile-item label,
+[data-theme="light"] .user-profile-note,
+[data-theme="light"] .usage-stat-label,
+[data-theme="light"] .usage-stat-foot,
+[data-theme="light"] .usage-block-title small,
+[data-theme="light"] .usage-trend-label,
+[data-theme="light"] .usage-insight-item p,
+[data-theme="light"] .usage-report-item p,
+[data-theme="light"] .usage-report-meta,
+[data-theme="light"] .usage-table-note,
+[data-theme="light"] .usage-user-name span,
+[data-theme="light"] .sync-status-label,
+[data-theme="light"] .integration-info,
+[data-theme="light"] .todo-page-subtitle,
+[data-theme="light"] .todo-stat-label,
+[data-theme="light"] .todo-stat-note,
+[data-theme="light"] .todo-detail-label,
+[data-theme="light"] .todo-owner {
+  color: var(--muted) !important;
+}
+
+[data-theme="light"] .wip-plant-select,
+[data-theme="light"] #gantt-plant-filter,
+[data-theme="light"] .day-date-input,
+[data-theme="light"] .wip-filter-field select,
+[data-theme="light"] .wip-filter-field input,
+[data-theme="light"] .preplan-filter-field select,
+[data-theme="light"] .preplan-filter-field input,
+[data-theme="light"] .wip-seq-input,
+[data-theme="light"] .preplan-seq-input,
+[data-theme="light"] .week-seq-input,
+[data-theme="light"] .usage-filter-bar input,
+[data-theme="light"] .usage-filter-bar select {
+  background: #fff !important;
+  color: var(--txt) !important;
+  border-color: var(--line) !important;
+}
+
+[data-theme="light"] .wip-all-link,
+[data-theme="light"] .wip-page-btn,
+[data-theme="light"] .week-page-btn,
+[data-theme="light"] .preplan-page-btn,
+[data-theme="light"] .resource-menu-item,
+[data-theme="light"] .view-btn,
+[data-theme="light"] .schedule-color-chip,
+[data-theme="light"] .month-legend-item,
+[data-theme="light"] .usage-kpi-pill,
+[data-theme="light"] .usage-chip,
+[data-theme="light"] .tag {
+  background: var(--panel-2) !important;
+  color: var(--txt) !important;
+  border-color: var(--line) !important;
+}
+
+[data-theme="light"] .tag.red {
+  background: #fee2e2 !important;
+  border-color: #fca5a5 !important;
+  color: #b91c1c !important;
+}
+
+[data-theme="light"] .tag.ok {
+  background: #dcfce7 !important;
+  border-color: #86efac !important;
+  color: #166534 !important;
+}
+
+[data-theme="light"] .tag.warn {
+  background: #fef3c7 !important;
+  border-color: #fcd34d !important;
+  color: #b45309 !important;
+}
+
+[data-theme="light"] .tag.info {
+  background: #dbeafe !important;
+  border-color: #93c5fd !important;
+  color: #1d4ed8 !important;
+}
+
+[data-theme="light"] .resource-menu-item.active,
+[data-theme="light"] .view-btn.active {
+  color: #fff !important;
+}
+
+[data-theme="light"] .todo-table tbody tr:hover {
+  background: rgba(37, 99, 235, 0.06) !important;
+}
+
+[data-theme="light"] .todo-table tbody tr.active {
+  background: rgba(37, 99, 235, 0.12) !important;
+  box-shadow: inset 2px 0 0 #3b82f6 !important;
+}
+
+[data-theme="light"] .wip-order-item,
+[data-theme="light"] .collab-metric-item,
+[data-theme="light"] .task-editor-detail-value,
+[data-theme="light"] .task-editor-status,
+[data-theme="light"] .lock-strip,
+[data-theme="light"] .month-task-chip,
+[data-theme="light"] .week-day-tag,
+[data-theme="light"] .sync-log-item.success,
+[data-theme="light"] .sync-log-item.error {
+  background: var(--panel-2) !important;
+  border-color: var(--line) !important;
+  color: var(--txt) !important;
+}
+
+[data-theme="light"] .week-day-card,
+[data-theme="light"] .month-day {
+  background: #fff !important;
+  border-color: var(--line) !important;
+  color: var(--txt) !important;
+}
+
+[data-theme="light"] .week-day-card.load-low,
+[data-theme="light"] .month-day.load-low {
+  background: linear-gradient(180deg, rgba(34, 197, 94, 0.12), rgba(255, 255, 255, 0.98)) !important;
+}
+
+[data-theme="light"] .week-day-card.load-mid,
+[data-theme="light"] .month-day.load-mid {
+  background: linear-gradient(180deg, rgba(250, 204, 21, 0.12), rgba(255, 255, 255, 0.98)) !important;
+}
+
+[data-theme="light"] .week-day-card.load-high,
+[data-theme="light"] .month-day.load-high {
+  background: linear-gradient(180deg, rgba(251, 146, 60, 0.14), rgba(255, 255, 255, 0.98)) !important;
+}
+
+[data-theme="light"] .week-day-card.load-full,
+[data-theme="light"] .month-day.load-full,
+[data-theme="light"] .month-day.load-over {
+  background: linear-gradient(180deg, rgba(239, 68, 68, 0.12), rgba(255, 255, 255, 0.98)) !important;
+}
+
+[data-theme="light"] .month-day.other {
+  background: #f8fafc !important;
+  color: #94a3b8 !important;
+}
+
+[data-theme="light"] .month-day.ended {
+  background: linear-gradient(180deg, rgba(148, 163, 184, 0.16), rgba(255, 255, 255, 0.98)) !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme="light"] .month-day-num,
+[data-theme="light"] .month-load,
+[data-theme="light"] .week-day-date,
+[data-theme="light"] .week-day-load,
+[data-theme="light"] .day-date-text,
+[data-theme="light"] .wip-page-info,
+[data-theme="light"] .preplan-page-info {
+  color: var(--txt) !important;
+}
+
+[data-theme="light"] .month-task-chip.load-low,
+[data-theme="light"] .month-task-chip.load-mid,
+[data-theme="light"] .month-task-chip.load-high,
+[data-theme="light"] .month-task-chip.load-full,
+[data-theme="light"] .month-task-chip.load-over {
+  background: #fff !important;
+}
+
+[data-theme="light"] .week-day-table td,
+[data-theme="light"] .wip-detail-table td,
+[data-theme="light"] .preplan-detail-table td,
+[data-theme="light"] .warehouse-metric-value,
+[data-theme="light"] .inventory-overview-value,
+[data-theme="light"] .user-profile-value,
+[data-theme="light"] .sync-status-value,
+[data-theme="light"] .todo-detail-text {
+  color: var(--txt) !important;
+}
+
+[data-theme="light"] .week-day-pagination {
+  background: #eef2ff !important;
+  border-top-color: var(--line) !important;
+}
+
+[data-theme="light"] .gantt-table td,
+[data-theme="light"] .week-day-table th,
+[data-theme="light"] .week-day-table td,
+[data-theme="light"] .wip-detail-table th,
+[data-theme="light"] .wip-detail-table td,
+[data-theme="light"] .preplan-detail-table th,
+[data-theme="light"] .preplan-detail-table td {
+  border-color: #e2e8f0 !important;
+}
+
+[data-theme="light"] .confirm-dialog-message,
+[data-theme="light"] .form-prompt-dialog h3,
+[data-theme="light"] .confirm-dialog h3,
+[data-theme="light"] .form-prompt-dialog label {
+  color: var(--txt) !important;
+}
+
+[data-theme="light"] .sync-progress-bar,
+[data-theme="light"] .usage-bar-track,
+[data-theme="light"] .progress {
+  background: #dbe4f0 !important;
 }
 
 @media (prefers-reduced-motion: reduce) {

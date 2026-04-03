@@ -1579,6 +1579,125 @@
         margin-bottom: 0;
       }
 
+      [data-theme="light"] .aps-header-layout {
+        background: rgb(255 255 255 / 90%);
+      }
+
+      [data-theme="light"] .aps-console-title-main,
+      [data-theme="light"] .aps-setting-title,
+      [data-theme="light"] .aps-sync-flow-top h3,
+      [data-theme="light"] .aps-sync-flow-name,
+      [data-theme="light"] .aps-kpi-mini .value,
+      [data-theme="light"] .aps-stage-node-title,
+      [data-theme="light"] .aps-sim-row-title,
+      [data-theme="light"] .aps-sim-result-title,
+      [data-theme="light"] .aps-sim-report-title,
+      [data-theme="light"] .aps-sim-actions-title {
+        color: var(--txt) !important;
+      }
+
+      [data-theme="light"] .aps-console-title-sub,
+      [data-theme="light"] .aps-site-switch-label,
+      [data-theme="light"] .aps-sync-flow-top p,
+      [data-theme="light"] .aps-sync-flow-meta,
+      [data-theme="light"] .aps-sync-flow-note,
+      [data-theme="light"] .aps-setting-subtitle,
+      [data-theme="light"] .aps-stage-meta,
+      [data-theme="light"] .aps-stage-progress-value,
+      [data-theme="light"] .aps-sim-subtitle,
+      [data-theme="light"] .aps-sim-note,
+      [data-theme="light"] .aps-sim-result-note,
+      [data-theme="light"] .aps-sim-report-meta,
+      [data-theme="light"] .aps-sim-risk-note,
+      [data-theme="light"] .aps-sim-actions-note {
+        color: var(--muted) !important;
+      }
+
+      [data-theme="light"] .aps-site-switch,
+      [data-theme="light"] .aps-main-nav .nav-item,
+      [data-theme="light"] .aps-clock-chip,
+      [data-theme="light"] .aps-notify-btn,
+      [data-theme="light"] .aps-notify-drawer,
+      [data-theme="light"] .aps-notify-item,
+      [data-theme="light"] .aps-upgrade-card,
+      [data-theme="light"] .aps-order-table-wrap,
+      [data-theme="light"] .aps-sync-flow-card,
+      [data-theme="light"] .aps-sync-flow-step,
+      [data-theme="light"] .aps-kpi-mini,
+      [data-theme="light"] .aps-stage-node,
+      [data-theme="light"] .aps-diagnosis-card,
+      [data-theme="light"] .aps-sim-card,
+      [data-theme="light"] .aps-sim-card .aps-slider-row,
+      [data-theme="light"] .aps-sim-selectbox,
+      [data-theme="light"] .aps-sim-menu,
+      [data-theme="light"] .aps-sim-option,
+      [data-theme="light"] .aps-sim-bars,
+      [data-theme="light"] .aps-sim-report,
+      [data-theme="light"] .aps-sim-risk-card,
+      [data-theme="light"] .aps-sim-actions,
+      [data-theme="light"] .aps-setting-block,
+      [data-theme="light"] .aps-feedback-box,
+      [data-theme="light"] .aps-schedule-option,
+      [data-theme="light"] .aps-diagnosis-item {
+        background: var(--panel) !important;
+        background-image: none !important;
+        border-color: var(--line) !important;
+        color: var(--txt) !important;
+        box-shadow: 0 10px 28px rgb(15 23 42 / 0.08) !important;
+      }
+
+      [data-theme="light"] .aps-notify-head,
+      [data-theme="light"] .aps-order-table th,
+      [data-theme="light"] .aps-sync-flow-top,
+      [data-theme="light"] .aps-stage-node.active,
+      [data-theme="light"] .aps-stage-progress-track,
+      [data-theme="light"] .aps-sim-progress-track {
+        background: var(--panel-2) !important;
+        background-image: none !important;
+        border-color: var(--line) !important;
+      }
+
+      [data-theme="light"] .aps-order-table td,
+      [data-theme="light"] .aps-notify-item-meta,
+      [data-theme="light"] .aps-stage-status,
+      [data-theme="light"] .aps-sim-risk-label,
+      [data-theme="light"] .aps-sim-action-copy,
+      [data-theme="light"] .aps-kpi-mini .label,
+      [data-theme="light"] .aps-schedule-option,
+      [data-theme="light"] .aps-diagnosis-item {
+        color: var(--txt) !important;
+      }
+
+      [data-theme="light"] .aps-notify-filter,
+      [data-theme="light"] .aps-site-switch .role-select,
+      [data-theme="light"] .aps-setting-block .aps-slider-row input[type="range"] {
+        border-color: var(--line) !important;
+      }
+
+      [data-theme="light"] .aps-notify-filter {
+        background: #fff !important;
+        color: var(--txt) !important;
+      }
+
+      [data-theme="light"] .aps-main-nav .nav-item {
+        color: var(--muted) !important;
+      }
+
+      [data-theme="light"] .aps-main-nav .nav-item.active {
+        color: #fff !important;
+      }
+
+      [data-theme="light"] .aps-sim-select-shell.is-open .aps-sim-selectbox,
+      [data-theme="light"] .aps-sim-option:hover,
+      [data-theme="light"] .aps-sim-option.is-selected {
+        background: #eff6ff !important;
+      }
+
+      [data-theme="light"] .aps-sim-placeholder,
+      [data-theme="light"] .aps-sim-chip.is-muted {
+        color: var(--muted) !important;
+      }
+
       @media (max-width: 1280px) {
         .aps-sim-card .aps-slider-panel {
           grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1603,6 +1722,625 @@
       #aps-settings-upgrade {
         display: grid;
         gap: 14px;
+      }
+
+      .aps-rule-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 12px;
+      }
+
+      .aps-rule-toolbar .muted {
+        font-size: 12px;
+      }
+
+      .aps-rule-table-wrap {
+        border: 1px solid #334155;
+        border-radius: 12px;
+        overflow: hidden;
+        background: rgba(15, 23, 42, 0.82);
+      }
+
+      .aps-rule-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .aps-rule-table th,
+      .aps-rule-table td {
+        padding: 10px 12px;
+        border-bottom: 1px solid rgba(51, 65, 85, 0.85);
+        text-align: left;
+        font-size: 12px;
+        vertical-align: middle;
+      }
+
+      .aps-rule-table th {
+        background: rgba(15, 23, 42, 0.92);
+        color: #cbd5e1;
+        font-weight: 700;
+      }
+
+      .aps-rule-table td {
+        color: #dbeafe;
+      }
+
+      .aps-rule-name {
+        font-weight: 700;
+        color: #f8fafc;
+        line-height: 1.55;
+      }
+
+      .aps-rule-pool {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: rgba(37, 99, 235, 0.16);
+        border: 1px solid rgba(96, 165, 250, 0.32);
+        color: #bfdbfe;
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      .aps-rule-status {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+        border: 1px solid transparent;
+      }
+
+      .aps-rule-status.active {
+        background: rgba(34, 197, 94, 0.14);
+        border-color: rgba(34, 197, 94, 0.28);
+        color: #bbf7d0;
+      }
+
+      .aps-rule-status.disabled {
+        background: rgba(148, 163, 184, 0.14);
+        border-color: rgba(148, 163, 184, 0.28);
+        color: #cbd5e1;
+      }
+
+      .aps-rule-actions {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .aps-rule-empty {
+        padding: 18px 14px;
+        text-align: center;
+        color: #94a3b8;
+        font-size: 12px;
+      }
+
+      .aps-rule-stage {
+        display: none;
+      }
+
+      .aps-rule-stage.show {
+        display: block;
+      }
+
+      .aps-rule-page-hd {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+      }
+
+      .aps-rule-page-headline {
+        display: grid;
+        gap: 10px;
+      }
+
+      .aps-rule-page-title {
+        display: grid;
+        gap: 6px;
+      }
+
+      .aps-rule-page-title .aps-setting-title,
+      .aps-rule-page-title .aps-setting-subtitle {
+        margin-bottom: 0;
+      }
+
+      .aps-rule-page-actions {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .aps-rule-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        width: fit-content;
+      }
+
+      .aps-rule-section {
+        border: 1px solid rgba(51, 65, 85, 0.86);
+        border-radius: 14px;
+        background: rgba(15, 23, 42, 0.52);
+        padding: 16px;
+      }
+
+      .aps-rule-section + .aps-rule-section {
+        margin-top: 14px;
+      }
+
+      .aps-rule-section-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 14px;
+      }
+
+      .aps-rule-section-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: #f8fafc;
+      }
+
+      .aps-rule-section-note {
+        font-size: 12px;
+        line-height: 1.6;
+        color: #94a3b8;
+      }
+
+      .aps-rule-detail-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .aps-rule-detail-grid .aps-rule-form-field.full {
+        grid-column: 1 / -1;
+      }
+
+      .aps-rule-inline-note {
+        margin-top: 10px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        background: rgba(30, 41, 59, 0.78);
+        border: 1px dashed rgba(96, 165, 250, 0.36);
+        color: #cbd5e1;
+        font-size: 12px;
+        line-height: 1.6;
+      }
+
+      .aps-rule-tabbar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 14px;
+      }
+
+      .aps-rule-tab {
+        border: 1px solid rgba(51, 65, 85, 0.86);
+        background: rgba(15, 23, 42, 0.72);
+        color: #cbd5e1;
+        padding: 9px 14px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: transform var(--dur-fast) var(--ease-out), border-color var(--dur-fast), background var(--dur-fast), color var(--dur-fast);
+      }
+
+      .aps-rule-tab.active {
+        background: linear-gradient(135deg, rgba(37, 99, 235, 0.3), rgba(59, 130, 246, 0.18));
+        border-color: rgba(96, 165, 250, 0.56);
+        color: #eff6ff;
+        transform: translateY(-1px);
+      }
+
+      .aps-rule-pool-panel {
+        display: grid;
+        gap: 12px;
+      }
+
+      .aps-rule-buffer-card,
+      .aps-rule-config-card {
+        border: 1px solid rgba(51, 65, 85, 0.85);
+        border-radius: 14px;
+        background: rgba(15, 23, 42, 0.76);
+        padding: 14px;
+      }
+
+      .aps-rule-buffer-card {
+        display: grid;
+        grid-template-columns: minmax(0, 1.3fr) minmax(180px, 240px);
+        gap: 14px;
+        align-items: center;
+      }
+
+      .aps-rule-buffer-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: #f8fafc;
+      }
+
+      .aps-rule-buffer-desc {
+        margin-top: 6px;
+        font-size: 12px;
+        line-height: 1.6;
+        color: #94a3b8;
+      }
+
+      .aps-rule-buffer-input {
+        display: grid;
+        gap: 8px;
+      }
+
+      .aps-rule-buffer-input input {
+        width: 100%;
+        min-height: 42px;
+        border-radius: 12px;
+        border: 1px solid #334155;
+        background: rgba(15, 23, 42, 0.78);
+        color: #e2e8f0;
+        padding: 0 12px;
+        outline: none;
+      }
+
+      .aps-rule-buffer-input input:focus {
+        border-color: #60a5fa;
+        box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.16);
+      }
+
+      .aps-rule-card-list {
+        display: grid;
+        gap: 12px;
+      }
+
+      .aps-rule-config-card {
+        display: grid;
+        gap: 12px;
+      }
+
+      .aps-rule-config-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .aps-rule-config-main {
+        display: grid;
+        gap: 6px;
+      }
+
+      .aps-rule-config-name {
+        font-size: 14px;
+        font-weight: 700;
+        color: #f8fafc;
+      }
+
+      .aps-rule-config-sub {
+        font-size: 12px;
+        color: #94a3b8;
+        line-height: 1.6;
+      }
+
+      .aps-rule-config-actions {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .aps-rule-config-tag {
+        display: inline-flex;
+        align-items: center;
+        width: fit-content;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+        color: #dbeafe;
+        border: 1px solid rgba(59, 130, 246, 0.28);
+        background: rgba(37, 99, 235, 0.16);
+      }
+
+      .aps-rule-config-code {
+        display: grid;
+        gap: 8px;
+      }
+
+      .aps-rule-config-code label {
+        font-size: 11px;
+        color: #94a3b8;
+      }
+
+      .aps-rule-config-code input {
+        width: 100%;
+        min-height: 40px;
+        border-radius: 10px;
+        border: 1px solid #334155;
+        background: rgba(15, 23, 42, 0.72);
+        color: #e2e8f0;
+        padding: 0 12px;
+        outline: none;
+      }
+
+      .aps-rule-config-code input:focus {
+        border-color: #60a5fa;
+        box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.16);
+      }
+
+      .aps-rule-card-switch {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        color: #cbd5e1;
+      }
+
+      .aps-rule-card-switch input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .aps-rule-card-switch-ui {
+        position: relative;
+        width: 42px;
+        height: 24px;
+        border-radius: 999px;
+        background: rgba(71, 85, 105, 0.88);
+        box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.22);
+        transition: background var(--dur-fast), box-shadow var(--dur-fast), opacity var(--dur-fast);
+        flex: 0 0 auto;
+      }
+
+      .aps-rule-card-switch-ui::after {
+        content: "";
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #f8fafc;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.28);
+        transition: transform var(--dur-fast) var(--ease-out);
+      }
+
+      .aps-rule-card-switch input:checked + .aps-rule-card-switch-ui {
+        background: linear-gradient(135deg, #2563eb, #38bdf8);
+        box-shadow: inset 0 0 0 1px rgba(191, 219, 254, 0.18);
+      }
+
+      .aps-rule-card-switch input:checked + .aps-rule-card-switch-ui::after {
+        transform: translateX(18px);
+      }
+
+      .aps-rule-card-switch input:disabled + .aps-rule-card-switch-ui {
+        opacity: 0.55;
+      }
+
+      .aps-rule-card-switch-copy {
+        min-width: 48px;
+        text-align: left;
+      }
+
+      .aps-rule-pool-empty {
+        padding: 20px 14px;
+        border-radius: 12px;
+        border: 1px dashed rgba(71, 85, 105, 0.86);
+        text-align: center;
+        color: #94a3b8;
+        font-size: 12px;
+      }
+
+      .aps-rule-modal-mask {
+        position: fixed;
+        inset: 0;
+        background: rgba(2, 6, 23, 0.72);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+        z-index: 1400;
+      }
+
+      .aps-rule-modal-mask.show {
+        display: flex;
+      }
+
+      .aps-rule-modal {
+        width: min(720px, calc(100vw - 32px));
+        border-radius: 16px;
+        border: 1px solid #334155;
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.92));
+        box-shadow: 0 24px 54px rgba(2, 6, 23, 0.42);
+        overflow: hidden;
+      }
+
+      .aps-rule-modal-hd {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 16px 18px;
+        border-bottom: 1px solid rgba(51, 65, 85, 0.75);
+      }
+
+      .aps-rule-modal-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: #f8fafc;
+      }
+
+      .aps-rule-modal-subtitle {
+        margin-top: 4px;
+        font-size: 12px;
+        color: #94a3b8;
+        line-height: 1.55;
+      }
+
+      .aps-rule-modal-close {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        border: 1px solid #334155;
+        background: rgba(15, 23, 42, 0.72);
+        color: #cbd5e1;
+        cursor: pointer;
+      }
+
+      .aps-rule-modal-bd {
+        padding: 18px;
+        display: grid;
+        gap: 14px;
+      }
+
+      .aps-rule-form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .aps-rule-form-field {
+        display: grid;
+        gap: 8px;
+      }
+
+      .aps-rule-form-field.full {
+        grid-column: 1 / -1;
+      }
+
+      .aps-rule-form-field label {
+        font-size: 11px;
+        color: #94a3b8;
+      }
+
+      .aps-rule-form-field input,
+      .aps-rule-form-field textarea,
+      .aps-rule-form-field select,
+      .aps-rule-preview {
+        width: 100%;
+        min-height: 40px;
+        border-radius: 10px;
+        border: 1px solid #334155;
+        background: rgba(15, 23, 42, 0.72);
+        color: #e2e8f0;
+        padding: 0 12px;
+        font-size: 13px;
+      }
+
+      .aps-rule-form-field input,
+      .aps-rule-form-field textarea,
+      .aps-rule-form-field select {
+        outline: none;
+      }
+
+      .aps-rule-form-field input:focus,
+      .aps-rule-form-field textarea:focus,
+      .aps-rule-form-field select:focus {
+        border-color: #60a5fa;
+        box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.16);
+      }
+
+      .aps-rule-preview {
+        padding: 10px 12px;
+        line-height: 1.6;
+        font-weight: 700;
+      }
+
+      .aps-rule-modal-note {
+        font-size: 12px;
+        color: #94a3b8;
+        line-height: 1.6;
+      }
+
+      .aps-rule-modal-ft {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        padding: 0 18px 18px;
+      }
+
+      [data-theme="light"] .aps-rule-table-wrap,
+      [data-theme="light"] .aps-rule-modal,
+      [data-theme="light"] .aps-rule-preview,
+      [data-theme="light"] .aps-rule-form-field input,
+      [data-theme="light"] .aps-rule-form-field textarea,
+      [data-theme="light"] .aps-rule-form-field select,
+      [data-theme="light"] .aps-rule-modal-close {
+        background: var(--panel) !important;
+        background-image: none !important;
+        border-color: var(--line) !important;
+        color: var(--txt) !important;
+      }
+
+      [data-theme="light"] .aps-rule-table th {
+        background: #eef2ff !important;
+        color: var(--txt) !important;
+        border-color: var(--line) !important;
+      }
+
+      [data-theme="light"] .aps-rule-table td,
+      [data-theme="light"] .aps-rule-name,
+      [data-theme="light"] .aps-rule-modal-title {
+        color: var(--txt) !important;
+      }
+
+      [data-theme="light"] .aps-rule-toolbar .muted,
+      [data-theme="light"] .aps-rule-section-note,
+      [data-theme="light"] .aps-rule-buffer-desc,
+      [data-theme="light"] .aps-rule-config-sub,
+      [data-theme="light"] .aps-rule-config-code label,
+      [data-theme="light"] .aps-rule-modal-subtitle,
+      [data-theme="light"] .aps-rule-form-field label,
+      [data-theme="light"] .aps-rule-modal-note,
+      [data-theme="light"] .aps-rule-empty,
+      [data-theme="light"] .aps-rule-pool-empty {
+        color: var(--muted) !important;
+      }
+
+      [data-theme="light"] .aps-rule-section,
+      [data-theme="light"] .aps-rule-buffer-card,
+      [data-theme="light"] .aps-rule-config-card,
+      [data-theme="light"] .aps-rule-buffer-input input,
+      [data-theme="light"] .aps-rule-config-code input,
+      [data-theme="light"] .aps-rule-inline-note,
+      [data-theme="light"] .aps-rule-tab {
+        background: var(--panel) !important;
+        background-image: none !important;
+        border-color: var(--line) !important;
+        color: var(--txt) !important;
+      }
+
+      [data-theme="light"] .aps-rule-buffer-title,
+      [data-theme="light"] .aps-rule-config-name,
+      [data-theme="light"] .aps-rule-section-title,
+      [data-theme="light"] .aps-rule-card-switch {
+        color: var(--txt) !important;
+      }
+
+      [data-theme="light"] .aps-rule-card-switch-ui {
+        background: #cbd5e1 !important;
+        box-shadow: inset 0 0 0 1px rgba(100, 116, 139, 0.18) !important;
+      }
+
+      [data-theme="light"] .aps-rule-card-switch-ui::after {
+        background: #ffffff !important;
       }
 
       .aps-setting-block {
@@ -3471,100 +4209,647 @@
 
   function enhanceSettingsPage() {
     const upgradeHost = document.getElementById('aps-settings-upgrade-host');
-    if (!upgradeHost || document.getElementById('aps-settings-upgrade')) return;
+    const createHost = document.getElementById('aps-settings-rule-create-host');
+    if (!upgradeHost || !createHost || document.getElementById('aps-settings-upgrade')) return;
 
-    const block = document.createElement('div');
-    block.id = 'aps-settings-upgrade';
-    block.innerHTML = `
-      <div class="aps-setting-block">
-        <div class="aps-setting-title">约束规则与参数滑动配置</div>
-        <div class="aps-setting-subtitle">把基础排程策略拆成开关与权重，方便计划员按总部基线做局部微调。</div>
-        <div class="aps-switch-row">
-          <div class="aps-toggle"><span>硬约束实时校验</span><input type="checkbox" id="aps-hard-check" checked /></div>
-          <div class="aps-toggle"><span>软约束评分引擎</span><input type="checkbox" id="aps-soft-check" checked /></div>
-          <div class="aps-toggle"><span>跨厂协同优先级加权</span><input type="checkbox" id="aps-cross-check" checked /></div>
+    const esc = (value) => String(value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+
+    const ruleBaseOptions = ['珠海格力总部', '金湾基地', '武汉基地', '洛阳基地'];
+    const rulePoolOptions = ['总部统一规则池', '制造基地统一规则池', '跨厂共享规则池'];
+    const versionOptions = ['v0.1', 'v0.2', 'v0.3', 'v0.4', 'v0.5', 'v0.6'];
+    const departmentOptions = ['计划物流部 / APS推进科', '制造管理部 / 排程科', '供应链管理部 / 计划组', '品质运营部 / 协同科'];
+    const mainRuleTypeOptions = [
+      { value: 'sync', label: '协同策略' },
+      { value: 'hard', label: '硬约束条件' },
+      { value: 'soft', label: '软约束条件' },
+      { value: 'temp', label: '临时规则' }
+    ];
+    const currentUser = '张伟';
+
+    function formatCompactTimestamp(date = new Date()) {
+      const pad = (v) => String(v).padStart(2, '0');
+      return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}${pad(date.getHours())}${pad(date.getMinutes())}`;
+    }
+
+    function formatDisplayDate(date = new Date()) {
+      const pad = (v) => String(v).padStart(2, '0');
+      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+    }
+
+    function buildRuleName(rule) {
+      return `${rule.customName} - ${rule.baseName} - ${rule.factoryName} - 排程规则版本号${rule.version} - 时间${rule.timestamp}`;
+    }
+
+    function createDefaultRuleConfig() {
+      return {
+        logisticsBufferHours: 4,
+        syncRules: [],
+        hardRules: [
+          { id: 'HR-001', name: '锁定产线节拍', subtitle: '当班工位节拍与设备能力必须满足标准节拍，不允许突破产线峰值上限。', tag: '产能硬约束', enabled: true },
+          { id: 'HR-002', name: '关键物料齐套', subtitle: '关键物料未齐套时禁止释放整机排产任务，避免上线后停线。', tag: '物料硬约束', enabled: true }
+        ],
+        softRules: [
+          { id: 'SR-001', name: '同基地优先协同', subtitle: '优先消化同基地闲置产能，减少跨基地协调成本与异常沟通。', tag: '协同建议', enabled: true },
+          { id: 'SR-002', name: '订单交期友好排序', subtitle: '在不突破硬约束前提下，提高临近交付订单的排产优先级。', tag: '交付偏好', enabled: false }
+        ],
+        tempRules: [
+          { id: 'TR-001', name: '五一前促销保障', subtitle: '针对节前促销订单增加柔性产能预留，优先保障明星机型供给。', tag: '临时业务规则', code: 'promo_buffer=1.25;expedite_top=20', enabled: true }
+        ]
+      };
+    }
+
+    function cloneRuleConfig(config) {
+      return JSON.parse(JSON.stringify(config || createDefaultRuleConfig()));
+    }
+
+    let ruleRecords = [
+      { customName: '交期优先', baseName: '珠海格力总部', factoryName: '东区总装', version: 'v0.3', timestamp: '202604021520', createdAt: '2026-04-02 15:20', createdBy: '张伟', ownerBase: '珠海格力总部', department: '计划物流部 / APS推进科', poolName: '总部统一规则池', status: '正在应用' },
+      { customName: '旺季抢产', baseName: '金湾基地', factoryName: '西区总装', version: 'v0.2', timestamp: '202604021445', createdAt: '2026-04-02 14:45', createdBy: '李敏', ownerBase: '金湾基地', department: '制造管理部 / 排程科', poolName: '制造基地统一规则池', status: '正在应用' },
+      { customName: '稳态平衡', baseName: '武汉基地', factoryName: '注塑分厂', version: 'v0.4', timestamp: '202604021310', createdAt: '2026-04-02 13:10', createdBy: '王磊', ownerBase: '武汉基地', department: '供应链管理部 / 计划组', poolName: '跨厂共享规则池', status: '停用' }
+    ].map((item, index) => ({
+      ...item,
+      ruleName: buildRuleName(item),
+      config: {
+        ...cloneRuleConfig(),
+        logisticsBufferHours: 3 + index
+      }
+    }));
+
+    let ruleDetailState = {
+      mode: 'create',
+      index: -1,
+      activeTab: 'sync',
+      config: cloneRuleConfig()
+    };
+
+    const listBlock = document.createElement('div');
+    listBlock.id = 'aps-settings-upgrade';
+    listBlock.innerHTML = `
+      <div class="aps-setting-block" id="aps-rule-list-stage">
+        <div class="aps-setting-title">排程规则配置</div>
+        <div class="aps-setting-subtitle">按基地和分厂统一维护排程规则，点击新增规则后切换到独立的新建面板。</div>
+        <div class="aps-rule-toolbar">
+          <span class="muted">规则池支持协同策略、硬约束、软约束与临时规则统一维护。</span>
+          <button type="button" class="btn sm primary" id="aps-rule-create-btn">新增规则</button>
         </div>
-        <div class="aps-slider-config">
-          <div class="aps-slider-row"><span>交期权重</span><input type="range" min="0" max="100" value="68" id="aps-weight-delivery" /><span id="aps-weight-delivery-v">68%</span></div>
-          <div class="aps-slider-row"><span>成本权重</span><input type="range" min="0" max="100" value="22" id="aps-weight-cost" /><span id="aps-weight-cost-v">22%</span></div>
-          <div class="aps-slider-row"><span>库存权重</span><input type="range" min="0" max="100" value="10" id="aps-weight-stock" /><span id="aps-weight-stock-v">10%</span></div>
-        </div>
-        <div class="aps-setting-chip-row">
-          <div class="aps-setting-chip">当前策略包<b>总部默认</b></div>
-          <div class="aps-setting-chip">回写状态<b>自动同步</b></div>
+        <div class="aps-rule-table-wrap">
+          <table class="aps-rule-table">
+            <thead>
+              <tr>
+                <th>规则名称</th>
+                <th>创建时间</th>
+                <th>创建用户</th>
+                <th>所属基地</th>
+                <th>部门科室</th>
+                <th>统一规则池</th>
+                <th>规则状态</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="aps-rule-tbody"></tbody>
+          </table>
         </div>
       </div>
-
-      <div class="aps-setting-block">
-        <div class="aps-setting-title">一键场景换挡机制</div>
-        <div class="aps-setting-subtitle">把常规、旺季和极端缺料三套策略包直接固化为快捷入口，减少手工调参次数。</div>
-        <div class="aps-scene-options" id="aps-scene-options">
-          <button type="button" class="aps-scene-btn active" data-scene="常规平稳">常规平稳</button>
-          <button type="button" class="aps-scene-btn" data-scene="旺季抢产">旺季抢产</button>
-          <button type="button" class="aps-scene-btn" data-scene="极端缺料">极端缺料</button>
-        </div>
-      </div>
-
-      <div class="aps-setting-block">
-        <div class="aps-setting-title">跨厂时间尺图形化对齐</div>
-        <div class="aps-setting-subtitle">以总装厂作息为主时间尺，对分厂班次盲区和偏移窗口做统一覆盖修正。</div>
-        <div class="aps-feedback-box">
-          <button class="btn sm" id="aps-align-btn">以总装厂作息为准强制覆盖</button>
-          <div class="aps-feedback-content" id="aps-align-result">等待执行时间尺对齐...</div>
-        </div>
-      </div>
-
     `;
 
-    upgradeHost.appendChild(block);
+    const detailBlock = document.createElement('div');
+    detailBlock.id = 'aps-settings-rule-create';
+    detailBlock.innerHTML = `
+      <article class="card" id="aps-rule-detail-stage">
+        <div class="card-bd">
+        <div class="aps-rule-page-hd">
+          <div class="aps-rule-page-headline">
+            <button type="button" class="btn sm aps-rule-back" id="aps-rule-back-btn">返回规则配置</button>
+            <div class="aps-rule-page-title">
+              <div class="aps-setting-title" id="aps-rule-detail-title">新建排程规则</div>
+              <div class="aps-setting-subtitle" id="aps-rule-detail-subtitle">先填写基础资料，再配置规则池内容。</div>
+            </div>
+          </div>
+          <div class="aps-rule-page-actions">
+            <button type="button" class="btn ok" id="aps-rule-save-btn">保存规则</button>
+          </div>
+        </div>
 
-    function applyScene(sceneName) {
-      const buttons = Array.from(document.querySelectorAll('#aps-scene-options .aps-scene-btn'));
-      if (!buttons.length) return;
-      let target = buttons.find((btn) => btn.dataset.scene === sceneName);
-      if (!target) target = buttons[0];
-      buttons.forEach((btn) => btn.classList.toggle('active', btn === target));
-    }
+        <section class="aps-rule-section">
+          <div class="aps-rule-section-head">
+            <div>
+              <div class="aps-rule-section-title">新建排程规则</div>
+              <div class="aps-rule-section-note">填写基础资料后，规则池内新增的主规则将统一绑定到当前排程规则。</div>
+            </div>
+          </div>
+          <div class="aps-rule-detail-grid">
+            <div class="aps-rule-form-field">
+              <label for="aps-detail-rule-name">排程规则名称</label>
+              <input id="aps-detail-rule-name" type="text" maxlength="24" placeholder="例如：销售旺季保供排程规则" />
+            </div>
+            <div class="aps-rule-form-field">
+              <label for="aps-detail-rule-base">所属基地</label>
+              <select id="aps-detail-rule-base" disabled>${ruleBaseOptions.map((item) => `<option value="${item}">${item}</option>`).join('')}</select>
+            </div>
+            <div class="aps-rule-form-field">
+              <label for="aps-detail-rule-department">部门/科室</label>
+              <select id="aps-detail-rule-department" disabled>${departmentOptions.map((item) => `<option value="${item}">${item}</option>`).join('')}</select>
+            </div>
+            <div class="aps-rule-form-field">
+              <label for="aps-detail-rule-user">创建用户</label>
+              <input id="aps-detail-rule-user" type="text" value="${currentUser}" disabled />
+            </div>
+            <div class="aps-rule-form-field full">
+              <label>规则概览</label>
+              <textarea id="aps-detail-rule-preview" class="aps-rule-preview" rows="3" maxlength="30" placeholder="请输入规则概览，最多30个中文字符"></textarea>
+              <div class="aps-rule-inline-note">当前规则创建后默认写入“总部统一规则池”，状态默认为“正在应用”。</div>
+            </div>
+          </div>
+        </section>
 
-    function bindWeight(inputId, valueId) {
-      const input = document.getElementById(inputId);
-      const value = document.getElementById(valueId);
-      if (!input || !value) return;
-      const update = () => {
-        value.textContent = `${input.value}%`;
-        saveBaselineWeights({
-          delivery: document.getElementById('aps-weight-delivery')?.value,
-          cost: document.getElementById('aps-weight-cost')?.value,
-          stock: document.getElementById('aps-weight-stock')?.value
-        });
-      };
-      input.addEventListener('input', update);
-      update();
-    }
+        <section class="aps-rule-section">
+          <div class="aps-rule-section-head">
+            <div>
+              <div class="aps-rule-section-title">配置规则池</div>
+              <div class="aps-rule-section-note">协同策略负责参数基线，硬/软约束与临时规则以规则卡片方式维护。</div>
+            </div>
+            <button type="button" class="btn primary" id="aps-main-rule-open-btn">新建主规则</button>
+          </div>
+          <div class="aps-rule-tabbar" id="aps-rule-tabbar">
+            ${mainRuleTypeOptions.map((item) => `<button type="button" class="aps-rule-tab${item.value === 'sync' ? ' active' : ''}" data-pool-tab="${item.value}">${item.label}</button>`).join('')}
+          </div>
+          <div class="aps-rule-pool-panel" id="aps-rule-pool-panel"></div>
+        </section>
+        </div>
+      </article>
 
-    document.querySelectorAll('#aps-scene-options .aps-scene-btn').forEach((button) => {
-      button.addEventListener('click', () => {
-        applyScene(button.dataset.scene);
-        toast(`场景参数包已切换：${button.dataset.scene}`);
-      });
-    });
+      <div class="aps-rule-modal-mask" id="aps-main-rule-modal-mask">
+        <div class="aps-rule-modal" role="dialog" aria-modal="true" aria-labelledby="aps-main-rule-modal-title">
+          <div class="aps-rule-modal-hd">
+            <div>
+              <div class="aps-rule-modal-title" id="aps-main-rule-modal-title">新建主规则</div>
+              <div class="aps-rule-modal-subtitle">新增主规则后会自动追加到当前规则池选项卡中。</div>
+            </div>
+            <button type="button" class="aps-rule-modal-close" id="aps-main-rule-modal-close" aria-label="关闭">×</button>
+          </div>
+          <div class="aps-rule-modal-bd">
+            <div class="aps-rule-form-grid">
+              <div class="aps-rule-form-field">
+                <label for="aps-main-rule-id">规则ID</label>
+                <input id="aps-main-rule-id" type="text" placeholder="例如：HR-003" />
+              </div>
+              <div class="aps-rule-form-field">
+                <label for="aps-main-rule-name">规则名称</label>
+                <input id="aps-main-rule-name" type="text" placeholder="请输入主规则名称" />
+              </div>
+              <div class="aps-rule-form-field">
+                <label for="aps-main-rule-type">归属类型</label>
+                <select id="aps-main-rule-type">${mainRuleTypeOptions.map((item) => `<option value="${item.value}">${item.label}</option>`).join('')}</select>
+              </div>
+              <div class="aps-rule-form-field">
+                <label for="aps-main-rule-dept">来源部门</label>
+                <select id="aps-main-rule-dept">${departmentOptions.map((item) => `<option value="${item}">${item}</option>`).join('')}</select>
+              </div>
+              <div class="aps-rule-form-field full">
+                <label for="aps-main-rule-desc">业务描述</label>
+                <input id="aps-main-rule-desc" type="text" placeholder="简要说明该规则的业务目的与适用场景" />
+              </div>
+              <div class="aps-rule-form-field">
+                <label for="aps-main-rule-param">默认参数</label>
+                <input id="aps-main-rule-param" type="text" placeholder="例如：buffer_hours=4" />
+              </div>
+              <div class="aps-rule-form-field">
+                <label for="aps-main-rule-priority">优先级</label>
+                <select id="aps-main-rule-priority">
+                  <option>高</option>
+                  <option selected>中</option>
+                  <option>低</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="aps-rule-modal-ft">
+            <button type="button" class="btn" id="aps-main-rule-cancel">取消</button>
+            <button type="button" class="btn primary" id="aps-main-rule-save">保存提交</button>
+          </div>
+        </div>
+      </div>
+    `;
 
-    document.getElementById('aps-align-btn')?.addEventListener('click', () => {
-      const result = document.getElementById('aps-align-result');
-      if (result) {
-        result.textContent = '对齐完成：已按总装厂作息覆盖各分厂班次盲区，检测到 3 处偏差并已修正。';
+    upgradeHost.appendChild(listBlock);
+    createHost.appendChild(detailBlock);
+
+    const tbody = document.getElementById('aps-rule-tbody');
+    const detailTitle = document.getElementById('aps-rule-detail-title');
+    const detailSubtitle = document.getElementById('aps-rule-detail-subtitle');
+    const saveRuleBtn = document.getElementById('aps-rule-save-btn');
+    const backBtn = document.getElementById('aps-rule-back-btn');
+    const newMainRuleBtn = document.getElementById('aps-main-rule-open-btn');
+    const poolPanel = document.getElementById('aps-rule-pool-panel');
+    const tabbar = document.getElementById('aps-rule-tabbar');
+    const detailNameInput = document.getElementById('aps-detail-rule-name');
+    const detailBaseSelect = document.getElementById('aps-detail-rule-base');
+    const detailDeptSelect = document.getElementById('aps-detail-rule-department');
+    const detailUserInput = document.getElementById('aps-detail-rule-user');
+    const detailPreview = document.getElementById('aps-detail-rule-preview');
+
+    const mainRuleModalMask = document.getElementById('aps-main-rule-modal-mask');
+    const mainRuleCloseBtn = document.getElementById('aps-main-rule-modal-close');
+    const mainRuleCancelBtn = document.getElementById('aps-main-rule-cancel');
+    const mainRuleSaveBtn = document.getElementById('aps-main-rule-save');
+    const mainRuleIdInput = document.getElementById('aps-main-rule-id');
+    const mainRuleNameInput = document.getElementById('aps-main-rule-name');
+    const mainRuleTypeSelect = document.getElementById('aps-main-rule-type');
+    const mainRuleDeptSelect = document.getElementById('aps-main-rule-dept');
+    const mainRuleDescInput = document.getElementById('aps-main-rule-desc');
+    const mainRuleParamInput = document.getElementById('aps-main-rule-param');
+    const mainRulePrioritySelect = document.getElementById('aps-main-rule-priority');
+
+    function renderRuleTable() {
+      if (!tbody) return;
+      if (!ruleRecords.length) {
+        tbody.innerHTML = '<tr><td colspan="8" class="aps-rule-empty">当前没有排程规则，请先新增规则。</td></tr>';
+        return;
       }
-      toast('跨厂时间尺对齐请求已执行。');
+      tbody.innerHTML = ruleRecords.map((item, index) => `
+        <tr>
+          <td><div class="aps-rule-name">${esc(item.ruleName)}</div></td>
+          <td>${esc(item.createdAt)}</td>
+          <td>${esc(item.createdBy)}</td>
+          <td>${esc(item.ownerBase)}</td>
+          <td>${esc(item.department)}</td>
+          <td><span class="aps-rule-pool">${esc(item.poolName)}</span></td>
+          <td><span class="aps-rule-status ${item.status === '正在应用' ? 'active' : 'disabled'}">${esc(item.status)}</span></td>
+          <td>
+            <div class="aps-rule-actions">
+              <button type="button" class="btn sm" data-rule-action="view" data-rule-index="${index}">查看</button>
+              <button type="button" class="btn sm" data-rule-action="edit" data-rule-index="${index}">编辑</button>
+              <button type="button" class="btn sm err txt-white" data-rule-action="delete" data-rule-index="${index}">删除</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function getDetailDraft() {
+      return {
+        ruleName: (detailNameInput?.value || '').trim(),
+        ownerBase: detailBaseSelect?.value || ruleBaseOptions[0],
+        department: detailDeptSelect?.value || departmentOptions[0],
+        createdBy: detailUserInput?.value || currentUser,
+        overview: (detailPreview?.value || '').trim()
+      };
+    }
+
+    function updateDetailPreview() {
+      if (!detailPreview) return;
+      if (!detailPreview.value.trim()) {
+        const draft = getDetailDraft();
+        detailPreview.value = draft.ruleName
+          ? `${draft.ruleName} · ${draft.ownerBase} · ${draft.department}`
+          : '';
+      }
+    }
+
+    function setDetailReadonly(disabled) {
+      [detailNameInput, detailPreview].forEach((el) => {
+        if (el) el.disabled = disabled;
+      });
+      if (saveRuleBtn) saveRuleBtn.style.display = disabled ? 'none' : '';
+      if (newMainRuleBtn) newMainRuleBtn.style.display = disabled ? 'none' : '';
+    }
+
+    function populateDetailForm(record) {
+      if (detailNameInput) detailNameInput.value = record?.customName || record?.ruleName || '';
+      if (detailBaseSelect) detailBaseSelect.value = record?.ownerBase || ruleBaseOptions[0];
+      if (detailDeptSelect) detailDeptSelect.value = record?.department || departmentOptions[0];
+      if (detailUserInput) detailUserInput.value = record?.createdBy || currentUser;
+      if (detailPreview) detailPreview.value = record?.overview || '';
+      updateDetailPreview();
+    }
+
+    function renderRuleCards(items, kind) {
+      if (!items.length) {
+        return '<div class="aps-rule-pool-empty">当前选项卡还没有规则卡片，可通过“新建主规则”补充。</div>';
+      }
+      return `<div class="aps-rule-card-list">${items.map((item, index) => `
+        <div class="aps-rule-config-card">
+          <div class="aps-rule-config-top">
+            <div class="aps-rule-config-main">
+              <div class="aps-rule-config-name">${esc(item.name)}</div>
+              <div class="aps-rule-config-sub">${esc(item.subtitle)}</div>
+              <span class="aps-rule-config-tag">${esc(item.tag)}</span>
+            </div>
+            <div class="aps-rule-config-actions">
+              <label class="aps-rule-card-switch">
+                <input type="checkbox" data-card-toggle="${kind}" data-card-index="${index}" ${item.enabled ? 'checked' : ''} ${ruleDetailState.mode === 'view' ? 'disabled' : ''} />
+                <span class="aps-rule-card-switch-ui" aria-hidden="true"></span>
+                <span class="aps-rule-card-switch-copy">${item.enabled ? '已启用' : '已停用'}</span>
+              </label>
+              ${ruleDetailState.mode === 'view' ? '' : `<button type="button" class="btn sm err txt-white" data-card-delete="${kind}" data-card-index="${index}">删除</button>`}
+            </div>
+          </div>
+          ${kind === 'temp' ? `
+            <div class="aps-rule-config-code">
+              <label>可配置代码字段</label>
+              <input type="text" value="${esc(item.code || '')}" data-card-code="${kind}" data-card-index="${index}" ${ruleDetailState.mode === 'view' ? 'disabled' : ''} />
+            </div>
+          ` : ''}
+        </div>
+      `).join('')}</div>`;
+    }
+
+    function renderPoolPanel() {
+      if (!poolPanel) return;
+      const config = ruleDetailState.config;
+      if (ruleDetailState.activeTab === 'sync') {
+        poolPanel.innerHTML = `
+          <div class="aps-rule-buffer-card">
+            <div>
+              <div class="aps-rule-buffer-title">通用物流缓冲</div>
+              <div class="aps-rule-buffer-desc">主要设置车辆流转与配送标准时间提前量，用于跨基地协同与装车节奏预留。</div>
+            </div>
+            <div class="aps-rule-buffer-input">
+              <label for="aps-logistics-buffer-hours">配送标准时间提前 x 个小时</label>
+              <input id="aps-logistics-buffer-hours" type="number" min="0" max="72" value="${esc(config.logisticsBufferHours)}" ${ruleDetailState.mode === 'view' ? 'disabled' : ''} />
+            </div>
+          </div>
+          ${renderRuleCards(config.syncRules, 'sync')}
+        `;
+        return;
+      }
+
+      if (ruleDetailState.activeTab === 'hard') {
+        poolPanel.innerHTML = renderRuleCards(config.hardRules, 'hard');
+        return;
+      }
+
+      if (ruleDetailState.activeTab === 'soft') {
+        poolPanel.innerHTML = renderRuleCards(config.softRules, 'soft');
+        return;
+      }
+
+      poolPanel.innerHTML = renderRuleCards(config.tempRules, 'temp');
+    }
+
+    function showListStage() {
+      if (typeof window.switchSettingsSub === 'function') {
+        window.switchSettingsSub('base', null, { syncUrl: false });
+      }
+    }
+
+    function showDetailStage(mode, index = -1) {
+      ruleDetailState.mode = mode;
+      ruleDetailState.index = index;
+      ruleDetailState.activeTab = 'sync';
+
+      const currentRecord = index >= 0 ? ruleRecords[index] : null;
+      ruleDetailState.config = cloneRuleConfig(currentRecord?.config);
+      populateDetailForm(currentRecord);
+      setDetailReadonly(mode === 'view');
+
+      if (detailTitle) {
+        detailTitle.textContent = mode === 'edit' ? '编辑排程规则' : mode === 'view' ? '查看排程规则' : '新建排程规则';
+      }
+      if (detailSubtitle) {
+        detailSubtitle.textContent = mode === 'edit'
+          ? '修改基础资料与规则池内容后保存。'
+          : mode === 'view'
+            ? '当前页面为只读视图，用于查看排程规则与规则池配置。'
+            : '先填写基础资料，再配置规则池内容。';
+      }
+
+      tabbar?.querySelectorAll('[data-pool-tab]').forEach((button) => {
+        button.classList.toggle('active', button.getAttribute('data-pool-tab') === 'sync');
+      });
+
+      renderPoolPanel();
+      if (typeof window.switchSettingsSub === 'function') {
+        window.switchSettingsSub('rule-create', null, { syncUrl: false });
+      }
+    }
+
+    function validateRuleDraft(draft) {
+      if (!draft.ruleName) return '请填写排程规则名称';
+      if (Array.from(draft.ruleName).length > 24) return '排程规则名称最多 24 个字符';
+      return '';
+    }
+
+    function saveCurrentRule() {
+      const draft = getDetailDraft();
+      const error = validateRuleDraft(draft);
+      if (error) {
+        toast(error);
+        detailNameInput?.focus();
+        return;
+      }
+
+      const now = new Date();
+      const timestamp = formatCompactTimestamp(now);
+      const record = {
+        customName: draft.ruleName,
+        ruleName: draft.ruleName,
+        ownerBase: draft.ownerBase,
+        department: draft.department,
+        createdBy: draft.createdBy,
+        overview: draft.overview,
+        createdAt: ruleDetailState.mode === 'edit' && ruleDetailState.index >= 0 ? ruleRecords[ruleDetailState.index].createdAt : formatDisplayDate(now),
+        poolName: rulePoolOptions[0],
+        status: '正在应用',
+        baseName: draft.ownerBase,
+        factoryName: '未指定分厂',
+        version: versionOptions[0],
+        timestamp,
+        config: cloneRuleConfig(ruleDetailState.config)
+      };
+
+      if (ruleDetailState.mode === 'edit' && ruleDetailState.index >= 0) {
+        ruleRecords.splice(ruleDetailState.index, 1, { ...ruleRecords[ruleDetailState.index], ...record });
+        toast('排程规则已更新');
+      } else {
+        ruleRecords.unshift(record);
+        toast('排程规则已新增');
+      }
+
+      renderRuleTable();
+      showListStage();
+    }
+
+    function openMainRuleModal() {
+      if (ruleDetailState.mode === 'view' || !mainRuleModalMask) return;
+      mainRuleModalMask.classList.add('show');
+      if (mainRuleTypeSelect) mainRuleTypeSelect.value = ruleDetailState.activeTab;
+      if (mainRuleDeptSelect) mainRuleDeptSelect.value = detailDeptSelect?.value || departmentOptions[0];
+      if (mainRuleIdInput) mainRuleIdInput.value = '';
+      if (mainRuleNameInput) mainRuleNameInput.value = '';
+      if (mainRuleDescInput) mainRuleDescInput.value = '';
+      if (mainRuleParamInput) mainRuleParamInput.value = '';
+      if (mainRulePrioritySelect) mainRulePrioritySelect.value = '中';
+      mainRuleIdInput?.focus();
+    }
+
+    function closeMainRuleModal() {
+      mainRuleModalMask?.classList.remove('show');
+    }
+
+    function saveMainRule() {
+      const targetType = mainRuleTypeSelect?.value || 'hard';
+      const ruleId = (mainRuleIdInput?.value || '').trim();
+      const ruleName = (mainRuleNameInput?.value || '').trim();
+      const sourceDept = mainRuleDeptSelect?.value || departmentOptions[0];
+      const businessDesc = (mainRuleDescInput?.value || '').trim();
+      const defaultParam = (mainRuleParamInput?.value || '').trim();
+      const priority = mainRulePrioritySelect?.value || '中';
+
+      if (!ruleId) {
+        toast('请填写规则ID');
+        mainRuleIdInput?.focus();
+        return;
+      }
+      if (!ruleName) {
+        toast('请填写规则名称');
+        mainRuleNameInput?.focus();
+        return;
+      }
+
+      const card = {
+        id: ruleId,
+        name: ruleName,
+        subtitle: businessDesc || `来源部门：${sourceDept}；优先级：${priority}`,
+        tag: `${mainRuleTypeOptions.find((item) => item.value === targetType)?.label || '规则'} · ${priority}`,
+        code: defaultParam,
+        enabled: true
+      };
+
+      if (targetType === 'sync') {
+        ruleDetailState.config.syncRules.unshift(card);
+      } else if (targetType === 'hard') {
+        ruleDetailState.config.hardRules.unshift(card);
+      } else if (targetType === 'soft') {
+        ruleDetailState.config.softRules.unshift(card);
+      } else {
+        ruleDetailState.config.tempRules.unshift(card);
+      }
+
+      ruleDetailState.activeTab = targetType;
+      tabbar?.querySelectorAll('[data-pool-tab]').forEach((button) => {
+        button.classList.toggle('active', button.getAttribute('data-pool-tab') === targetType);
+      });
+      renderPoolPanel();
+      closeMainRuleModal();
+      toast('主规则已加入当前规则池');
+    }
+
+    document.getElementById('aps-rule-create-btn')?.addEventListener('click', () => showDetailStage('create'));
+    backBtn?.addEventListener('click', showListStage);
+    saveRuleBtn?.addEventListener('click', saveCurrentRule);
+    newMainRuleBtn?.addEventListener('click', openMainRuleModal);
+    [detailNameInput, detailPreview].forEach((el) => {
+      el?.addEventListener('input', updateDetailPreview);
+      el?.addEventListener('change', updateDetailPreview);
     });
 
-    const baseline = loadBaselineWeights();
-    if (baseline) {
-      applyBaselineWeightsToInputs(baseline);
-    }
-    bindWeight('aps-weight-delivery', 'aps-weight-delivery-v');
-    bindWeight('aps-weight-cost', 'aps-weight-cost-v');
-    bindWeight('aps-weight-stock', 'aps-weight-stock-v');
-    applyScene('常规平稳');
+    tabbar?.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      const tab = target.closest('[data-pool-tab]');
+      if (!(tab instanceof HTMLElement)) return;
+      const nextTab = tab.getAttribute('data-pool-tab');
+      if (!nextTab) return;
+      ruleDetailState.activeTab = nextTab;
+      tabbar.querySelectorAll('[data-pool-tab]').forEach((button) => {
+        button.classList.toggle('active', button === tab);
+      });
+      renderPoolPanel();
+    });
+
+    poolPanel?.addEventListener('input', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      if (target.id === 'aps-logistics-buffer-hours') {
+        ruleDetailState.config.logisticsBufferHours = Number(target.value) || 0;
+        return;
+      }
+      const codeKind = target.getAttribute('data-card-code');
+      const codeIndex = Number(target.getAttribute('data-card-index'));
+      if (codeKind === 'temp' && Number.isInteger(codeIndex) && ruleDetailState.config.tempRules[codeIndex] && target instanceof HTMLInputElement) {
+        ruleDetailState.config.tempRules[codeIndex].code = target.value;
+      }
+    });
+
+    poolPanel?.addEventListener('change', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      const toggleKind = target.getAttribute('data-card-toggle');
+      const toggleIndex = Number(target.getAttribute('data-card-index'));
+      if (!toggleKind || !Number.isInteger(toggleIndex) || !(target instanceof HTMLInputElement)) return;
+      const mapping = {
+        sync: ruleDetailState.config.syncRules,
+        hard: ruleDetailState.config.hardRules,
+        soft: ruleDetailState.config.softRules,
+        temp: ruleDetailState.config.tempRules
+      };
+      const bucket = mapping[toggleKind];
+      if (!bucket || !bucket[toggleIndex]) return;
+      bucket[toggleIndex].enabled = target.checked;
+      renderPoolPanel();
+    });
+
+    poolPanel?.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      const deleteKind = target.getAttribute('data-card-delete');
+      const deleteIndex = Number(target.getAttribute('data-card-index'));
+      if (!deleteKind || !Number.isInteger(deleteIndex)) return;
+      const mapping = {
+        sync: ruleDetailState.config.syncRules,
+        hard: ruleDetailState.config.hardRules,
+        soft: ruleDetailState.config.softRules,
+        temp: ruleDetailState.config.tempRules
+      };
+      const bucket = mapping[deleteKind];
+      if (!bucket || !bucket[deleteIndex]) return;
+      bucket.splice(deleteIndex, 1);
+      renderPoolPanel();
+      toast('规则卡片已删除');
+    });
+
+    mainRuleSaveBtn?.addEventListener('click', saveMainRule);
+    mainRuleCancelBtn?.addEventListener('click', closeMainRuleModal);
+    mainRuleCloseBtn?.addEventListener('click', closeMainRuleModal);
+    mainRuleModalMask?.addEventListener('click', (event) => {
+      if (event.target === mainRuleModalMask) closeMainRuleModal();
+    });
+
+    tbody?.addEventListener('click', async (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      const action = target.dataset.ruleAction;
+      const index = Number(target.dataset.ruleIndex);
+      if (!action || Number.isNaN(index) || !ruleRecords[index]) return;
+
+      if (action === 'view') {
+        showDetailStage('view', index);
+        return;
+      }
+
+      if (action === 'edit') {
+        showDetailStage('edit', index);
+        return;
+      }
+
+      if (action === 'delete') {
+        await showConfirmDialog({
+          title: '无权限删除规则',
+          message: '仅超级管理员有权限删除规则。',
+          confirmText: '知道了',
+          cancelText: '关闭'
+        });
+      }
+    });
+
+    updateDetailPreview();
+    renderRuleTable();
   }
 
   function runPageEnhancement() {

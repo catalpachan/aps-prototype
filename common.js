@@ -1,3 +1,8 @@
+(function() {
+  const theme = localStorage.getItem('theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', theme);
+})();
+
 function formatDateTime(d) {
   const pad = (n) => String(n).padStart(2, '0');
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
@@ -892,15 +897,56 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
+function updateThemeButton(btn, theme) {
+  const isDark = theme === 'dark';
+  btn.innerHTML = `
+    <span class="theme-toggle-icon">${isDark ? '🌙' : '☀️'}</span>
+    <span class="theme-toggle-text">${isDark ? '深色' : '浅色'}</span>
+  `;
+}
+
+function initTheme() {
+  const currentTheme = localStorage.getItem('theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', currentTheme);
+  
+  const headerMeta = document.getElementById('header-meta');
+  if (headerMeta && !document.getElementById('theme-toggle')) {
+    const toggleBtn = document.createElement('button');
+    toggleBtn.id = 'theme-toggle';
+    toggleBtn.type = 'button';
+    toggleBtn.className = 'theme-toggle-btn';
+    toggleBtn.setAttribute('aria-label', '切换深色/浅色模式');
+    
+    updateThemeButton(toggleBtn, currentTheme);
+    
+    toggleBtn.addEventListener('click', () => {
+      const newTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      updateThemeButton(toggleBtn, newTheme);
+      toast(`已切换至${newTheme === 'dark' ? '深色' : '浅色'}模式`);
+    });
+    
+    const clock = document.getElementById('header-date');
+    if (clock) {
+      headerMeta.insertBefore(toggleBtn, clock);
+    } else {
+      headerMeta.appendChild(toggleBtn);
+    }
+  }
+}
+
 function init(options = {}) {
   const force = options.force === true;
   if (commonInitialized && !force) {
+    initTheme();
     updateHeaderDateText();
     enhanceClickAccessibility(document);
     ensureClickAccessibilityObserver();
     return;
   }
   commonInitialized = true;
+  initTheme();
   state.ganttTasks = buildInitialGanttTasks();
   state.decisionTasks = buildInitialDecisionTasks();
   state.orders = buildOrders();

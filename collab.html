@@ -150,6 +150,8 @@
     .week-page-btn { border: 1px solid #334155; background: #0f172a; color: #cbd5e1; border-radius: 6px; font-size: 11px; padding: 4px 10px; cursor: pointer; }
     .week-page-btn:disabled { opacity: 0.45; cursor: not-allowed; }
     .week-page-info { font-size: 11px; color: #94a3b8; min-width: 56px; text-align: center; }
+    [data-theme="light"] .week-day-pagination { background: #eef2ff; border-top-color: var(--line); }
+    [data-theme="light"] #gantt-plant-filter { background: #fff; color: var(--txt); border-color: var(--line); }
     .week-day-table-empty { padding: 16px; text-align: center; color: #64748b; font-size: 11px; }
     .month-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
     .month-nav { display: flex; align-items: center; gap: 8px; }
@@ -1893,7 +1895,7 @@
       // Render header
       let headerHtml = '<tr><th class="gantt-line-col">产线</th>';
       for (let h = 0; h < GANTT_TOTAL_COLS; h++) {
-        headerHtml += `<th style="width:${GANTT_CELL_W}px;">${String(h).padStart(2, '0')}</th>`;
+        headerHtml += `<th style="width:${GANTT_CELL_W}px;">${String(h).padStart(2, '0')}:00</th>`;
       }
       headerHtml += '</tr>';
       thead.innerHTML = headerHtml;
