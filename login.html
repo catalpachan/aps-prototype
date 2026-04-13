@@ -8,16 +8,13 @@
 </head>
 <body class="login-page">
     <div class="login-video-shell" aria-hidden="true">
-        <video
-            id="loginBgVideo"
-            class="login-bg-video"
-            src="assets/videos/login-bg.mp4"
-            muted
-            loop
-            playsinline
-            autoplay
-            webkit-playsinline="true"
-        ></video>
+        <div class="login-unicorn-stage">
+            <div
+                class="login-unicorn-background"
+                style="width: 1440px; height: 900px"
+                data-us-project="xn9xJgt48WLU44XPGiVG"
+            ></div>
+        </div>
         <div class="login-video-overlay"></div>
         <div class="login-video-gradient left"></div>
         <div class="login-video-gradient right"></div>
@@ -150,14 +147,24 @@
                 document.getElementById('username').value = savedUsername;
                 document.getElementById('rememberMe').checked = true;
             }
-            const video = document.getElementById('loginBgVideo');
-            if (video) {
-                const playPromise = video.play();
-                if (playPromise && typeof playPromise.catch === 'function') {
-                    playPromise.catch(() => {});
-                }
-            }
         });
     </script>
+    <script>
+        (function() {
+            var designWidth = 1440;
+            var designHeight = 900;
+
+            function fitUnicornBackground() {
+                var stage = document.querySelector('.login-unicorn-stage');
+                if (!stage) return;
+                var scale = Math.max(window.innerWidth / designWidth, window.innerHeight / designHeight);
+                stage.style.setProperty('--login-unicorn-scale', String(scale));
+            }
+
+            fitUnicornBackground();
+            window.addEventListener('resize', fitUnicornBackground);
+        })();
+    </script>
+    <script type="text/javascript">!function(){var u=window.UnicornStudio;if(u&&u.init){if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",function(){u.init()})}else{u.init()}}else{window.UnicornStudio={isInitialized:!1};var i=document.createElement("script");i.src="https://cdn.jsdelivr.net/gh/hiunicornstudio/unicornstudio.js@v2.1.6/dist/unicornStudio.umd.js",i.onload=function(){if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",function(){UnicornStudio.init()})}else{UnicornStudio.init()}},(document.head||document.body).appendChild(i)}}();</script>
 </body>
 </html>
