@@ -996,27 +996,17 @@ body.login-page {
     background: #020617;
 }
 
-.login-unicorn-stage {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    width: 1440px;
-    height: 900px;
-    transform: translate(-50%, -50%) scale(var(--login-unicorn-scale, 1));
-    transform-origin: center center;
-    will-change: transform;
-}
-
-.login-unicorn-background {
-    width: 1440px;
-    height: 900px;
-    opacity: 0.82;
+.login-bg-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.6;
 }
 
 .login-video-overlay {
     position: absolute;
     inset: 0;
-    background: rgb(6 8 25 / 30%);
+    background: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(2px);
 }
 
