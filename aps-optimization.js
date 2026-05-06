@@ -1684,7 +1684,105 @@
       }
 
       [data-theme="light"] .aps-main-nav .nav-item.active {
-        color: #fff !important;
+        background: linear-gradient(135deg, #dbeafe, #bfdbfe) !important;
+        border-color: #93c5fd !important;
+        color: #1d4ed8 !important;
+        box-shadow: 0 10px 22px rgba(37, 99, 235, 0.14) !important;
+      }
+
+      [data-theme="light"] .aps-stage-status.normal {
+        background: #dcfce7 !important;
+        border-color: #86efac !important;
+        color: #166534 !important;
+      }
+
+      [data-theme="light"] .aps-stage-status.delay {
+        background: #ffedd5 !important;
+        border-color: #fdba74 !important;
+        color: #c2410c !important;
+      }
+
+      [data-theme="light"] .aps-stage-status.risk {
+        background: #fee2e2 !important;
+        border-color: #fca5a5 !important;
+        color: #b91c1c !important;
+      }
+
+      [data-theme="light"] .aps-sim-row-badge {
+        background: #eef2ff !important;
+        border-color: #c7d2fe !important;
+        color: #475569 !important;
+      }
+
+      [data-theme="light"] .aps-sim-row-badge.is-active {
+        background: #dbeafe !important;
+        border-color: #93c5fd !important;
+        color: #1d4ed8 !important;
+      }
+
+      [data-theme="light"] .aps-sim-selectbox {
+        background: #ffffff !important;
+        border-color: #cbd5e1 !important;
+        color: #0f172a !important;
+        box-shadow: 0 10px 20px rgba(15, 23, 42, 0.05) !important;
+      }
+
+      [data-theme="light"] .aps-sim-select-caret {
+        background: #e2e8f0 !important;
+        color: #475569 !important;
+      }
+
+      [data-theme="light"] .aps-sim-chip {
+        background: #dbeafe !important;
+        color: #1d4ed8 !important;
+      }
+
+      [data-theme="light"] .aps-sim-chip.is-muted {
+        background: #f1f5f9 !important;
+        color: #64748b !important;
+      }
+
+      [data-theme="light"] .aps-schedule-tab {
+        background: #ffffff !important;
+        border-color: #cbd5e1 !important;
+        color: #334155 !important;
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06) !important;
+      }
+
+      [data-theme="light"] .aps-schedule-tab.active {
+        background: linear-gradient(135deg, #dbeafe, #eff6ff) !important;
+        border-color: #60a5fa !important;
+        box-shadow: 0 10px 20px rgba(37, 99, 235, 0.16) !important;
+      }
+
+      [data-theme="light"] .aps-schedule-tab-name,
+      [data-theme="light"] .aps-schedule-metric b {
+        color: #0f172a !important;
+      }
+
+      [data-theme="light"] .aps-schedule-tab.active .aps-schedule-tab-name {
+        color: #1d4ed8 !important;
+      }
+
+      [data-theme="light"] .aps-schedule-tab-meta,
+      [data-theme="light"] .aps-schedule-option .muted {
+        color: #64748b !important;
+      }
+
+      [data-theme="light"] .aps-schedule-option {
+        background: #ffffff !important;
+        border-color: #cbd5e1 !important;
+        color: #334155 !important;
+      }
+
+      [data-theme="light"] .aps-schedule-metric {
+        background: #f8fafc !important;
+        border-color: #dbe7f7 !important;
+        color: #475569 !important;
+      }
+
+      [data-theme="light"] .aps-schedule-hint {
+        color: #475569 !important;
       }
 
       [data-theme="light"] .aps-sim-select-shell.is-open .aps-sim-selectbox,

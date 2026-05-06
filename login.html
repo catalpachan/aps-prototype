@@ -4,23 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>格力高级计划排程系统</title>
+    <script>
+        document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'dark');
+    </script>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body class="login-page">
-    <div class="login-video-shell" aria-hidden="true">
-        <video
-            id="loginBgVideo"
-            class="login-bg-video"
-            src="assets/videos/login-bg.mp4"
-            muted
-            loop
-            playsinline
-            autoplay
-            webkit-playsinline="true"
-        ></video>
-        <div class="login-video-overlay"></div>
-        <div class="login-video-gradient left"></div>
-        <div class="login-video-gradient right"></div>
+    <div class="login-bg-shell" aria-hidden="true">
+        <div class="login-bg-image"></div>
+        <div class="login-bg-gradient left"></div>
+        <div class="login-bg-gradient right"></div>
     </div>
     <div class="login-container">
         <div class="login-card">
@@ -149,13 +142,6 @@
             if (savedUsername) {
                 document.getElementById('username').value = savedUsername;
                 document.getElementById('rememberMe').checked = true;
-            }
-            const video = document.getElementById('loginBgVideo');
-            if (video) {
-                const playPromise = video.play();
-                if (playPromise && typeof playPromise.catch === 'function') {
-                    playPromise.catch(() => {});
-                }
             }
         });
     </script>

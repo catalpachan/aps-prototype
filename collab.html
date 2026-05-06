@@ -161,45 +161,44 @@
     .month-calendar { border: 1px solid #334155; border-radius: 10px; overflow: hidden; background: #0f172a; }
     .month-weekdays, .month-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
     .month-weekdays div { padding: 8px 6px; text-align: center; font-size: 11px; color: #94a3b8; border-bottom: 1px solid #334155; background: #172033; font-weight: 700; }
-    .month-day { min-height: 150px; border-right: 1px solid #223147; border-bottom: 1px solid #223147; padding: 8px; position: relative; display: flex; flex-direction: column; gap: 6px; }
+    .month-day { min-height: 178px; border-right: 1px solid #223147; border-bottom: 1px solid #223147; padding: 8px; position: relative; display: flex; flex-direction: column; gap: 8px; }
     .month-day:nth-child(7n) { border-right: 0; }
     .month-day.selectable { cursor: pointer; transition: transform var(--dur-fast), box-shadow var(--dur-fast), border-color var(--dur-fast); }
     .month-day.selectable:hover { transform: translateY(-1px); box-shadow: 0 8px 16px rgba(2, 6, 23, 0.28); border-color: #3b82f6; }
     .month-day.selectable:focus-visible { outline: none; border-color: #60a5fa; box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.24); }
     .month-day.other { background: #0b1220; color: #475569; }
-    .month-day.load-low { background: linear-gradient(180deg, rgba(22, 101, 52, 0.22), rgba(15, 23, 42, 0.92)); }
-    .month-day.load-mid { background: linear-gradient(180deg, rgba(202, 138, 4, 0.22), rgba(15, 23, 42, 0.92)); }
-    .month-day.load-high { background: linear-gradient(180deg, rgba(194, 65, 12, 0.22), rgba(15, 23, 42, 0.92)); }
-    .month-day.load-full { background: linear-gradient(180deg, rgba(185, 28, 28, 0.28), rgba(15, 23, 42, 0.92)); }
-    .month-day.load-over { background: linear-gradient(180deg, rgba(185, 28, 28, 0.34), rgba(15, 23, 42, 0.92)); }
-    .month-day.ended { background: linear-gradient(180deg, rgba(100, 116, 139, 0.32), rgba(15, 23, 42, 0.95)); border-color: #475569; }
+    .month-day.finished { background: linear-gradient(180deg, rgba(100, 116, 139, 0.32), rgba(15, 23, 42, 0.96)); border-color: #475569; }
+    .month-day.upcoming { background: linear-gradient(180deg, rgba(37, 99, 235, 0.24), rgba(15, 23, 42, 0.95)); border-color: #1d4ed8; }
+    .month-day.idle { background: linear-gradient(180deg, rgba(30, 41, 59, 0.34), rgba(15, 23, 42, 0.96)); border-color: #334155; }
     .month-day-head { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
     .month-day-num { font-size: 12px; font-weight: 700; color: #e2e8f0; }
-    .month-load { font-size: 11px; font-weight: 700; color: #e2e8f0; }
-    .month-load-bar { height: 6px; border-radius: 999px; background: #23324b; overflow: hidden; position: relative; }
-    .month-load-fill { position: absolute; left: 0; top: 0; height: 100%; border-radius: inherit; background: #60a5fa; }
-    .month-load-overfill { position: absolute; right: 0; top: 0; height: 100%; background: #3f1f12; }
-    .month-day.load-low .month-load-fill { background: #22c55e; }
-    .month-day.load-mid .month-load-fill { background: #facc15; }
-    .month-day.load-high .month-load-fill { background: #fb923c; }
-    .month-day.load-full .month-load-fill { background: #ef4444; width: 100% !important; }
-    .month-day.load-over .month-load-fill { background: #ef4444; width: 100% !important; }
-    .month-task-list { display: flex; flex-direction: column; gap: 3px; min-height: 0; }
-    .month-task-chip { font-size: 10px; color: #dbeafe; background: rgba(15, 23, 42, 0.72); border: 1px solid #334155; border-radius: 6px; padding: 2px 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.25; }
-    .month-task-chip.load-low { color: #bbf7d0; border-color: rgba(34, 197, 94, 0.4); background: rgba(20, 83, 45, 0.36); }
-    .month-task-chip.load-mid { color: #fef08a; border-color: rgba(250, 204, 21, 0.4); background: rgba(113, 63, 18, 0.34); }
-    .month-task-chip.load-high { color: #fdba74; border-color: rgba(251, 146, 60, 0.42); background: rgba(124, 45, 18, 0.34); }
-    .month-task-chip.load-over,
-    .month-task-chip.load-full { color: #fecaca; border-color: rgba(239, 68, 68, 0.48); background: rgba(127, 29, 29, 0.38); }
-    .month-day.ended .month-load { color: #cbd5e1; }
-    .month-day.ended .month-load-fill { background: #94a3b8; }
-    .month-day.ended .month-load-overfill { display: none; }
-    .month-day.ended .month-task-chip,
-    .month-day.ended .month-task-chip.load-low,
-    .month-day.ended .month-task-chip.load-mid,
-    .month-day.ended .month-task-chip.load-high,
-    .month-day.ended .month-task-chip.load-full,
-    .month-day.ended .month-task-chip.load-over { color: #cbd5e1; background: rgba(30, 41, 59, 0.75); border-color: #475569; }
+    .month-day-status { display: inline-flex; align-items: center; justify-content: center; min-height: 22px; border-radius: 999px; padding: 0 8px; font-size: 10px; font-weight: 700; letter-spacing: 0.02em; }
+    .month-day-status.finished { background: rgba(148, 163, 184, 0.18); color: #e2e8f0; border: 1px solid rgba(148, 163, 184, 0.35); }
+    .month-day-status.upcoming { background: rgba(96, 165, 250, 0.16); color: #dbeafe; border: 1px solid rgba(96, 165, 250, 0.4); }
+    .month-day-status.idle { background: rgba(51, 65, 85, 0.26); color: #cbd5e1; border: 1px solid rgba(100, 116, 139, 0.32); }
+    .month-day-summary { font-size: 10px; color: #cbd5e1; line-height: 1.35; }
+    .month-task-list { display: flex; flex-direction: column; gap: 4px; min-height: 0; }
+    .month-factory-row,
+    .month-plan-row { display: grid; align-items: center; gap: 4px; border: 1px solid #334155; border-radius: 8px; padding: 4px 6px; background: rgba(15, 23, 42, 0.62); }
+    .month-factory-row { grid-template-columns: 56px 1fr 1fr 1fr 42px; }
+    .month-plan-row { grid-template-columns: 56px 56px 1fr; }
+    .month-row-plant { font-size: 10px; font-weight: 700; color: #e2e8f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .month-row-metric { font-size: 10px; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .month-row-score { font-size: 10px; font-weight: 700; color: #f8fafc; text-align: right; }
+    .month-row-flag { display: inline-flex; align-items: center; justify-content: center; height: 20px; border-radius: 999px; font-size: 10px; font-weight: 700; }
+    .month-row-flag.planned { background: rgba(59, 130, 246, 0.18); color: #dbeafe; border: 1px solid rgba(96, 165, 250, 0.35); }
+    .month-empty-state { flex: 1; display: flex; align-items: center; justify-content: center; border: 1px dashed #334155; border-radius: 10px; padding: 10px; font-size: 11px; color: #94a3b8; line-height: 1.45; text-align: center; background: rgba(15, 23, 42, 0.44); }
+    .month-day.finished .month-factory-row { border-color: #475569; background: rgba(30, 41, 59, 0.72); }
+    .month-day.finished .month-row-metric,
+    .month-day.finished .month-day-summary { color: #cbd5e1; }
+    .month-day.idle .month-empty-state { border-color: #475569; color: #cbd5e1; }
+    .month-finished-modal-table { border: 1px solid #334155; border-radius: 10px; overflow: hidden; background: #0f172a; }
+    .month-finished-modal-row { display: grid; grid-template-columns: 1.2fr repeat(4, 1fr); align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 1px solid #243246; font-size: 12px; color: #cbd5e1; }
+    .month-finished-modal-row:last-child { border-bottom: 0; }
+    .month-finished-modal-row.head { background: #172033; color: #94a3b8; font-size: 11px; font-weight: 700; }
+    .month-finished-modal-row .plant { color: #e2e8f0; font-weight: 700; }
+    .month-finished-modal-row .score { color: #f8fafc; font-weight: 800; }
+    .month-finished-modal-summary { border: 1px solid #334155; border-radius: 10px; padding: 10px 12px; background: rgba(15, 23, 42, 0.72); color: #cbd5e1; font-size: 12px; line-height: 1.55; }
     .task-editor-detail-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
     .task-editor-detail { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
     .task-editor-detail-label { font-size: 11px; color: #7dd3fc; letter-spacing: 0.02em; }
@@ -212,8 +211,8 @@
     .lock-strip { display: flex; align-items: center; justify-content: space-between; gap: 8px; border: 1px solid #334155; border-radius: 8px; padding: 8px; background: #111a2a; margin-bottom: 8px; font-size: 12px; }
     .preplan-btn { border: 1px solid #3b82f6; border-radius: 8px; padding: 6px 10px; color: #dbeafe; font-weight: 700; background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 55%, #38bdf8 100%); cursor: pointer; font-size: 12px; }
     .execute-btn { border: 1px solid #22c55e; border-radius: 8px; padding: 6px 10px; color: #dcfce7; font-weight: 700; background: linear-gradient(135deg, #166534 0%, #16a34a 55%, #4ade80 100%); cursor: pointer; font-size: 12px; }
-    @media (max-width: 960px) { .collab-layout { grid-template-columns: 1fr; } .collab-right { position: static; height: auto; } .week-calendar { grid-template-columns: repeat(2, minmax(0, 1fr)); } .month-day { min-height: 136px; } .task-editor-detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-    @media (max-width: 720px) { .task-editor-detail-grid, .task-editor-time-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 960px) { .collab-layout { grid-template-columns: 1fr; } .collab-right { position: static; height: auto; } .week-calendar { grid-template-columns: repeat(2, minmax(0, 1fr)); } .month-day { min-height: 160px; } .month-factory-row { grid-template-columns: 52px 1fr; } .month-plan-row { grid-template-columns: 52px 52px 1fr; } .month-row-score { text-align: left; } .task-editor-detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 720px) { .task-editor-detail-grid, .task-editor-time-grid { grid-template-columns: 1fr; } .month-finished-modal-row { grid-template-columns: 1fr 1fr; } .month-finished-modal-row.head { display: none; } }
   </style>
 </head>
 <body>
@@ -351,11 +350,9 @@
                   <button class="btn sm" type="button" id="month-next-btn">下月</button>
                 </div>
                 <div class="month-legend">
-                  <span class="month-legend-item">低于50% 绿色</span>
-                  <span class="month-legend-item">进度中 黄色</span>
-                  <span class="month-legend-item">高于80% 橙色</span>
-                  <span class="month-legend-item">排满100% 红色</span>
-                  <span class="month-legend-item">超出100% 深褐色</span>
+                  <span class="month-legend-item">灰色 已结束排程</span>
+                  <span class="month-legend-item">蓝色 未执行排程</span>
+                  <span class="month-legend-item">深色 未进行排程</span>
                 </div>
               </div>
               <div class="month-calendar">
@@ -414,6 +411,22 @@
       </div>
       <div class="modal-ft">
         <button type="button" class="btn primary" id="wip-order-view-ok">确认</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-mask" id="month-finished-view-mask" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="month-finished-view-title">
+      <div class="modal-hd">
+        <span id="month-finished-view-title">已结束排程详情</span>
+        <button type="button" class="btn sm" id="month-finished-view-close">关闭</button>
+      </div>
+      <div class="modal-bd single-col">
+        <div class="month-finished-modal-summary" id="month-finished-view-summary">当天排程完成情况将在这里展示。</div>
+        <div class="month-finished-modal-table" id="month-finished-view-table"></div>
+      </div>
+      <div class="modal-ft">
+        <button type="button" class="btn primary" id="month-finished-view-ok">确认</button>
       </div>
     </div>
   </div>
@@ -804,6 +817,12 @@
       toast(`已切换至${date.getMonth() + 1}/${date.getDate()}日视角`);
     }
 
+    function openScheduleReviewPage(dateStr) {
+      const date = parseLocalDate(dateStr);
+      if (!date) return;
+      window.location.href = `schedule-review.html?date=${encodeURIComponent(formatDateYMD(date))}`;
+    }
+
     function sortWeekRows(rows) {
       rows.sort((a, b) => {
         if (a.seq !== b.seq) return a.seq - b.seq;
@@ -839,6 +858,77 @@
       const idx = Math.max(0, wipPlants.findIndex((p) => p.key === plantKey));
       const seed = ((date.getMonth() + 1) * 1000) + (date.getDate() * 17) + (idx * 13);
       return 90 + (seed % 11);
+    }
+
+    function getMonthFinishedMetrics(plantKey, date) {
+      const idx = Math.max(0, wipPlants.findIndex((p) => p.key === plantKey));
+      const seed = ((date.getMonth() + 1) * 1000) + (date.getDate() * 31) + (idx * 17);
+      return {
+        completion: 91 + (seed % 9),
+        output: 820 + ((seed * 7) % 380),
+        match: 88 + ((seed * 11) % 11),
+        score: 90 + ((seed * 5) % 11)
+      };
+    }
+
+    function getMonthUpcomingMetrics(plantKey, date) {
+      const idx = Math.max(0, wipPlants.findIndex((p) => p.key === plantKey));
+      const seed = ((date.getMonth() + 1) * 1200) + (date.getDate() * 29) + (idx * 23);
+      return {
+        planned: true,
+        output: 760 + ((seed * 5) % 420)
+      };
+    }
+
+    function getMonthDateState(date, today, upcomingEndDate) {
+      const current = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+      if (current < today.getTime()) return 'finished';
+      if (current <= upcomingEndDate.getTime()) return 'upcoming';
+      return 'idle';
+    }
+
+    function closeMonthFinishedViewer() {
+      const mask = document.getElementById('month-finished-view-mask');
+      if (!mask) return;
+      mask.classList.remove('show');
+      mask.setAttribute('aria-hidden', 'true');
+    }
+
+    function openMonthFinishedViewer(dateStr) {
+      const mask = document.getElementById('month-finished-view-mask');
+      const title = document.getElementById('month-finished-view-title');
+      const summary = document.getElementById('month-finished-view-summary');
+      const table = document.getElementById('month-finished-view-table');
+      const date = new Date(`${dateStr}T00:00:00`);
+      if (!mask || !summary || !table || Number.isNaN(date.getTime())) return;
+
+      const rows = wipPlants.map(({ key }) => {
+        const metrics = getMonthFinishedMetrics(key, date);
+        return `
+          <div class="month-finished-modal-row">
+            <span class="plant">${getPlantNameByKey(key)}</span>
+            <span>${metrics.completion}%</span>
+            <span>${metrics.output}台</span>
+            <span>${metrics.match}%</span>
+            <span class="score">${metrics.score}分</span>
+          </div>
+        `;
+      }).join('');
+
+      if (title) title.textContent = `已结束排程详情 · ${formatDateWithWeek(date)}`;
+      summary.textContent = '当天5个分厂的计划完成率、产量、与排程方案吻合度及评分如下。';
+      table.innerHTML = `
+        <div class="month-finished-modal-row head">
+          <span>分厂</span>
+          <span>计划完成率</span>
+          <span>当天产量</span>
+          <span>吻合度</span>
+          <span>评分</span>
+        </div>
+        ${rows}
+      `;
+      mask.classList.add('show');
+      mask.setAttribute('aria-hidden', 'false');
     }
 
     function getLoadClass(ratio) {
@@ -1383,13 +1473,15 @@
       if (!grid || !title) return;
 
       const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const upcomingEndDate = new Date(today);
+      upcomingEndDate.setDate(today.getDate() + 6);
       const firstDay = new Date(today.getFullYear(), today.getMonth() + monthViewOffset, 1);
       const year = firstDay.getFullYear();
       const month = firstDay.getMonth();
       const firstWeekday = firstDay.getDay();
       const daysInMonth = new Date(year, month + 1, 0).getDate();
       const prevMonthDays = new Date(year, month, 0).getDate();
-      const selectedKeys = getSelectedPlantKeys();
 
       title.textContent = `${year}年${month + 1}月`;
 
@@ -1405,39 +1497,69 @@
           continue;
         }
         const date = new Date(year, month, dayNum);
-        const ratio = getScopeLoadPercent(selectedKeys, date);
-        const isFinishedTaskDate = month === 2 && dayNum >= 1 && dayNum <= 11;
-        const klass = `${getLoadClass(ratio)}${isFinishedTaskDate ? ' ended' : ''}`;
-        const fill = Math.min(100, ratio);
-        const overflow = ratio > 100 ? Math.min(40, ratio - 100) : 0;
-
-        const chips = wipPlants.map(({ key }) => {
-          const load = isFinishedTaskDate ? getFinishedMonthLoadPercent(key, date) : getDailyLoadPercent(key, date);
-          return `<div class="month-task-chip ${getLoadClass(load)}">${getPlantNameByKey(key)} · ${load}%</div>`;
-        }).join('');
-
         const dateStr = formatDateYMD(date);
+        const state = getMonthDateState(date, today, upcomingEndDate);
+        const isFinished = state === 'finished';
+        const isUpcoming = state === 'upcoming';
+        const canOpen = isFinished || isUpcoming;
+        const cardClass = `month-day ${state}${canOpen ? ' selectable' : ''}`;
+        const statusLabel = state === 'finished' ? '已结束排程' : state === 'upcoming' ? '未执行排程' : '未进行排程';
+        const summaryText = state === 'finished'
+          ? '显示5个分厂当日计划完成率、产量、吻合度及评分'
+          : state === 'upcoming'
+            ? '未来7天已排程，显示分厂排程状态与预计产量'
+            : '7天后的日期暂未进行排程';
+        const rows = state === 'finished'
+          ? wipPlants.map(({ key }) => {
+            const metrics = getMonthFinishedMetrics(key, date);
+            return `
+              <div class="month-factory-row">
+                <span class="month-row-plant">${getPlantNameByKey(key)}</span>
+                <span class="month-row-metric">完成率 ${metrics.completion}%</span>
+                <span class="month-row-metric">产量 ${metrics.output}台</span>
+                <span class="month-row-metric">吻合度 ${metrics.match}%</span>
+                <span class="month-row-score">${metrics.score}分</span>
+              </div>
+            `;
+          }).join('')
+          : state === 'upcoming'
+            ? wipPlants.map(({ key }) => {
+              const metrics = getMonthUpcomingMetrics(key, date);
+              return `
+                <div class="month-plan-row">
+                  <span class="month-row-plant">${getPlantNameByKey(key)}</span>
+                  <span class="month-row-flag planned">${metrics.planned ? '已排程' : '未排程'}</span>
+                  <span class="month-row-metric">预计产量 ${metrics.output}台</span>
+                </div>
+              `;
+            }).join('')
+            : '<div class="month-empty-state">当前日期未进行排程<br />请聚焦未来 7 天排产计划</div>';
         html += `
-          <div class="month-day ${klass} selectable" data-date="${dateStr}" role="button" tabindex="0" aria-label="${date.getMonth() + 1}月${dayNum}日，查看日视角排程">
+          <div class="${cardClass}" ${canOpen ? `data-date="${dateStr}" data-month-state="${state}" role="button" tabindex="0" aria-label="${date.getMonth() + 1}月${dayNum}日，${isFinished ? '查看已结束排程复盘页面' : '查看日视角排程'}"` : ''}>
             <div class="month-day-head">
               <span class="month-day-num">${dayNum}</span>
-              <span class="month-load">${isFinishedTaskDate ? '已结束' : `${ratio}%`}</span>
+              <span class="month-day-status ${state}">${statusLabel}</span>
             </div>
-            <div class="month-load-bar">
-              <span class="month-load-fill" style="width:${isFinishedTaskDate ? 100 : fill}%"></span>
-              ${overflow > 0 && !isFinishedTaskDate ? `<span class="month-load-overfill" style="width:${overflow}%"></span>` : ''}
-            </div>
-            <div class="month-task-list">${chips}</div>
+            <div class="month-day-summary">${summaryText}</div>
+            <div class="month-task-list">${rows}</div>
           </div>
         `;
       }
       grid.innerHTML = html;
       grid.querySelectorAll('.month-day.selectable').forEach((dayEl) => {
-        dayEl.addEventListener('click', () => openDayViewByDate(dayEl.dataset.date || ''));
+        const openSelectedMonthDay = () => {
+          const date = dayEl.dataset.date || '';
+          if (dayEl.dataset.monthState === 'finished') {
+            openScheduleReviewPage(date);
+            return;
+          }
+          openDayViewByDate(date);
+        };
+        dayEl.addEventListener('click', openSelectedMonthDay);
         dayEl.addEventListener('keydown', (event) => {
           if (event.key !== 'Enter' && event.key !== ' ') return;
           event.preventDefault();
-          openDayViewByDate(dayEl.dataset.date || '');
+          openSelectedMonthDay();
         });
       });
     }
@@ -1987,7 +2109,8 @@
       renderGanttWorkbench();
       renderWeekView();
       renderMonthView();
-      setWorkbenchView('week', { silentToast: true });
+      const initialView = new URLSearchParams(window.location.search).get('view');
+      setWorkbenchView(['day', 'week', 'month'].includes(initialView) ? initialView : 'week', { silentToast: true });
       buildTaskEditorOptions();
       document.querySelectorAll('#gantt-view-switch .view-btn').forEach((btn) => {
         btn.addEventListener('click', () => setWorkbenchView(btn.dataset.view));
@@ -2016,6 +2139,11 @@
       document.getElementById('wip-order-view-mask')?.addEventListener('click', (e) => {
         if (e.target.id === 'wip-order-view-mask') closeWipOrderViewer();
       });
+      document.getElementById('month-finished-view-close')?.addEventListener('click', closeMonthFinishedViewer);
+      document.getElementById('month-finished-view-ok')?.addEventListener('click', closeMonthFinishedViewer);
+      document.getElementById('month-finished-view-mask')?.addEventListener('click', (e) => {
+        if (e.target.id === 'month-finished-view-mask') closeMonthFinishedViewer();
+      });
       document.getElementById('execute-confirm-close')?.addEventListener('click', () => closeExecuteConfirm(true));
       document.getElementById('execute-confirm-cancel')?.addEventListener('click', () => closeExecuteConfirm(true));
       document.getElementById('execute-confirm-ok')?.addEventListener('click', confirmExecutePreplan);
@@ -2026,6 +2154,7 @@
         if (e.key !== 'Escape') return;
         if (document.getElementById('task-editor-mask')?.classList.contains('show')) closeTaskEditor();
         if (document.getElementById('wip-order-view-mask')?.classList.contains('show')) closeWipOrderViewer();
+        if (document.getElementById('month-finished-view-mask')?.classList.contains('show')) closeMonthFinishedViewer();
         if (document.getElementById('execute-confirm-mask')?.classList.contains('show')) closeExecuteConfirm(false);
       });
       document.getElementById('gantt-plant-filter')?.addEventListener('change', () => {

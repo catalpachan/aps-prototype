@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>已结束排程复盘 - 格力高级计划排程系统</title>
+  <link rel="stylesheet" href="common.css" />
+  <style>
+    .review-page { display: flex; flex-direction: column; gap: 14px; }
+    .review-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+    .review-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+    .review-date-control { height: 32px; border: 1px solid #334155; border-radius: 8px; background: #0f172a; color: #e2e8f0; padding: 0 10px; font-size: 12px; }
+    .review-hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.75fr);
+      gap: 14px;
+      align-items: stretch;
+    }
+    .review-hero-main {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(59, 130, 246, 0.34);
+      border-radius: 16px;
+      padding: 18px;
+      background:
+        radial-gradient(circle at 16% 18%, rgba(56, 189, 248, 0.22), transparent 28%),
+        radial-gradient(circle at 82% 14%, rgba(245, 158, 11, 0.15), transparent 30%),
+        linear-gradient(135deg, #0c1830 0%, #0f172a 58%, #111827 100%);
+      min-height: 196px;
+    }
+    .review-kicker { display: inline-flex; align-items: center; gap: 8px; color: #93c5fd; font-size: 12px; font-weight: 800; margin-bottom: 10px; }
+    .review-kicker::before { content: ""; width: 8px; height: 8px; border-radius: 999px; background: #38bdf8; box-shadow: 0 0 18px rgba(56, 189, 248, 0.8); }
+    .review-title { color: #f8fafc; font-size: 28px; line-height: 1.15; font-weight: 900; letter-spacing: -0.4px; margin-bottom: 8px; }
+    .review-subtitle { max-width: 760px; color: #94a3b8; font-size: 13px; line-height: 1.7; }
+    .review-hero-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+    .review-pill { display: inline-flex; align-items: center; gap: 6px; border: 1px solid rgba(148, 163, 184, 0.28); border-radius: 999px; background: rgba(15, 23, 42, 0.62); color: #cbd5e1; padding: 6px 10px; font-size: 12px; font-weight: 700; }
+    .review-score-panel {
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 16px;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(15, 27, 45, 0.94));
+      display: grid;
+      gap: 12px;
+      align-content: center;
+    }
+    .review-score-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .review-score-label { color: #94a3b8; font-size: 12px; font-weight: 800; }
+    .review-score-grade { border-radius: 999px; padding: 5px 10px; background: rgba(56, 189, 248, 0.14); color: #7dd3fc; font-size: 11px; font-weight: 900; }
+    .review-score-body { display: grid; grid-template-columns: 128px 1fr; align-items: center; gap: 14px; }
+    .review-score-ring {
+      width: 128px;
+      height: 128px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: conic-gradient(#38bdf8 var(--score-pct, 90%), rgba(30, 41, 59, 0.96) 0);
+      box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.18), 0 14px 30px rgba(2, 6, 23, 0.34);
+    }
+    .review-score-inner { width: 94px; height: 94px; border-radius: 50%; background: #0f172a; display: grid; place-items: center; text-align: center; }
+    .review-score-value { color: #f8fafc; font-size: 34px; font-weight: 900; line-height: 1; }
+    .review-score-unit { color: #64748b; font-size: 11px; margin-top: 3px; }
+    .review-score-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .review-score-item {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(51, 65, 85, 0.92);
+      border-radius: 12px;
+      background: linear-gradient(145deg, rgba(15, 23, 42, 0.88), rgba(17, 34, 59, 0.78));
+      padding: 10px 11px;
+      min-height: 78px;
+      display: grid;
+      align-content: space-between;
+      gap: 10px;
+    }
+    .review-score-item::after {
+      content: "";
+      position: absolute;
+      inset: auto 10px 10px auto;
+      width: 46px;
+      height: 46px;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.28), transparent 68%);
+      pointer-events: none;
+    }
+    .review-score-item span { color: #94a3b8; font-size: 11px; font-weight: 800; }
+    .review-score-item strong { color: #f8fafc; font-size: 24px; line-height: 1; font-weight: 900; letter-spacing: -0.3px; }
+    .review-overview-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+    .review-overview-card,
+    .review-section-card,
+    .review-side-card {
+      border: 1px solid #334155;
+      border-radius: 14px;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(15, 27, 45, 0.94));
+      min-width: 0;
+    }
+    .review-overview-card { padding: 14px; }
+    .review-overview-label { color: #94a3b8; font-size: 12px; margin-bottom: 8px; }
+    .review-overview-value { color: #f8fafc; font-size: 28px; line-height: 1.1; font-weight: 900; }
+    .review-overview-value .unit { color: #94a3b8; font-size: 12px; margin-left: 4px; font-weight: 700; }
+    .review-overview-sub { margin-top: 7px; color: #64748b; font-size: 11px; line-height: 1.45; }
+    .review-layout { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(340px, 0.75fr); gap: 14px; align-items: start; }
+    .review-section-card { overflow: hidden; }
+    .review-section-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 13px 14px; border-bottom: 1px solid #334155; }
+    .review-section-head b { color: #e2e8f0; font-size: 14px; }
+    .review-section-head span { color: #94a3b8; font-size: 12px; }
+    .review-section-body { padding: 14px; }
+    .review-plant-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+    .review-plant-card { border: 1px solid rgba(51, 65, 85, 0.95); border-radius: 12px; background: #0f172a; padding: 12px; display: grid; gap: 10px; min-width: 0; }
+    .review-plant-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .review-plant-name { color: #e2e8f0; font-size: 13px; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .review-status { border-radius: 999px; padding: 4px 8px; font-size: 11px; font-weight: 900; white-space: nowrap; }
+    .review-status.excellent { background: rgba(56, 189, 248, 0.14); color: #7dd3fc; }
+    .review-status.stable { background: rgba(34, 197, 94, 0.14); color: #86efac; }
+    .review-status.watch { background: rgba(245, 158, 11, 0.14); color: #fcd34d; }
+    .review-plant-score { color: #f8fafc; font-size: 24px; font-weight: 900; }
+    .review-plant-score small { color: #64748b; font-size: 11px; margin-left: 3px; }
+    .review-mini-track { height: 8px; border-radius: 999px; overflow: hidden; background: #1e293b; }
+    .review-mini-fill { height: 100%; border-radius: inherit; background: linear-gradient(90deg, #38bdf8, #2563eb); }
+    .review-plant-meta { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+    .review-plant-meta div { border: 1px solid rgba(51, 65, 85, 0.85); border-radius: 9px; background: rgba(15, 23, 42, 0.7); padding: 7px; }
+    .review-plant-meta label { display: block; color: #64748b; font-size: 10px; margin-bottom: 4px; }
+    .review-plant-meta strong { color: #e2e8f0; font-size: 12px; }
+    .review-production-report { display: grid; gap: 14px; }
+    .review-production-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+    .review-production-summary-item { border: 1px solid rgba(51, 65, 85, 0.88); border-radius: 12px; background: rgba(15, 23, 42, 0.72); padding: 10px 12px; }
+    .review-production-summary-item label { display: block; color: #64748b; font-size: 11px; margin-bottom: 5px; }
+    .review-production-summary-item strong { color: #f8fafc; font-size: 18px; font-weight: 900; }
+    .review-combo-chart { border: 1px solid rgba(51, 65, 85, 0.92); border-radius: 14px; background: linear-gradient(180deg, rgba(15, 23, 42, 0.74), rgba(14, 25, 44, 0.88)); padding: 14px 14px 12px; position: relative; }
+    .review-chart-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+    .review-chart-title { color: #e2e8f0; font-size: 13px; font-weight: 900; }
+    .review-chart-legend { display: inline-flex; align-items: center; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
+    .review-chart-legend-btn { appearance: none; display: inline-flex; align-items: center; gap: 6px; border: 1px solid rgba(51, 65, 85, 0.9); border-radius: 999px; background: rgba(15, 23, 42, 0.78); color: #94a3b8; font-size: 11px; font-weight: 800; padding: 6px 10px; cursor: pointer; transition: border-color var(--dur-fast), color var(--dur-fast), background var(--dur-fast), opacity var(--dur-fast); }
+    .review-chart-legend-btn:hover,
+    .review-chart-legend-btn.active { border-color: rgba(96, 165, 250, 0.58); color: #e2e8f0; background: rgba(30, 41, 59, 0.86); }
+    .review-chart-legend-btn.is-off { opacity: 0.46; }
+    .review-chart-dot { width: 9px; height: 9px; border-radius: 999px; display: inline-block; }
+    .review-chart-dot.bar { border-radius: 3px; background: linear-gradient(180deg, #38bdf8, #1d4ed8); }
+    .review-chart-dot.completion { background: #f59e0b; }
+    .review-chart-dot.match { background: #22c55e; }
+    .review-chart-stage { position: relative; height: 360px; min-height: 320px; }
+    .review-echarts-svg { width: 100%; height: 100%; display: block; overflow: visible; }
+    .review-echarts-svg text { font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif; font-stretch: normal; letter-spacing: 0; text-rendering: geometricPrecision; }
+    .review-axis-line { stroke: rgba(148, 163, 184, 0.28); stroke-width: 1; vector-effect: non-scaling-stroke; }
+    .review-grid-line { stroke: rgba(148, 163, 184, 0.17); stroke-width: 1; stroke-dasharray: 4 5; vector-effect: non-scaling-stroke; }
+    .review-axis-text { fill: #64748b; font-size: 11px; font-weight: 700; }
+    .review-x-text { fill: #94a3b8; font-size: 12px; font-weight: 800; }
+    .review-chart-bar-svg { fill: url(#reviewOutputGradient); filter: drop-shadow(0 10px 16px rgba(37, 99, 235, 0.22)); cursor: pointer; transition: opacity var(--dur-fast), filter var(--dur-fast); }
+    .review-chart-value { fill: #dbeafe; font-size: 11px; font-weight: 900; text-anchor: middle; pointer-events: none; transition: opacity var(--dur-fast), fill var(--dur-fast); }
+    .review-chart-line { fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+    .review-chart-line.completion { stroke: #f59e0b; filter: drop-shadow(0 6px 10px rgba(245, 158, 11, 0.28)); }
+    .review-chart-line.match { stroke: #22c55e; filter: drop-shadow(0 6px 10px rgba(34, 197, 94, 0.24)); }
+    .review-chart-point { stroke: #0f172a; stroke-width: 2; vector-effect: non-scaling-stroke; cursor: pointer; pointer-events: all; transition: opacity var(--dur-fast), r var(--dur-fast), filter var(--dur-fast), stroke-width var(--dur-fast); }
+    .review-chart-point.completion { fill: #f59e0b; }
+    .review-chart-point.match { fill: #22c55e; }
+    .review-chart-hit { fill: transparent; cursor: crosshair; pointer-events: all; }
+    .review-chart-hit:hover { fill: rgba(96, 165, 250, 0.06); }
+    .review-chart-guide { stroke: rgba(96, 165, 250, 0.52); stroke-width: 1; stroke-dasharray: 3 4; opacity: 0; pointer-events: none; vector-effect: non-scaling-stroke; transition: opacity var(--dur-fast); }
+    .review-combo-chart.is-hovering .review-chart-bar-svg:not(.is-active),
+    .review-combo-chart.is-hovering .review-chart-value:not(.is-active),
+    .review-combo-chart.is-hovering .review-chart-point:not(.is-active),
+    .review-combo-chart.is-hovering .review-x-text:not(.is-active) { opacity: 0.35; }
+    .review-chart-bar-svg.is-active { filter: drop-shadow(0 16px 22px rgba(56, 189, 248, 0.38)) brightness(1.08); }
+    .review-chart-value.is-active,
+    .review-x-text.is-active { fill: #f8fafc; opacity: 1; }
+    .review-chart-point.is-active { r: 6; stroke-width: 3; filter: drop-shadow(0 0 10px rgba(248, 250, 252, 0.3)); opacity: 1; }
+    .review-chart-guide.is-active { opacity: 1; }
+    .review-chart-tooltip {
+      position: absolute;
+      top: 0;
+      left: 0;
+      min-width: 188px;
+      border: 1px solid rgba(96, 165, 250, 0.45);
+      border-radius: 12px;
+      background: rgba(15, 23, 42, 0.96);
+      box-shadow: 0 18px 40px rgba(2, 6, 23, 0.42);
+      padding: 10px 12px;
+      color: #cbd5e1;
+      font-size: 12px;
+      line-height: 1.55;
+      opacity: 0;
+      transform: translate3d(10px, 8px, 0);
+      pointer-events: none;
+      transition: opacity var(--dur-fast), transform var(--dur-fast);
+      z-index: 8;
+    }
+    .review-chart-tooltip.show { opacity: 1; transform: translate3d(0, 0, 0); }
+    .review-chart-tooltip b { display: block; color: #f8fafc; font-size: 13px; margin-bottom: 5px; }
+    .review-chart-tooltip span { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .review-chart-tooltip strong { color: #f8fafc; }
+    .review-table-wrap { overflow-x: auto; border: 1px solid #334155; border-radius: 12px; background: #0f172a; }
+    .review-table { width: 100%; min-width: 980px; border-collapse: collapse; }
+    .review-table th,
+    .review-table td { padding: 10px 12px; border-bottom: 1px solid #243246; color: #cbd5e1; font-size: 12px; text-align: left; }
+    .review-table th { background: #172033; color: #94a3b8; font-weight: 900; }
+    .review-table tbody tr:last-child td { border-bottom: 0; }
+    .review-table td strong { color: #f8fafc; }
+    .review-bar-cell { display: flex; align-items: center; gap: 8px; min-width: 150px; }
+    .review-bar { flex: 1; height: 7px; border-radius: 999px; overflow: hidden; background: #1e293b; }
+    .review-bar span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #38bdf8, #2563eb); }
+    .review-side-stack { display: grid; gap: 14px; }
+    .review-side-card { padding: 14px; display: grid; gap: 12px; }
+    .review-side-title { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: #e2e8f0; font-size: 14px; font-weight: 900; }
+    .review-side-copy { color: #94a3b8; font-size: 12px; line-height: 1.7; }
+    .review-action-list { display: grid; gap: 8px; }
+    .review-action-item { border: 1px solid rgba(51, 65, 85, 0.92); border-radius: 11px; background: rgba(15, 23, 42, 0.74); padding: 10px; display: grid; gap: 6px; }
+    .review-action-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .review-action-top strong { color: #f8fafc; font-size: 13px; }
+    .review-level { border-radius: 999px; padding: 3px 8px; font-size: 10px; font-weight: 900; color: #0f172a; background: #fcd34d; white-space: nowrap; }
+    .review-level.high { background: #fecaca; color: #991b1b; }
+    .review-level.mid { background: #fde68a; color: #92400e; }
+    .review-level.low { background: #bfdbfe; color: #1d4ed8; }
+    .review-action-item p { color: #94a3b8; font-size: 12px; line-height: 1.6; }
+    .review-rule-actions { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .review-rule-actions .btn { padding: 5px 8px; font-size: 11px; }
+    .review-report-box { border: 1px dashed #3b4c67; border-radius: 12px; background: rgba(15, 23, 42, 0.58); padding: 12px; min-height: 126px; color: #cbd5e1; font-size: 12px; line-height: 1.7; white-space: pre-line; }
+    .review-compare-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 12px; }
+    .review-compare-card { border: 1px solid rgba(51, 65, 85, 0.92); border-radius: 12px; background: rgba(15, 23, 42, 0.72); padding: 11px; }
+    .review-compare-card label { display: block; color: #64748b; font-size: 11px; margin-bottom: 6px; }
+    .review-compare-card strong { color: #f8fafc; font-size: 18px; }
+    .review-delta { margin-left: 6px; font-size: 11px; font-weight: 900; }
+    .review-delta.up { color: #4ade80; }
+    .review-delta.down { color: #fb7185; }
+    .review-ai-box { display: grid; gap: 10px; }
+    .review-ai-progress { height: 8px; border-radius: 999px; background: #1e293b; overflow: hidden; }
+    .review-ai-progress span { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, #38bdf8, #2563eb, #f59e0b); transition: width 0.5s ease; }
+    .review-ai-result { border: 1px solid rgba(51, 65, 85, 0.92); border-radius: 12px; background: rgba(15, 23, 42, 0.72); padding: 11px; color: #cbd5e1; font-size: 12px; line-height: 1.7; min-height: 88px; }
+    .review-footnote { color: #64748b; font-size: 11px; line-height: 1.6; }
+
+    [data-theme="light"] .review-date-control,
+    [data-theme="light"] .review-overview-card,
+    [data-theme="light"] .review-score-panel,
+    [data-theme="light"] .review-score-item,
+    [data-theme="light"] .review-section-card,
+    [data-theme="light"] .review-side-card,
+    [data-theme="light"] .review-plant-card,
+    [data-theme="light"] .review-plant-meta div,
+    [data-theme="light"] .review-production-summary-item,
+    [data-theme="light"] .review-combo-chart,
+    [data-theme="light"] .review-chart-legend-btn,
+    [data-theme="light"] .review-table-wrap,
+    [data-theme="light"] .review-action-item,
+    [data-theme="light"] .review-report-box,
+    [data-theme="light"] .review-compare-card,
+    [data-theme="light"] .review-ai-result {
+      background: #fff !important;
+      border-color: var(--line) !important;
+    }
+    [data-theme="light"] .review-hero-main {
+      background:
+        radial-gradient(circle at 16% 18%, rgba(59, 130, 246, 0.18), transparent 28%),
+        radial-gradient(circle at 82% 14%, rgba(245, 158, 11, 0.12), transparent 30%),
+        linear-gradient(135deg, #eef6ff 0%, #ffffff 55%, #f8fbff 100%) !important;
+      border-color: #bfdbfe !important;
+    }
+    [data-theme="light"] .review-title,
+    [data-theme="light"] .review-overview-value,
+    [data-theme="light"] .review-score-value,
+    [data-theme="light"] .review-score-item strong,
+    [data-theme="light"] .review-section-head b,
+    [data-theme="light"] .review-chart-title,
+    [data-theme="light"] .review-production-summary-item strong,
+    [data-theme="light"] .review-plant-name,
+    [data-theme="light"] .review-plant-score,
+    [data-theme="light"] .review-plant-meta strong,
+    [data-theme="light"] .review-table td strong,
+    [data-theme="light"] .review-side-title,
+    [data-theme="light"] .review-action-top strong,
+    [data-theme="light"] .review-compare-card strong {
+      color: var(--txt) !important;
+    }
+    [data-theme="light"] .review-subtitle,
+    [data-theme="light"] .review-overview-label,
+    [data-theme="light"] .review-overview-sub,
+    [data-theme="light"] .review-score-label,
+    [data-theme="light"] .review-score-unit,
+    [data-theme="light"] .review-section-head span,
+    [data-theme="light"] .review-score-item span,
+    [data-theme="light"] .review-chart-legend-btn,
+    [data-theme="light"] .review-axis-text,
+    [data-theme="light"] .review-x-text,
+    [data-theme="light"] .review-production-summary-item label,
+    [data-theme="light"] .review-plant-meta label,
+    [data-theme="light"] .review-side-copy,
+    [data-theme="light"] .review-action-item p,
+    [data-theme="light"] .review-footnote,
+    [data-theme="light"] .review-compare-card label {
+      color: var(--muted) !important;
+    }
+    [data-theme="light"] .review-pill {
+      background: #f8fafc !important;
+      border-color: #dbeafe !important;
+      color: #334155 !important;
+    }
+    [data-theme="light"] .review-score-inner { background: #fff !important; }
+    [data-theme="light"] .review-mini-track,
+    [data-theme="light"] .review-bar,
+    [data-theme="light"] .review-ai-progress { background: #e2e8f0 !important; }
+    [data-theme="light"] .review-grid-line { stroke: rgba(148, 163, 184, 0.28) !important; }
+    [data-theme="light"] .review-axis-line { stroke: rgba(100, 116, 139, 0.36) !important; }
+    [data-theme="light"] .review-chart-tooltip {
+      background: rgba(255, 255, 255, 0.98) !important;
+      color: var(--txt) !important;
+      box-shadow: 0 18px 36px rgba(15, 23, 42, 0.14) !important;
+    }
+    [data-theme="light"] .review-chart-tooltip b,
+    [data-theme="light"] .review-chart-tooltip strong { color: var(--txt) !important; }
+    [data-theme="light"] .review-table th {
+      background: #eef2ff !important;
+      color: #475569 !important;
+      border-color: #e2e8f0 !important;
+    }
+    [data-theme="light"] .review-table td {
+      color: var(--txt) !important;
+      border-color: #e2e8f0 !important;
+    }
+    [data-theme="light"] .review-date-control {
+      color: var(--txt) !important;
+    }
+    @media (max-width: 1320px) {
+      .review-plant-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .review-overview-grid,
+      .review-production-summary,
+      .review-compare-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .review-layout,
+      .review-hero { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 720px) {
+      .review-score-body { grid-template-columns: 1fr; }
+      .review-score-list,
+      .review-plant-grid,
+      .review-overview-grid,
+      .review-production-summary,
+      .review-compare-grid { grid-template-columns: 1fr; }
+      .review-chart-stage { height: 260px; }
+      .review-actions { justify-content: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <header class="aps-header-layout">
+    <div class="brand-block">
+      <img class="header-logo" src="1c5703c9-aca0-43d1-9843-9d502cb66fd0.png" alt="APS Logo" width="143" height="44" />
+      <div class="aps-console-title">
+        <div class="aps-console-title-main">排产智能体</div>
+        <div class="aps-console-title-sub">格力高级计划排程系统</div>
+      </div>
+    </div>
+    <nav class="nav aps-main-nav" id="nav">
+      <a href="decision.html" class="nav-item">决策分析</a>
+      <a href="collab.html" class="nav-item active">排产操作</a>
+      <a href="settings.html" class="nav-item">系统设置</a>
+    </nav>
+    <div class="header-meta aps-header-meta" id="header-meta">
+      <div class="aps-site-switch">
+        <span class="aps-site-switch-label">制造基地</span>
+        <select id="hq-select" class="role-select" aria-label="基地切换">
+          <option>珠海格力总部</option>
+          <option>金湾基地</option>
+          <option>武汉基地</option>
+          <option>洛阳基地</option>
+        </select>
+      </div>
+      <span id="header-date" class="aps-clock-chip">2026-04-27 10:00:00</span>
+      <button type="button" class="aps-notify-btn" id="aps-notify-btn" aria-label="打开消息通知">
+        🔔<span class="aps-notify-badge" id="aps-notify-badge">0</span>
+      </button>
+      <div class="user-dropdown" id="user-dropdown">
+        <div class="user-dropdown-toggle" onclick="toggleUserDropdown()">
+          <div class="avatar">张</div>
+          <span class="name">张伟</span>
+          <span class="arrow">▼</span>
+        </div>
+        <div class="user-dropdown-menu">
+          <a href="settings.html?sub=profile" class="user-dropdown-item">👤 用户信息</a>
+          <a href="login.html" class="user-dropdown-item logout">🚪 退出</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="app">
+    <section class="view review-page">
+      <article class="card">
+        <div class="card-hd">
+          <span>已结束排程复盘详情</span>
+          <div class="review-toolbar">
+            <span class="muted" id="review-date-caption">按历史日期复盘排程执行质量</span>
+            <div class="review-actions">
+              <input type="date" class="review-date-control" id="review-date-input" aria-label="复盘日期" />
+              <button type="button" class="btn sm" id="review-generate-btn">生成报表</button>
+              <button type="button" class="btn sm" id="review-export-btn">导出</button>
+              <a href="collab.html?view=month" class="btn sm">返回月视角</a>
+            </div>
+          </div>
+        </div>
+        <div class="card-bd">
+          <div class="review-hero">
+            <div class="review-hero-main">
+              <div class="review-kicker">复盘分析与持续改进</div>
+              <h1 class="review-title" id="review-title">已结束排程复盘</h1>
+              <p class="review-subtitle" id="review-subtitle">围绕当天排程规则应用、分厂执行结果、方案吻合度和可优化项进行闭环复盘，支持报表生成、规则版本管理、AI推演优化和历史日期对比。</p>
+              <div class="review-hero-meta">
+                <span class="review-pill" id="review-rule-pill">统一规则池：总部默认规则</span>
+                <span class="review-pill" id="review-compare-pill">对比基准：上一历史日期</span>
+                <span class="review-pill">状态：已结束排程</span>
+              </div>
+            </div>
+            <div class="review-score-panel">
+              <div class="review-score-head">
+                <div class="review-score-label">当天整体表现评分</div>
+                <span class="review-score-grade" id="review-score-grade">稳态优秀</span>
+              </div>
+              <div class="review-score-body">
+                <div class="review-score-ring" id="review-score-ring">
+                  <div class="review-score-inner">
+                    <div>
+                      <div class="review-score-value" id="review-score-value">92</div>
+                      <div class="review-score-unit">综合评分</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="review-score-list" id="review-score-list"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <div class="review-overview-grid" id="review-overview-grid"></div>
+
+      <article class="review-section-card">
+        <div class="review-section-head">
+          <b>各分厂产量详细报表</b>
+          <span>柱状图：当天产量 / 折线：计划完成率与方案吻合度</span>
+        </div>
+        <div class="review-section-body">
+          <div class="review-production-report" id="review-plant-grid"></div>
+        </div>
+      </article>
+
+      <div class="review-layout">
+        <div class="review-side-stack">
+          <article class="review-section-card">
+            <div class="review-section-head">
+              <b>分厂复盘明细</b>
+              <span>用于管理层追溯当天排程执行偏差</span>
+            </div>
+            <div class="review-section-body">
+              <div class="review-table-wrap">
+                <table class="review-table">
+                  <thead>
+                    <tr>
+                      <th>分厂</th>
+                      <th>计划完成率</th>
+                      <th>当天产量</th>
+                      <th>方案吻合度</th>
+                      <th>表现评分</th>
+                      <th>主要偏差</th>
+                      <th>优化建议</th>
+                    </tr>
+                  </thead>
+                  <tbody id="review-detail-body"></tbody>
+                </table>
+              </div>
+            </div>
+          </article>
+
+          <article class="review-section-card">
+            <div class="review-section-head">
+              <b>排程规则应用与版本管理</b>
+              <span>支持规则配置查看、应用版本切换和新版本沉淀</span>
+            </div>
+            <div class="review-section-body">
+              <div class="review-table-wrap">
+                <table class="review-table">
+                  <thead>
+                    <tr>
+                      <th>规则名称</th>
+                      <th>创建时间</th>
+                      <th>创建用户</th>
+                      <th>统一规则池</th>
+                      <th>规则状态</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody id="review-rule-body"></tbody>
+                </table>
+              </div>
+            </div>
+          </article>
+
+          <article class="review-section-card">
+            <div class="review-section-head">
+              <b>历史日期对比</b>
+              <span>支持与其他已结束排程日期横向比较</span>
+            </div>
+            <div class="review-section-body">
+              <div class="review-toolbar" style="margin-bottom:12px;">
+                <span class="muted">选择对比日期</span>
+                <input type="date" class="review-date-control" id="compare-date-input" aria-label="历史对比日期" />
+              </div>
+              <div class="review-compare-grid" id="review-compare-grid"></div>
+              <div class="review-table-wrap">
+                <table class="review-table">
+                  <thead>
+                    <tr>
+                      <th>分厂</th>
+                      <th>当前完成率</th>
+                      <th>对比完成率</th>
+                      <th>当前吻合度</th>
+                      <th>对比吻合度</th>
+                      <th>结论</th>
+                    </tr>
+                  </thead>
+                  <tbody id="review-compare-body"></tbody>
+                </table>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <div class="review-side-stack">
+          <article class="review-side-card">
+            <div class="review-side-title">
+              <span>可改进优化点</span>
+              <span class="review-level mid">持续改进</span>
+            </div>
+            <div class="review-action-list" id="review-improvement-list"></div>
+          </article>
+
+          <article class="review-side-card">
+            <div class="review-side-title">
+              <span>AI推演优化改进</span>
+              <button type="button" class="btn sm primary" id="review-ai-btn">生成AI优化建议</button>
+            </div>
+            <div class="review-ai-box">
+              <div class="review-ai-progress"><span id="review-ai-progress"></span></div>
+              <div class="review-ai-result" id="review-ai-result">点击生成后，系统将基于当天执行偏差、规则版本和历史对比，推演下一轮排程优化策略。</div>
+            </div>
+          </article>
+
+          <article class="review-side-card">
+            <div class="review-side-title">
+              <span>复盘报告</span>
+              <span class="review-level low">可导出</span>
+            </div>
+            <div class="review-report-box" id="review-report-box">点击“生成报表”后，将自动汇总当天评分、分厂指标、规则应用、优化建议和历史对比结论。</div>
+            <p class="review-footnote">导出为本地文本报告，便于同步给生产计划部管理、工厂管理层或作为规则版本复盘附件。</p>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <script>
+    const reviewPlants = [
+      { key: 'east', name: '东区总装', baseOutput: 980, rule: '交期优先', bias: '尾段包装节拍存在短时等待', action: '把B类订单前置半个班次释放尾段缓冲' },
+      { key: 'west', name: '西区总装', baseOutput: 920, rule: '均衡稳定', bias: '齐套确认与上线节拍有轻微错位', action: '将齐套校验提前到排程冻结前2小时' },
+      { key: 'inject', name: '注塑分厂', baseOutput: 1180, rule: '成本最优', bias: '换模批次集中导致中段等待', action: '拆分高频换模批次并合并同模订单' },
+      { key: 'hx', name: '两器分厂', baseOutput: 860, rule: '产能均衡', bias: '焊接窗口与总装拉动节拍不完全同步', action: '增加跨厂半日缓冲并锁定关键窗口' },
+      { key: 'ctrl', name: '控制器分厂', baseOutput: 760, rule: '风险优先', bias: '检测返修占用部分计划产能', action: '优先释放检测资源并设置返修隔离队列' }
+    ];
+
+    const weekNames = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+    let selectedReviewDate = parseInitialReviewDate();
+    let reviewChartVisible = { output: true, completion: true, match: true };
+
+    function pad(value) {
+      return String(value).padStart(2, '0');
+    }
+
+    function parseLocalDate(value) {
+      const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value || '');
+      if (!match) return null;
+      const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+      date.setHours(0, 0, 0, 0);
+      if (Number.isNaN(date.getTime())) return null;
+      return date;
+    }
+
+    function addDays(date, days) {
+      const next = new Date(date);
+      next.setDate(next.getDate() + days);
+      next.setHours(0, 0, 0, 0);
+      return next;
+    }
+
+    function parseInitialReviewDate() {
+      const params = new URLSearchParams(window.location.search);
+      const fromQuery = parseLocalDate(params.get('date'));
+      if (fromQuery) return fromQuery;
+      return addDays(new Date(), -1);
+    }
+
+    function formatDateYMD(date) {
+      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+    }
+
+    function formatDateZh(date) {
+      return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日 ${weekNames[date.getDay()]}`;
+    }
+
+    function formatRuleTime(date, idx) {
+      const minutes = ['0915', '1010', '1125', '1410', '1520'][idx % 5];
+      return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}${minutes}`;
+    }
+
+    function formatNumber(value) {
+      return new Intl.NumberFormat('zh-CN').format(value);
+    }
+
+    function getDateSeed(date) {
+      return (date.getFullYear() * 10000) + ((date.getMonth() + 1) * 100) + date.getDate();
+    }
+
+    function getPlantMetrics(date) {
+      const daySeed = getDateSeed(date);
+      return reviewPlants.map((plant, idx) => {
+        const seed = daySeed + (idx + 3) * 37;
+        const completion = 90 + (seed % 10);
+        const output = plant.baseOutput + ((seed * 13) % 220) - 64;
+        const match = 87 + ((seed * 17) % 12);
+        const stability = 88 + ((seed * 19) % 11);
+        const score = Math.round((completion * 0.38) + (match * 0.36) + (stability * 0.18) + Math.min(100, (output / plant.baseOutput) * 100) * 0.08);
+        const statusClass = score >= 94 ? 'excellent' : score >= 91 ? 'stable' : 'watch';
+        const statusText = score >= 94 ? '优秀' : score >= 91 ? '稳定' : '关注';
+        return { ...plant, completion, output, match, stability, score, statusClass, statusText };
+      });
+    }
+
+    function getOverall(metrics) {
+      const avgCompletion = Math.round(metrics.reduce((sum, item) => sum + item.completion, 0) / metrics.length);
+      const avgMatch = Math.round(metrics.reduce((sum, item) => sum + item.match, 0) / metrics.length);
+      const avgStability = Math.round(metrics.reduce((sum, item) => sum + item.stability, 0) / metrics.length);
+      const totalOutput = metrics.reduce((sum, item) => sum + item.output, 0);
+      const score = Math.round(metrics.reduce((sum, item) => sum + item.score, 0) / metrics.length);
+      const watchCount = metrics.filter((item) => item.score < 91).length;
+      return { avgCompletion, avgMatch, avgStability, totalOutput, score, watchCount };
+    }
+
+    function getGrade(score) {
+      if (score >= 94) return '稳态优秀';
+      if (score >= 91) return '整体稳定';
+      if (score >= 88) return '局部关注';
+      return '需复盘优化';
+    }
+
+    function getReviewSnapshot(date = selectedReviewDate) {
+      const metrics = getPlantMetrics(date);
+      return { date, metrics, overall: getOverall(metrics) };
+    }
+
+    function showToast(message) {
+      if (typeof toast === 'function') {
+        toast(message);
+      }
+    }
+
+    function renderHero(snapshot) {
+      const { date, overall, metrics } = snapshot;
+      const activeRule = [...metrics].sort((a, b) => b.score - a.score)[0]?.rule || '交期优先';
+      document.getElementById('review-title').textContent = `${formatDateZh(date)} · 已结束排程复盘`;
+      document.getElementById('review-date-caption').textContent = `当前复盘日期：${formatDateYMD(date)}`;
+      document.getElementById('review-subtitle').textContent = `当天已完成排程闭环，系统汇总5个分厂的执行结果、规则应用、偏差来源和优化动作，用于生产计划部与工厂管理层复盘决策。`;
+      document.getElementById('review-rule-pill').textContent = `当天主规则：${activeRule} / 统一规则池`;
+      document.getElementById('review-score-value').textContent = overall.score;
+      document.getElementById('review-score-grade').textContent = getGrade(overall.score);
+      document.getElementById('review-score-ring').style.setProperty('--score-pct', `${overall.score}%`);
+      document.getElementById('review-score-list').innerHTML = `
+        <div class="review-score-item"><span>平均计划完成率</span><strong>${overall.avgCompletion}%</strong></div>
+        <div class="review-score-item"><span>平均方案吻合度</span><strong>${overall.avgMatch}%</strong></div>
+        <div class="review-score-item"><span>稳定性指数</span><strong>${overall.avgStability}%</strong></div>
+        <div class="review-score-item"><span>需关注分厂</span><strong>${overall.watchCount}个</strong></div>
+      `;
+    }
+
+    function renderOverview(snapshot) {
+      const { overall, metrics } = snapshot;
+      const best = [...metrics].sort((a, b) => b.score - a.score)[0];
+      const lag = [...metrics].sort((a, b) => a.score - b.score)[0];
+      const cards = [
+        { label: '当天整体表现评分', value: overall.score, unit: '分', sub: `评分状态：${getGrade(overall.score)}` },
+        { label: '平均计划完成率', value: overall.avgCompletion, unit: '%', sub: `最高 ${best.name} ${best.completion}%` },
+        { label: '当天总产量', value: formatNumber(overall.totalOutput), unit: '台', sub: '5个分厂当天产量合计' },
+        { label: '平均方案吻合度', value: overall.avgMatch, unit: '%', sub: `最低 ${lag.name} ${lag.match}%` }
+      ];
+      document.getElementById('review-overview-grid').innerHTML = cards.map((item) => `
+        <div class="review-overview-card">
+          <div class="review-overview-label">${item.label}</div>
+          <div class="review-overview-value">${item.value}<span class="unit">${item.unit}</span></div>
+          <div class="review-overview-sub">${item.sub}</div>
+        </div>
+      `).join('');
+    }
+
+    function getProductionChartModel(metrics) {
+      const width = 1080;
+      const height = 360;
+      const left = 78;
+      const right = 78;
+      const top = 28;
+      const bottom = 58;
+      const plotWidth = width - left - right;
+      const plotHeight = height - top - bottom;
+      const maxOutput = Math.ceil(Math.max(...metrics.map((item) => item.output)) / 100) * 100;
+      const minRate = 80;
+      const maxRate = 100;
+      const step = plotWidth / metrics.length;
+      const xForIndex = (idx) => left + (step * idx) + (step / 2);
+      const yForOutput = (value) => top + (1 - (value / maxOutput)) * plotHeight;
+      const yForRate = (value) => {
+        const clamped = Math.max(minRate, Math.min(maxRate, value));
+        return top + (1 - ((clamped - minRate) / (maxRate - minRate))) * plotHeight;
+      };
+
+      return {
+        width,
+        height,
+        left,
+        right,
+        top,
+        bottom,
+        plotWidth,
+        plotHeight,
+        maxOutput,
+        minRate,
+        maxRate,
+        step,
+        bars: metrics.map((item, idx) => {
+          const x = xForIndex(idx);
+          const y = yForOutput(item.output);
+          const barWidth = Math.min(62, step * 0.44);
+          return { item, idx, x, y, barX: x - (barWidth / 2), barWidth, barHeight: top + plotHeight - y };
+        }),
+        completionPoints: metrics.map((item, idx) => ({ item, idx, x: xForIndex(idx), y: yForRate(item.completion) })),
+        matchPoints: metrics.map((item, idx) => ({ item, idx, x: xForIndex(idx), y: yForRate(item.match) })),
+        xForIndex
+      };
+    }
+
+    function buildSvgPolyline(points) {
+      return points.map((point) => `${point.x.toFixed(1)},${point.y.toFixed(1)}`).join(' ');
+    }
+
+    function renderGridLines(model) {
+      return Array.from({ length: 5 }, (_, idx) => {
+        const ratio = idx / 4;
+        const y = model.top + (model.plotHeight * ratio);
+        const outputLabel = Math.round(model.maxOutput * (1 - ratio));
+        const rateLabel = Math.round(model.maxRate - ((model.maxRate - model.minRate) * ratio));
+        return `
+          <line class="review-grid-line" x1="${model.left}" y1="${y}" x2="${model.width - model.right}" y2="${y}"></line>
+          <text class="review-axis-text" x="${model.left - 10}" y="${y + 4}" text-anchor="end">${outputLabel}</text>
+          <text class="review-axis-text" x="${model.width - model.right + 10}" y="${y + 4}">${rateLabel}%</text>
+        `;
+      }).join('');
+    }
+
+    function renderChartSeries(metrics) {
+      const model = getProductionChartModel(metrics);
+      const completionLine = buildSvgPolyline(model.completionPoints);
+      const matchLine = buildSvgPolyline(model.matchPoints);
+      const hitWidth = model.step;
+      return `
+        <svg class="review-echarts-svg" viewBox="0 0 ${model.width} ${model.height}" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+          <defs>
+            <linearGradient id="reviewOutputGradient" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stop-color="#38bdf8"></stop>
+              <stop offset="55%" stop-color="#2563eb"></stop>
+              <stop offset="100%" stop-color="#163172"></stop>
+            </linearGradient>
+          </defs>
+          ${renderGridLines(model)}
+          <line class="review-axis-line" x1="${model.left}" y1="${model.top}" x2="${model.left}" y2="${model.top + model.plotHeight}"></line>
+          <line class="review-axis-line" x1="${model.left}" y1="${model.top + model.plotHeight}" x2="${model.width - model.right}" y2="${model.top + model.plotHeight}"></line>
+          <line class="review-axis-line" x1="${model.width - model.right}" y1="${model.top}" x2="${model.width - model.right}" y2="${model.top + model.plotHeight}"></line>
+          ${reviewChartVisible.output ? `
+            <g class="review-series-output">
+              ${model.bars.map(({ item, idx, barX, y, barWidth, barHeight, x }) => `
+                <rect class="review-chart-bar-svg" data-chart-index="${idx}" data-chart-piece="output" x="${barX.toFixed(1)}" y="${y.toFixed(1)}" width="${barWidth.toFixed(1)}" height="${barHeight.toFixed(1)}" rx="7"></rect>
+                <text class="review-chart-value" data-chart-index="${idx}" data-chart-piece="value" x="${x.toFixed(1)}" y="${Math.max(model.top + 12, y - 8).toFixed(1)}">${formatNumber(item.output)}</text>
+              `).join('')}
+            </g>
+          ` : ''}
+          ${reviewChartVisible.completion ? `
+            <polyline class="review-chart-line completion" points="${completionLine}"></polyline>
+            ${model.completionPoints.map((point) => `<circle class="review-chart-point completion" data-chart-index="${point.idx}" data-chart-piece="completion" cx="${point.x.toFixed(1)}" cy="${point.y.toFixed(1)}" r="4"></circle>`).join('')}
+          ` : ''}
+          ${reviewChartVisible.match ? `
+            <polyline class="review-chart-line match" points="${matchLine}"></polyline>
+            ${model.matchPoints.map((point) => `<circle class="review-chart-point match" data-chart-index="${point.idx}" data-chart-piece="match" cx="${point.x.toFixed(1)}" cy="${point.y.toFixed(1)}" r="4"></circle>`).join('')}
+          ` : ''}
+          ${metrics.map((item, idx) => {
+            const x = model.xForIndex(idx);
+            return `<text class="review-x-text" data-chart-index="${idx}" data-chart-piece="label" x="${x.toFixed(1)}" y="${model.height - 18}" text-anchor="middle">${item.name}</text>`;
+          }).join('')}
+          ${metrics.map((item, idx) => {
+            const x = model.xForIndex(idx) - (hitWidth / 2);
+            const guideX = model.xForIndex(idx);
+            return `
+              <rect class="review-chart-hit" data-chart-index="${idx}" x="${x.toFixed(1)}" y="${model.top}" width="${hitWidth.toFixed(1)}" height="${model.plotHeight}"></rect>
+              <line class="review-chart-guide" data-chart-index="${idx}" x1="${guideX.toFixed(1)}" y1="${model.top}" x2="${guideX.toFixed(1)}" y2="${model.top + model.plotHeight}"></line>
+            `;
+          }).join('')}
+        </svg>
+        <div class="review-chart-tooltip" id="review-chart-tooltip"></div>
+      `;
+    }
+
+    function positionProductionTooltip(event, tooltip, stage) {
+      const rect = stage.getBoundingClientRect();
+      const x = Math.min(rect.width - 210, Math.max(8, event.clientX - rect.left + 14));
+      const y = Math.min(rect.height - 118, Math.max(8, event.clientY - rect.top - 28));
+      tooltip.style.left = `${x}px`;
+      tooltip.style.top = `${y}px`;
+    }
+
+    function showProductionTooltip(event, item, tooltip, stage) {
+      tooltip.innerHTML = `
+        <b>${item.name}</b>
+        <span>当天产量 <strong>${formatNumber(item.output)}台</strong></span>
+        <span>计划完成率 <strong>${item.completion}%</strong></span>
+        <span>方案吻合度 <strong>${item.match}%</strong></span>
+        <span>表现评分 <strong>${item.score}分</strong></span>
+      `;
+      positionProductionTooltip(event, tooltip, stage);
+      tooltip.classList.add('show');
+    }
+
+    function setProductionChartActive(root, index, active) {
+      const chart = root?.querySelector('.review-combo-chart');
+      if (!chart) return;
+      chart.classList.toggle('is-hovering', active);
+      chart.querySelectorAll('.is-active').forEach((el) => el.classList.remove('is-active'));
+      if (!active || Number.isNaN(index)) return;
+      chart.querySelectorAll(`[data-chart-index="${index}"]`).forEach((el) => {
+        if (!el.classList.contains('review-chart-hit')) el.classList.add('is-active');
+      });
+    }
+
+    function bindProductionChartInteractions(metrics) {
+      const root = document.getElementById('review-plant-grid');
+      const stage = root?.querySelector('.review-chart-stage');
+      const tooltip = root?.querySelector('#review-chart-tooltip');
+      if (!root || !stage || !tooltip) return;
+
+      root.querySelectorAll('[data-chart-series]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const key = button.dataset.chartSeries;
+          reviewChartVisible = { ...reviewChartVisible, [key]: !reviewChartVisible[key] };
+          renderPlantCards(getReviewSnapshot());
+        });
+      });
+
+      stage.querySelectorAll('.review-chart-hit, .review-chart-bar-svg, .review-chart-point').forEach((target) => {
+        target.addEventListener('mouseenter', (event) => {
+          const index = Number(target.dataset.chartIndex);
+          const item = metrics[index];
+          if (!item) return;
+          setProductionChartActive(root, index, true);
+          showProductionTooltip(event, item, tooltip, stage);
+        });
+        target.addEventListener('mousemove', (event) => positionProductionTooltip(event, tooltip, stage));
+        target.addEventListener('mouseleave', () => {
+          tooltip.classList.remove('show');
+          setProductionChartActive(root, Number(target.dataset.chartIndex), false);
+        });
+      });
+    }
+
+    function renderPlantCards(snapshot) {
+      const metrics = snapshot.metrics;
+      const bestOutput = [...metrics].sort((a, b) => b.output - a.output)[0];
+      const bestMatch = [...metrics].sort((a, b) => b.match - a.match)[0];
+      const lowCompletion = [...metrics].sort((a, b) => a.completion - b.completion)[0];
+      const legend = [
+        { key: 'output', label: '当天产量', dot: 'bar' },
+        { key: 'completion', label: '计划完成率', dot: 'completion' },
+        { key: 'match', label: '方案吻合度', dot: 'match' }
+      ];
+      document.getElementById('review-plant-grid').innerHTML = `
+        <div class="review-production-summary">
+          <div class="review-production-summary-item">
+            <label>总产量</label>
+            <strong>${formatNumber(snapshot.overall.totalOutput)} 台</strong>
+          </div>
+          <div class="review-production-summary-item">
+            <label>最高产量分厂</label>
+            <strong>${bestOutput.name} ${formatNumber(bestOutput.output)}</strong>
+          </div>
+          <div class="review-production-summary-item">
+            <label>最高方案吻合度</label>
+            <strong>${bestMatch.name} ${bestMatch.match}%</strong>
+          </div>
+          <div class="review-production-summary-item">
+            <label>完成率关注点</label>
+            <strong>${lowCompletion.name} ${lowCompletion.completion}%</strong>
+          </div>
+        </div>
+        <div class="review-combo-chart">
+          <div class="review-chart-top">
+            <div class="review-chart-title">分厂产量与排程吻合趋势</div>
+            <div class="review-chart-legend">
+              ${legend.map((item) => `
+                <button type="button" class="review-chart-legend-btn ${reviewChartVisible[item.key] ? 'active' : 'is-off'}" data-chart-series="${item.key}">
+                  <i class="review-chart-dot ${item.dot}"></i>${item.label}
+                </button>
+              `).join('')}
+            </div>
+          </div>
+          <div class="review-chart-stage" role="img" aria-label="各分厂产量柱状图，以及计划完成率和方案吻合度折线图">
+            ${renderChartSeries(metrics)}
+          </div>
+        </div>
+      `;
+      bindProductionChartInteractions(metrics);
+    }
+
+    function renderDetailTable(snapshot) {
+      document.getElementById('review-detail-body').innerHTML = snapshot.metrics.map((item) => `
+        <tr>
+          <td><strong>${item.name}</strong></td>
+          <td>
+            <div class="review-bar-cell">
+              <div class="review-bar"><span style="width:${item.completion}%"></span></div>
+              <span>${item.completion}%</span>
+            </div>
+          </td>
+          <td>${formatNumber(item.output)} 台</td>
+          <td>
+            <div class="review-bar-cell">
+              <div class="review-bar"><span style="width:${item.match}%"></span></div>
+              <span>${item.match}%</span>
+            </div>
+          </td>
+          <td><span class="review-status ${item.statusClass}">${item.score}分</span></td>
+          <td>${item.bias}</td>
+          <td>${item.action}</td>
+        </tr>
+      `).join('');
+    }
+
+    function renderRuleTable(snapshot) {
+      const date = snapshot.date;
+      document.getElementById('review-rule-body').innerHTML = snapshot.metrics.map((item, idx) => {
+        const version = `v0.${5 + ((getDateSeed(date) + idx) % 4)}`;
+        const ruleName = `${item.rule} - 珠海基地 - ${item.name} - 排程规则版本号${version} - 时间${formatRuleTime(date, idx)}`;
+        const status = idx === 4 && item.score < 91 ? '停用' : '正在应用';
+        return `
+          <tr>
+            <td><strong>${ruleName}</strong></td>
+            <td>${formatDateYMD(date)} ${['09:15', '10:10', '11:25', '14:10', '15:20'][idx]}</td>
+            <td>张伟</td>
+            <td>总部统一规则池</td>
+            <td><span class="review-status ${status === '正在应用' ? 'stable' : 'watch'}">${status}</span></td>
+            <td>
+              <div class="review-rule-actions">
+                <button type="button" class="btn sm" data-rule-action="view">查看</button>
+                <button type="button" class="btn sm" data-rule-action="edit">配置</button>
+                <button type="button" class="btn sm" data-rule-action="version">新版本</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderImprovements(snapshot) {
+      const sortedByScore = [...snapshot.metrics].sort((a, b) => a.score - b.score);
+      const lag = sortedByScore[0];
+      const lowMatch = [...snapshot.metrics].sort((a, b) => a.match - b.match)[0];
+      const rules = [
+        { level: 'high', label: '重点', title: `${lag.name}执行偏差需要闭环`, copy: `${lag.bias}。建议下一轮排程优先执行：${lag.action}。` },
+        { level: 'mid', label: '优化', title: `${lowMatch.name}方案吻合度偏低`, copy: `当前吻合度为${lowMatch.match}%，建议在规则版本中提高齐套、检测和换模约束的权重。` },
+        { level: 'low', label: '沉淀', title: '固化高分规则版本', copy: `当天整体评分${snapshot.overall.score}分，建议将稳定分厂的规则参数沉淀到统一规则池，作为同类日期模板。` }
+      ];
+      document.getElementById('review-improvement-list').innerHTML = rules.map((item) => `
+        <div class="review-action-item">
+          <div class="review-action-top">
+            <strong>${item.title}</strong>
+            <span class="review-level ${item.level}">${item.label}</span>
+          </div>
+          <p>${item.copy}</p>
+        </div>
+      `).join('');
+    }
+
+    function deltaMarkup(current, compare, unit = '') {
+      const delta = current - compare;
+      const cls = delta >= 0 ? 'up' : 'down';
+      const sign = delta >= 0 ? '+' : '';
+      return `<span class="review-delta ${cls}">${sign}${delta}${unit}</span>`;
+    }
+
+    function renderComparison(snapshot) {
+      const compareInput = document.getElementById('compare-date-input');
+      const compareDate = parseLocalDate(compareInput.value) || addDays(snapshot.date, -7);
+      const compareSnapshot = getReviewSnapshot(compareDate);
+      document.getElementById('review-compare-pill').textContent = `对比基准：${formatDateYMD(compareDate)}`;
+      const cards = [
+        { label: '整体评分', current: snapshot.overall.score, compare: compareSnapshot.overall.score, unit: '分' },
+        { label: '平均完成率', current: snapshot.overall.avgCompletion, compare: compareSnapshot.overall.avgCompletion, unit: '%' },
+        { label: '当天产量', current: snapshot.overall.totalOutput, compare: compareSnapshot.overall.totalOutput, unit: '台' },
+        { label: '方案吻合度', current: snapshot.overall.avgMatch, compare: compareSnapshot.overall.avgMatch, unit: '%' }
+      ];
+      document.getElementById('review-compare-grid').innerHTML = cards.map((item) => `
+        <div class="review-compare-card">
+          <label>${item.label}</label>
+          <strong>${formatNumber(item.current)}${item.unit}</strong>${deltaMarkup(item.current, item.compare, item.unit)}
+        </div>
+      `).join('');
+      document.getElementById('review-compare-body').innerHTML = snapshot.metrics.map((item, idx) => {
+        const ref = compareSnapshot.metrics[idx];
+        const conclusion = item.score >= ref.score ? '较对比日更稳定，可沉淀参数' : '低于对比日，建议复核约束权重';
+        return `
+          <tr>
+            <td><strong>${item.name}</strong></td>
+            <td>${item.completion}% ${deltaMarkup(item.completion, ref.completion, '%')}</td>
+            <td>${ref.completion}%</td>
+            <td>${item.match}% ${deltaMarkup(item.match, ref.match, '%')}</td>
+            <td>${ref.match}%</td>
+            <td>${conclusion}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function buildReportText(snapshot) {
+      const best = [...snapshot.metrics].sort((a, b) => b.score - a.score)[0];
+      const lag = [...snapshot.metrics].sort((a, b) => a.score - b.score)[0];
+      const lines = [
+        `APS已结束排程复盘报告`,
+        `复盘日期：${formatDateZh(snapshot.date)}`,
+        `整体评分：${snapshot.overall.score}分（${getGrade(snapshot.overall.score)}）`,
+        `平均计划完成率：${snapshot.overall.avgCompletion}%；平均方案吻合度：${snapshot.overall.avgMatch}%；当天总产量：${formatNumber(snapshot.overall.totalOutput)}台。`,
+        `表现最佳：${best.name}，评分${best.score}分，完成率${best.completion}%。`,
+        `优先改进：${lag.name}，${lag.bias}，建议${lag.action}。`,
+        `规则应用：当天使用统一规则池，多分厂采用交期优先、均衡稳定、成本最优、产能均衡与风险优先组合策略。`,
+        `持续改进建议：下轮排程应提高齐套、换模、检测返修与跨厂缓冲约束权重，并将高分规则版本沉淀为同类日期模板。`
+      ];
+      return lines.join('\n');
+    }
+
+    function generateReport() {
+      const snapshot = getReviewSnapshot();
+      const reportText = buildReportText(snapshot);
+      document.getElementById('review-report-box').textContent = reportText;
+      showToast('复盘报告已生成');
+      return reportText;
+    }
+
+    function exportReport() {
+      const reportText = generateReport();
+      const blob = new Blob([reportText], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `APS已结束排程复盘_${formatDateYMD(selectedReviewDate)}.txt`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1200);
+      showToast('复盘报告已导出');
+    }
+
+    function runAIOptimization() {
+      const button = document.getElementById('review-ai-btn');
+      const progress = document.getElementById('review-ai-progress');
+      const result = document.getElementById('review-ai-result');
+      const snapshot = getReviewSnapshot();
+      const lag = [...snapshot.metrics].sort((a, b) => a.score - b.score)[0];
+      button.disabled = true;
+      progress.style.width = '18%';
+      result.textContent = 'AI正在读取当天执行偏差、规则版本、分厂完成率和历史对比数据...';
+      setTimeout(() => {
+        progress.style.width = '62%';
+        result.textContent = 'AI正在模拟下一轮排程：调整齐套、换模、检测返修和跨厂缓冲权重...';
+      }, 420);
+      setTimeout(() => {
+        progress.style.width = '100%';
+        result.textContent = `AI优化建议：下一轮以${lag.name}为重点，将其规则策略从“${lag.rule}”升级为“风险优先 + 齐套前置校验”，同时把检测返修、换模批次和跨厂物流缓冲纳入硬约束。预计可提升整体方案吻合度2-4个百分点，并降低插单冲击下的重排次数。`;
+        button.disabled = false;
+        showToast('AI推演优化建议已生成');
+      }, 920);
+    }
+
+    function bindRuleActions() {
+      document.getElementById('review-rule-body')?.addEventListener('click', (event) => {
+        const button = event.target.closest('button[data-rule-action]');
+        if (!button) return;
+        const action = button.dataset.ruleAction;
+        if (action === 'view') {
+          showToast('已打开规则详情查看');
+        } else if (action === 'edit') {
+          window.location.href = 'settings.html?sub=base';
+        } else {
+          showToast('已生成待确认的新规则版本草案');
+        }
+      });
+    }
+
+    function renderReviewPage() {
+      const snapshot = getReviewSnapshot();
+      const dateInput = document.getElementById('review-date-input');
+      dateInput.value = formatDateYMD(snapshot.date);
+      renderHero(snapshot);
+      renderOverview(snapshot);
+      renderPlantCards(snapshot);
+      renderDetailTable(snapshot);
+      renderRuleTable(snapshot);
+      renderImprovements(snapshot);
+      renderComparison(snapshot);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const compareDate = addDays(selectedReviewDate, -7);
+      document.getElementById('compare-date-input').value = formatDateYMD(compareDate);
+      renderReviewPage();
+      bindRuleActions();
+      document.getElementById('review-date-input').addEventListener('change', (event) => {
+        const next = parseLocalDate(event.target.value);
+        if (!next) return;
+        selectedReviewDate = next;
+        const url = new URL(window.location.href);
+        url.searchParams.set('date', formatDateYMD(next));
+        window.history.replaceState({}, '', url);
+        document.getElementById('compare-date-input').value = formatDateYMD(addDays(next, -7));
+        renderReviewPage();
+      });
+      document.getElementById('compare-date-input').addEventListener('change', () => {
+        renderComparison(getReviewSnapshot());
+        showToast('历史日期对比已更新');
+      });
+      document.getElementById('review-generate-btn').addEventListener('click', generateReport);
+      document.getElementById('review-export-btn').addEventListener('click', exportReport);
+      document.getElementById('review-ai-btn').addEventListener('click', runAIOptimization);
+    });
+  </script>
+  <script src="common.js"></script>
+</body>
+</html>

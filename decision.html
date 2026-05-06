@@ -1159,6 +1159,25 @@
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72), 0 10px 24px rgba(15, 23, 42, 0.08);
     }
 
+    [data-theme="light"] .kpi-fusion-metric {
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      border-color: #dbe7f7;
+      box-shadow: 0 10px 20px rgba(15, 23, 42, 0.06);
+    }
+
+    [data-theme="light"] .kpi-fusion-label {
+      color: #64748b;
+    }
+
+    [data-theme="light"] .kpi-fusion-value {
+      color: #0f172a;
+      text-shadow: none;
+    }
+
+    [data-theme="light"] .kpi-fusion-note {
+      color: #52647a;
+    }
+
     .kpi-fusion-metric {
       min-width: 0;
       padding: 8px 10px;
@@ -1598,7 +1617,7 @@
                   </div>
                 </div>
 
-                <div class="kpi-card kpi-plan">
+                <div class="kpi-card kpi-plan" role="button" tabindex="0" onclick="openPlanCompletionPage()" onkeydown="handlePlanCardKey(event)">
                   <div class="kpi-card-bg"></div>
                   <div class="kpi-card-content">
                     <div class="kpi-card-header">
@@ -2123,6 +2142,17 @@
 
     function openPlannerTodoPage() {
       window.location.href = 'planner-todo.html';
+    }
+
+    function handlePlanCardKey(event) {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        openPlanCompletionPage();
+      }
+    }
+
+    function openPlanCompletionPage() {
+      window.location.href = 'plan-completion.html';
     }
 
     function handleWipCardKey(event) {

@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>今日计划完成看板 - 格力高级计划排程系统</title>
+  <link rel="stylesheet" href="common.css" />
+  <style>
+    .plan-completion-page { display: flex; flex-direction: column; gap: 14px; }
+    .plan-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+    .plan-note { color: #94a3b8; font-size: 12px; }
+    .plan-overview-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+    .plan-overview-card {
+      border: 1px solid #334155;
+      border-radius: 12px;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(15, 27, 45, 0.94));
+      padding: 13px 14px;
+      min-width: 0;
+    }
+    .plan-overview-label { color: #94a3b8; font-size: 12px; margin-bottom: 8px; }
+    .plan-overview-value { color: #f8fafc; font-size: 26px; line-height: 1.1; font-weight: 800; }
+    .plan-overview-value .unit { color: #94a3b8; font-size: 12px; font-weight: 600; margin-left: 4px; }
+    .plan-overview-sub { margin-top: 7px; color: #64748b; font-size: 11px; line-height: 1.45; }
+    .plant-progress-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+    .plant-progress-card {
+      border: 1px solid #334155;
+      border-radius: 12px;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(15, 27, 45, 0.94));
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+      min-width: 0;
+    }
+    .plant-progress-card.ok { border-color: rgba(56, 189, 248, 0.32); }
+    .plant-progress-card.watch { border-color: rgba(251, 146, 60, 0.36); }
+    .plant-progress-card.risk { border-color: rgba(248, 113, 113, 0.38); }
+    .plant-progress-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .plant-progress-name { color: #e2e8f0; font-size: 13px; font-weight: 800; }
+    .plant-status {
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .plant-status.ok { background: rgba(56, 189, 248, 0.16); color: #7dd3fc; }
+    .plant-status.watch { background: rgba(251, 146, 60, 0.16); color: #fdba74; }
+    .plant-status.risk { background: rgba(248, 113, 113, 0.16); color: #fecaca; }
+    .plant-progress-number { color: #f8fafc; font-size: 24px; font-weight: 800; line-height: 1; }
+    .plant-progress-number .unit { color: #94a3b8; font-size: 12px; font-weight: 600; margin-left: 3px; }
+    .plant-progress-track { height: 8px; border-radius: 999px; background: #1e293b; overflow: hidden; }
+    .plant-progress-fill { height: 100%; border-radius: inherit; background: linear-gradient(90deg, #38bdf8, #2563eb); }
+    .plant-progress-fill.watch { background: linear-gradient(90deg, #fb923c, #f97316); }
+    .plant-progress-fill.risk { background: linear-gradient(90deg, #fb7185, #ef4444); }
+    .plant-progress-meta { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .plant-progress-metric {
+      border: 1px solid rgba(51, 65, 85, 0.9);
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.7);
+      padding: 8px;
+      min-width: 0;
+    }
+    .plant-progress-metric label { display: block; color: #64748b; font-size: 11px; margin-bottom: 5px; }
+    .plant-progress-metric strong { color: #f8fafc; font-size: 13px; }
+    .completion-layout { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(300px, 0.8fr); gap: 14px; }
+    .completion-table-wrap { overflow-x: auto; border: 1px solid #334155; border-radius: 12px; background: #0f172a; }
+    .completion-table { width: 100%; min-width: 900px; border-collapse: collapse; }
+    .completion-table th,
+    .completion-table td { padding: 10px 12px; border-bottom: 1px solid #243246; color: #cbd5e1; font-size: 12px; text-align: left; }
+    .completion-table th { background: #172033; color: #94a3b8; font-weight: 800; }
+    .completion-table tbody tr:last-child td { border-bottom: 0; }
+    .completion-table td strong { color: #f8fafc; }
+    .progress-mini { display: flex; align-items: center; gap: 8px; min-width: 150px; }
+    .progress-mini-track { flex: 1; height: 7px; border-radius: 999px; background: #1e293b; overflow: hidden; }
+    .progress-mini-fill { height: 100%; border-radius: inherit; background: linear-gradient(90deg, #38bdf8, #2563eb); }
+    .progress-mini-fill.watch { background: linear-gradient(90deg, #fb923c, #f97316); }
+    .progress-mini-fill.risk { background: linear-gradient(90deg, #fb7185, #ef4444); }
+    .completion-side-stack { display: grid; gap: 10px; }
+    .completion-side-card {
+      border: 1px solid #334155;
+      border-radius: 12px;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(15, 27, 45, 0.94));
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+    }
+    .completion-side-title { color: #e2e8f0; font-size: 13px; font-weight: 800; }
+    .completion-side-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 9px 10px;
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.78);
+      border: 1px solid rgba(51, 65, 85, 0.9);
+      color: #cbd5e1;
+      font-size: 12px;
+    }
+    .completion-side-item strong { color: #f8fafc; }
+    .completion-side-item.warn strong { color: #fdba74; }
+    .completion-side-item.risk strong { color: #fecaca; }
+    .completion-side-copy { color: #94a3b8; font-size: 12px; line-height: 1.6; }
+    [data-theme="light"] .plan-overview-card,
+    [data-theme="light"] .plant-progress-card,
+    [data-theme="light"] .completion-table-wrap,
+    [data-theme="light"] .completion-side-card,
+    [data-theme="light"] .plant-progress-metric,
+    [data-theme="light"] .completion-side-item {
+      background: #fff !important;
+      border-color: var(--line) !important;
+    }
+    [data-theme="light"] .plan-overview-value,
+    [data-theme="light"] .plant-progress-name,
+    [data-theme="light"] .plant-progress-number,
+    [data-theme="light"] .plant-progress-metric strong,
+    [data-theme="light"] .completion-table td strong,
+    [data-theme="light"] .completion-side-title,
+    [data-theme="light"] .completion-side-item strong {
+      color: var(--txt) !important;
+    }
+    [data-theme="light"] .completion-table th { background: #eef2ff !important; }
+    [data-theme="light"] .completion-table td { color: var(--txt) !important; border-color: #e2e8f0 !important; }
+    [data-theme="light"] .plant-status.ok {
+      background: #eff6ff !important;
+      color: #1d4ed8 !important;
+    }
+    [data-theme="light"] .plant-status.watch {
+      background: #fff7ed !important;
+      color: #c2410c !important;
+    }
+    [data-theme="light"] .plant-status.risk {
+      background: #fff1f2 !important;
+      color: #be123c !important;
+    }
+    [data-theme="light"] .plant-progress-card.ok { border-color: #bfdbfe !important; }
+    [data-theme="light"] .plant-progress-card.watch { border-color: #fed7aa !important; }
+    [data-theme="light"] .plant-progress-card.risk { border-color: #fecdd3 !important; }
+    [data-theme="light"] .plan-note,
+    [data-theme="light"] .plan-overview-label,
+    [data-theme="light"] .plan-overview-sub,
+    [data-theme="light"] .plant-progress-metric label,
+    [data-theme="light"] .completion-side-copy { color: var(--muted) !important; }
+    @media (max-width: 1320px) {
+      .plan-overview-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .plant-progress-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .completion-layout { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 720px) {
+      .plan-overview-grid,
+      .plant-progress-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="aps-header-layout">
+    <div class="brand-block">
+      <img class="header-logo" src="1c5703c9-aca0-43d1-9843-9d502cb66fd0.png" alt="APS Logo" width="143" height="44" />
+      <div class="aps-console-title">
+        <div class="aps-console-title-main">排产智能体</div>
+        <div class="aps-console-title-sub">格力高级计划排程系统</div>
+      </div>
+    </div>
+    <nav class="nav aps-main-nav" id="nav">
+      <a href="decision.html" class="nav-item active">决策分析</a>
+      <a href="collab.html" class="nav-item">排产操作</a>
+      <a href="settings.html" class="nav-item">系统设置</a>
+    </nav>
+    <div class="header-meta aps-header-meta" id="header-meta">
+      <div class="aps-site-switch">
+        <span class="aps-site-switch-label">制造基地</span>
+        <select id="hq-select" class="role-select" aria-label="基地切换">
+          <option>珠海格力总部</option>
+          <option>金湾基地</option>
+          <option>武汉基地</option>
+          <option>洛阳基地</option>
+        </select>
+      </div>
+      <span id="header-date" class="aps-clock-chip">2026-04-27 10:00:00</span>
+      <button type="button" class="aps-notify-btn" id="aps-notify-btn" aria-label="打开消息通知">
+        🔔<span class="aps-notify-badge" id="aps-notify-badge">0</span>
+      </button>
+      <div class="user-dropdown" id="user-dropdown">
+        <div class="user-dropdown-toggle" onclick="toggleUserDropdown()">
+          <div class="avatar">张</div>
+          <span class="name">张伟</span>
+          <span class="arrow">▼</span>
+        </div>
+        <div class="user-dropdown-menu">
+          <a href="settings.html?sub=profile" class="user-dropdown-item">👤 用户信息</a>
+          <a href="login.html" class="user-dropdown-item logout">🚪 退出</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="app">
+    <section class="view plan-completion-page">
+      <article class="card">
+        <div class="card-hd">
+          <span>今日计划完成看板</span>
+          <div class="plan-toolbar">
+            <span class="plan-note">按分厂查看今日订单完成率、生产进度及完成情况</span>
+            <a href="decision.html" class="btn sm">返回决策分析</a>
+          </div>
+        </div>
+        <div class="card-bd">
+          <div class="plan-overview-grid" id="plan-overview-grid"></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-hd">
+          <span>各分厂今日完成情况</span>
+          <span class="muted">计划总量 120 单，当前完成 92 单</span>
+        </div>
+        <div class="card-bd">
+          <div class="plant-progress-grid" id="plant-progress-grid"></div>
+        </div>
+      </article>
+
+      <div class="completion-layout">
+        <article class="card">
+          <div class="card-hd">
+            <span>生产进度明细</span>
+            <span class="muted">按分厂汇总</span>
+          </div>
+          <div class="card-bd">
+            <div class="completion-table-wrap">
+              <table class="completion-table">
+                <thead>
+                  <tr>
+                    <th>分厂</th>
+                    <th>今日订单</th>
+                    <th>完成率</th>
+                    <th>生产进度</th>
+                    <th>完成情况</th>
+                    <th>当前关注点</th>
+                  </tr>
+                </thead>
+                <tbody id="completion-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </article>
+
+        <div class="completion-side-stack">
+          <article class="completion-side-card">
+            <div class="completion-side-title">完成态势</div>
+            <div id="completion-side-list"></div>
+          </article>
+          <article class="completion-side-card">
+            <div class="completion-side-title">调度观察</div>
+            <div class="completion-side-copy" id="completion-side-copy"></div>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const plantCompletionData = [
+      { plant: '东区总装', completed: 21, total: 25, progress: 84, status: '正常', focus: '尾段包装节拍稳定', output: 486 },
+      { plant: '西区总装', completed: 18, total: 24, progress: 75, status: '关注', focus: '两条线等待齐套确认', output: 392 },
+      { plant: '注塑分厂', completed: 16, total: 21, progress: 76, status: '关注', focus: '换模批次影响节拍', output: 618 },
+      { plant: '两器分厂', completed: 19, total: 24, progress: 79, status: '正常', focus: '焊接工序保持缓冲', output: 445 },
+      { plant: '控制器分厂', completed: 18, total: 26, progress: 69, status: '滞后', focus: '检测返修占用产能', output: 351 }
+    ];
+
+    function formatNumber(value) {
+      return new Intl.NumberFormat('zh-CN').format(value);
+    }
+
+    function getStatusClass(status) {
+      if (status === '滞后') return 'risk';
+      if (status === '关注') return 'watch';
+      return 'ok';
+    }
+
+    function getCompletionRate(item) {
+      return (item.completed / item.total) * 100;
+    }
+
+    function renderOverview() {
+      const total = plantCompletionData.reduce((sum, item) => sum + item.total, 0);
+      const completed = plantCompletionData.reduce((sum, item) => sum + item.completed, 0);
+      const output = plantCompletionData.reduce((sum, item) => sum + item.output, 0);
+      const avgProgress = Math.round(plantCompletionData.reduce((sum, item) => sum + item.progress, 0) / plantCompletionData.length);
+      const riskCount = plantCompletionData.filter((item) => item.status !== '正常').length;
+      const overview = [
+        { label: '今日计划完成', value: completed, unit: `/${total} 单`, sub: `订单完成率 ${((completed / total) * 100).toFixed(1)}%` },
+        { label: '平均生产进度', value: avgProgress, unit: '%', sub: '5个分厂生产节拍均值' },
+        { label: '今日累计产量', value: formatNumber(output), unit: '台', sub: '已入完成统计口径' },
+        { label: '需关注分厂', value: riskCount, unit: '个', sub: '包含关注与滞后状态' }
+      ];
+      const grid = document.getElementById('plan-overview-grid');
+      if (!grid) return;
+      grid.innerHTML = overview.map((item) => `
+        <div class="plan-overview-card">
+          <div class="plan-overview-label">${item.label}</div>
+          <div class="plan-overview-value">${item.value}<span class="unit">${item.unit}</span></div>
+          <div class="plan-overview-sub">${item.sub}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderPlantCards() {
+      const grid = document.getElementById('plant-progress-grid');
+      if (!grid) return;
+      grid.innerHTML = plantCompletionData.map((item) => {
+        const rate = getCompletionRate(item);
+        const statusClass = getStatusClass(item.status);
+        return `
+          <div class="plant-progress-card ${statusClass}">
+            <div class="plant-progress-head">
+              <div class="plant-progress-name">${item.plant}</div>
+              <span class="plant-status ${statusClass}">${item.status}</span>
+            </div>
+            <div class="plant-progress-number">${rate.toFixed(1)}<span class="unit">%</span></div>
+            <div class="plant-progress-track">
+              <div class="plant-progress-fill ${statusClass}" style="width:${Math.min(100, rate).toFixed(1)}%"></div>
+            </div>
+            <div class="plant-progress-meta">
+              <div class="plant-progress-metric">
+                <label>订单完成</label>
+                <strong>${item.completed}/${item.total} 单</strong>
+              </div>
+              <div class="plant-progress-metric">
+                <label>累计产量</label>
+                <strong>${formatNumber(item.output)} 台</strong>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderCompletionTable() {
+      const tbody = document.getElementById('completion-table-body');
+      if (!tbody) return;
+      tbody.innerHTML = plantCompletionData.map((item) => {
+        const rate = getCompletionRate(item);
+        const statusClass = getStatusClass(item.status);
+        return `
+          <tr>
+            <td><strong>${item.plant}</strong></td>
+            <td>${item.completed}/${item.total} 单</td>
+            <td>${rate.toFixed(1)}%</td>
+            <td>
+              <div class="progress-mini">
+                <div class="progress-mini-track">
+                  <div class="progress-mini-fill ${statusClass}" style="width:${Math.min(100, item.progress)}%"></div>
+                </div>
+                <span>${item.progress}%</span>
+              </div>
+            </td>
+            <td><span class="plant-status ${statusClass}">${item.status}</span></td>
+            <td>${item.focus}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderSidePanel() {
+      const list = document.getElementById('completion-side-list');
+      const copy = document.getElementById('completion-side-copy');
+      if (!list || !copy) return;
+      const best = [...plantCompletionData].sort((a, b) => getCompletionRate(b) - getCompletionRate(a))[0];
+      const lag = [...plantCompletionData].sort((a, b) => getCompletionRate(a) - getCompletionRate(b))[0];
+      list.innerHTML = `
+        <div class="completion-side-item">
+          <span>完成率最高</span>
+          <strong>${best.plant} ${getCompletionRate(best).toFixed(1)}%</strong>
+        </div>
+        <div class="completion-side-item risk">
+          <span>当前滞后</span>
+          <strong>${lag.plant} ${getCompletionRate(lag).toFixed(1)}%</strong>
+        </div>
+        <div class="completion-side-item warn">
+          <span>关注工序</span>
+          <strong>齐套 / 检测 / 换模</strong>
+        </div>
+      `;
+      copy.textContent = '今日计划完成整体进度为76.7%。东区总装与两器分厂节拍较稳，西区总装和注塑分厂需要继续盯齐套与换模影响，控制器分厂建议优先压缩检测返修等待时间。';
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderOverview();
+      renderPlantCards();
+      renderCompletionTable();
+      renderSidePanel();
+    });
+  </script>
+  <script src="common.js"></script>
+</body>
+</html>
