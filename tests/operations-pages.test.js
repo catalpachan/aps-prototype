@@ -152,6 +152,12 @@ test('order management page has three tabs and double confirmation for order act
     assert.match(html, new RegExp(label), `missing insert order dialog field: ${label}`);
   }
 
+  assert.match(
+    html,
+    /<select id="insert-form-prefix"[^>]*required>[\s\S]*?<option value="">请选择<\/option>[\s\S]*?<option value="出口订单">出口订单<\/option>[\s\S]*?<option value="内销订单">内销订单<\/option>[\s\S]*?<\/select>/,
+    'insert order prefix should use the requested select options'
+  );
+
   assert.match(html, /onclick="openReturnOrderDialog\(\)"/, 'return package order button should open the return order dialog');
   assert.match(html, /id="return-order-mask"/, 'return order dialog should exist');
 
@@ -159,6 +165,7 @@ test('order management page has three tabs and double confirmation for order act
     '工艺流程\\(必选\\)',
     '返包订单系列号\\(必填\\)',
     '分厂编码',
+    '分厂名称',
     '计划订单',
     '订单来源',
     '订单代码\\(总装\\)',
@@ -169,13 +176,63 @@ test('order management page has three tabs and double confirmation for order act
     '成品码',
     '订单状态',
     '是否关闭订单',
-    '批次行号序号',
+    '批次',
+    '行号',
+    '序号',
     '类型',
     '是否加急订单',
     '提交'
   ]) {
     assert.match(html, new RegExp(label), `missing return order dialog field: ${label}`);
   }
+
+  for (const id of ['return-form-plant', 'return-form-plant-name', 'return-form-customs-date', 'return-form-delivery-date']) {
+    assert.match(html, new RegExp(`id="${id}"[^>]*readonly`), `${id} should be automatically filled and read only`);
+  }
+  for (const id of ['return-form-batch', 'return-form-line-no', 'return-form-seq']) {
+    assert.match(html, new RegExp(`id="${id}"`), `missing split return order field: ${id}`);
+  }
+  assert.doesNotMatch(html, /id="return-form-batch-line-seq"/, 'combined batch/line/sequence field should be removed');
+  assert.match(html, /onchange="updateReturnOrderAutofill\(\)"/, 'return order selectors should refresh linked fields');
+});
+
+test('return package order selection auto-fills plant and delivery details', () => {
+  const [script] = readInlineScripts('order-management.html');
+  const elements = {
+    'return-form-process': { value: 'CBJW12' },
+    'return-form-series': { value: 'FB202606-B' },
+    'return-form-plant': { value: '' },
+    'return-form-plant-name': { value: '' },
+    'return-form-customs-date': { value: '' },
+    'return-form-delivery-date': { value: '' }
+  };
+  const result = require('node:vm').runInNewContext(
+    `${script}\nupdateReturnOrderAutofill(); ({
+      plant: document.getElementById('return-form-plant').value,
+      plantName: document.getElementById('return-form-plant-name').value,
+      customsDate: document.getElementById('return-form-customs-date').value,
+      deliveryDate: document.getElementById('return-form-delivery-date').value
+    });`,
+    {
+      document: {
+        addEventListener() {},
+        querySelectorAll() { return []; },
+        getElementById(id) { return elements[id] || null; }
+      },
+      Set,
+      console
+    }
+  );
+
+  assert.deepEqual(
+    JSON.parse(JSON.stringify(result)),
+    {
+      plant: '1688',
+      plantName: '总装一厂',
+      customsDate: '2026-06-20T09:00',
+      deliveryDate: '2026-06-24T17:30'
+    }
+  );
 });
 
 test('order management tables use the requested headers and paginate 30 rows by tens', () => {

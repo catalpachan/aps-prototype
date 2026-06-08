@@ -281,6 +281,7 @@
     }
 
     .insert-order-field input,
+    .insert-order-field select,
     .return-order-field input,
     .return-order-field select {
       width: 100%;
@@ -296,11 +297,18 @@
     }
 
     .insert-order-field input:focus,
+    .insert-order-field select:focus,
     .return-order-field input:focus,
     .return-order-field select:focus {
       border-color: #60a5fa;
       box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
       background: #111c30;
+    }
+
+    .return-order-field input[readonly] {
+      color: #93c5fd;
+      background: #111c30;
+      cursor: default;
     }
 
     [data-theme="light"] .orders-frame,
@@ -336,6 +344,7 @@
     [data-theme="light"] .order-filter-field input,
     [data-theme="light"] .order-filter-field select,
     [data-theme="light"] .insert-order-field input,
+    [data-theme="light"] .insert-order-field select,
     [data-theme="light"] .return-order-field input,
     [data-theme="light"] .return-order-field select,
     [data-theme="light"] .table-footer {
@@ -725,7 +734,11 @@
         <div class="modal-bd insert-order-grid">
           <label class="insert-order-field" for="insert-form-prefix">
             插单前缀(必填)
-            <input id="insert-form-prefix" name="insertPrefix" type="text" required placeholder="请输入插单前缀" />
+            <select id="insert-form-prefix" name="insertPrefix" required>
+              <option value="">请选择</option>
+              <option value="出口订单">出口订单</option>
+              <option value="内销订单">内销订单</option>
+            </select>
           </label>
           <label class="insert-order-field" for="insert-form-company">
             公司
@@ -802,7 +815,7 @@
         <div class="modal-bd return-order-grid">
           <label class="return-order-field" for="return-form-process">
             工艺流程(必选)
-            <select id="return-form-process" name="processFlow" required>
+            <select id="return-form-process" name="processFlow" required onchange="updateReturnOrderAutofill()">
               <option value="">请选择</option>
               <option>CBJW11</option>
               <option>CBJW12</option>
@@ -811,11 +824,20 @@
           </label>
           <label class="return-order-field" for="return-form-series">
             返包订单系列号(必填)
-            <input id="return-form-series" name="returnSeriesNo" type="text" required placeholder="请输入返包订单系列号" />
+            <select id="return-form-series" name="returnSeriesNo" required onchange="updateReturnOrderAutofill()">
+              <option value="">请选择</option>
+              <option value="FB202606-A">FB202606-A</option>
+              <option value="FB202606-B">FB202606-B</option>
+              <option value="FB202606-C">FB202606-C</option>
+            </select>
           </label>
           <label class="return-order-field" for="return-form-plant">
             分厂编码
-            <input id="return-form-plant" name="plantCode" type="text" placeholder="请输入分厂编码" />
+            <input id="return-form-plant" name="plantCode" type="text" readonly placeholder="选择流程和系列号后自动带出" />
+          </label>
+          <label class="return-order-field" for="return-form-plant-name">
+            分厂名称
+            <input id="return-form-plant-name" name="plantName" type="text" readonly placeholder="选择流程和系列号后自动带出" />
           </label>
           <label class="return-order-field" for="return-form-plan-order">
             计划订单
@@ -839,11 +861,11 @@
           </label>
           <label class="return-order-field" for="return-form-customs-date">
             出口订单报关日期
-            <input id="return-form-customs-date" name="customsDate" type="datetime-local" />
+            <input id="return-form-customs-date" name="customsDate" type="datetime-local" readonly />
           </label>
           <label class="return-order-field" for="return-form-delivery-date">
             交货期
-            <input id="return-form-delivery-date" name="deliveryDate" type="datetime-local" />
+            <input id="return-form-delivery-date" name="deliveryDate" type="datetime-local" readonly />
           </label>
           <label class="return-order-field" for="return-form-product-code">
             成品码
@@ -860,9 +882,17 @@
               <option>已关闭</option>
             </select>
           </label>
-          <label class="return-order-field" for="return-form-batch-line-seq">
-            批次行号序号
-            <input id="return-form-batch-line-seq" name="batchLineSequence" type="text" placeholder="请输入批次行号序号" />
+          <label class="return-order-field" for="return-form-batch">
+            批次
+            <input id="return-form-batch" name="batch" type="text" placeholder="请输入批次" />
+          </label>
+          <label class="return-order-field" for="return-form-line-no">
+            行号
+            <input id="return-form-line-no" name="lineNo" type="text" placeholder="请输入行号" />
+          </label>
+          <label class="return-order-field" for="return-form-seq">
+            序号
+            <input id="return-form-seq" name="sequenceNo" type="text" placeholder="请输入序号" />
           </label>
           <label class="return-order-field" for="return-form-type">
             类型
@@ -893,6 +923,24 @@
       plan: '计划订单',
       insert: '插单订单',
       production: '生产订单'
+    };
+
+    const returnOrderAutofillData = {
+      CBJW11: {
+        'FB202606-A': { plant: '700', plantName: '高栏钣金厂', customsDate: '2026-06-18T09:00', deliveryDate: '2026-06-22T17:30' },
+        'FB202606-B': { plant: '700', plantName: '高栏钣金厂', customsDate: '2026-06-19T09:00', deliveryDate: '2026-06-23T17:30' },
+        'FB202606-C': { plant: '700', plantName: '高栏钣金厂', customsDate: '2026-06-20T09:00', deliveryDate: '2026-06-24T17:30' }
+      },
+      CBJW12: {
+        'FB202606-A': { plant: '1688', plantName: '总装一厂', customsDate: '2026-06-19T09:00', deliveryDate: '2026-06-23T17:30' },
+        'FB202606-B': { plant: '1688', plantName: '总装一厂', customsDate: '2026-06-20T09:00', deliveryDate: '2026-06-24T17:30' },
+        'FB202606-C': { plant: '1688', plantName: '总装一厂', customsDate: '2026-06-21T09:00', deliveryDate: '2026-06-25T17:30' }
+      },
+      CBJW13: {
+        'FB202606-A': { plant: '810', plantName: '金湾注塑厂', customsDate: '2026-06-20T09:00', deliveryDate: '2026-06-24T17:30' },
+        'FB202606-B': { plant: '810', plantName: '金湾注塑厂', customsDate: '2026-06-21T09:00', deliveryDate: '2026-06-25T17:30' },
+        'FB202606-C': { plant: '810', plantName: '金湾注塑厂', customsDate: '2026-06-22T09:00', deliveryDate: '2026-06-26T17:30' }
+      }
     };
 
     const ORDER_PAGE_SIZE = 10;
@@ -1237,13 +1285,30 @@
     function submitInsertOrderForm(event) {
       event.preventDefault();
       const prefix = document.getElementById('insert-form-prefix');
-      if (!prefix?.value.trim()) {
+      if (!prefix?.value) {
         prefix?.focus();
-        toast('请填写插单前缀');
+        toast('请选择插单订单前缀');
         return;
       }
       closeInsertOrderDialog();
       toast('插单订单已提交');
+    }
+
+    function updateReturnOrderAutofill() {
+      const process = document.getElementById('return-form-process')?.value || '';
+      const series = document.getElementById('return-form-series')?.value || '';
+      const detail = returnOrderAutofillData[process]?.[series] || {};
+      const values = {
+        'return-form-plant': detail.plant || '',
+        'return-form-plant-name': detail.plantName || '',
+        'return-form-customs-date': detail.customsDate || '',
+        'return-form-delivery-date': detail.deliveryDate || ''
+      };
+
+      Object.entries(values).forEach(([id, value]) => {
+        const input = document.getElementById(id);
+        if (input) input.value = value;
+      });
     }
 
     function openReturnOrderDialog() {
@@ -1251,6 +1316,7 @@
       const form = document.getElementById('return-order-form');
       if (!mask) return;
       if (form) form.reset();
+      updateReturnOrderAutofill();
       mask.classList.add('show');
       mask.setAttribute('aria-hidden', 'false');
       setTimeout(() => document.getElementById('return-form-process')?.focus(), 20);
@@ -1272,9 +1338,9 @@
         toast('请选择工艺流程');
         return;
       }
-      if (!series?.value.trim()) {
+      if (!series?.value) {
         series?.focus();
-        toast('请填写返包订单系列号');
+        toast('请选择返包订单系列号');
         return;
       }
       closeReturnOrderDialog();
