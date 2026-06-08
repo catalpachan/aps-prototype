@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>订单管理 - 格力高级计划排程系统</title>
+  <link rel="stylesheet" href="common.css" />
+  <style>
+    .orders-page {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .orders-frame {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(17, 24, 39, 0.95);
+      overflow: hidden;
+      box-shadow: 0 8px 20px rgba(2, 6, 23, 0.22);
+    }
+
+    .orders-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      flex-wrap: wrap;
+    }
+
+    .orders-title {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .orders-title strong {
+      font-size: 16px;
+      color: #f8fafc;
+    }
+
+    .orders-title span {
+      color: #94a3b8;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .orders-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .orders-tabs {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      background: #0f172a;
+      overflow: hidden;
+    }
+
+    .order-tab-btn {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: #94a3b8;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 8px 14px;
+      cursor: pointer;
+    }
+
+    .order-tab-btn + .order-tab-btn {
+      border-left: 1px solid #334155;
+    }
+
+    .order-tab-btn.active {
+      background: #2563eb;
+      color: #fff;
+    }
+
+    .orders-body {
+      padding: 14px;
+    }
+
+    .order-panel {
+      display: none;
+    }
+
+    .order-panel.active {
+      display: block;
+    }
+
+    .order-tool {
+      border: 1px solid #334155;
+      border-radius: 12px;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.96), rgba(15, 27, 45, 0.94));
+      padding: 14px;
+      min-height: calc(100vh - 150px);
+    }
+
+    .order-section-title {
+      padding-bottom: 12px;
+      border-bottom: 1px solid #334155;
+      color: #e2e8f0;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .order-filter-bar {
+      margin-top: 12px;
+      border: 1px solid #2f3d55;
+      border-radius: 10px;
+      background: #10192b;
+      padding: 12px;
+      display: flex;
+      align-items: end;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .order-filter-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 150px;
+      color: #94a3b8;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .order-filter-field.wide {
+      min-width: min(360px, 100%);
+      flex: 1 1 260px;
+    }
+
+    .order-filter-field input,
+    .order-filter-field select {
+      height: 36px;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 0 10px;
+      font-size: 12px;
+      min-width: 0;
+    }
+
+    .order-filter-field input::placeholder {
+      color: #64748b;
+    }
+
+    .table-shell {
+      margin-top: 12px;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      background: #0f172a;
+      overflow: auto;
+      min-height: 460px;
+    }
+
+    .order-table {
+      width: 100%;
+      min-width: var(--table-min, 1480px);
+      border-collapse: collapse;
+    }
+
+    .order-table th,
+    .order-table td {
+      border-bottom: 1px solid #243246;
+      border-right: 1px solid #243246;
+      padding: 10px 12px;
+      text-align: left;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .order-table th:last-child,
+    .order-table td:last-child {
+      border-right: 0;
+    }
+
+    .order-table th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: #172033;
+      color: #dbe5f7;
+      font-weight: 800;
+    }
+
+    .order-table td {
+      color: #d1d5db;
+    }
+
+    .order-table tbody tr:hover,
+    .order-table tbody tr.active {
+      background: rgba(37, 99, 235, 0.14);
+    }
+
+    .order-table td.key {
+      color: #93c5fd;
+      font-weight: 800;
+    }
+
+    .order-table td.center,
+    .order-table th.center {
+      text-align: center;
+    }
+
+    .row-check {
+      width: 18px;
+      height: 18px;
+      accent-color: #2563eb;
+    }
+
+    .row-selector {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-width: 48px;
+      cursor: pointer;
+    }
+
+    .table-footer {
+      margin-top: 10px;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      background: #10192b;
+      padding: 8px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .pager {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #94a3b8;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .query-done {
+      color: #86efac;
+      font-size: 12px;
+      border-left: 1px solid #334155;
+      padding-left: 12px;
+    }
+
+    .insert-order-card,
+    .return-order-card {
+      width: min(980px, 100%);
+    }
+
+    .insert-order-grid,
+    .return-order-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px 14px;
+      max-height: min(62vh, 620px);
+    }
+
+    .insert-order-field,
+    .return-order-field {
+      display: grid;
+      gap: 6px;
+      min-width: 0;
+      color: #94a3b8;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .insert-order-field input,
+    .return-order-field input,
+    .return-order-field select {
+      width: 100%;
+      height: 38px;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 0 10px;
+      font-size: 12px;
+      outline: none;
+      transition: border-color var(--dur-fast), box-shadow var(--dur-fast), background var(--dur-fast);
+    }
+
+    .insert-order-field input:focus,
+    .return-order-field input:focus,
+    .return-order-field select:focus {
+      border-color: #60a5fa;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+      background: #111c30;
+    }
+
+    [data-theme="light"] .orders-frame,
+    [data-theme="light"] .order-tool,
+    [data-theme="light"] .order-filter-bar,
+    [data-theme="light"] .table-shell,
+    [data-theme="light"] .table-footer {
+      background: #fff !important;
+      background-image: none !important;
+      border-color: var(--line) !important;
+      color: var(--txt) !important;
+      box-shadow: 0 10px 28px rgb(15 23 42 / 0.08);
+    }
+
+    [data-theme="light"] .orders-header,
+    [data-theme="light"] .order-section-title {
+      border-color: var(--line) !important;
+    }
+
+    [data-theme="light"] .orders-title strong,
+    [data-theme="light"] .order-section-title,
+    [data-theme="light"] .order-table td {
+      color: var(--txt) !important;
+    }
+
+    [data-theme="light"] .orders-title span,
+    [data-theme="light"] .order-filter-field,
+    [data-theme="light"] .pager {
+      color: var(--muted) !important;
+    }
+
+    [data-theme="light"] .orders-tabs,
+    [data-theme="light"] .order-filter-field input,
+    [data-theme="light"] .order-filter-field select,
+    [data-theme="light"] .insert-order-field input,
+    [data-theme="light"] .return-order-field input,
+    [data-theme="light"] .return-order-field select,
+    [data-theme="light"] .table-footer {
+      background: var(--panel-2) !important;
+      border-color: var(--line) !important;
+      color: var(--txt) !important;
+    }
+
+    [data-theme="light"] .insert-order-field,
+    [data-theme="light"] .return-order-field {
+      color: var(--muted) !important;
+    }
+
+    [data-theme="light"] .order-tab-btn.active {
+      background: #2563eb !important;
+      color: #fff !important;
+    }
+
+    [data-theme="light"] .order-table th {
+      background: #eef2ff !important;
+      color: var(--txt) !important;
+      border-color: #e2e8f0 !important;
+    }
+
+    [data-theme="light"] .order-table td {
+      border-color: #e2e8f0 !important;
+    }
+
+    [data-theme="light"] .order-table tbody tr:hover,
+    [data-theme="light"] .order-table tbody tr.active {
+      background: #e8f2ff !important;
+    }
+
+    [data-theme="light"] .query-done {
+      color: #047857;
+      border-color: var(--line) !important;
+    }
+
+    @media (max-width: 860px) {
+      .aps-header-layout {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .aps-header-layout .brand-block {
+        min-width: 0;
+      }
+
+      .aps-header-layout .nav.aps-main-nav {
+        grid-column: auto;
+        justify-self: stretch;
+        justify-content: flex-start;
+      }
+
+      .aps-header-layout .aps-header-meta {
+        justify-self: stretch;
+        flex-wrap: wrap;
+        white-space: normal;
+      }
+
+      .aps-site-switch {
+        margin-left: 0;
+      }
+
+      .orders-body {
+        padding: 10px;
+      }
+
+      .order-filter-field,
+      .order-filter-field.wide {
+        flex: 1 1 100%;
+      }
+
+      .insert-order-grid,
+      .return-order-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .orders-tabs {
+        width: 100%;
+      }
+
+      .order-tab-btn {
+        flex: 1 1 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="aps-header-layout">
+    <div class="brand-block">
+      <img class="header-logo" src="1c5703c9-aca0-43d1-9843-9d502cb66fd0.png" alt="APS Logo" width="143" height="44" />
+      <div class="aps-console-title">
+        <div class="aps-console-title-main">排产智能体</div>
+        <div class="aps-console-title-sub">格力高级计划排程系统</div>
+      </div>
+    </div>
+    <nav class="nav aps-main-nav" id="nav">
+      <a href="decision.html" class="nav-item">决策分析</a>
+      <a href="collab.html" class="nav-item active">排产操作</a>
+      <a href="settings.html" class="nav-item">系统设置</a>
+    </nav>
+    <div class="header-meta aps-header-meta" id="header-meta">
+      <div class="aps-site-switch">
+        <span class="aps-site-switch-label">制造基地</span>
+        <select id="hq-select" class="role-select" aria-label="基地切换">
+          <option>珠海格力总部</option>
+          <option>金湾基地</option>
+          <option>武汉基地</option>
+          <option>洛阳基地</option>
+        </select>
+      </div>
+      <span id="header-date" class="aps-clock-chip">2026-06-04 08:56:33</span>
+      <button type="button" class="aps-notify-btn" id="aps-notify-btn" aria-label="打开消息通知">
+        🔔<span class="aps-notify-badge" id="aps-notify-badge">0</span>
+      </button>
+      <div class="user-dropdown" id="user-dropdown">
+        <div class="user-dropdown-toggle" onclick="toggleUserDropdown()">
+          <div class="avatar">张</div>
+          <span class="name">张伟</span>
+          <span class="arrow">▼</span>
+        </div>
+        <div class="user-dropdown-menu">
+          <a href="settings.html?sub=profile" class="user-dropdown-item">👤 用户信息</a>
+          <a href="login.html" class="user-dropdown-item logout">🚪 退出</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="app">
+    <section class="view orders-page">
+      <div class="orders-frame">
+        <div class="orders-header">
+          <div class="orders-title">
+            <strong>订单管理</strong>
+            <span id="orders-title-suffix">计划订单</span>
+          </div>
+          <div class="orders-actions">
+            <div class="orders-tabs" aria-label="订单管理页签">
+              <button class="order-tab-btn active" type="button" data-order-tab="plan">计划订单</button>
+              <button class="order-tab-btn" type="button" data-order-tab="insert">插单订单</button>
+              <button class="order-tab-btn" type="button" data-order-tab="production">生产订单</button>
+            </div>
+            <a href="collab.html" class="btn sm">返回排产操作</a>
+          </div>
+        </div>
+
+        <div class="orders-body">
+          <section class="order-panel active" id="order-panel-plan" aria-labelledby="order-plan-heading">
+            <div class="order-tool">
+              <div class="order-section-title" id="order-plan-heading">计划订单</div>
+              <div class="order-filter-bar">
+                <label class="order-filter-field" for="plan-start-date">
+                  开始日期
+                  <input id="plan-start-date" type="date" value="2026-06-04" />
+                </label>
+                <label class="order-filter-field" for="plan-end-date">
+                  结束日期
+                  <input id="plan-end-date" type="date" value="2026-06-04" />
+                </label>
+                <button class="btn primary" type="button" onclick="confirmOrderAction('plan-open')">开单</button>
+                <label class="order-filter-field" for="plan-status">
+                  订单状态
+                  <select id="plan-status">
+                    <option>全部</option>
+                    <option>已计划</option>
+                    <option>确定计划</option>
+                  </select>
+                </label>
+                <label class="order-filter-field wide" for="plan-search">
+                  搜索
+                  <input id="plan-search" type="search" placeholder="计划订单号/来源订单号/物料编码（模糊）" />
+                </label>
+                <button class="btn primary" type="button" onclick="toast('计划订单查询完成')">搜索</button>
+                <button class="btn" type="button" onclick="resetOrderFilters('plan')">重置</button>
+              </div>
+              <div class="table-shell">
+                <table class="order-table" id="plan-order-table" style="--table-min: 2300px;">
+                  <thead>
+                    <tr>
+                      <th>序号</th>
+                      <th>公司</th>
+                      <th>计划订单号</th>
+                      <th>订单类别</th>
+                      <th>来源订单号</th>
+                      <th>物料编码</th>
+                      <th>物料说明</th>
+                      <th>订货数量</th>
+                      <th>订单状态</th>
+                      <th>订单状态描述</th>
+                      <th>计划需求日期</th>
+                      <th>计划起始日期</th>
+                      <th>报关日期</th>
+                      <th>交货期/完成日期</th>
+                      <th>销售批次</th>
+                      <th>行号</th>
+                    </tr>
+                  </thead>
+                  <tbody id="plan-order-tbody"></tbody>
+                </table>
+              </div>
+              <div class="table-footer">
+                <div class="pager">
+                  <button class="btn sm" id="plan-prev" type="button" onclick="changeOrderPage('plan', -1)" disabled>上一页</button>
+                  <span id="plan-page-label">1/3</span>
+                  <button class="btn sm" id="plan-next" type="button" onclick="changeOrderPage('plan', 1)">下一页</button>
+                  <select id="plan-page-select" aria-label="计划订单页码" onchange="setOrderPage('plan', this.value)">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                  </select>
+                </div>
+                <div class="query-done">查询完成，共 30 条记录</div>
+              </div>
+            </div>
+          </section>
+
+          <section class="order-panel" id="order-panel-insert" aria-labelledby="order-insert-heading">
+            <div class="order-tool">
+              <div class="order-section-title" id="order-insert-heading">插单订单</div>
+              <div class="order-filter-bar">
+                <label class="order-filter-field wide" for="insert-plan-no">
+                  计划订单号
+                  <input id="insert-plan-no" type="search" placeholder="精确匹配" />
+                </label>
+                <label class="order-filter-field wide" for="insert-material">
+                  物料编码
+                  <input id="insert-material" type="search" placeholder="精确匹配" />
+                </label>
+                <label class="order-filter-field" for="insert-type">
+                  订单类别
+                  <select id="insert-type"><option>全部</option><option>内销</option><option>出口</option></select>
+                </label>
+                <label class="order-filter-field" for="insert-opened">
+                  是否开单
+                  <select id="insert-opened"><option>全部</option><option>已开单</option><option>未开单</option></select>
+                </label>
+                <button class="btn primary" type="button" onclick="toast('插单订单查询完成')">搜索</button>
+                <button class="btn" type="button" onclick="resetOrderFilters('insert')">重置</button>
+                <button class="btn" type="button" onclick="openInsertOrderDialog()">添加</button>
+                <button class="btn" type="button" onclick="confirmOrderAction('insert-open')">插单开单</button>
+              </div>
+              <div class="table-shell">
+                <table class="order-table" id="insert-order-table" style="--table-min: 2700px;">
+                  <thead>
+                    <tr>
+                      <th class="center">序号</th>
+                      <th>ID</th>
+                      <th>公司</th>
+                      <th>计划订单号</th>
+                      <th>订单类别</th>
+                      <th>来源订单号</th>
+                      <th>物料编码</th>
+                      <th>物料说明</th>
+                      <th>订货数量</th>
+                      <th>订单状态</th>
+                      <th>订单状态描述</th>
+                      <th>是否开单</th>
+                      <th>是否插单</th>
+                      <th>计划需求日期</th>
+                      <th>计划起始日期</th>
+                      <th>报关日期</th>
+                      <th>交货期/完成日期</th>
+                      <th>销售批次</th>
+                      <th>行号</th>
+                    </tr>
+                  </thead>
+                  <tbody id="insert-order-tbody"></tbody>
+                </table>
+              </div>
+              <div class="table-footer">
+                <div class="pager">
+                  <button class="btn sm" id="insert-prev" type="button" onclick="changeOrderPage('insert', -1)" disabled>上一页</button>
+                  <span id="insert-page-label">1/3</span>
+                  <button class="btn sm" id="insert-next" type="button" onclick="changeOrderPage('insert', 1)">下一页</button>
+                  <select id="insert-page-select" aria-label="插单订单页码" onchange="setOrderPage('insert', this.value)">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                  </select>
+                </div>
+                <div class="query-done">查询完成，共 30 条记录</div>
+              </div>
+            </div>
+          </section>
+
+          <section class="order-panel" id="order-panel-production" aria-labelledby="order-production-heading">
+            <div class="order-tool">
+              <div class="order-section-title" id="order-production-heading">生产订单列表</div>
+              <div class="order-filter-bar">
+                <label class="order-filter-field" for="prod-plan-no">
+                  计划订单号
+                  <input id="prod-plan-no" type="search" placeholder="计划订单号（精确）" />
+                </label>
+                <label class="order-filter-field" for="prod-material">
+                  物料编码
+                  <input id="prod-material" type="search" placeholder="物料编码（精确）" />
+                </label>
+                <label class="order-filter-field" for="prod-code">
+                  成品码
+                  <input id="prod-code" type="search" placeholder="成品码（精确）" />
+                </label>
+                <label class="order-filter-field wide" for="prod-fuzzy">
+                  模糊查询
+                  <input id="prod-fuzzy" type="search" placeholder="订单来源/配套订单/总装订单/成品码（模糊）" />
+                </label>
+                <button class="btn primary" type="button" onclick="toast('生产订单查询完成')">搜索</button>
+                <button class="btn" type="button" onclick="resetOrderFilters('production')">重置</button>
+                <button class="btn" type="button" onclick="openReturnOrderDialog()">新增返包订单</button>
+                <button class="btn err txt-white" type="button" onclick="clearOpenedOrders()">清空开单</button>
+                <label class="order-filter-field" for="prod-plant">
+                  分厂编码
+                  <select id="prod-plant"><option>全部</option><option>700</option><option>1688</option></select>
+                </label>
+                <label class="order-filter-field" for="prod-closed">
+                  是否关闭
+                  <select id="prod-closed"><option>全部</option><option>未关闭</option><option>已关闭</option></select>
+                </label>
+                <label class="order-filter-field" for="prod-type">
+                  类型
+                  <select id="prod-type"><option>全部</option><option>总装</option><option>配套</option></select>
+                </label>
+                <label class="order-filter-field" for="prod-urgent">
+                  是否加急
+                  <select id="prod-urgent"><option>全部</option><option>加急</option><option>普通</option></select>
+                </label>
+              </div>
+              <div class="table-shell">
+                <table class="order-table" id="production-order-table" style="--table-min: 2800px;">
+                  <thead>
+                    <tr>
+                      <th>序号</th>
+                      <th>配套订单</th>
+                      <th>开单时间</th>
+                      <th>分厂编码</th>
+                      <th>分厂名称</th>
+                      <th>计划订单</th>
+                      <th>订单来源</th>
+                      <th>订单代码（总装）</th>
+                      <th>物料编码</th>
+                      <th>订单数量</th>
+                      <th>报关日期</th>
+                      <th>交货期</th>
+                      <th>工艺流程</th>
+                      <th>成品码</th>
+                      <th>订单状态</th>
+                      <th>是否关闭</th>
+                      <th>类型</th>
+                      <th>是否加急订单</th>
+                      <th>批次</th>
+                      <th>行号</th>
+                    </tr>
+                  </thead>
+                  <tbody id="production-order-tbody"></tbody>
+                </table>
+              </div>
+              <div class="table-footer">
+                <div class="pager">
+                  <button class="btn sm" id="production-prev" type="button" onclick="changeOrderPage('production', -1)" disabled>上一页</button>
+                  <span id="production-page-label">1/3</span>
+                  <button class="btn sm" id="production-next" type="button" onclick="changeOrderPage('production', 1)">下一页</button>
+                  <select id="production-page-select" aria-label="生产订单页码" onchange="setOrderPage('production', this.value)">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                  </select>
+                </div>
+                <div class="query-done">查询完成，共 30 条记录</div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <div class="modal-mask" id="insert-order-mask" aria-hidden="true">
+    <div class="modal-card insert-order-card" role="dialog" aria-modal="true" aria-labelledby="insert-order-title">
+      <div class="modal-hd">
+        <span id="insert-order-title">新增插单订单</span>
+        <button class="btn sm" type="button" onclick="closeInsertOrderDialog()">关闭</button>
+      </div>
+      <form id="insert-order-form" onsubmit="submitInsertOrderForm(event)">
+        <div class="modal-bd insert-order-grid">
+          <label class="insert-order-field" for="insert-form-prefix">
+            插单前缀(必填)
+            <input id="insert-form-prefix" name="insertPrefix" type="text" required placeholder="请输入插单前缀" />
+          </label>
+          <label class="insert-order-field" for="insert-form-company">
+            公司
+            <input id="insert-form-company" name="company" type="text" placeholder="请输入公司" />
+          </label>
+          <label class="insert-order-field" for="insert-form-source-order">
+            来源订单号
+            <input id="insert-form-source-order" name="sourceOrderNo" type="text" placeholder="请输入来源订单号" />
+          </label>
+          <label class="insert-order-field" for="insert-form-material-code">
+            物料编码
+            <input id="insert-form-material-code" name="materialCode" type="text" placeholder="请输入物料编码" />
+          </label>
+          <label class="insert-order-field" for="insert-form-material-desc">
+            物料说明
+            <input id="insert-form-material-desc" name="materialDesc" type="text" placeholder="请输入物料说明" />
+          </label>
+          <label class="insert-order-field" for="insert-form-order-qty">
+            订货数量
+            <input id="insert-form-order-qty" name="orderQty" type="number" min="0" step="1" placeholder="0" />
+          </label>
+          <label class="insert-order-field" for="insert-form-status">
+            订单状态
+            <input id="insert-form-status" name="orderStatus" type="text" placeholder="请输入订单状态" />
+          </label>
+          <label class="insert-order-field" for="insert-form-status-desc">
+            订单状态描述
+            <input id="insert-form-status-desc" name="orderStatusDesc" type="text" placeholder="请输入订单状态描述" />
+          </label>
+          <label class="insert-order-field" for="insert-form-demand-date">
+            计划需求日期
+            <input id="insert-form-demand-date" name="demandDate" type="datetime-local" />
+          </label>
+          <label class="insert-order-field" for="insert-form-start-date">
+            计划起始日期
+            <input id="insert-form-start-date" name="startDate" type="datetime-local" />
+          </label>
+          <label class="insert-order-field" for="insert-form-customs-date">
+            报关日期
+            <input id="insert-form-customs-date" name="customsDate" type="datetime-local" />
+          </label>
+          <label class="insert-order-field" for="insert-form-delivery-date">
+            交货期/完成日期
+            <input id="insert-form-delivery-date" name="deliveryDate" type="datetime-local" />
+          </label>
+          <label class="insert-order-field" for="insert-form-batch">
+            批次
+            <input id="insert-form-batch" name="batch" type="text" placeholder="请输入批次" />
+          </label>
+          <label class="insert-order-field" for="insert-form-line-no">
+            行号
+            <input id="insert-form-line-no" name="lineNo" type="text" placeholder="请输入行号" />
+          </label>
+          <label class="insert-order-field" for="insert-form-seq">
+            序号
+            <input id="insert-form-seq" name="sequenceNo" type="text" placeholder="请输入序号" />
+          </label>
+        </div>
+        <div class="modal-ft">
+          <button class="btn" type="button" onclick="closeInsertOrderDialog()">取消</button>
+          <button class="btn primary" type="submit">提交</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-mask" id="return-order-mask" aria-hidden="true">
+    <div class="modal-card return-order-card" role="dialog" aria-modal="true" aria-labelledby="return-order-title">
+      <div class="modal-hd">
+        <span id="return-order-title">新增返包订单</span>
+        <button class="btn sm" type="button" onclick="closeReturnOrderDialog()">关闭</button>
+      </div>
+      <form id="return-order-form" onsubmit="submitReturnOrderForm(event)">
+        <div class="modal-bd return-order-grid">
+          <label class="return-order-field" for="return-form-process">
+            工艺流程(必选)
+            <select id="return-form-process" name="processFlow" required>
+              <option value="">请选择</option>
+              <option>CBJW11</option>
+              <option>CBJW12</option>
+              <option>CBJW13</option>
+            </select>
+          </label>
+          <label class="return-order-field" for="return-form-series">
+            返包订单系列号(必填)
+            <input id="return-form-series" name="returnSeriesNo" type="text" required placeholder="请输入返包订单系列号" />
+          </label>
+          <label class="return-order-field" for="return-form-plant">
+            分厂编码
+            <input id="return-form-plant" name="plantCode" type="text" placeholder="请输入分厂编码" />
+          </label>
+          <label class="return-order-field" for="return-form-plan-order">
+            计划订单
+            <input id="return-form-plan-order" name="planOrderNo" type="text" placeholder="请输入计划订单" />
+          </label>
+          <label class="return-order-field" for="return-form-source">
+            订单来源
+            <input id="return-form-source" name="orderSource" type="text" placeholder="请输入订单来源" />
+          </label>
+          <label class="return-order-field" for="return-form-assembly-code">
+            订单代码(总装)
+            <input id="return-form-assembly-code" name="assemblyOrderCode" type="text" placeholder="请输入订单代码" />
+          </label>
+          <label class="return-order-field" for="return-form-material">
+            物料编码
+            <input id="return-form-material" name="materialCode" type="text" placeholder="请输入物料编码" />
+          </label>
+          <label class="return-order-field" for="return-form-qty">
+            订单数量
+            <input id="return-form-qty" name="orderQty" type="number" min="0" step="1" placeholder="0" />
+          </label>
+          <label class="return-order-field" for="return-form-customs-date">
+            出口订单报关日期
+            <input id="return-form-customs-date" name="customsDate" type="datetime-local" />
+          </label>
+          <label class="return-order-field" for="return-form-delivery-date">
+            交货期
+            <input id="return-form-delivery-date" name="deliveryDate" type="datetime-local" />
+          </label>
+          <label class="return-order-field" for="return-form-product-code">
+            成品码
+            <input id="return-form-product-code" name="productCode" type="text" placeholder="请输入成品码" />
+          </label>
+          <label class="return-order-field" for="return-form-status">
+            订单状态
+            <input id="return-form-status" name="orderStatus" type="text" placeholder="请输入订单状态" />
+          </label>
+          <label class="return-order-field" for="return-form-closed">
+            是否关闭订单
+            <select id="return-form-closed" name="isClosed">
+              <option>未关闭</option>
+              <option>已关闭</option>
+            </select>
+          </label>
+          <label class="return-order-field" for="return-form-batch-line-seq">
+            批次行号序号
+            <input id="return-form-batch-line-seq" name="batchLineSequence" type="text" placeholder="请输入批次行号序号" />
+          </label>
+          <label class="return-order-field" for="return-form-type">
+            类型
+            <select id="return-form-type" name="orderType">
+              <option>总装</option>
+              <option>配套</option>
+              <option>返包</option>
+            </select>
+          </label>
+          <label class="return-order-field" for="return-form-urgent">
+            是否加急订单
+            <select id="return-form-urgent" name="isUrgent">
+              <option>普通</option>
+              <option>加急</option>
+            </select>
+          </label>
+        </div>
+        <div class="modal-ft">
+          <button class="btn" type="button" onclick="closeReturnOrderDialog()">取消</button>
+          <button class="btn primary" type="submit">提交</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const orderTabLabels = {
+      plan: '计划订单',
+      insert: '插单订单',
+      production: '生产订单'
+    };
+
+    const ORDER_PAGE_SIZE = 10;
+    const orderPageState = {
+      plan: 1,
+      insert: 1,
+      production: 1
+    };
+
+    const orderMaterials = [
+      ['CA385W11400', 'GWH12AGBXB-K3NNA1B/O 顶'],
+      ['CA444W12200', 'GWC12QCXB-K6NNC4A/O 顶'],
+      ['CB574W04400', 'GWC12ATBXB-K6DNA1G/O 顶（降功率功能）'],
+      ['CB590N03400', 'GWC12ATBXB-K6DNA3G/I 顶（通侧）'],
+      ['CA477N09301', 'GWH18AACXD-K3NNA2B/I（通侧）'],
+      ['CB595N06700_202401', 'GWH12ATCXB-K6DNA4G/I 顶（WIFI）'],
+      ['CB603N10700_X64747', '风管机室内机总成'],
+      ['CB622N06602_Y77054', '变频冷暖室外机总成'],
+      ['CA341N03400_X95953', '空调器顶盖组件'],
+      ['CA362N02600', '风叶轴套装配组件']
+    ];
+
+    const productionMaterials = [
+      '012280060010',
+      '012008060111',
+      '012022060012',
+      '012049060124',
+      '01204806014901',
+      '012055060397',
+      '01205606038402',
+      '012044060022',
+      '01200806009706',
+      '012052060185'
+    ];
+
+    function padOrderNumber(value, length = 2) {
+      return String(value).padStart(length, '0');
+    }
+
+    function buildOrderDate(index, offset = 0, includeTime = false) {
+      const absoluteDay = index + offset;
+      const month = 6 + Math.floor(absoluteDay / 28);
+      const day = (absoluteDay % 28) + 1;
+      const date = `2026-${padOrderNumber(month)}-${padOrderNumber(day)}`;
+      if (!includeTime) return date;
+      const hour = padOrderNumber(8 + (index % 9));
+      const minute = padOrderNumber((index * 7) % 60);
+      return `${date} ${hour}:${minute}:00`;
+    }
+
+    const planOrderData = Array.from({ length: 30 }, (_, index) => {
+      const [materialCode, materialDescription] = orderMaterials[index % orderMaterials.length];
+      const isExport = index % 3 === 2;
+      const statusIndex = index % 3;
+      return {
+        sequence: index + 1,
+        company: index % 4 === 3 ? '1688' : '1003',
+        planOrderNo: `PLN202606${padOrderNumber(index + 1, 4)}`,
+        orderCategory: isExport ? '出口' : '内销',
+        sourceOrderNo: isExport ? `GXP${padOrderNumber(1445 + index, 6)}` : '-',
+        materialCode,
+        materialDescription,
+        orderQuantity: 40 + ((index * 37) % 620),
+        orderStatus: [10, 20, 30][statusIndex],
+        orderStatusDescription: ['已计划', '确定计划', '待确认'][statusIndex],
+        demandDate: buildOrderDate(index, 3, true),
+        startDate: buildOrderDate(index, 0),
+        customsDate: isExport ? buildOrderDate(index, 5) : '-',
+        completionDate: buildOrderDate(index, 9),
+        salesBatch: `XS202606-${padOrderNumber(Math.floor(index / 3) + 1)}`,
+        lineNo: padOrderNumber((index % 6) + 1, 3)
+      };
+    });
+
+    const insertOrderData = Array.from({ length: 30 }, (_, index) => {
+      const [materialCode, materialDescription] = orderMaterials[(index + 3) % orderMaterials.length];
+      const isExport = index % 2 === 0;
+      const isOpened = index % 4 !== 1;
+      return {
+        sequence: index + 1,
+        id: 1001 + index,
+        company: index % 3 === 0 ? '1688' : '1003',
+        planOrderNo: `${isExport ? 'CCX' : 'CNX'}${padOrderNumber(index + 1, 6)}`,
+        orderCategory: isExport ? '出口' : '内销',
+        sourceOrderNo: `G003-${padOrderNumber(index + 1, 4)}`,
+        materialCode,
+        materialDescription: `${materialDescription}（插单）`,
+        orderQuantity: 20 + ((index * 23) % 280),
+        orderStatus: isOpened ? 30 : 20,
+        orderStatusDescription: isOpened ? '插单已审核' : '插单待开单',
+        isOpened: isOpened ? '是' : '否',
+        isInserted: '是',
+        demandDate: buildOrderDate(index, 2, true),
+        startDate: buildOrderDate(index, 0),
+        customsDate: isExport ? buildOrderDate(index, 4) : '-',
+        completionDate: buildOrderDate(index, 7),
+        salesBatch: `CD202606-${padOrderNumber(Math.floor(index / 3) + 1)}`,
+        lineNo: padOrderNumber((index % 8) + 1, 3)
+      };
+    });
+
+    const productionOrderData = Array.from({ length: 30 }, (_, index) => {
+      const plantIndex = index % 3;
+      const statusIndex = index % 3;
+      return {
+        sequence: index + 1,
+        supportingOrder: `JBC${padOrderNumber(index + 1, 6)}`,
+        openedAt: buildOrderDate(index, 0, true),
+        plantCode: ['700', '1688', '810'][plantIndex],
+        plantName: ['高栏钣金厂', '总装一厂', '金湾注塑厂'][plantIndex],
+        planOrderNo: `PLN202606${padOrderNumber((index % 15) + 1, 4)}`,
+        orderSource: `JBP${padOrderNumber((index % 8) + 1, 6)}`,
+        assemblyOrderCode: `JC${padOrderNumber((index % 12) + 1, 7)}`,
+        materialCode: productionMaterials[index % productionMaterials.length],
+        orderQuantity: 30 + ((index * 25) % 320),
+        customsDate: index % 2 === 0 ? buildOrderDate(index, 4) : '-',
+        deliveryDate: buildOrderDate(index, 8),
+        processFlow: ['CBJW11', 'CBJW12', 'CBJW13'][index % 3],
+        productCode: orderMaterials[(index + 5) % orderMaterials.length][0],
+        orderStatus: ['未完成', '生产中', '已完成'][statusIndex],
+        isClosed: statusIndex === 2 ? '已关闭' : '未关闭',
+        orderType: ['总装', '配套', '返包'][index % 3],
+        isUrgent: index % 5 === 0 ? '加急' : '普通',
+        batch: `SC202606-${padOrderNumber(Math.floor(index / 5) + 1)}`,
+        lineNo: padOrderNumber((index % 10) + 1, 3)
+      };
+    });
+
+    const orderTableData = {
+      plan: planOrderData,
+      insert: insertOrderData,
+      production: productionOrderData
+    };
+
+    function escapeOrderCell(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function renderPlanOrderRow(row) {
+      return `
+        <tr>
+          <td>${row.sequence}</td>
+          <td>${escapeOrderCell(row.company)}</td>
+          <td class="key">${escapeOrderCell(row.planOrderNo)}</td>
+          <td>${escapeOrderCell(row.orderCategory)}</td>
+          <td>${escapeOrderCell(row.sourceOrderNo)}</td>
+          <td>${escapeOrderCell(row.materialCode)}</td>
+          <td>${escapeOrderCell(row.materialDescription)}</td>
+          <td>${row.orderQuantity}</td>
+          <td>${row.orderStatus}</td>
+          <td>${escapeOrderCell(row.orderStatusDescription)}</td>
+          <td>${escapeOrderCell(row.demandDate)}</td>
+          <td>${escapeOrderCell(row.startDate)}</td>
+          <td>${escapeOrderCell(row.customsDate)}</td>
+          <td>${escapeOrderCell(row.completionDate)}</td>
+          <td>${escapeOrderCell(row.salesBatch)}</td>
+          <td>${escapeOrderCell(row.lineNo)}</td>
+        </tr>
+      `;
+    }
+
+    function renderInsertOrderRow(row, index) {
+      return `
+        <tr class="${index === 0 ? 'active' : ''}">
+          <td class="center">
+            <label class="row-selector">
+              <input class="row-check" type="checkbox" aria-label="选择插单订单 ${escapeOrderCell(row.planOrderNo)}" />
+              <span>${row.sequence}</span>
+            </label>
+          </td>
+          <td>${row.id}</td>
+          <td>${escapeOrderCell(row.company)}</td>
+          <td class="key">${escapeOrderCell(row.planOrderNo)}</td>
+          <td>${escapeOrderCell(row.orderCategory)}</td>
+          <td>${escapeOrderCell(row.sourceOrderNo)}</td>
+          <td>${escapeOrderCell(row.materialCode)}</td>
+          <td>${escapeOrderCell(row.materialDescription)}</td>
+          <td>${row.orderQuantity}</td>
+          <td>${row.orderStatus}</td>
+          <td>${escapeOrderCell(row.orderStatusDescription)}</td>
+          <td>${escapeOrderCell(row.isOpened)}</td>
+          <td>${escapeOrderCell(row.isInserted)}</td>
+          <td>${escapeOrderCell(row.demandDate)}</td>
+          <td>${escapeOrderCell(row.startDate)}</td>
+          <td>${escapeOrderCell(row.customsDate)}</td>
+          <td>${escapeOrderCell(row.completionDate)}</td>
+          <td>${escapeOrderCell(row.salesBatch)}</td>
+          <td>${escapeOrderCell(row.lineNo)}</td>
+        </tr>
+      `;
+    }
+
+    function renderProductionOrderRow(row) {
+      return `
+        <tr>
+          <td>${row.sequence}</td>
+          <td>${escapeOrderCell(row.supportingOrder)}</td>
+          <td>${escapeOrderCell(row.openedAt)}</td>
+          <td>${escapeOrderCell(row.plantCode)}</td>
+          <td>${escapeOrderCell(row.plantName)}</td>
+          <td class="key">${escapeOrderCell(row.planOrderNo)}</td>
+          <td>${escapeOrderCell(row.orderSource)}</td>
+          <td>${escapeOrderCell(row.assemblyOrderCode)}</td>
+          <td>${escapeOrderCell(row.materialCode)}</td>
+          <td>${row.orderQuantity}</td>
+          <td>${escapeOrderCell(row.customsDate)}</td>
+          <td>${escapeOrderCell(row.deliveryDate)}</td>
+          <td>${escapeOrderCell(row.processFlow)}</td>
+          <td>${escapeOrderCell(row.productCode)}</td>
+          <td>${escapeOrderCell(row.orderStatus)}</td>
+          <td>${escapeOrderCell(row.isClosed)}</td>
+          <td>${escapeOrderCell(row.orderType)}</td>
+          <td>${escapeOrderCell(row.isUrgent)}</td>
+          <td>${escapeOrderCell(row.batch)}</td>
+          <td>${escapeOrderCell(row.lineNo)}</td>
+        </tr>
+      `;
+    }
+
+    function renderOrderTable(type) {
+      const data = orderTableData[type];
+      const tbody = document.getElementById(`${type}-order-tbody`);
+      if (!data || !tbody) return;
+
+      const totalPages = Math.ceil(data.length / ORDER_PAGE_SIZE);
+      const page = Math.min(Math.max(orderPageState[type], 1), totalPages);
+      const pageStart = (page - 1) * ORDER_PAGE_SIZE;
+      const rows = data.slice(pageStart, pageStart + ORDER_PAGE_SIZE);
+      const renderRow = {
+        plan: renderPlanOrderRow,
+        insert: renderInsertOrderRow,
+        production: renderProductionOrderRow
+      }[type];
+
+      orderPageState[type] = page;
+      tbody.innerHTML = rows.map((row, index) => renderRow(row, index)).join('');
+
+      const pageLabel = document.getElementById(`${type}-page-label`);
+      const pageSelect = document.getElementById(`${type}-page-select`);
+      const previousButton = document.getElementById(`${type}-prev`);
+      const nextButton = document.getElementById(`${type}-next`);
+      if (pageLabel) pageLabel.textContent = `${page}/${totalPages}`;
+      if (pageSelect) pageSelect.value = String(page);
+      if (previousButton) previousButton.disabled = page === 1;
+      if (nextButton) nextButton.disabled = page === totalPages;
+    }
+
+    function changeOrderPage(type, delta) {
+      const data = orderTableData[type];
+      if (!data) return;
+      const totalPages = Math.ceil(data.length / ORDER_PAGE_SIZE);
+      orderPageState[type] = Math.min(Math.max(orderPageState[type] + delta, 1), totalPages);
+      renderOrderTable(type);
+    }
+
+    function setOrderPage(type, value) {
+      orderPageState[type] = Number(value) || 1;
+      renderOrderTable(type);
+    }
+
+    function switchOrderTab(tab) {
+      document.querySelectorAll('[data-order-tab]').forEach((button) => {
+        button.classList.toggle('active', button.dataset.orderTab === tab);
+      });
+      document.querySelectorAll('.order-panel').forEach((panel) => {
+        panel.classList.toggle('active', panel.id === `order-panel-${tab}`);
+      });
+      const suffix = document.getElementById('orders-title-suffix');
+      if (suffix) suffix.textContent = orderTabLabels[tab] || '订单管理';
+    }
+
+    async function confirmOrderAction(type) {
+      const config = buildOrderConfirmConfig(type);
+
+      if (!config) return;
+      const ok = await showConfirmDialog({
+        title: config.title,
+        message: config.message,
+        confirmText: config.confirmText,
+        cancelText: '取消'
+      });
+      if (ok) toast(config.done);
+    }
+
+    function buildOrderConfirmConfig(type) {
+      if (type === 'plan-open') {
+        const startDate = document.getElementById('plan-start-date')?.value || '****-**-**';
+        const endDate = document.getElementById('plan-end-date')?.value || '****-**-**';
+        return {
+          title: '确认执行开单?',
+          message: `开始日期:${startDate}\n结束日期:${endDate}\n确认后将提交开单请求并生成新的开单记录。`,
+          confirmText: '确认开单',
+          done: '计划订单开单请求已提交'
+        };
+      }
+
+      if (type === 'insert-open') {
+        const insertPanel = document.getElementById('order-panel-insert');
+        const checkedRows = insertPanel
+          ? [...insertPanel.querySelectorAll('tbody .row-check:checked')].map((input) => input.closest('tr')).filter(Boolean)
+          : [];
+        const selectedRows = checkedRows.length
+          ? checkedRows
+          : [...(insertPanel?.querySelectorAll('tbody tr.active') || [])];
+        const planNumbers = selectedRows
+          .map((row) => row.querySelector('td.key')?.textContent.trim())
+          .filter(Boolean);
+
+        return {
+          title: '确认插单开单？',
+          message: `你已选择${selectedRows.length}条插单，计划订单号：${planNumbers.join('、')}`,
+          confirmText: '确认插单开单',
+          done: '插单开单请求已提交'
+        };
+      }
+
+      return null;
+    }
+
+    function openInsertOrderDialog() {
+      const mask = document.getElementById('insert-order-mask');
+      const form = document.getElementById('insert-order-form');
+      if (!mask) return;
+      if (form) form.reset();
+      mask.classList.add('show');
+      mask.setAttribute('aria-hidden', 'false');
+      setTimeout(() => document.getElementById('insert-form-prefix')?.focus(), 20);
+    }
+
+    function closeInsertOrderDialog() {
+      const mask = document.getElementById('insert-order-mask');
+      if (!mask) return;
+      mask.classList.remove('show');
+      mask.setAttribute('aria-hidden', 'true');
+    }
+
+    function submitInsertOrderForm(event) {
+      event.preventDefault();
+      const prefix = document.getElementById('insert-form-prefix');
+      if (!prefix?.value.trim()) {
+        prefix?.focus();
+        toast('请填写插单前缀');
+        return;
+      }
+      closeInsertOrderDialog();
+      toast('插单订单已提交');
+    }
+
+    function openReturnOrderDialog() {
+      const mask = document.getElementById('return-order-mask');
+      const form = document.getElementById('return-order-form');
+      if (!mask) return;
+      if (form) form.reset();
+      mask.classList.add('show');
+      mask.setAttribute('aria-hidden', 'false');
+      setTimeout(() => document.getElementById('return-form-process')?.focus(), 20);
+    }
+
+    function closeReturnOrderDialog() {
+      const mask = document.getElementById('return-order-mask');
+      if (!mask) return;
+      mask.classList.remove('show');
+      mask.setAttribute('aria-hidden', 'true');
+    }
+
+    function submitReturnOrderForm(event) {
+      event.preventDefault();
+      const process = document.getElementById('return-form-process');
+      const series = document.getElementById('return-form-series');
+      if (!process?.value) {
+        process?.focus();
+        toast('请选择工艺流程');
+        return;
+      }
+      if (!series?.value.trim()) {
+        series?.focus();
+        toast('请填写返包订单系列号');
+        return;
+      }
+      closeReturnOrderDialog();
+      toast('返包订单已提交');
+    }
+
+    async function clearOpenedOrders() {
+      const ok = await showConfirmDialog({
+        title: '清空开单确认',
+        message: '请再次确认：将清空当前筛选下的开单标记，已下发生产订单不受影响。',
+        confirmText: '确认清空',
+        cancelText: '取消',
+        confirmType: 'danger'
+      });
+      if (ok) toast('开单标记已清空');
+    }
+
+    function resetOrderFilters(scope) {
+      const panel = document.getElementById(`order-panel-${scope}`);
+      if (!panel) return;
+      panel.querySelectorAll('input').forEach((input) => {
+        if (input.type === 'date') return;
+        input.value = '';
+      });
+      panel.querySelectorAll('select').forEach((select) => {
+        select.selectedIndex = 0;
+      });
+      toast('筛选条件已重置');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      Object.keys(orderTableData).forEach(renderOrderTable);
+      document.querySelectorAll('[data-order-tab]').forEach((button) => {
+        button.addEventListener('click', () => switchOrderTab(button.dataset.orderTab));
+      });
+      const insertMask = document.getElementById('insert-order-mask');
+      insertMask?.addEventListener('click', (event) => {
+        if (event.target === insertMask) closeInsertOrderDialog();
+      });
+      const returnMask = document.getElementById('return-order-mask');
+      returnMask?.addEventListener('click', (event) => {
+        if (event.target === returnMask) closeReturnOrderDialog();
+      });
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && insertMask?.classList.contains('show')) {
+          closeInsertOrderDialog();
+        }
+        if (event.key === 'Escape' && returnMask?.classList.contains('show')) {
+          closeReturnOrderDialog();
+        }
+      });
+    });
+  </script>
+  <script src="common.js"></script>
+</body>
+</html>

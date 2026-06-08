@@ -3,128 +3,358 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>库存看板 - 格力高级计划排程系统</title>
+  <title>库存列表 - 格力高级计划排程系统</title>
   <link rel="stylesheet" href="common.css" />
   <style>
-    .inventory-board-page { display: flex; flex-direction: column; gap: 14px; }
-    .inventory-board-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
-    .inventory-board-note { color: #94a3b8; font-size: 12px; }
-    .inventory-overview-grid {
-      display: grid;
-      grid-template-columns: repeat(6, minmax(0, 1fr));
-      gap: 10px;
-    }
-    .inventory-overview-card {
-      border: 1px solid #334155;
-      border-radius: 12px;
-      background: linear-gradient(180deg, rgba(15, 23, 42, 0.98) 0%, rgba(15, 27, 45, 0.94) 100%);
-      padding: 12px;
-      min-width: 0;
-    }
-    .inventory-overview-label { color: #94a3b8; font-size: 12px; margin-bottom: 8px; }
-    .inventory-overview-value { color: #f8fafc; font-size: 24px; font-weight: 700; line-height: 1.1; }
-    .inventory-overview-value .unit { font-size: 12px; color: #94a3b8; font-weight: 600; margin-left: 4px; }
-    .inventory-overview-sub { margin-top: 6px; color: #64748b; font-size: 11px; }
-    .inventory-layout {
-      display: grid;
-      grid-template-columns: minmax(0, 1.6fr) minmax(320px, 0.9fr);
+    .inventory-list-page {
+      display: flex;
+      flex-direction: column;
       gap: 14px;
     }
-    .inventory-warehouse-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
+
+    .inventory-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
     }
-    .warehouse-card {
+
+    .inventory-title-row strong {
+      color: #f8fafc;
+      font-size: 20px;
+      line-height: 1.2;
+    }
+
+    .inventory-filter-panel {
       border: 1px solid #334155;
-      border-radius: 12px;
-      background: #0f172a;
-      padding: 12px;
+      border-radius: 8px;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.96) 0%, rgba(15, 27, 45, 0.9) 100%);
+      padding: 16px 18px;
+    }
+
+    .inventory-filter-grid {
       display: grid;
-      gap: 10px;
+      grid-template-columns: minmax(260px, 1fr) minmax(240px, 1fr) minmax(240px, 1fr) auto;
+      gap: 14px 16px;
+      align-items: end;
+    }
+
+    .inventory-field {
+      display: grid;
+      gap: 8px;
       min-width: 0;
     }
-    .warehouse-card-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-    }
-    .warehouse-card-title { color: #e2e8f0; font-size: 13px; font-weight: 700; }
-    .warehouse-card-badge {
-      padding: 4px 8px;
-      border-radius: 999px;
-      font-size: 11px;
+
+    .inventory-field label {
+      color: #cbd5e1;
+      font-size: 13px;
       font-weight: 700;
-      background: rgba(56, 189, 248, 0.14);
-      color: #7dd3fc;
     }
-    .warehouse-card-badge.warn {
-      background: rgba(251, 146, 60, 0.16);
-      color: #fdba74;
-    }
-    .warehouse-bar {
-      height: 9px;
-      border-radius: 999px;
-      background: #1e293b;
-      overflow: hidden;
-    }
-    .warehouse-bar-fill {
-      height: 100%;
-      border-radius: 999px;
-      background: linear-gradient(90deg, #38bdf8, #2563eb);
-    }
-    .warehouse-bar-fill.warn {
-      background: linear-gradient(90deg, #fb923c, #f97316);
-    }
-    .warehouse-metrics {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 8px;
-    }
-    .warehouse-metric {
-      border: 1px solid rgba(51, 65, 85, 0.9);
-      border-radius: 10px;
-      background: rgba(15, 23, 42, 0.72);
-      padding: 8px 10px;
-    }
-    .warehouse-metric-label { color: #64748b; font-size: 11px; margin-bottom: 4px; }
-    .warehouse-metric-value { color: #f8fafc; font-size: 15px; font-weight: 700; }
-    .warehouse-card-foot { color: #94a3b8; font-size: 11px; line-height: 1.5; }
-    .inventory-side-stack { display: grid; gap: 10px; }
-    .inventory-side-card {
+
+    .inventory-field input {
+      width: 100%;
+      height: 38px;
       border: 1px solid #334155;
-      border-radius: 12px;
-      background: linear-gradient(180deg, rgba(15, 23, 42, 0.98) 0%, rgba(15, 27, 45, 0.94) 100%);
-      padding: 12px;
-      display: grid;
-      gap: 10px;
+      border-radius: 8px;
+      background: #0f172a;
+      color: #e2e8f0;
+      font-size: 13px;
+      padding: 0 12px;
+      outline: none;
+      transition: border-color var(--dur-fast), box-shadow var(--dur-fast), background var(--dur-fast);
     }
-    .inventory-side-title { color: #e2e8f0; font-size: 13px; font-weight: 700; }
-    .inventory-side-list { display: grid; gap: 8px; }
-    .inventory-side-item {
-      display: flex;
+
+    .inventory-field input:focus {
+      border-color: #60a5fa;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+      background: #111c30;
+    }
+
+    .inventory-actions {
+      display: inline-flex;
       align-items: center;
-      justify-content: space-between;
       gap: 10px;
-      padding: 9px 10px;
-      border-radius: 10px;
-      background: rgba(15, 23, 42, 0.78);
-      border: 1px solid rgba(51, 65, 85, 0.9);
+      white-space: nowrap;
+    }
+
+    .inventory-table-shell {
+      margin-top: 14px;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      background: #0f172a;
+      overflow: auto;
+      min-height: 560px;
+      max-height: calc(100vh - 310px);
+      scrollbar-width: thin;
+      scrollbar-color: #64748b rgba(15, 23, 42, 0.9);
+    }
+
+    .inventory-table-shell::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+
+    .inventory-table-shell::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 999px;
+    }
+
+    .inventory-table-shell::-webkit-scrollbar-thumb {
+      background: #64748b;
+      border-radius: 999px;
+      border: 2px solid rgba(15, 23, 42, 0.9);
+    }
+
+    .inventory-list-table {
+      width: 100%;
+      min-width: 4560px;
+      border-collapse: separate;
+      border-spacing: 0;
+      table-layout: fixed;
+    }
+
+    .inventory-list-table th,
+    .inventory-list-table td {
+      border-right: 1px solid #243246;
+      border-bottom: 1px solid #243246;
+      padding: 10px 12px;
       color: #cbd5e1;
       font-size: 12px;
+      line-height: 1.35;
+      text-align: left;
+      white-space: nowrap;
+      background: #0f172a;
+      font-variant-numeric: tabular-nums;
     }
-    .inventory-side-item strong { color: #f8fafc; font-size: 13px; }
-    .inventory-side-item.warn strong { color: #fdba74; }
-    .inventory-side-item.ok strong { color: #7dd3fc; }
-    .inventory-side-caption { color: #64748b; font-size: 11px; line-height: 1.55; }
-    @media (max-width: 1320px) {
-      .inventory-overview-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-      .inventory-layout { grid-template-columns: 1fr; }
+
+    .inventory-list-table th {
+      position: sticky;
+      top: 0;
+      z-index: 3;
+      height: 42px;
+      background: #172033;
+      color: #dbeafe;
+      font-weight: 800;
     }
-    @media (max-width: 960px) {
-      .inventory-overview-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .inventory-warehouse-grid { grid-template-columns: 1fr; }
+
+    .inventory-list-table th:nth-child(1),
+    .inventory-list-table td:nth-child(1) {
+      position: sticky;
+      left: 0;
+      z-index: 2;
+      width: 96px;
+      min-width: 96px;
+      color: #e2e8f0;
+      font-weight: 700;
+    }
+
+    .inventory-list-table th:nth-child(2),
+    .inventory-list-table td:nth-child(2) {
+      position: sticky;
+      left: 96px;
+      z-index: 2;
+      width: 190px;
+      min-width: 190px;
+      color: #93c5fd;
+      font-weight: 700;
+    }
+
+    .inventory-list-table th:nth-child(1),
+    .inventory-list-table th:nth-child(2) {
+      z-index: 4;
+      background: #172033;
+    }
+
+    .inventory-list-table th:last-child,
+    .inventory-list-table td:last-child {
+      position: sticky;
+      right: 0;
+      z-index: 2;
+      width: 140px;
+      min-width: 140px;
+      background: #0f172a;
+      color: #e2e8f0;
+      font-weight: 700;
+      box-shadow: -12px 0 18px rgba(2, 6, 23, 0.28);
+    }
+
+    .inventory-list-table th:last-child {
+      z-index: 5;
+      background: #172033;
+      color: #dbeafe;
+    }
+
+    .inventory-list-table td.num {
+      text-align: right;
+      color: #dbeafe;
+    }
+
+    .inventory-list-table td.date {
+      color: #bfdbfe;
+    }
+
+    .inventory-list-table tbody tr:hover td {
+      background: #172033;
+    }
+
+    .inventory-list-table tbody tr:hover td:nth-child(1),
+    .inventory-list-table tbody tr:hover td:nth-child(2),
+    .inventory-list-table tbody tr:hover td:last-child {
+      background: #1e293b;
+    }
+
+    .inventory-table-footer {
+      margin-top: 12px;
+      min-height: 64px;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 12px 14px;
+      flex-wrap: wrap;
+    }
+
+    .inventory-pagination {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .inventory-page-select {
+      width: 70px;
+      height: 34px;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 0 8px;
+      font-size: 13px;
+    }
+
+    .inventory-query-done {
+      color: #86efac;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    [data-theme="light"] .inventory-title-row strong {
+      color: #0f172a;
+    }
+
+    [data-theme="light"] .inventory-filter-panel,
+    [data-theme="light"] .inventory-table-footer {
+      background: #f8fbff;
+      border-color: #dbe6f4;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+    }
+
+    [data-theme="light"] .inventory-field label {
+      color: #475569;
+    }
+
+    [data-theme="light"] .inventory-field input,
+    [data-theme="light"] .inventory-page-select {
+      background: #ffffff;
+      color: #0f172a;
+      border-color: #dbe6f4;
+    }
+
+    [data-theme="light"] .inventory-table-shell {
+      background: #ffffff;
+      border-color: #dbe6f4;
+      scrollbar-color: #94a3b8 #f1f5f9;
+    }
+
+    [data-theme="light"] .inventory-list-table th {
+      background: #f1f5f9;
+      color: #1e293b;
+      border-color: #dbe6f4;
+    }
+
+    [data-theme="light"] .inventory-list-table td {
+      background: #ffffff;
+      color: #1f2937;
+      border-color: #e2e8f0;
+    }
+
+    [data-theme="light"] .inventory-list-table th:nth-child(1),
+    [data-theme="light"] .inventory-list-table th:nth-child(2) {
+      background: #f1f5f9;
+    }
+
+    [data-theme="light"] .inventory-list-table td:nth-child(1),
+    [data-theme="light"] .inventory-list-table td:nth-child(2) {
+      background: #ffffff;
+    }
+
+    [data-theme="light"] .inventory-list-table th:last-child {
+      background: #f1f5f9;
+      color: #1e293b;
+    }
+
+    [data-theme="light"] .inventory-list-table td:last-child {
+      background: #ffffff;
+      color: #0f172a;
+      box-shadow: -12px 0 18px rgba(15, 23, 42, 0.1);
+    }
+
+    [data-theme="light"] .inventory-list-table td:nth-child(2),
+    [data-theme="light"] .inventory-list-table td.date {
+      color: #1d4ed8;
+    }
+
+    [data-theme="light"] .inventory-list-table td.num {
+      color: #0f172a;
+    }
+
+    [data-theme="light"] .inventory-list-table tbody tr:hover td,
+    [data-theme="light"] .inventory-list-table tbody tr:hover td:nth-child(1),
+    [data-theme="light"] .inventory-list-table tbody tr:hover td:nth-child(2),
+    [data-theme="light"] .inventory-list-table tbody tr:hover td:last-child {
+      background: #eaf2ff;
+    }
+
+    [data-theme="light"] .inventory-query-done {
+      color: #047857;
+    }
+
+    @media (max-width: 1080px) {
+      .inventory-filter-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .inventory-actions {
+        justify-content: flex-start;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .aps-header-layout {
+        overflow-x: hidden;
+      }
+
+      .aps-header-layout .aps-header-meta {
+        width: 100%;
+        max-width: 100%;
+        margin-left: 0;
+        justify-content: flex-start;
+        overflow-x: auto;
+        padding-bottom: 2px;
+      }
+
+      .inventory-filter-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .inventory-table-shell {
+        min-height: 420px;
+        max-height: 56vh;
+      }
     }
   </style>
 </head>
@@ -171,154 +401,219 @@
   </header>
 
   <main id="app">
-    <section class="view inventory-board-page">
+    <section class="view inventory-list-page">
       <article class="card">
         <div class="card-hd">
-          <span>库存看板</span>
-          <div class="inventory-board-toolbar">
-            <span class="inventory-board-note">聚合展示库存总数、容量、出入库与成品仓占用情况</span>
+          <div class="inventory-title-row">
+            <strong>库存列表</strong>
             <a href="decision.html" class="btn sm">返回决策分析</a>
           </div>
         </div>
         <div class="card-bd">
-          <div class="inventory-overview-grid" id="inventory-overview-grid"></div>
+          <div class="inventory-filter-panel" aria-label="库存查询条件">
+            <div class="inventory-filter-grid">
+              <div class="inventory-field">
+                <label for="inventory-keyword">搜索</label>
+                <input id="inventory-keyword" type="search" placeholder="仓库 / 物料（模糊）" />
+              </div>
+              <div class="inventory-field">
+                <label for="inventory-warehouse">仓库</label>
+                <input id="inventory-warehouse" type="text" placeholder="精确匹配（可选）" />
+              </div>
+              <div class="inventory-field">
+                <label for="inventory-material">物料</label>
+                <input id="inventory-material" type="text" placeholder="精确匹配（可选）" />
+              </div>
+              <div class="inventory-actions">
+                <button class="btn primary" type="button" onclick="searchInventory()">搜索</button>
+                <button class="btn" type="button" onclick="resetInventoryFilters()">重置</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="inventory-table-shell">
+            <table class="inventory-list-table" id="inventory-list-table" aria-label="库存列表">
+              <thead>
+                <tr>
+                  <th>仓库</th>
+                  <th>物料</th>
+                  <th>现有库存</th>
+                  <th>现有寄存库存</th>
+                  <th>客户所拥有的现有库存</th>
+                  <th>冻结库存</th>
+                  <th>计划时冻结库存</th>
+                  <th>在购库存</th>
+                  <th>公司所拥有的在购库存</th>
+                  <th>在购寄存库存</th>
+                  <th>客户所拥有的在购库存</th>
+                  <th>在途库存</th>
+                  <th>在途寄存库存</th>
+                  <th>客户所拥有的在途库存</th>
+                  <th>分配库存</th>
+                  <th>公司所拥有的分配库位的库存</th>
+                  <th>分配库位的寄存库存</th>
+                  <th>客户所拥有的分配库位的库存</th>
+                  <th>客户所拥有的冻结库存</th>
+                  <th>用于计划的客户所拥有的冻结库存</th>
+                  <th>承诺库存</th>
+                  <th>分配库位的库存</th>
+                  <th>处理中的承诺库存</th>
+                  <th>公司所拥有的隔离库存</th>
+                  <th>寄存隔离库存</th>
+                  <th>客户所拥有的隔离库存</th>
+                  <th>上次库存事务处理日期</th>
+                  <th>历史库存余量日期</th>
+                  <th>作废日期</th>
+                  <th>累计发料</th>
+                  <th>历史库存余量</th>
+                </tr>
+              </thead>
+              <tbody id="inventory-list-tbody"></tbody>
+            </table>
+          </div>
+
+          <div class="inventory-table-footer">
+            <div class="inventory-pagination">
+              <button class="btn sm" type="button" disabled>上一页</button>
+              <span class="muted">1/3</span>
+              <button class="btn sm" type="button" onclick="toast('已切换到下一页库存数据')">下一页</button>
+              <select class="inventory-page-select" aria-label="库存页码">
+                <option selected>1</option>
+                <option>2</option>
+                <option>3</option>
+              </select>
+            </div>
+            <div class="inventory-query-done" id="inventory-query-done">查询完成，共 30 条记录</div>
+          </div>
         </div>
       </article>
-
-      <div class="inventory-layout">
-        <article class="card">
-          <div class="card-hd">
-            <span>成品仓占用明细</span>
-            <span class="muted">成品仓1 - 成品仓9</span>
-          </div>
-          <div class="card-bd">
-            <div class="inventory-warehouse-grid" id="inventory-warehouse-grid"></div>
-          </div>
-        </article>
-
-        <div class="inventory-side-stack">
-          <article class="inventory-side-card">
-            <div class="inventory-side-title">重点关注</div>
-            <div class="inventory-side-list" id="inventory-focus-list"></div>
-          </article>
-          <article class="inventory-side-card">
-            <div class="inventory-side-title">库存观察</div>
-            <div class="inventory-side-caption" id="inventory-side-caption"></div>
-          </article>
-        </div>
-      </div>
     </section>
   </main>
 
   <script>
-    const warehouseData = [
-      { name: '成品仓1', capacity: 2400, stock: 1980, turnover: 5.8 },
-      { name: '成品仓2', capacity: 2600, stock: 2140, turnover: 5.6 },
-      { name: '成品仓3', capacity: 2500, stock: 1725, turnover: 4.9 },
-      { name: '成品仓4', capacity: 2300, stock: 1450, turnover: 4.3 },
-      { name: '成品仓5', capacity: 2700, stock: 2385, turnover: 6.2 },
-      { name: '成品仓6', capacity: 2450, stock: 1890, turnover: 5.1 },
-      { name: '成品仓7', capacity: 2550, stock: 2015, turnover: 5.4 },
-      { name: '成品仓8', capacity: 2350, stock: 1580, turnover: 4.7 },
-      { name: '成品仓9', capacity: 2650, stock: 2260, turnover: 6.0 }
+    const inventoryColumns = [
+      'warehouse',
+      'material',
+      'onHand',
+      'consignedOnHand',
+      'customerOnHand',
+      'frozen',
+      'planFrozen',
+      'purchased',
+      'companyPurchased',
+      'purchasedConsigned',
+      'customerPurchased',
+      'transit',
+      'transitConsigned',
+      'customerTransit',
+      'allocated',
+      'companyAllocatedLocation',
+      'allocatedLocationConsigned',
+      'customerAllocatedLocation',
+      'customerFrozen',
+      'planCustomerFrozen',
+      'promised',
+      'allocatedLocation',
+      'processingPromised',
+      'companyQuarantine',
+      'consignedQuarantine',
+      'customerQuarantine',
+      'lastTransactionAt',
+      'historyBalanceAt',
+      'invalidAt',
+      'cumulativeIssue',
+      'historyBalance'
     ];
 
-    const todayShipment = 1286;
-    const todayInbound = 1042;
-    const deadStock = 168;
-    const weeklyChange = 6.4;
+    const inventoryRows = [
+      ['03N010', 'CA341N03100_X95953', 1280, 0, 0, 42, 18, 360, 360, 0, 0, 140, 0, 0, 510, 510, 0, 0, 0, 0, 220, 510, 36, 0, 0, 0, '2026-03-12 02:53:17', '1970-01-01 00:00:00', '1970-01-01 00:00:00', 10975, 0],
+      ['03N010', 'CA341N03200_X95953', 920, 0, 0, 36, 12, 248, 248, 0, 0, 96, 0, 0, 376, 376, 0, 0, 0, 0, 148, 376, 22, 0, 0, 0, '2024-10-31 04:11:07', '1970-01-01 00:00:00', '1970-01-01 00:00:00', 5937, 0],
+      ['03N010', 'CA341N03400_X95953', 1065, 0, 0, 28, 10, 312, 312, 0, 0, 128, 0, 0, 455, 455, 0, 0, 0, 0, 176, 455, 18, 0, 0, 0, '2024-06-24 11:44:19', '1970-01-01 00:00:00', '1970-01-01 00:00:00', 6800, 0],
+      ['03N010', 'CA343N04200_Y19450', 1880, 0, 0, 64, 26, 520, 520, 0, 0, 210, 0, 0, 690, 690, 0, 0, 0, 0, 305, 690, 44, 0, 0, 0, '2026-03-11 03:21:47', '1970-01-01 00:00:00', '1970-01-01 00:00:00', 23325, 0],
+      ['03N010', 'CA362N02500', 740, 0, 0, 18, 8, 155, 155, 0, 0, 62, 0, 0, 280, 280, 0, 0, 0, 0, 96, 280, 12, 0, 0, 0, '2026-03-07 03:34:11', '1970-01-01 00:00:00', '1970-01-01 00:00:00', 4018, 0],
+      ['03N010', 'CA362N02600', 1425, 0, 0, 52, 20, 430, 430, 0, 0, 166, 0, 0, 584, 584, 0, 0, 0, 0, 240, 584, 31, 0, 0, 0, '2026-03-09 02:49:36', '1970-01-01 00:00:00', '1970-01-01 00:00:00', 17715, 0],
+      ['03N010', 'CA371N01500_X92143', 810, 0, 0, 22, 9, 178, 178, 0, 0, 74, 0, 0, 312, 312, 0, 0, 0, 0, 105, 312, 14, 0, 0, 0, '2026-03-07 03:23:30', '1970-01-01 00:00:00', '1970-01-01 00:00:00', 6359, 0],
+      ['03N010', 'CA371N01600_X92143', 1195, 0, 0, 40, 15, 320, 320, 0, 0, 118, 0, 0, 452, 452, 0, 0, 0, 0, 170, 452, 20, 0, 0, 0, '2026-03-11 02:01:42', '1970-01-01 00:00:00', '1970-01-01 00:00:00', 10254, 0],
+      ['03N010', 'CA382N02100_X93012', 635, 0, 0, 16, 6, 144, 144, 0, 0, 48, 0, 0, 235, 235, 0, 0, 0, 0, 88, 235, 9, 0, 0, 0, '2025-07-02 18:39:04', '1970-01-01 00:00:00', '1970-01-01 00:00:00', 4550, 0],
+      ['03N010', 'CA382N02200_X93012', 1620, 0, 0, 58, 22, 470, 470, 0, 0, 184, 0, 0, 630, 630, 0, 0, 0, 0, 260, 630, 38, 0, 0, 0, '2026-03-07 03:23:30', '1970-01-01 00:00:00', '1970-01-01 00:00:00', 20644, 0],
+      ['03N011', 'CA385W11400', 885, 0, 0, 24, 10, 210, 210, 0, 0, 82, 0, 0, 334, 334, 0, 0, 0, 0, 118, 334, 16, 0, 0, 0, '2026-03-08 04:04:26', '1970-01-01 00:00:00', '1970-01-01 00:00:00', 7428, 0],
+      ['03N011', 'CA444W12200', 980, 0, 0, 30, 11, 260, 260, 0, 0, 88, 0, 0, 390, 390, 0, 0, 0, 0, 134, 390, 18, 0, 0, 0, '2026-03-10 01:18:36', '1970-01-01 00:00:00', '1970-01-01 00:00:00', 8960, 0],
+      ['03N011', 'CB574W04400', 1320, 0, 0, 44, 16, 340, 340, 0, 0, 132, 0, 0, 505, 505, 0, 0, 0, 0, 188, 505, 26, 0, 0, 0, '2026-03-10 03:05:22', '1970-01-01 00:00:00', '1970-01-01 00:00:00', 15420, 0],
+      ['03N011', 'CB590N03400', 1515, 0, 0, 50, 18, 390, 390, 0, 0, 150, 0, 0, 560, 560, 0, 0, 0, 0, 205, 560, 30, 0, 0, 0, '2026-03-12 05:42:18', '1970-01-01 00:00:00', '1970-01-01 00:00:00', 18870, 0],
+      ['03N012', 'CB595N06700_202401', 540, 0, 0, 12, 5, 120, 120, 0, 0, 42, 0, 0, 190, 190, 0, 0, 0, 0, 78, 190, 8, 0, 0, 0, '2026-02-28 22:17:45', '1970-01-01 00:00:00', '1970-01-01 00:00:00', 3264, 0],
+      ['03N012', 'CB595W06700_202401', 575, 0, 0, 14, 5, 126, 126, 0, 0, 44, 0, 0, 205, 205, 0, 0, 0, 0, 82, 205, 9, 0, 0, 0, '2026-02-28 22:19:02', '1970-01-01 00:00:00', '1970-01-01 00:00:00', 3348, 0],
+      ['03N012', 'CB603N10700_X64747', 1105, 0, 0, 38, 13, 295, 295, 0, 0, 108, 0, 0, 420, 420, 0, 0, 0, 0, 155, 420, 18, 0, 0, 0, '2026-03-04 07:36:11', '1970-01-01 00:00:00', '1970-01-01 00:00:00', 12420, 0],
+      ['03N012', 'CB622N06602_Y77054', 760, 0, 0, 20, 7, 168, 168, 0, 0, 66, 0, 0, 292, 292, 0, 0, 0, 0, 102, 292, 12, 0, 0, 0, '2026-03-04 07:41:33', '1970-01-01 00:00:00', '1970-01-01 00:00:00', 6188, 0],
+      ['03N013', 'CA477N09301', 640, 0, 0, 18, 6, 130, 130, 0, 0, 52, 0, 0, 240, 240, 0, 0, 0, 0, 86, 240, 10, 0, 0, 0, '2026-03-06 06:28:19', '1970-01-01 00:00:00', '1970-01-01 00:00:00', 4870, 0],
+      ['03N013', 'CA521N08600_X88105', 430, 0, 0, 10, 3, 98, 98, 0, 0, 36, 0, 0, 158, 158, 0, 0, 0, 0, 62, 158, 7, 0, 0, 0, '2026-03-06 06:45:51', '1970-01-01 00:00:00', '1970-01-01 00:00:00', 2510, 0],
+      ['03N013', 'CA587N04100_X77420', 705, 0, 0, 19, 7, 160, 160, 0, 0, 60, 0, 0, 268, 268, 0, 0, 0, 0, 94, 268, 11, 0, 0, 0, '2026-03-06 07:08:28', '1970-01-01 00:00:00', '1970-01-01 00:00:00', 5420, 0],
+      ['03N014', 'CA612N05700_X88531', 350, 0, 0, 8, 2, 72, 72, 0, 0, 26, 0, 0, 118, 118, 0, 0, 0, 0, 44, 118, 5, 0, 0, 0, '2026-03-05 00:36:17', '1970-01-01 00:00:00', '1970-01-01 00:00:00', 1740, 0],
+      ['03N014', 'CA638W01800_X90337', 292, 0, 0, 6, 2, 64, 64, 0, 0, 22, 0, 0, 102, 102, 0, 0, 0, 0, 38, 102, 4, 0, 0, 0, '2026-03-05 00:38:12', '1970-01-01 00:00:00', '1970-01-01 00:00:00', 1320, 0],
+      ['03N014', 'CA702N03300_X90118', 675, 0, 0, 17, 6, 148, 148, 0, 0, 56, 0, 0, 250, 250, 0, 0, 0, 0, 90, 250, 10, 0, 0, 0, '2026-03-05 01:10:35', '1970-01-01 00:00:00', '1970-01-01 00:00:00', 4998, 0],
+      ['03N015', 'CB701W08800_X88013', 820, 0, 0, 20, 8, 180, 180, 0, 0, 70, 0, 0, 310, 310, 0, 0, 0, 0, 112, 310, 13, 0, 0, 0, '2026-03-04 05:26:40', '1970-01-01 00:00:00', '1970-01-01 00:00:00', 7108, 0],
+      ['03N015', 'CB742N01100_X91243', 560, 0, 0, 13, 5, 118, 118, 0, 0, 46, 0, 0, 210, 210, 0, 0, 0, 0, 76, 210, 8, 0, 0, 0, '2026-03-04 05:40:52', '1970-01-01 00:00:00', '1970-01-01 00:00:00', 3892, 0],
+      ['03N015', 'CB760W02100_X92318', 450, 0, 0, 11, 4, 92, 92, 0, 0, 34, 0, 0, 168, 168, 0, 0, 0, 0, 60, 168, 7, 0, 0, 0, '2026-03-04 06:01:45', '1970-01-01 00:00:00', '1970-01-01 00:00:00', 2460, 0],
+      ['03N016', 'CC001N00800_X93501', 990, 0, 0, 26, 10, 230, 230, 0, 0, 86, 0, 0, 375, 375, 0, 0, 0, 0, 132, 375, 16, 0, 0, 0, '2026-03-03 03:28:56', '1970-01-01 00:00:00', '1970-01-01 00:00:00', 8750, 0],
+      ['03N016', 'CC024W01700_X94427', 1120, 0, 0, 32, 12, 255, 255, 0, 0, 98, 0, 0, 420, 420, 0, 0, 0, 0, 150, 420, 19, 0, 0, 0, '2026-03-03 03:46:23', '1970-01-01 00:00:00', '1970-01-01 00:00:00', 9344, 0],
+      ['03N016', 'CC108N05900_X95762', 610, 0, 0, 15, 5, 136, 136, 0, 0, 50, 0, 0, 228, 228, 0, 0, 0, 0, 84, 228, 9, 0, 0, 0, '2026-03-03 04:02:31', '1970-01-01 00:00:00', '1970-01-01 00:00:00', 4160, 0]
+    ].map((values) => Object.fromEntries(inventoryColumns.map((key, index) => [key, values[index]])));
 
-    function formatNumber(value) {
-      return new Intl.NumberFormat('zh-CN').format(value);
+    function formatInventoryValue(key, value) {
+      if (typeof value === 'number') {
+        return value.toFixed(6);
+      }
+      return value;
     }
 
-    function renderInventoryOverview() {
-      const totalCapacity = warehouseData.reduce((sum, item) => sum + item.capacity, 0);
-      const totalStock = warehouseData.reduce((sum, item) => sum + item.stock, 0);
-      const avgTurnover = warehouseData.reduce((sum, item) => sum + item.turnover, 0) / warehouseData.length;
-      const overview = [
-        { label: '库存总数', value: formatNumber(totalStock), unit: '台', sub: `当前总占用 ${((totalStock / totalCapacity) * 100).toFixed(1)}%` },
-        { label: '库存总容量', value: formatNumber(totalCapacity), unit: '台', sub: '成品仓1-9合计容量' },
-        { label: '库存周转率', value: avgTurnover.toFixed(1), unit: '次/月', sub: `较上周 ${weeklyChange > 0 ? '+' : ''}${weeklyChange}%` },
-        { label: '今日发货量', value: formatNumber(todayShipment), unit: '台', sub: '已出库发运完成量' },
-        { label: '今日入库量', value: formatNumber(todayInbound), unit: '台', sub: '今日成品入库累计' },
-        { label: '呆料', value: formatNumber(deadStock), unit: '台', sub: '超过 30 天未周转' }
-      ];
+    function rowMatchesFilters(row) {
+      const keyword = document.getElementById('inventory-keyword')?.value.trim().toLowerCase() || '';
+      const warehouse = document.getElementById('inventory-warehouse')?.value.trim().toLowerCase() || '';
+      const material = document.getElementById('inventory-material')?.value.trim().toLowerCase() || '';
+      const rowWarehouse = row.warehouse.toLowerCase();
+      const rowMaterial = row.material.toLowerCase();
 
-      const grid = document.getElementById('inventory-overview-grid');
-      if (!grid) return;
-      grid.innerHTML = overview.map((item) => `
-        <div class="inventory-overview-card">
-          <div class="inventory-overview-label">${item.label}</div>
-          <div class="inventory-overview-value">${item.value}<span class="unit">${item.unit}</span></div>
-          <div class="inventory-overview-sub">${item.sub}</div>
-        </div>
+      const keywordMatch = !keyword || rowWarehouse.includes(keyword) || rowMaterial.includes(keyword);
+      const warehouseMatch = !warehouse || rowWarehouse === warehouse;
+      const materialMatch = !material || rowMaterial === material;
+      return keywordMatch && warehouseMatch && materialMatch;
+    }
+
+    function renderInventoryRows(rows = inventoryRows) {
+      const tbody = document.getElementById('inventory-list-tbody');
+      const done = document.getElementById('inventory-query-done');
+      if (!tbody) return;
+
+      tbody.innerHTML = rows.map((row) => `
+        <tr>
+          ${inventoryColumns.map((key, index) => {
+            const className = index >= 2 && index <= 25 || index >= 29 ? 'num' : index >= 26 && index <= 28 ? 'date' : '';
+            return `<td class="${className}">${formatInventoryValue(key, row[key])}</td>`;
+          }).join('')}
+        </tr>
       `).join('');
+
+      if (done) {
+        done.textContent = `查询完成，共 ${rows.length} 条记录`;
+      }
     }
 
-    function renderWarehouseGrid() {
-      const grid = document.getElementById('inventory-warehouse-grid');
-      if (!grid) return;
-      grid.innerHTML = warehouseData.map((item) => {
-        const occupancy = (item.stock / item.capacity) * 100;
-        const warn = occupancy >= 88;
-        return `
-          <div class="warehouse-card">
-            <div class="warehouse-card-head">
-              <div class="warehouse-card-title">${item.name}</div>
-              <span class="warehouse-card-badge ${warn ? 'warn' : ''}">${occupancy.toFixed(1)}%</span>
-            </div>
-            <div class="warehouse-bar">
-              <div class="warehouse-bar-fill ${warn ? 'warn' : ''}" style="width:${occupancy.toFixed(1)}%"></div>
-            </div>
-            <div class="warehouse-metrics">
-              <div class="warehouse-metric">
-                <div class="warehouse-metric-label">库存</div>
-                <div class="warehouse-metric-value">${formatNumber(item.stock)} 台</div>
-              </div>
-              <div class="warehouse-metric">
-                <div class="warehouse-metric-label">库存周转率</div>
-                <div class="warehouse-metric-value">${item.turnover.toFixed(1)} 次/月</div>
-              </div>
-            </div>
-            <div class="warehouse-card-foot">当前容量 ${formatNumber(item.capacity)} 台，剩余 ${formatNumber(item.capacity - item.stock)} 台可用空间。</div>
-          </div>
-        `;
-      }).join('');
+    function searchInventory() {
+      const rows = inventoryRows.filter(rowMatchesFilters);
+      renderInventoryRows(rows);
+      toast(`库存查询完成，共 ${rows.length} 条记录`);
     }
 
-    function renderFocusPanel() {
-      const focusList = document.getElementById('inventory-focus-list');
-      const caption = document.getElementById('inventory-side-caption');
-      if (!focusList || !caption) return;
-
-      const sorted = [...warehouseData].sort((a, b) => (b.stock / b.capacity) - (a.stock / a.capacity));
-      focusList.innerHTML = `
-        <div class="inventory-side-item warn">
-          <span>高占用仓位</span>
-          <strong>${sorted[0].name} ${(sorted[0].stock / sorted[0].capacity * 100).toFixed(1)}%</strong>
-        </div>
-        <div class="inventory-side-item ok">
-          <span>最高周转仓位</span>
-          <strong>${[...warehouseData].sort((a, b) => b.turnover - a.turnover)[0].name} ${Math.max(...warehouseData.map((item) => item.turnover)).toFixed(1)} 次/月</strong>
-        </div>
-        <div class="inventory-side-item">
-          <span>今日出入库差额</span>
-          <strong>${formatNumber(todayShipment - todayInbound)} 台</strong>
-        </div>
-        <div class="inventory-side-item">
-          <span>呆料占比</span>
-          <strong>${((deadStock / warehouseData.reduce((sum, item) => sum + item.stock, 0)) * 100).toFixed(1)}%</strong>
-        </div>
-      `;
-
-      caption.textContent = '当前库存看板显示，成品仓5与成品仓9接近高占用区间，建议优先安排发货节奏较慢的批次外移；成品仓4与成品仓8仍有较大缓冲空间，可作为临时调拨承接仓。';
+    function resetInventoryFilters() {
+      ['inventory-keyword', 'inventory-warehouse', 'inventory-material'].forEach((id) => {
+        const input = document.getElementById(id);
+        if (input) input.value = '';
+      });
+      renderInventoryRows();
+      toast('库存筛选条件已重置');
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      renderInventoryOverview();
-      renderWarehouseGrid();
-      renderFocusPanel();
+      renderInventoryRows();
     });
   </script>
   <script src="common.js"></script>
