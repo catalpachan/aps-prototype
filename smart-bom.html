@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>智能BOM - 格力高级计划排程系统</title>
+  <link rel="stylesheet" href="common.css" />
+  <style>
+    .bom-page {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .module-frame {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(17, 24, 39, 0.95);
+      overflow: hidden;
+      box-shadow: 0 8px 20px rgba(2, 6, 23, 0.22);
+    }
+
+    .module-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      flex-wrap: wrap;
+    }
+
+    .module-title {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .module-title strong {
+      font-size: 16px;
+      color: #f8fafc;
+    }
+
+    .module-title span {
+      color: #94a3b8;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .module-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .module-tabs {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      background: #0f172a;
+      overflow: hidden;
+    }
+
+    .tab-btn {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: #94a3b8;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 8px 14px;
+      cursor: pointer;
+    }
+
+    .tab-btn + .tab-btn {
+      border-left: 1px solid #334155;
+    }
+
+    .tab-btn.active {
+      background: #2563eb;
+      color: #fff;
+    }
+
+    .bom-stage {
+      --bom-panel-height: min(720px, calc(100vh - 170px));
+      --tree-window-height: 520px;
+      display: grid;
+      grid-template-columns: minmax(340px, 0.36fr) minmax(0, 1fr);
+      align-items: start;
+      gap: 14px;
+      padding: 14px;
+      min-height: calc(100vh - 150px);
+    }
+
+    .bom-panel {
+      border: 1px solid #334155;
+      border-radius: 12px;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.96), rgba(15, 27, 45, 0.94));
+      min-width: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: var(--bom-panel-height);
+    }
+
+    .bom-panel-head {
+      padding: 12px 14px;
+      border-bottom: 1px solid #334155;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 800;
+      color: #e2e8f0;
+    }
+
+    .bom-panel-head small {
+      color: #94a3b8;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .filter-strip {
+      margin: 12px 14px 8px;
+      padding: 12px;
+      border: 1px solid #2f3d55;
+      border-radius: 10px;
+      background: #10192b;
+      display: grid;
+      grid-template-columns: var(--filter-template, minmax(0, 1fr) auto);
+      gap: 10px;
+      align-items: end;
+    }
+
+    .filter-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+      color: #94a3b8;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .filter-field input,
+    .filter-field select {
+      width: 100%;
+      height: 36px;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 0 10px;
+      font-size: 12px;
+    }
+
+    .filter-field input::placeholder {
+      color: #64748b;
+    }
+
+    .root-list {
+      padding: 10px 14px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      overflow: auto;
+      min-height: 0;
+      flex: 1 1 auto;
+      scrollbar-width: thin;
+      scrollbar-color: #475569 transparent;
+    }
+
+    .root-list::-webkit-scrollbar,
+    .tree-scroll::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    .root-list::-webkit-scrollbar-thumb,
+    .tree-scroll::-webkit-scrollbar-thumb {
+      border-radius: 999px;
+      background: #475569;
+    }
+
+    .root-list::-webkit-scrollbar-track,
+    .tree-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .root-row {
+      width: 100%;
+      appearance: none;
+      border: 1px solid #2f3d55;
+      border-radius: 10px;
+      background: #10192b;
+      color: #cbd5e1;
+      display: grid;
+      grid-template-columns: minmax(110px, auto) 12px minmax(0, 1fr);
+      align-items: center;
+      gap: 8px;
+      padding: 9px 10px;
+      text-align: left;
+      cursor: pointer;
+      transition: transform var(--dur-fast), border-color var(--dur-fast), background var(--dur-fast);
+    }
+
+    .root-row:hover,
+    .root-row.active {
+      border-color: #60a5fa;
+      background: #13223d;
+      transform: translateY(-1px);
+    }
+
+    .bom-code-pill,
+    .node-pill,
+    .node-meta-pill {
+      display: inline-flex;
+      align-items: center;
+      min-width: 0;
+      border: 1px solid #334155;
+      border-radius: 999px;
+      background: #15233a;
+      color: #93c5fd;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 4px 10px;
+      white-space: nowrap;
+    }
+
+    .root-dash {
+      color: #64748b;
+      font-weight: 800;
+    }
+
+    .root-name {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .bom-pager {
+      margin: auto 14px 14px;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      background: #10192b;
+      padding: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: #94a3b8;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .detail-tools {
+      margin: 12px 14px;
+      padding: 12px;
+      border: 1px solid #2f3d55;
+      border-radius: 10px;
+      background: #10192b;
+      display: grid;
+      grid-template-columns: auto auto minmax(160px, 260px) auto 1fr;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .detail-tools .filter-field {
+      max-width: 260px;
+    }
+
+    .tree-scroll {
+      margin: 0 14px 14px;
+      padding: 8px 8px 10px 2px;
+      height: var(--tree-window-height);
+      overflow-y: auto;
+      overflow-x: auto;
+      min-height: 0;
+      flex: 0 0 var(--tree-window-height);
+      border: 1px solid #1b2f48;
+      border-radius: 10px;
+      background: rgb(13 21 37 / 96%);
+      scrollbar-width: thin;
+      scrollbar-color: #475569 transparent;
+      transition: transform var(--dur-fast) var(--ease-soft), background var(--dur-fast) var(--ease-soft);
+    }
+
+    .tree-scroll:hover {
+      transform: translateY(-1px);
+      background: rgb(13 21 37 / 96%);
+    }
+
+    .tree-node-wrap {
+      position: relative;
+      padding-left: calc(var(--level) * 42px);
+      margin: 8px 0;
+    }
+
+    .tree-node-wrap::before {
+      content: "";
+      position: absolute;
+      left: calc(var(--level) * 42px + 14px);
+      top: -8px;
+      bottom: -8px;
+      border-left: 2px solid rgba(96, 165, 250, 0.28);
+      opacity: calc(var(--level) * 0.32);
+    }
+
+    .tree-node {
+      position: relative;
+      border: 1px solid #2f3d55;
+      border-left: 5px solid var(--node-accent, #f97316);
+      border-radius: 12px;
+      background: rgba(16, 25, 43, 0.96);
+      min-height: 62px;
+      padding: 10px 12px;
+      display: grid;
+      gap: 8px;
+      box-shadow: 0 8px 16px rgba(2, 6, 23, 0.16);
+      transition: transform var(--dur-fast) var(--ease-soft);
+    }
+
+    .tree-scroll:hover .tree-node:hover {
+      transform: translateX(2px);
+    }
+
+    .tree-node.selected {
+      border-color: #60a5fa;
+      box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.14);
+    }
+
+    .node-topline {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .node-expander {
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      border: 1px solid #334155;
+      background: #13223d;
+      color: #7dd3fc;
+      font-weight: 900;
+      cursor: pointer;
+      flex: 0 0 auto;
+    }
+
+    .node-name {
+      min-width: 0;
+      color: #e2e8f0;
+      font-size: 14px;
+      font-weight: 800;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .node-meta-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      padding-left: 36px;
+    }
+
+    .node-meta-pill {
+      color: #cbd5e1;
+      font-size: 11px;
+      font-weight: 700;
+      background: rgba(15, 23, 42, 0.72);
+    }
+
+    .node-meta-pill strong {
+      color: #7dd3fc;
+      margin-right: 4px;
+    }
+
+    .node-meta-pill.warn strong {
+      color: #fdba74;
+    }
+
+    .empty-state {
+      border: 1px dashed #334155;
+      border-radius: 10px;
+      padding: 18px;
+      color: #94a3b8;
+      text-align: center;
+    }
+
+    [data-theme="light"] .module-frame,
+    [data-theme="light"] .bom-panel,
+    [data-theme="light"] .filter-strip,
+    [data-theme="light"] .detail-tools,
+    [data-theme="light"] .tree-scroll,
+    [data-theme="light"] .bom-pager,
+    [data-theme="light"] .root-row,
+    [data-theme="light"] .tree-node {
+      background: #fff !important;
+      background-image: none !important;
+      border-color: var(--line) !important;
+      color: var(--txt) !important;
+      box-shadow: 0 10px 28px rgb(15 23 42 / 0.08);
+    }
+
+    [data-theme="light"] .module-header,
+    [data-theme="light"] .bom-panel-head {
+      border-color: var(--line) !important;
+    }
+
+    [data-theme="light"] .module-title strong,
+    [data-theme="light"] .bom-panel-head,
+    [data-theme="light"] .root-name,
+    [data-theme="light"] .node-name {
+      color: var(--txt) !important;
+    }
+
+    [data-theme="light"] .module-title span,
+    [data-theme="light"] .bom-panel-head small,
+    [data-theme="light"] .filter-field,
+    [data-theme="light"] .bom-pager,
+    [data-theme="light"] .empty-state {
+      color: var(--muted) !important;
+    }
+
+    [data-theme="light"] .module-tabs,
+    [data-theme="light"] .filter-field input,
+    [data-theme="light"] .filter-field select,
+    [data-theme="light"] .bom-code-pill,
+    [data-theme="light"] .node-pill,
+    [data-theme="light"] .node-meta-pill,
+    [data-theme="light"] .node-expander {
+      background: var(--panel-2) !important;
+      color: var(--txt) !important;
+      border-color: var(--line) !important;
+    }
+
+    [data-theme="light"] .tab-btn.active {
+      background: #2563eb !important;
+      color: #fff !important;
+    }
+
+    @media (max-width: 1100px) {
+      .bom-stage {
+        grid-template-columns: 1fr;
+        --bom-panel-height: 620px;
+        --tree-window-height: 420px;
+      }
+
+      .bom-panel {
+        min-height: 0;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .aps-header-layout {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .aps-header-layout .brand-block {
+        min-width: 0;
+      }
+
+      .aps-header-layout .nav.aps-main-nav {
+        grid-column: auto;
+        justify-self: stretch;
+        justify-content: flex-start;
+      }
+
+      .aps-header-layout .aps-header-meta {
+        justify-self: stretch;
+        flex-wrap: wrap;
+        white-space: normal;
+      }
+
+      .aps-site-switch {
+        margin-left: 0;
+      }
+
+      .bom-stage {
+        padding: 10px;
+        --bom-panel-height: 560px;
+        --tree-window-height: 360px;
+      }
+
+      .filter-strip,
+      .detail-tools {
+        grid-template-columns: 1fr;
+      }
+
+      .root-row {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .root-dash,
+      .root-name {
+        display: none;
+      }
+
+      .tree-node-wrap {
+        padding-left: calc(var(--level) * 20px);
+      }
+
+      .tree-node-wrap::before {
+        left: calc(var(--level) * 20px + 10px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="aps-header-layout">
+    <div class="brand-block">
+      <img class="header-logo" src="1c5703c9-aca0-43d1-9843-9d502cb66fd0.png" alt="APS Logo" width="143" height="44" />
+      <div class="aps-console-title">
+        <div class="aps-console-title-main">排产智能体</div>
+        <div class="aps-console-title-sub">格力高级计划排程系统</div>
+      </div>
+    </div>
+    <nav class="nav aps-main-nav" id="nav">
+      <a href="decision.html" class="nav-item">决策分析</a>
+      <a href="collab.html" class="nav-item active">排产操作</a>
+      <a href="settings.html" class="nav-item">系统设置</a>
+    </nav>
+    <div class="header-meta aps-header-meta" id="header-meta">
+      <div class="aps-site-switch">
+        <span class="aps-site-switch-label">制造基地</span>
+        <select id="hq-select" class="role-select" aria-label="基地切换">
+          <option>珠海格力总部</option>
+          <option>金湾基地</option>
+          <option>武汉基地</option>
+          <option>洛阳基地</option>
+        </select>
+      </div>
+      <span id="header-date" class="aps-clock-chip">2026-06-04 08:56:33</span>
+      <button type="button" class="aps-notify-btn" id="aps-notify-btn" aria-label="打开消息通知">
+        🔔<span class="aps-notify-badge" id="aps-notify-badge">0</span>
+      </button>
+      <div class="user-dropdown" id="user-dropdown">
+        <div class="user-dropdown-toggle" onclick="toggleUserDropdown()">
+          <div class="avatar">张</div>
+          <span class="name">张伟</span>
+          <span class="arrow">▼</span>
+        </div>
+        <div class="user-dropdown-menu">
+          <a href="settings.html?sub=profile" class="user-dropdown-item">👤 用户信息</a>
+          <a href="login.html" class="user-dropdown-item logout">🚪 退出</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="app">
+    <section class="view bom-page">
+      <div class="module-frame">
+        <div class="module-header">
+          <div class="module-title">
+            <strong>智能BOM</strong>
+            <span id="bom-title-suffix">全局BOM</span>
+          </div>
+          <div class="module-actions">
+            <div class="module-tabs" aria-label="智能BOM页签">
+              <button class="tab-btn active" type="button" data-bom-tab="global">全局BOM</button>
+              <button class="tab-btn" type="button" data-bom-tab="split">BOM拆解</button>
+            </div>
+            <a href="collab.html" class="btn sm">返回排产操作</a>
+          </div>
+        </div>
+
+        <div class="bom-stage">
+          <section class="bom-panel" aria-labelledby="bom-root-heading">
+            <div class="bom-panel-head">
+              <span id="bom-root-heading">成品码（根节点）</span>
+              <small id="bom-root-count">0 条</small>
+            </div>
+            <div class="filter-strip" id="bom-root-filters">
+              <label class="filter-field" for="bom-search-input">
+                成品码
+                <input id="bom-search-input" type="search" placeholder="输入成品码" />
+              </label>
+              <button class="btn primary" type="button" id="bom-search-btn">搜索</button>
+            </div>
+            <div class="root-list" id="bom-root-list"></div>
+            <div class="bom-pager">
+              <button class="btn sm" type="button" disabled>上一页</button>
+              <span id="bom-page-info">1/1</span>
+              <button class="btn sm" type="button">下一页</button>
+              <select aria-label="BOM页码">
+                <option>1</option>
+              </select>
+            </div>
+          </section>
+
+          <section class="bom-panel" aria-labelledby="bom-detail-heading">
+            <div class="bom-panel-head">
+              <span id="bom-detail-heading">节点详情</span>
+              <small id="bom-selected-root">未选择</small>
+            </div>
+            <div class="detail-tools">
+              <button class="btn primary" type="button" id="bom-expand-all">全部展开</button>
+              <button class="btn" type="button" id="bom-collapse-all">全部折叠</button>
+              <label class="filter-field" for="bom-depth-input">
+                层级
+                <input id="bom-depth-input" type="number" min="1" max="6" value="6" />
+              </label>
+              <button class="btn" type="button" id="bom-depth-apply">应用</button>
+            </div>
+            <div class="tree-scroll" id="bom-detail-tree"></div>
+          </section>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <script>
+    const airflowAssemblyBranch = {
+      code: '000001000118H06',
+      name: '风道组件',
+      qty: '1.0000000000 套',
+      demand: '1 套',
+      source: '总装',
+      type: '制作车间（制造物料）',
+      virtual: '否',
+      accent: '#38bdf8',
+      children: [
+        {
+          code: '20351008',
+          name: '蜗舌部件',
+          qty: '1.0000000000 件',
+          demand: '1 件',
+          source: '注塑',
+          type: '制作车间（制造物料）',
+          virtual: '否',
+          accent: '#38bdf8',
+          children: [
+            {
+              code: '20351008-A',
+              name: '导风板支架',
+              qty: '2.0000000000 件',
+              demand: '2 件',
+              source: '注塑',
+              type: '制作车间（制造物料）',
+              virtual: '否',
+              accent: '#38bdf8',
+              children: [
+                {
+                  code: '20351008-A01',
+                  name: '卡扣套件',
+                  qty: '4.0000000000 件',
+                  demand: '4 件',
+                  source: '采购',
+                  type: '采购（采购物料）',
+                  virtual: '否',
+                  accent: '#60a5fa',
+                  children: [
+                    { code: '20351008-A01-01', name: '自攻螺钉ST3.5X12', qty: '8.0000000000 个', demand: '8 个', source: '采购', type: '采购（采购物料）', virtual: '否', accent: '#60a5fa' },
+                    { code: '20351008-A01-02', name: '防松垫片3.5', qty: '8.0000000000 个', demand: '8 个', source: '采购', type: '采购（采购物料）', virtual: '否', accent: '#60a5fa' }
+                  ]
+                }
+              ]
+            },
+            { code: '20351008-B', name: '蜗舌密封棉', qty: '1.0000000000 件', demand: '1 件', source: '采购', type: '采购（采购物料）', virtual: '否', accent: '#38bdf8' }
+          ]
+        },
+        { code: '20351019', name: '出风框', qty: '1.0000000000 件', demand: '1 件', source: '注塑', type: '制作车间（制造物料）', virtual: '否', accent: '#38bdf8' }
+      ]
+    };
+
+    const heatExchangeBranch = {
+      code: '48270011',
+      name: '两器换热组件',
+      qty: '1.0000000000 套',
+      demand: '1 套',
+      source: '两器',
+      type: '制作车间（制造物料）',
+      virtual: '否',
+      accent: '#0ea5e9',
+      children: [
+        {
+          code: '48271001',
+          name: '蒸发器总成',
+          qty: '1.0000000000 套',
+          demand: '1 套',
+          source: '两器',
+          type: '制作车间（制造物料）',
+          virtual: '否',
+          accent: '#0ea5e9',
+          children: [
+            { code: '48271001-A', name: '铜管Φ7', qty: '5.6000000000 米', demand: '5.6 米', source: '采购', type: '采购（采购物料）', virtual: '否', accent: '#0ea5e9' },
+            {
+              code: '48271001-B',
+              name: '翅片组',
+              qty: '1.0000000000 套',
+              demand: '1 套',
+              source: '两器',
+              type: '制作车间（制造物料）',
+              virtual: '否',
+              accent: '#0ea5e9',
+              children: [
+                { code: '48271001-B01', name: '亲水铝箔0.105', qty: '0.8300000000 千克', demand: '0.83 千克', source: '采购', type: '采购（采购物料）', virtual: '否', accent: '#0ea5e9' },
+                { code: '48271001-B02', name: '边板压条', qty: '2.0000000000 件', demand: '2 件', source: '钣金', type: '制作车间（制造物料）', virtual: '否', accent: '#0ea5e9' }
+              ]
+            }
+          ]
+        },
+        { code: '48272001', name: '分液管组件', qty: '1.0000000000 件', demand: '1 件', source: '两器', type: '制作车间（制造物料）', virtual: '否', accent: '#0ea5e9' }
+      ]
+    };
+
+    const controllerAssemblyBranch = {
+      code: '000001000083H01',
+      name: '电控盒组件',
+      qty: '1.0000000000 套',
+      demand: '1 套',
+      source: '控制器',
+      type: '制作车间（制造物料）',
+      virtual: '否',
+      accent: '#22c55e',
+      children: [
+        {
+          code: '30110240',
+          name: '主控板组件',
+          qty: '1.0000000000 件',
+          demand: '1 件',
+          source: '控制器',
+          type: '制作车间（制造物料）',
+          virtual: '否',
+          accent: '#22c55e',
+          children: [
+            { code: '30110240-A', name: 'PCB板', qty: '1.0000000000 件', demand: '1 件', source: '采购', type: '采购（采购物料）', virtual: '否', accent: '#22c55e' },
+            { code: '30110240-B', name: '功率模块IPM', qty: '1.0000000000 件', demand: '1 件', source: '采购', type: '采购（采购物料）', virtual: '否', accent: '#22c55e' },
+            { code: '30110240-C', name: '继电器12V', qty: '2.0000000000 件', demand: '2 件', source: '采购', type: '采购（采购物料）', virtual: '否', accent: '#22c55e' }
+          ]
+        },
+        { code: '30201881', name: '温度传感器线束', qty: '2.0000000000 件', demand: '2 件', source: '采购', type: '采购（采购物料）', virtual: '否', accent: '#22c55e' },
+        { code: '30202014', name: '显示板线束', qty: '1.0000000000 件', demand: '1 件', source: '控制器', type: '制作车间（制造物料）', virtual: '否', accent: '#22c55e' }
+      ]
+    };
+
+    const globalExtraRoots = [
+      { code: 'CA382N02100_X93012', name: 'GWH09AQBXA-K3NNA1A/I 顶', children: [] },
+      { code: 'CA382N02200_X93012', name: 'GWH12AQBXA-K3NNA1A/I 顶', children: [] },
+      { code: 'CA385W11400', name: 'GWH12AGBXB-K3NNA1B/O 顶', children: [] },
+      { code: 'CA444W12200', name: 'GWC12QCXB-K6NNC4A/O 顶', children: [] },
+      { code: 'CB574W04400', name: 'GWC12ATBXB-K6DNA1G/O 顶(降功率功能)', children: [] },
+      { code: 'CB590N03400', name: 'GWC12ATBXB-K6DNA3G/I 顶(通侧)', children: [] },
+      { code: 'CB595N06700_202401', name: 'GWH12ATCXB-K6DNA4G/I 顶(WIFI)', children: [] },
+      { code: 'CB595W06700_202401', name: 'GWH12ATCXB-K6DNA4G/O 顶(LC)', children: [] },
+      { code: 'CB603N10700_X64747', name: 'GWH09ATDXB-K6DNA1A/I 顶', children: [] },
+      { code: 'CB622N06602_Y77054', name: 'GWH18ATDXB-K6DNA3B/I 顶', children: [] },
+      { code: 'CA477N09301', name: 'GWH18AACXD-K3NNA2B/I 通侧', children: [] },
+      { code: 'CA521N08600_X88105', name: 'GWH24AGEXB-K3NNA1B/I 顶', children: [] },
+      { code: 'CA587N04100_X77420', name: 'KFR-35GW 新一级能效内机', children: [] },
+      { code: 'CA612N05700_X88531', name: 'KFR-50GW 变频挂机内机', children: [] },
+      { code: 'CA638W01800_X90337', name: 'GMV-160WL 多联机室外机', children: [] },
+      { code: 'CA702N03300_X90118', name: 'GWH09AFAXA-K3NNA2A/I 顶', children: [] }
+    ];
+
+    const splitExtraRoots = [
+      { code: 'CA341N03600_X95953', name: 'GWH09ACBXA-K3NNA6A/I 顶', children: [] },
+      { code: 'CA341N03800_X95953', name: 'GWH12ACBXA-K3NNA6A/I 顶', children: [] },
+      { code: 'CA385W11600', name: 'GWH12AGCXD-K3NNA1B/O 顶', children: [] },
+      { code: 'CA444W12800', name: 'GWC12QCXD-K6NNC4A/O 顶', children: [] },
+      { code: 'CB574W05800', name: 'GWC12ATCXD-K6DNA1G/O 顶', children: [] },
+      { code: 'CB590N04700', name: 'GWC12ATCXD-K6DNA3G/I 顶', children: [] },
+      { code: 'CB595N07100_202401', name: 'GWH12ATDXB-K6DNA4G/I 顶(WIFI)', children: [] },
+      { code: 'CB595W07100_202401', name: 'GWH12ATDXB-K6DNA4G/O 顶(LC)', children: [] },
+      { code: 'CB603N11000_X64747', name: 'GWH09ATEXB-K6DNA1A/I 顶', children: [] },
+      { code: 'CB622N07002_Y77054', name: 'GWH18ATEXB-K6DNA3B/I 顶', children: [] },
+      { code: 'CA477N09501', name: 'GWH18AACXE-K3NNA2B/I 通侧', children: [] },
+      { code: 'CA521N08900_X88105', name: 'GWH24AGEXD-K3NNA1B/I 顶', children: [] },
+      { code: 'CA587N04500_X77420', name: 'KFR-35GW 新一级能效外机', children: [] },
+      { code: 'CA612N06100_X88531', name: 'KFR-50GW 变频挂机外机', children: [] },
+      { code: 'CA638W02300_X90337', name: 'GMV-180WL 多联机室外机', children: [] },
+      { code: 'CA702N03900_X90118', name: 'GWH12AFAXA-K3NNA2A/I 顶', children: [] }
+    ];
+
+    const bomCatalog = {
+      global: {
+        label: '全局BOM',
+        pageInfo: '1/136',
+        depth: 6,
+        filterTemplate: 'minmax(0, 1fr) auto',
+        roots: [
+          {
+            code: 'CA341N03100_X95953',
+            name: 'GWH12ACBXB-K3NNA1B/O 顶',
+            children: [
+              {
+                code: '000001000062H03',
+                name: '底壳部件',
+                qty: '1.0000000000 套',
+                demand: '1 套',
+                source: 'NULL',
+                type: '制作车间（制造物料）',
+                virtual: '否',
+                accent: '#f97316',
+                children: [
+                  { code: '10352067', name: '贯流风叶(Φ93X505)', qty: '1.0000000000 件', demand: '1 件', source: '注塑', type: '采购（采购物料）', virtual: '否', accent: '#fb923c' },
+                  { code: '10512037', name: '左轴套(本色)', qty: '1.0000000000 件', demand: '1 件', source: '注塑', type: '制作车间（制造物料）', virtual: '否', accent: '#fb923c' },
+                  { code: '10542047', name: '风叶轴套组件', qty: '1.0000000000 套', demand: '1 套', source: '注塑', type: '制作车间（制造物料）', virtual: '否', accent: '#fb923c' }
+                ]
+              },
+              airflowAssemblyBranch,
+              heatExchangeBranch,
+              controllerAssemblyBranch
+            ]
+          },
+          {
+            code: 'CA341N03200_X95953',
+            name: 'GWH18ACCXD-K3NNA5B/I 顶(通侧)',
+            children: [
+              {
+                code: '000001000054H01',
+                name: '底壳部件',
+                qty: '1.0000000000 套',
+                demand: '1 套',
+                source: 'NULL',
+                type: '制作车间（制造物料）',
+                virtual: '否',
+                accent: '#f97316',
+                children: [
+                  { code: '10352056', name: '贯流风叶(Φ98X634)', qty: '1.0000000000 件', demand: '1 件', source: '注塑', type: '采购（采购物料）', virtual: '否', accent: '#fb923c' },
+                  { code: '10512037', name: '左轴套(本色)', qty: '1.0000000000 件', demand: '1 件', source: '注塑', type: '制作车间（制造物料）', virtual: '否', accent: '#fb923c' },
+                  { code: '55002006', name: '包装胶袋 480X250', qty: '0.0001500000 个', demand: '0.00015 个', source: 'NULL', type: '采购（采购物料）', virtual: '否', accent: '#22c55e' }
+                ]
+              },
+              airflowAssemblyBranch,
+              controllerAssemblyBranch
+            ]
+          },
+          { code: 'CA341N03400_X95953', name: 'GWH09ACAXA-K3NNA5A/I 顶(通侧)', children: [] },
+          { code: 'CA343N04200_Y19450', name: 'GWH09ACAXA-K3NNA3D/I 顶', children: [] },
+          { code: 'CA362N02500', name: 'GWH09AFBXA-K3NNA3D/I 顶', children: [] },
+          { code: 'CA362N02600', name: 'GWH12AFCXB-K3NTA3A/I 顶', children: [] },
+          { code: 'CA371N01500_X92143', name: 'GWH07AFAXA-K3NNA1A/I 顶', children: [] },
+          { code: 'CA371N01600_X92143', name: 'GWH12AFBXB-K3NNA1A/I 顶', children: [] },
+          ...globalExtraRoots
+        ]
+      },
+      split: {
+        label: 'BOM拆解',
+        pageInfo: '1/143',
+        depth: 6,
+        filterTemplate: '160px minmax(0, 1fr) auto',
+        roots: [
+          {
+            code: 'CA341N03200_X95953',
+            name: 'GWH18ACCXD-K3NNA5B/I 顶(通侧)',
+            children: [
+              {
+                code: '000001000054H01',
+                name: '底壳部件',
+                qty: '1.0000000000 套',
+                demand: '1 套',
+                source: 'NULL',
+                type: '制作车间（制造物料）',
+                virtual: '否',
+                accent: '#f97316',
+                children: [
+                  { code: '10352056', name: '贯流风叶(Φ98X634)', qty: '1.0000000000 件', demand: '1 件', source: '注塑', type: '采购（采购物料）', virtual: '否', accent: '#fb923c' },
+                  { code: '10512037', name: '左轴套(本色)', qty: '1.0000000000 件', demand: '1 件', source: '注塑', type: '制作车间（制造物料）', virtual: '否', accent: '#fb923c' },
+                  { code: '55002006', name: '包装胶袋 480X250', qty: '0.0001500000 个', demand: '0.00015 个', source: 'NULL', type: '采购（采购物料）', virtual: '否', accent: '#22c55e' },
+                  heatExchangeBranch
+                ]
+              },
+              airflowAssemblyBranch,
+              controllerAssemblyBranch
+            ]
+          },
+          { code: 'CA341N03100_X95953', name: 'GWH12ACBXB-K3NNA1B/O 顶', children: [] },
+          { code: 'CA341N03400_X95953', name: 'GWH09ACAXA-K3NNA5A/I 顶', children: [] },
+          { code: 'CA343N04200_Y19450', name: 'GWH09ACAXA-K3NNA3D/I 顶', children: [] },
+          { code: 'CA362N02500', name: 'GWH09AFBXA-K3NNA3D/I 顶', children: [] },
+          { code: 'CA362N02600', name: 'GWH12AFCXB-K3NTA3A/I 顶', children: [] },
+          { code: 'CA371N01500_X92143', name: 'GWH07AFAXA-K3NNA1A/I 顶', children: [] },
+          { code: 'CA371N01600_X92143', name: 'GWH12AFBXB-K3NNA1A/I 顶', children: [] },
+          ...splitExtraRoots
+        ]
+      }
+    };
+
+    const bomState = {
+      tab: 'global',
+      selectedCode: 'CA341N03400_X95953',
+      maxDepth: 6,
+      collapsed: new Set()
+    };
+
+    function text(value) {
+      return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      }[char]));
+    }
+
+    function activeDataset() {
+      return bomCatalog[bomState.tab];
+    }
+
+    function findRoot(code) {
+      return activeDataset().roots.find((root) => root.code === code) || activeDataset().roots[0];
+    }
+
+    function clampDepth(value) {
+      const parsed = Number.parseInt(value, 10);
+      if (Number.isNaN(parsed)) return activeDataset().depth;
+      return Math.min(6, Math.max(1, parsed));
+    }
+
+    function ensureChildren(root) {
+      if (root.children && root.children.length) return root;
+      return {
+        ...root,
+        children: [
+          {
+            code: '000001000062H03',
+            name: '底壳部件',
+            qty: '1.0000000000 套',
+            demand: '1 套',
+            source: 'NULL',
+            type: '制作车间（制造物料）',
+            virtual: '否',
+            accent: '#f97316',
+            children: [
+              { code: '10352067', name: '贯流风叶(Φ93X505)', qty: '1.0000000000 件', demand: '1 件', source: '注塑', type: '采购（采购物料）', virtual: '否', accent: '#fb923c' },
+              { code: '10512037', name: '左轴套(本色)', qty: '1.0000000000 件', demand: '1 件', source: '注塑', type: '制作车间（制造物料）', virtual: '否', accent: '#fb923c' }
+            ]
+          },
+          airflowAssemblyBranch,
+          heatExchangeBranch,
+          controllerAssemblyBranch
+        ]
+      };
+    }
+
+    function renderFilters() {
+      const filters = document.getElementById('bom-root-filters');
+      if (!filters) return;
+      filters.style.setProperty('--filter-template', activeDataset().filterTemplate);
+      if (bomState.tab === 'split') {
+        filters.innerHTML = `
+          <label class="filter-field" for="bom-plant-select">
+            分厂
+            <select id="bom-plant-select">
+              <option>请选择</option>
+              <option>总装分厂</option>
+              <option>注塑分厂</option>
+              <option>两器分厂</option>
+            </select>
+          </label>
+          <label class="filter-field" for="bom-search-input">
+            成品码
+            <input id="bom-search-input" type="search" placeholder="输入成品码" />
+          </label>
+          <button class="btn primary" type="button" id="bom-search-btn">搜索</button>
+        `;
+      } else {
+        filters.innerHTML = `
+          <label class="filter-field" for="bom-search-input">
+            成品码
+            <input id="bom-search-input" type="search" placeholder="输入成品码" />
+          </label>
+          <button class="btn primary" type="button" id="bom-search-btn">搜索</button>
+        `;
+      }
+      document.getElementById('bom-search-btn')?.addEventListener('click', applyRootSearch);
+      document.getElementById('bom-search-input')?.addEventListener('input', applyRootSearch);
+    }
+
+    function applyRootSearch() {
+      renderRootList();
+    }
+
+    function getFilteredRoots() {
+      const keyword = document.getElementById('bom-search-input')?.value.trim().toLowerCase() || '';
+      return activeDataset().roots.filter((root) => {
+        if (!keyword) return true;
+        return `${root.code} ${root.name}`.toLowerCase().includes(keyword);
+      });
+    }
+
+    function renderRootList() {
+      const list = document.getElementById('bom-root-list');
+      const count = document.getElementById('bom-root-count');
+      if (!list) return;
+      const roots = getFilteredRoots();
+      if (count) count.textContent = `${roots.length} 条`;
+      if (!roots.length) {
+        list.innerHTML = '<div class="empty-state">暂无匹配成品码</div>';
+        return;
+      }
+      list.innerHTML = roots.map((root) => `
+        <button class="root-row ${root.code === bomState.selectedCode ? 'active' : ''}" type="button" data-root="${text(root.code)}">
+          <span class="bom-code-pill">${text(root.code)}</span>
+          <span class="root-dash">-</span>
+          <span class="root-name">${text(root.name)}</span>
+        </button>
+      `).join('');
+      list.querySelectorAll('.root-row').forEach((button) => {
+        button.addEventListener('click', () => {
+          bomState.selectedCode = button.dataset.root;
+          renderRootList();
+          renderDetailTree();
+        });
+      });
+    }
+
+    function renderNode(node, level = 0, isRoot = false) {
+      const hasChildren = Array.isArray(node.children) && node.children.length > 0;
+      const canShowChildren = hasChildren && level < bomState.maxDepth - 1;
+      const collapsed = bomState.collapsed.has(node.code);
+      const expandedSymbol = canShowChildren && !collapsed ? '▼' : '▶';
+      const childHtml = canShowChildren && !collapsed ? node.children.map((child) => renderNode(child, level + 1)).join('') : '';
+      return `
+        <div class="tree-node-wrap" style="--level:${level};">
+          <div class="tree-node ${isRoot ? 'selected' : ''}" style="--node-accent:${text(node.accent || '#ef4444')}">
+            <div class="node-topline">
+              <button class="node-expander" type="button" data-node-toggle="${text(node.code)}" ${canShowChildren ? '' : 'disabled'}>${expandedSymbol}</button>
+              <span class="node-pill">${text(node.code)}</span>
+              <span class="node-name">${text(node.name)}</span>
+            </div>
+            ${isRoot ? '' : `
+              <div class="node-meta-row">
+                <span class="node-meta-pill"><strong>数量</strong>${text(node.qty || '1.0000000000 套')}</span>
+                <span class="node-meta-pill"><strong>需求量</strong>${text(node.demand || '1 套')}</span>
+                <span class="node-meta-pill"><strong>来源</strong>${text(node.source || 'NULL')}</span>
+                <span class="node-meta-pill warn"><strong>类型</strong>${text(node.type || '制作车间（制造物料）')}</span>
+                <span class="node-meta-pill"><strong>虚拟件</strong>${text(node.virtual || '否')}</span>
+              </div>
+            `}
+          </div>
+        </div>
+        ${childHtml}
+      `;
+    }
+
+    function renderDetailTree() {
+      const tree = document.getElementById('bom-detail-tree');
+      const selected = document.getElementById('bom-selected-root');
+      const depthInput = document.getElementById('bom-depth-input');
+      if (!tree) return;
+      const root = ensureChildren(findRoot(bomState.selectedCode));
+      if (selected) selected.textContent = root.code;
+      if (depthInput) depthInput.value = bomState.maxDepth;
+      tree.innerHTML = renderNode(root, 0, true);
+      tree.querySelectorAll('[data-node-toggle]').forEach((button) => {
+        button.addEventListener('click', (event) => {
+          event.stopPropagation();
+          const code = button.dataset.nodeToggle;
+          if (!code) return;
+          if (bomState.collapsed.has(code)) {
+            bomState.collapsed.delete(code);
+          } else {
+            bomState.collapsed.add(code);
+          }
+          renderDetailTree();
+        });
+      });
+    }
+
+    function switchTab(tab) {
+      bomState.tab = tab;
+      bomState.collapsed.clear();
+      bomState.selectedCode = activeDataset().roots[0].code;
+      bomState.maxDepth = activeDataset().depth;
+      document.querySelectorAll('[data-bom-tab]').forEach((button) => {
+        button.classList.toggle('active', button.dataset.bomTab === tab);
+      });
+      document.getElementById('bom-title-suffix').textContent = activeDataset().label;
+      document.getElementById('bom-page-info').textContent = activeDataset().pageInfo;
+      renderFilters();
+      renderRootList();
+      renderDetailTree();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('[data-bom-tab]').forEach((button) => {
+        button.addEventListener('click', () => switchTab(button.dataset.bomTab));
+      });
+      document.getElementById('bom-expand-all')?.addEventListener('click', () => {
+        bomState.collapsed.clear();
+        renderDetailTree();
+      });
+      document.getElementById('bom-collapse-all')?.addEventListener('click', () => {
+        const collect = (node) => {
+          if (node.children?.length) {
+            bomState.collapsed.add(node.code);
+            node.children.forEach(collect);
+          }
+        };
+        collect(ensureChildren(findRoot(bomState.selectedCode)));
+        renderDetailTree();
+      });
+      document.getElementById('bom-depth-apply')?.addEventListener('click', () => {
+        const input = document.getElementById('bom-depth-input');
+        bomState.maxDepth = clampDepth(input?.value);
+        renderDetailTree();
+        toast(`层级已应用：最多显示 ${bomState.maxDepth} 层`);
+      });
+      switchTab('global');
+      bomState.selectedCode = 'CA341N03400_X95953';
+      renderRootList();
+      renderDetailTree();
+    });
+  </script>
+  <script src="common.js"></script>
+</body>
+</html>
