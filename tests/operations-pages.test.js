@@ -35,6 +35,13 @@ function readTableHeaders(html, tableId) {
     .map((match) => match[1].replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim());
 }
 
+function readBetween(html, startMarker, endMarker) {
+  const start = html.indexOf(startMarker);
+  if (start === -1) return '';
+  const end = html.indexOf(endMarker, start);
+  return end === -1 ? '' : html.slice(start, end);
+}
+
 function maxDepth(nodes, depth = 1) {
   return nodes.reduce((max, node) => {
     const childDepth = Array.isArray(node.children) && node.children.length
@@ -194,6 +201,35 @@ test('order management page has three tabs and double confirmation for order act
   }
   assert.doesNotMatch(html, /id="return-form-batch-line-seq"/, 'combined batch/line/sequence field should be removed');
   assert.match(html, /onchange="updateReturnOrderAutofill\(\)"/, 'return order selectors should refresh linked fields');
+});
+
+test('order management filter bars use the requested grouped layouts', () => {
+  const html = readHtml('order-management.html');
+  const planFilters = readBetween(html, 'id="plan-filter-layout"', '<div class="table-shell">');
+  const productionFilters = readBetween(html, 'id="production-filter-stack"', '<div class="table-shell">');
+  const productionPrimary = readBetween(
+    productionFilters,
+    'id="production-filter-primary"',
+    'id="production-filter-secondary"'
+  );
+  const productionSecondary = productionFilters.slice(productionFilters.indexOf('id="production-filter-secondary"'));
+
+  assert.ok(planFilters, 'plan order filters should use a dedicated two-column layout');
+  assert.match(planFilters, /id="plan-filter-dates"[\s\S]*id="plan-start-date"[\s\S]*id="plan-end-date"[\s\S]*confirmOrderAction\('plan-open'\)/);
+  assert.match(planFilters, /id="plan-filter-query"[\s\S]*id="plan-status"[\s\S]*id="plan-search"/);
+  assert.ok(
+    planFilters.indexOf('id="plan-filter-dates"') < planFilters.indexOf('id="plan-filter-query"'),
+    'date/open bar should be placed before the status/search bar'
+  );
+  assert.match(readCssRuleBody(html, '.order-filter-layout'), /grid-template-columns\s*:\s*[^;]*\s+[^;]*/);
+
+  assert.ok(productionFilters, 'production filters should use a two-row stack');
+  assert.ok(productionPrimary, 'production primary filter row should exist');
+  assert.ok(productionSecondary, 'production secondary filter row should exist');
+  for (const id of ['prod-plant', 'prod-closed', 'prod-type', 'prod-urgent']) {
+    assert.doesNotMatch(productionPrimary, new RegExp(`id="${id}"`), `${id} should not remain in the primary row`);
+    assert.match(productionSecondary, new RegExp(`id="${id}"`), `${id} should be placed in the secondary row`);
+  }
 });
 
 test('return package order selection auto-fills plant and delivery details', () => {

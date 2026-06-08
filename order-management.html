@@ -125,6 +125,34 @@
       flex-wrap: wrap;
     }
 
+    .order-filter-layout {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: minmax(390px, 0.82fr) minmax(520px, 1.18fr);
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .order-filter-layout .order-filter-bar,
+    .production-filter-stack .order-filter-bar {
+      margin-top: 0;
+    }
+
+    .plan-filter-dates,
+    .plan-filter-query {
+      align-content: end;
+    }
+
+    .production-filter-stack {
+      margin-top: 12px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .production-filter-secondary .order-filter-field {
+      flex: 0 1 190px;
+    }
+
     .order-filter-field {
       display: flex;
       flex-direction: column;
@@ -383,6 +411,12 @@
       border-color: var(--line) !important;
     }
 
+    @media (max-width: 1180px) {
+      .order-filter-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
     @media (max-width: 860px) {
       .aps-header-layout {
         grid-template-columns: 1fr;
@@ -497,30 +531,34 @@
           <section class="order-panel active" id="order-panel-plan" aria-labelledby="order-plan-heading">
             <div class="order-tool">
               <div class="order-section-title" id="order-plan-heading">计划订单</div>
-              <div class="order-filter-bar">
-                <label class="order-filter-field" for="plan-start-date">
-                  开始日期
-                  <input id="plan-start-date" type="date" value="2026-06-04" />
-                </label>
-                <label class="order-filter-field" for="plan-end-date">
-                  结束日期
-                  <input id="plan-end-date" type="date" value="2026-06-04" />
-                </label>
-                <button class="btn primary" type="button" onclick="confirmOrderAction('plan-open')">开单</button>
-                <label class="order-filter-field" for="plan-status">
-                  订单状态
-                  <select id="plan-status">
-                    <option>全部</option>
-                    <option>已计划</option>
-                    <option>确定计划</option>
-                  </select>
-                </label>
-                <label class="order-filter-field wide" for="plan-search">
-                  搜索
-                  <input id="plan-search" type="search" placeholder="计划订单号/来源订单号/物料编码（模糊）" />
-                </label>
-                <button class="btn primary" type="button" onclick="toast('计划订单查询完成')">搜索</button>
-                <button class="btn" type="button" onclick="resetOrderFilters('plan')">重置</button>
+              <div class="order-filter-layout plan-filter-layout" id="plan-filter-layout">
+                <div class="order-filter-bar plan-filter-dates" id="plan-filter-dates">
+                  <label class="order-filter-field" for="plan-start-date">
+                    开始日期
+                    <input id="plan-start-date" type="date" value="2026-06-04" />
+                  </label>
+                  <label class="order-filter-field" for="plan-end-date">
+                    结束日期
+                    <input id="plan-end-date" type="date" value="2026-06-04" />
+                  </label>
+                  <button class="btn primary" type="button" onclick="confirmOrderAction('plan-open')">开单</button>
+                </div>
+                <div class="order-filter-bar plan-filter-query" id="plan-filter-query">
+                  <label class="order-filter-field" for="plan-status">
+                    订单状态
+                    <select id="plan-status">
+                      <option>全部</option>
+                      <option>已计划</option>
+                      <option>确定计划</option>
+                    </select>
+                  </label>
+                  <label class="order-filter-field wide" for="plan-search">
+                    搜索
+                    <input id="plan-search" type="search" placeholder="计划订单号/来源订单号/物料编码（模糊）" />
+                  </label>
+                  <button class="btn primary" type="button" onclick="toast('计划订单查询完成')">搜索</button>
+                  <button class="btn" type="button" onclick="resetOrderFilters('plan')">重置</button>
+                </div>
               </div>
               <div class="table-shell">
                 <table class="order-table" id="plan-order-table" style="--table-min: 2300px;">
@@ -635,43 +673,47 @@
           <section class="order-panel" id="order-panel-production" aria-labelledby="order-production-heading">
             <div class="order-tool">
               <div class="order-section-title" id="order-production-heading">生产订单列表</div>
-              <div class="order-filter-bar">
-                <label class="order-filter-field" for="prod-plan-no">
-                  计划订单号
-                  <input id="prod-plan-no" type="search" placeholder="计划订单号（精确）" />
-                </label>
-                <label class="order-filter-field" for="prod-material">
-                  物料编码
-                  <input id="prod-material" type="search" placeholder="物料编码（精确）" />
-                </label>
-                <label class="order-filter-field" for="prod-code">
-                  成品码
-                  <input id="prod-code" type="search" placeholder="成品码（精确）" />
-                </label>
-                <label class="order-filter-field wide" for="prod-fuzzy">
-                  模糊查询
-                  <input id="prod-fuzzy" type="search" placeholder="订单来源/配套订单/总装订单/成品码（模糊）" />
-                </label>
-                <button class="btn primary" type="button" onclick="toast('生产订单查询完成')">搜索</button>
-                <button class="btn" type="button" onclick="resetOrderFilters('production')">重置</button>
-                <button class="btn" type="button" onclick="openReturnOrderDialog()">新增返包订单</button>
-                <button class="btn err txt-white" type="button" onclick="clearOpenedOrders()">清空开单</button>
-                <label class="order-filter-field" for="prod-plant">
-                  分厂编码
-                  <select id="prod-plant"><option>全部</option><option>700</option><option>1688</option></select>
-                </label>
-                <label class="order-filter-field" for="prod-closed">
-                  是否关闭
-                  <select id="prod-closed"><option>全部</option><option>未关闭</option><option>已关闭</option></select>
-                </label>
-                <label class="order-filter-field" for="prod-type">
-                  类型
-                  <select id="prod-type"><option>全部</option><option>总装</option><option>配套</option></select>
-                </label>
-                <label class="order-filter-field" for="prod-urgent">
-                  是否加急
-                  <select id="prod-urgent"><option>全部</option><option>加急</option><option>普通</option></select>
-                </label>
+              <div class="production-filter-stack" id="production-filter-stack">
+                <div class="order-filter-bar production-filter-primary" id="production-filter-primary">
+                  <label class="order-filter-field" for="prod-plan-no">
+                    计划订单号
+                    <input id="prod-plan-no" type="search" placeholder="计划订单号（精确）" />
+                  </label>
+                  <label class="order-filter-field" for="prod-material">
+                    物料编码
+                    <input id="prod-material" type="search" placeholder="物料编码（精确）" />
+                  </label>
+                  <label class="order-filter-field" for="prod-code">
+                    成品码
+                    <input id="prod-code" type="search" placeholder="成品码（精确）" />
+                  </label>
+                  <label class="order-filter-field wide" for="prod-fuzzy">
+                    模糊查询
+                    <input id="prod-fuzzy" type="search" placeholder="订单来源/配套订单/总装订单/成品码（模糊）" />
+                  </label>
+                  <button class="btn primary" type="button" onclick="toast('生产订单查询完成')">搜索</button>
+                  <button class="btn" type="button" onclick="resetOrderFilters('production')">重置</button>
+                  <button class="btn" type="button" onclick="openReturnOrderDialog()">新增返包订单</button>
+                  <button class="btn err txt-white" type="button" onclick="clearOpenedOrders()">清空开单</button>
+                </div>
+                <div class="order-filter-bar production-filter-secondary" id="production-filter-secondary">
+                  <label class="order-filter-field" for="prod-plant">
+                    分厂编码
+                    <select id="prod-plant"><option>全部</option><option>700</option><option>1688</option></select>
+                  </label>
+                  <label class="order-filter-field" for="prod-closed">
+                    是否关闭
+                    <select id="prod-closed"><option>全部</option><option>未关闭</option><option>已关闭</option></select>
+                  </label>
+                  <label class="order-filter-field" for="prod-type">
+                    类型
+                    <select id="prod-type"><option>全部</option><option>总装</option><option>配套</option></select>
+                  </label>
+                  <label class="order-filter-field" for="prod-urgent">
+                    是否加急
+                    <select id="prod-urgent"><option>全部</option><option>加急</option><option>普通</option></select>
+                  </label>
+                </div>
               </div>
               <div class="table-shell">
                 <table class="order-table" id="production-order-table" style="--table-min: 2800px;">
