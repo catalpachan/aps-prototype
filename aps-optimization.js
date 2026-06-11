@@ -110,6 +110,11 @@
     return null;
   }
 
+  function getCurrentPageName() {
+    const pageName = location.pathname.split('/').filter(Boolean).pop() || 'decision';
+    return pageName.replace(/\.html$/, '');
+  }
+
   function injectOptimizationStyles() {
     if (document.getElementById('aps-optimization-style')) return;
     const style = document.createElement('style');
@@ -2739,7 +2744,7 @@
       { href: 'collab.html', label: '排产操作' },
       { href: 'settings.html', label: '系统设置' }
     ];
-    const current = location.pathname.split('/').pop() || 'decision.html';
+    const current = getCurrentPageName();
     nav.classList.add('aps-main-nav');
     const existingTabs = Array.from(nav.querySelectorAll('a.nav-item'));
     const navMatchesPreset = existingTabs.length === topTabs.length
@@ -2753,13 +2758,13 @@
     if (!navMatchesPreset) {
       nav.innerHTML = topTabs
         .map((tab) => {
-          const active = current === tab.href ? ' active' : '';
+          const active = current === tab.href.replace(/\.html$/, '') ? ' active' : '';
           return `<a href="${tab.href}" class="nav-item${active}">${tab.label}</a>`;
         })
         .join('');
     } else {
       existingTabs.forEach((link) => {
-        const href = link.getAttribute('href') || '';
+        const href = (link.getAttribute('href') || '').replace(/\.html$/, '');
         link.classList.toggle('active', href === current);
       });
     }
@@ -5024,12 +5029,12 @@
     injectOptimizationStyles();
     setupOptimizedHeader();
 
-    const pageName = location.pathname.split('/').pop() || '';
-    if (pageName === 'collab.html') {
+    const pageName = getCurrentPageName();
+    if (pageName === 'collab') {
       enhanceCollabPage();
-    } else if (pageName === 'decision.html') {
+    } else if (pageName === 'decision') {
       enhanceDecisionPage();
-    } else if (pageName === 'settings.html') {
+    } else if (pageName === 'settings') {
       enhanceSettingsPage();
     }
   }

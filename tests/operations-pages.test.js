@@ -60,6 +60,18 @@ test('site root opens the scheduling operations workspace', () => {
   assert.doesNotMatch(html, /url=decision\.html|href="decision\.html"/);
 });
 
+test('page enhancements support Cloudflare extensionless routes', () => {
+  const optimization = readHtml('aps-optimization.js');
+
+  assert.match(optimization, /function getCurrentPageName\(\)/);
+  assert.match(optimization, /replace\(\/\\\.html\$\/, ''\)/);
+  assert.match(optimization, /const current = getCurrentPageName\(\)/);
+  assert.match(optimization, /const pageName = getCurrentPageName\(\)/);
+  assert.match(optimization, /if \(pageName === 'collab'\)/);
+  assert.match(optimization, /else if \(pageName === 'decision'\)/);
+  assert.match(optimization, /else if \(pageName === 'settings'\)/);
+});
+
 test('collab uses the order management center entry and removes legacy workbench and WIP controls', () => {
   const html = readHtml('collab.html');
   const optimization = readHtml('aps-optimization.js');
