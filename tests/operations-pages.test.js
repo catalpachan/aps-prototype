@@ -51,6 +51,15 @@ function maxDepth(nodes, depth = 1) {
   }, depth);
 }
 
+test('site root opens the scheduling operations workspace', () => {
+  const html = readHtml('index.html');
+
+  assert.match(html, /<meta http-equiv="refresh" content="0; url=collab\.html"\s*\/>/);
+  assert.match(html, /正在跳转到排产操作/);
+  assert.match(html, /<a href="collab\.html">点击这里<\/a>/);
+  assert.doesNotMatch(html, /url=decision\.html|href="decision\.html"/);
+});
+
 test('collab uses the order management center entry and removes legacy workbench and WIP controls', () => {
   const html = readHtml('collab.html');
   const optimization = readHtml('aps-optimization.js');
