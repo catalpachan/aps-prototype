@@ -1284,5 +1284,7 @@ function diagnoseSchedule() {
 
 document.addEventListener('DOMContentLoaded', () => {
   init();
-  initAIAssistant();
+  if (!document.documentElement.classList.contains('is-embedded')) {
+    initAIAssistant();
+  }
 });

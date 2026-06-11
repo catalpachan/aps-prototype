@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>订单管理中心 - 格力高级计划排程系统</title>
+  <link rel="stylesheet" href="common.css" />
+  <style>
+    .order-center-page { min-height: calc(100vh - 96px); }
+    .order-center-shell {
+      min-height: calc(100vh - 96px);
+      display: grid;
+      grid-template-columns: 196px minmax(0, 1fr);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #0d1525;
+      box-shadow: 0 12px 30px rgba(2, 6, 23, 0.28);
+    }
+    .order-center-sidebar {
+      padding: 16px 12px;
+      border-right: 1px solid #2c3a51;
+      background: #10192b;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .order-center-brand {
+      padding: 0 8px 14px;
+      border-bottom: 1px solid #2c3a51;
+      display: grid;
+      gap: 4px;
+    }
+    .order-center-brand strong { color: #f8fafc; font-size: 16px; }
+    .order-center-brand span { color: #7f91ad; font-size: 11px; line-height: 1.5; }
+    .order-center-nav { display: grid; gap: 6px; }
+    .order-center-nav-btn {
+      width: 100%;
+      min-height: 40px;
+      border: 1px solid transparent;
+      border-radius: 7px;
+      background: transparent;
+      color: #aebdd2;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      text-align: left;
+      padding: 0 12px;
+      cursor: pointer;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      transition: background var(--dur-fast), border-color var(--dur-fast), color var(--dur-fast), transform var(--dur-fast);
+    }
+    .order-center-nav-btn:hover {
+      color: #fff;
+      border-color: #3b4d68;
+      background: #17243a;
+      transform: translateX(2px);
+    }
+    .order-center-nav-btn.active {
+      color: #fff;
+      border-color: #2f68d8;
+      background: #1d4ed8;
+    }
+    .order-center-workspace {
+      min-width: 0;
+      background: #0b1321;
+    }
+    .order-center-content {
+      position: relative;
+      min-width: 0;
+      min-height: 720px;
+      background: #0d1525;
+    }
+    .order-center-loading {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      color: #7f91ad;
+      font-size: 12px;
+      pointer-events: none;
+    }
+    .order-center-frame {
+      width: 100%;
+      height: 100%;
+      min-height: 720px;
+      border: 0;
+      display: none;
+      background: #0d1525;
+    }
+    .order-center-frame.active { display: block; }
+    [data-theme="light"] .order-center-shell,
+    [data-theme="light"] .order-center-workspace,
+    [data-theme="light"] .order-center-content,
+    [data-theme="light"] .order-center-frame { background: #f4f7fb; }
+    [data-theme="light"] .order-center-sidebar { background: #fff; border-color: var(--line); }
+    [data-theme="light"] .order-center-brand { border-color: var(--line); }
+    [data-theme="light"] .order-center-brand strong { color: var(--txt); }
+    [data-theme="light"] .order-center-brand span { color: var(--muted); }
+    [data-theme="light"] .order-center-nav-btn { color: #52647d; }
+    [data-theme="light"] .order-center-nav-btn.active { color: #fff; background: #2563eb; }
+    @media (max-width: 900px) {
+      #app { padding: 10px; }
+      .order-center-shell { grid-template-columns: 1fr; }
+      .order-center-sidebar {
+        padding: 10px;
+        border-right: 0;
+        border-bottom: 1px solid #2c3a51;
+        gap: 10px;
+      }
+      .order-center-brand { padding: 0 2px 8px; }
+      .order-center-nav {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        padding-bottom: 2px;
+      }
+      .order-center-nav-btn {
+        width: auto;
+        min-width: max-content;
+        min-height: 36px;
+        padding: 0 14px;
+        justify-content: center;
+      }
+      .order-center-content,
+      .order-center-frame { min-height: 680px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="aps-header-layout">
+    <div class="brand-block">
+      <img class="header-logo" src="1c5703c9-aca0-43d1-9843-9d502cb66fd0.png" alt="APS Logo" width="143" height="44" />
+      <div class="aps-console-title">
+        <div class="aps-console-title-main">排产智能体</div>
+        <div class="aps-console-title-sub">格力高级计划排程系统</div>
+      </div>
+    </div>
+    <nav class="nav aps-main-nav" id="nav">
+      <a href="decision.html" class="nav-item">决策分析</a>
+      <a href="collab.html" class="nav-item active">排产操作</a>
+      <a href="settings.html" class="nav-item">系统设置</a>
+    </nav>
+    <div class="header-meta aps-header-meta" id="header-meta">
+      <div class="aps-site-switch">
+        <span class="aps-site-switch-label">制造基地</span>
+        <select id="hq-select" class="role-select" aria-label="基地切换">
+          <option>珠海格力总部</option>
+          <option>金湾基地</option>
+          <option>武汉基地</option>
+          <option>洛阳基地</option>
+        </select>
+      </div>
+      <span id="header-date" class="aps-clock-chip">2026-06-10 09:30:00</span>
+      <button type="button" class="aps-notify-btn" id="aps-notify-btn" aria-label="打开消息通知">
+        🔔<span class="aps-notify-badge" id="aps-notify-badge">0</span>
+      </button>
+      <div class="user-dropdown" id="user-dropdown">
+        <div class="user-dropdown-toggle" onclick="toggleUserDropdown()">
+          <div class="avatar">张</div>
+          <span class="name">张伟</span>
+          <span class="arrow">▼</span>
+        </div>
+        <div class="user-dropdown-menu">
+          <a href="settings.html?sub=profile" class="user-dropdown-item">👤 用户信息</a>
+          <a href="login.html" class="user-dropdown-item logout">🚪 退出</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="app">
+    <section class="view order-center-page">
+      <div class="order-center-shell">
+        <aside class="order-center-sidebar">
+          <div class="order-center-brand">
+            <strong>订单管理中心</strong>
+            <span>订单、物料结构与库存统一工作区</span>
+          </div>
+          <nav class="order-center-nav" aria-label="订单管理中心模块">
+            <button class="order-center-nav-btn active" type="button" data-center-module="orders">订单管理</button>
+            <button class="order-center-nav-btn" type="button" data-center-module="bom">智能BOM</button>
+            <button class="order-center-nav-btn" type="button" data-center-module="inventory">库存情况</button>
+          </nav>
+        </aside>
+        <section class="order-center-workspace">
+          <div class="order-center-content" id="order-center-content">
+            <div class="order-center-loading" id="order-center-loading">正在加载业务模块...</div>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const centerModules = {
+      orders: {
+        title: '订单管理',
+        defaultSrc: 'order-management.html?embed=1&tab=plan&v=20260611-module-headers'
+      },
+      bom: {
+        title: '智能BOM',
+        defaultSrc: 'smart-bom.html?embed=1&tab=global&v=20260611-module-headers'
+      },
+      inventory: {
+        title: '库存情况',
+        defaultSrc: 'inventory-board.html?embed=1&v=20260611-module-headers'
+      }
+    };
+    const params = new URLSearchParams(window.location.search);
+    const requestedModule = params.get('module') || 'orders';
+    const initialModule = Object.hasOwn(centerModules, requestedModule) ? requestedModule : 'orders';
+    const mountedFrames = new Map();
+
+    function initialSourceFor(moduleKey) {
+      if (moduleKey === 'orders') {
+        const tab = params.get('tab');
+        const safeTab = ['plan', 'insert', 'production'].includes(tab) ? tab : 'plan';
+        return `order-management.html?embed=1&tab=${safeTab}&v=20260611-module-headers`;
+      }
+      if (moduleKey === 'bom') {
+        const tab = params.get('tab');
+        const safeTab = ['global', 'split'].includes(tab) ? tab : 'global';
+        return `smart-bom.html?embed=1&tab=${safeTab}&v=20260611-module-headers`;
+      }
+      return centerModules[moduleKey].defaultSrc;
+    }
+
+    function ensureModuleFrame(moduleKey) {
+      if (mountedFrames.has(moduleKey)) return mountedFrames.get(moduleKey);
+      const config = centerModules[moduleKey];
+      const frame = document.createElement('iframe');
+      frame.className = 'order-center-frame';
+      frame.dataset.centerFrame = moduleKey;
+      frame.title = `${config.title}业务页面`;
+      frame.src = initialSourceFor(moduleKey);
+      frame.addEventListener('load', () => {
+        document.getElementById('order-center-loading')?.remove();
+      }, { once: true });
+      document.getElementById('order-center-content')?.appendChild(frame);
+      mountedFrames.set(moduleKey, frame);
+      return frame;
+    }
+
+    function syncCenterUrl(moduleKey) {
+      const nextUrl = new URL(window.location.href);
+      nextUrl.searchParams.set('module', moduleKey);
+      if (moduleKey === 'orders') nextUrl.searchParams.set('tab', 'plan');
+      if (moduleKey === 'bom') nextUrl.searchParams.set('tab', 'global');
+      if (moduleKey === 'inventory') nextUrl.searchParams.delete('tab');
+      window.history.replaceState({ module: moduleKey }, '', nextUrl);
+    }
+
+    function switchCenterModule(moduleKey, options = {}) {
+      const safeKey = Object.hasOwn(centerModules, moduleKey) ? moduleKey : 'orders';
+      const config = centerModules[safeKey];
+      ensureModuleFrame(safeKey);
+      document.querySelectorAll('[data-center-module]').forEach((button) => {
+        const active = button.dataset.centerModule === safeKey;
+        button.classList.toggle('active', active);
+        button.setAttribute('aria-current', active ? 'page' : 'false');
+      });
+      mountedFrames.forEach((frame, key) => frame.classList.toggle('active', key === safeKey));
+      if (options.updateUrl !== false) syncCenterUrl(safeKey);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('[data-center-module]').forEach((button) => {
+        button.addEventListener('click', () => switchCenterModule(button.dataset.centerModule));
+      });
+      switchCenterModule(initialModule, { updateUrl: false });
+    });
+  </script>
+  <script src="common.js?v=20260611-single-ai-assistant"></script>
+</body>
+</html>

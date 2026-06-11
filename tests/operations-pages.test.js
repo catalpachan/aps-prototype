@@ -51,17 +51,107 @@ function maxDepth(nodes, depth = 1) {
   }, depth);
 }
 
-test('collab workbench exposes smart BOM and order management before inventory board', () => {
+test('collab uses the order management center entry and removes legacy workbench and WIP controls', () => {
   const html = readHtml('collab.html');
-  const bomIndex = html.indexOf('smart-bom.html');
-  const orderIndex = html.indexOf('order-management.html');
-  const inventoryIndex = html.indexOf('inventory-board.html');
+  const optimization = readHtml('aps-optimization.js');
+  const allOrdersIndex = optimization.indexOf('id="aps-all-preplan-orders-btn"');
+  const centerIndex = optimization.indexOf('id="aps-order-center-btn"');
 
-  assert.ok(bomIndex > -1, 'missing Smart BOM entry');
-  assert.ok(orderIndex > -1, 'missing order management entry');
-  assert.ok(inventoryIndex > -1, 'missing inventory entry');
-  assert.ok(bomIndex < inventoryIndex, 'Smart BOM should be to the left of inventory board');
-  assert.ok(orderIndex < inventoryIndex, 'Order management should be to the left of inventory board');
+  assert.doesNotMatch(html, /wip-orders-card|wip-order-view-mask|查看所有在制订单/, 'WIP module should be removed');
+  assert.doesNotMatch(html, /window\.location\.href='(?:smart-bom|order-management|inventory-board)\.html'/, 'legacy workbench buttons should be removed');
+  assert.ok(allOrdersIndex > -1, 'all preplan orders button should remain');
+  assert.ok(centerIndex > allOrdersIndex, 'order management center should sit to the right of all preplan orders');
+  assert.match(optimization, /orderCenterBtn\.addEventListener\('click',[\s\S]*window\.location\.href = 'order-center\.html'/);
+});
+
+test('preplan guide mirrors pending plan orders and reveals material details on hover', () => {
+  const optimization = readHtml('aps-optimization.js');
+  const guideMarkup = readBetween(
+    optimization,
+    '<article class="aps-upgrade-card" id="aps-order-sync-card">',
+    '<article class="aps-upgrade-card" id="aps-resource-check-card">'
+  );
+
+  for (const heading of ['计划订单号', '订单类型', '交期', '数量', '订单状态']) {
+    assert.match(guideMarkup, new RegExp(`<th>${heading}<\\/th>`), `missing preplan guide heading: ${heading}`);
+  }
+  assert.doesNotMatch(guideMarkup, /<th>订单号<\/th>|<th>来源<\/th>/, 'legacy order/source headings should be removed');
+  assert.match(optimization, /const pendingPlanOrders = Array\.from\(\{ length: 30 \}/);
+  assert.match(optimization, /\.filter\(\(order\) => order\.orderStatusDescription === '待确认'\)/);
+  assert.match(optimization, /planOrderNo: `PLN202606\$\{padPreplanOrderNumber\(index \+ 1, 4\)\}`/);
+  assert.match(optimization, /<span class="aps-order-status pending">待确认<\/span>/);
+  assert.match(optimization, /class="aps-order-hover-detail"/);
+  assert.match(optimization, /<b>物料编码：<\/b>\$\{order\.materialCode\}/);
+  assert.match(optimization, /<b>物料说明：<\/b>\$\{order\.materialDescription\}/);
+  assert.match(optimization, /\.aps-order-table tbody tr:hover \.aps-order-hover-detail[\s\S]*?display:\s*grid/);
+  assert.match(optimization, /class="aps-order-no-cell" tabindex="0"/, 'material tooltip should also be keyboard accessible');
+});
+
+test('order management center defaults to plan orders and exposes all three modules', () => {
+  assert.ok(existsSync(path.join(root, 'order-center.html')), 'order-center.html should exist');
+  const html = readHtml('order-center.html');
+  const sidebar = readBetween(html, '<aside class="order-center-sidebar">', '</aside>');
+
+  for (const label of ['订单管理中心', '订单管理', '智能BOM', '库存情况', '返回排产操作']) {
+    if (label !== '返回排产操作') {
+      assert.match(html, new RegExp(label), `missing order center label: ${label}`);
+    }
+  }
+  assert.doesNotMatch(sidebar, /返回排产操作/, 'return action should not remain in the sidebar');
+  assert.doesNotMatch(html, /order-center-workspace-head/, 'order center workspace header should be removed');
+  assert.doesNotMatch(html, /order-center-workspace-title|order-center-title|order-center-description/, 'unused workspace title elements should be removed');
+  assert.match(html, /data-center-module="orders"/);
+  assert.match(html, /data-center-module="bom"/);
+  assert.match(html, /data-center-module="inventory"/);
+  assert.match(html, /order-management\.html\?embed=1&tab=plan/, 'orders should default to plan orders');
+  assert.match(html, /smart-bom\.html\?embed=1&tab=global/, 'BOM should default to global BOM');
+  assert.match(html, /inventory-board\.html\?embed=1/, 'inventory should load in embedded mode');
+  assert.match(html, /const requestedModule = params\.get\('module'\) \|\| 'orders'/);
+});
+
+test('legacy module pages support embedded mode and requested initial tabs', () => {
+  const orderHtml = readHtml('order-management.html');
+  const bomHtml = readHtml('smart-bom.html');
+  const inventoryHtml = readHtml('inventory-board.html');
+  const embedModeScript = readHtml('embed-mode.js');
+
+  for (const [name, html] of [
+    ['order management', orderHtml],
+    ['smart BOM', bomHtml],
+    ['inventory', inventoryHtml]
+  ]) {
+    assert.match(html, /<script src="embed-mode\.js"><\/script>/, `${name} should load shared embed mode`);
+    assert.match(html, /html\.is-embedded \.aps-header-layout\s*{\s*display:\s*none/, `${name} should hide the global header when embedded`);
+    assert.match(html, /module-return-link/, `${name} should identify its standalone return link`);
+    assert.doesNotMatch(html, /html\.is-embedded \.module-return-link\s*{\s*display:\s*none/, `${name} should keep the return action visible when embedded`);
+  }
+  assert.match(orderHtml, /class="orders-header"[\s\S]*href="collab\.html" target="_top" class="btn sm module-return-link">返回排产操作<\/a>/);
+  assert.match(bomHtml, /class="module-header"[\s\S]*href="collab\.html" target="_top" class="btn sm module-return-link">返回排产操作<\/a>/);
+  assert.match(inventoryHtml, /class="card-hd"[\s\S]*href="collab\.html" target="_top" class="btn sm module-return-link">返回排产操作<\/a>/);
+  assert.match(embedModeScript, /get\('embed'\) === '1'/, 'embed mode should read the URL flag');
+  assert.match(embedModeScript, /classList\.add\('is-embedded'\)/, 'embed mode should apply the root class');
+
+  assert.match(
+    orderHtml,
+    /switchOrderTab\(\['plan', 'insert', 'production'\]\.includes\(initialTab\) \? initialTab : 'plan'\)/,
+    'order management should validate and activate the requested initial tab'
+  );
+  assert.match(bomHtml, /new URLSearchParams\(window\.location\.search\)\.get\('tab'\)/);
+  assert.match(
+    bomHtml,
+    /switchTab\(\['global', 'split'\]\.includes\(initialTab\) \? initialTab : 'global'\)/,
+    'smart BOM should validate and activate the requested initial tab'
+  );
+});
+
+test('embedded order center modules do not create duplicate AI assistants', () => {
+  const commonScript = readHtml('common.js');
+
+  assert.match(
+    commonScript,
+    /if \(!document\.documentElement\.classList\.contains\('is-embedded'\)\) \{\s*initAIAssistant\(\);\s*\}/,
+    'AI assistant should initialize only in the top-level page'
+  );
 });
 
 test('smart BOM page has two tabs and linked tree/detail panels', () => {
@@ -201,6 +291,8 @@ test('order management page has three tabs and double confirmation for order act
   }
   assert.doesNotMatch(html, /id="return-form-batch-line-seq"/, 'combined batch/line/sequence field should be removed');
   assert.match(html, /onchange="updateReturnOrderAutofill\(\)"/, 'return order selectors should refresh linked fields');
+  assert.doesNotMatch(html, /清空开单/, 'production orders should not show the clear opened orders action');
+  assert.doesNotMatch(html, /clearOpenedOrders/, 'unused clear opened orders handler should be removed');
 });
 
 test('order management filter bars use the requested grouped layouts', () => {

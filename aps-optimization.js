@@ -483,11 +483,67 @@
         background: #172033;
       }
 
+      .aps-order-table tbody tr {
+        position: relative;
+      }
+
+      .aps-order-table tbody tr:hover {
+        background: rgba(37, 99, 235, 0.12);
+      }
+
+      .aps-order-no-cell {
+        position: relative;
+        color: #93c5fd;
+        font-weight: 700;
+      }
+
+      .aps-order-hover-detail {
+        position: absolute;
+        top: calc(100% - 2px);
+        left: 6px;
+        z-index: 12;
+        width: max-content;
+        max-width: min(360px, calc(100vw - 80px));
+        display: none;
+        gap: 5px;
+        padding: 9px 11px;
+        border: 1px solid #3b4c67;
+        border-radius: 7px;
+        background: #111b2d;
+        color: #cbd5e1;
+        box-shadow: 0 12px 24px rgba(2, 6, 23, 0.42);
+        font-size: 11px;
+        line-height: 1.5;
+        white-space: normal;
+        pointer-events: none;
+      }
+
+      .aps-order-hover-detail b {
+        color: #93c5fd;
+      }
+
+      .aps-order-table tbody tr:hover .aps-order-hover-detail,
+      .aps-order-no-cell:focus-within .aps-order-hover-detail {
+        display: grid;
+      }
+
+      .aps-order-no-cell:focus-within {
+        outline: 1px solid #60a5fa;
+        outline-offset: -2px;
+      }
+
       .aps-order-footer {
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .aps-order-footer-actions {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
         flex-wrap: wrap;
       }
 
@@ -554,6 +610,13 @@
         background: #064e3b;
         border-color: #065f46;
         color: #a7f3d0;
+      }
+
+      .aps-order-status.pending {
+        background: #78350f;
+        border-color: #a16207;
+        color: #fde68a;
+        font-weight: 700;
       }
 
       .aps-preplan-result,
@@ -2961,13 +3024,16 @@
         <div class="aps-order-table-wrap">
           <table class="aps-order-table">
             <thead>
-              <tr><th>订单号</th><th>来源</th><th>交期</th><th>数量</th><th>状态</th></tr>
+              <tr><th>计划订单号</th><th>订单类型</th><th>交期</th><th>数量</th><th>订单状态</th></tr>
             </thead>
             <tbody id="aps-order-tbody"></tbody>
           </table>
         </div>
         <div class="aps-order-footer">
-          <button class="btn sm" id="aps-all-preplan-orders-btn">所有预排订单</button>
+          <div class="aps-order-footer-actions">
+            <button class="btn sm" id="aps-all-preplan-orders-btn">所有预排订单</button>
+            <button class="btn sm primary" id="aps-order-center-btn">订单管理中心</button>
+          </div>
           <div class="aps-order-pager">
             <button class="aps-order-page-btn" id="aps-order-prev-page">上一页</button>
             <span class="aps-order-page-info" id="aps-order-page-info">1 / 1</span>
@@ -2999,31 +3065,46 @@
 
     `;
     leftCol.insertAdjacentHTML('afterbegin', upgradeHtml);
-    const wipCard = leftCol.querySelector('.wip-orders-card');
-    const preplanCard = document.getElementById('aps-order-sync-card');
-    if (wipCard && preplanCard && wipCard !== preplanCard.previousElementSibling) {
-      leftCol.insertBefore(wipCard, preplanCard);
-    }
 
     const ORDER_PAGE_SIZE = 8;
     let currentOrderPage = 1;
-    const orderSources = ['ERP', 'MES', 'CRM'];
-    const orders = Array.from({ length: 36 }, (_, idx) => {
-      const seq = 18 + idx;
-      const source = orderSources[((idx * 17) + 5) % orderSources.length];
-      const deliveryDay = 10 + (idx % 9);
-      const qty = 180 + ((idx * 37) % 420);
-      let status = 'ready';
-      if (idx === 2 || idx === 11 || idx === 24) status = 'rush';
-      if (idx === 15 || idx === 29) status = 'cancelled';
+    const preplanOrderMaterials = [
+      ['CA385W11400', 'GWH12AGBXB-K3NNA1B/O 顶'],
+      ['CA444W12200', 'GWC12QCXB-K6NNC4A/O 顶'],
+      ['CB574W04400', 'GWC12ATBXB-K6DNA1G/O 顶（降功率功能）'],
+      ['CB590N03400', 'GWC12ATBXB-K6DNA3G/I 顶（通侧）'],
+      ['CA477N09301', 'GWH18AACXD-K3NNA2B/I（通侧）'],
+      ['CB595N06700_202401', 'GWH12ATCXB-K6DNA4G/I 顶（WIFI）'],
+      ['CB603N10700_X64747', '风管机室内机总成'],
+      ['CB622N06602_Y77054', '变频冷暖室外机总成'],
+      ['CA341N03400_X95953', '空调器顶盖组件'],
+      ['CA362N02600', '风叶轴套装配组件']
+    ];
+
+    function padPreplanOrderNumber(value, length = 2) {
+      return String(value).padStart(length, '0');
+    }
+
+    function buildPreplanOrderDate(index, offset = 0) {
+      const absoluteDay = index + offset;
+      const month = 6 + Math.floor(absoluteDay / 28);
+      const day = (absoluteDay % 28) + 1;
+      return `2026-${padPreplanOrderNumber(month)}-${padPreplanOrderNumber(day)}`;
+    }
+
+    const pendingPlanOrders = Array.from({ length: 30 }, (_, index) => {
+      const [materialCode, materialDescription] = preplanOrderMaterials[index % preplanOrderMaterials.length];
       return {
-        no: `SO-20260309-${String(seq).padStart(3, '0')}`,
-        source,
-        delivery: `2026-03-${String(deliveryDay).padStart(2, '0')}`,
-        qty,
-        status
+        planOrderNo: `PLN202606${padPreplanOrderNumber(index + 1, 4)}`,
+        orderCategory: index % 3 === 2 ? '出口' : '内销',
+        completionDate: buildPreplanOrderDate(index, 9),
+        orderQuantity: 40 + ((index * 37) % 620),
+        orderStatusDescription: ['已计划', '确定计划', '待确认'][index % 3],
+        materialCode,
+        materialDescription
       };
-    });
+    }).filter((order) => order.orderStatusDescription === '待确认');
+    const orders = pendingPlanOrders;
 
     const sharedState = getSharedState();
     const schedulePlans = [
@@ -3074,30 +3155,26 @@
       const prevBtn = document.getElementById('aps-order-prev-page');
       const nextBtn = document.getElementById('aps-order-next-page');
       if (!tbody) return;
-      const sortWeight = { rush: 0, ready: 1, cancelled: 2 };
-      orders.sort((a, b) => sortWeight[a.status] - sortWeight[b.status]);
-      const visibleOrders = orders.filter((order) => order.status !== 'cancelled');
-      const totalPages = Math.max(1, Math.ceil(visibleOrders.length / ORDER_PAGE_SIZE));
+      const totalPages = Math.max(1, Math.ceil(orders.length / ORDER_PAGE_SIZE));
       currentOrderPage = Math.min(Math.max(currentOrderPage, 1), totalPages);
       const start = (currentOrderPage - 1) * ORDER_PAGE_SIZE;
-      const currentRows = visibleOrders.slice(start, start + ORDER_PAGE_SIZE);
+      const currentRows = orders.slice(start, start + ORDER_PAGE_SIZE);
       tbody.innerHTML = currentRows
-        .map((order) => {
-          const labels = {
-            ready: '可排',
-            rush: '加急插单',
-            cancelled: '已撤销'
-          };
-          return `
+        .map((order) => `
             <tr>
-              <td>${order.status === 'cancelled' ? `<s>${order.no}</s>` : order.no}</td>
-              <td>${order.source}</td>
-              <td>${order.delivery}</td>
-              <td>${order.qty}</td>
-              <td><span class="aps-order-status ${order.status}">${labels[order.status]}</span></td>
+              <td class="aps-order-no-cell" tabindex="0">
+                ${order.planOrderNo}
+                <span class="aps-order-hover-detail" role="tooltip">
+                  <span><b>物料编码：</b>${order.materialCode}</span>
+                  <span><b>物料说明：</b>${order.materialDescription}</span>
+                </span>
+              </td>
+              <td>${order.orderCategory}</td>
+              <td>${order.completionDate}</td>
+              <td>${order.orderQuantity}</td>
+              <td><span class="aps-order-status pending">待确认</span></td>
             </tr>
-          `;
-        })
+          `)
         .join('');
       if (pageInfo) pageInfo.textContent = `${currentOrderPage} / ${totalPages}`;
       if (prevBtn) prevBtn.disabled = currentOrderPage <= 1;
@@ -3105,8 +3182,7 @@
     }
 
     function changeOrderPage(offset) {
-      const visibleCount = orders.filter((order) => order.status !== 'cancelled').length;
-      const totalPages = Math.max(1, Math.ceil(visibleCount / ORDER_PAGE_SIZE));
+      const totalPages = Math.max(1, Math.ceil(orders.length / ORDER_PAGE_SIZE));
       const nextPage = currentOrderPage + offset;
       if (nextPage < 1 || nextPage > totalPages) return;
       currentOrderPage = nextPage;
@@ -3359,18 +3435,6 @@
     }
 
     function finalizeOrderSyncOrders() {
-      const today = new Date().toISOString().slice(0, 10);
-      const rushOrder = {
-        no: `SO-${today.replace(/-/g, '')}-${Math.floor(100 + Math.random() * 900)}`,
-        source: 'CRM',
-        delivery: today,
-        qty: 180 + Math.floor(Math.random() * 220),
-        status: 'rush'
-      };
-      orders.unshift(rushOrder);
-      const cancellable = orders.find((item) => item.status === 'ready');
-      if (cancellable) cancellable.status = 'cancelled';
-      if (orders.length > 48) orders.pop();
       currentOrderPage = 1;
       renderOrderTable();
     }
@@ -3405,7 +3469,7 @@
         orderSyncFlowState.running = false;
         finalizeOrderSyncOrders();
         renderOrderSyncFlow();
-        toast('订单同步完成：已置顶加急插单，并隐藏撤销订单。');
+        toast('订单同步完成：待确认计划订单已刷新。');
       }, ORDER_SYNC_FLOW_STEPS.length * 700 + 300);
       orderSyncFlowState.timers.push(finishTimer);
     }
@@ -3434,7 +3498,7 @@
         if (preplanResult) {
           preplanResult.innerHTML = `
             <div class="aps-resource-item">拆解完成：整机需求已拆分为 <b>注塑</b>、<b>钣金</b>、<b>两器焊接</b> 子任务，并生成能效批次码。</div>
-            <div class="aps-resource-item">本次预排覆盖 <b>${orders.filter((o) => o.status !== 'cancelled').length}</b> 个有效订单。</div>
+            <div class="aps-resource-item">本次预排覆盖 <b>${orders.length}</b> 个待确认计划订单。</div>
           `;
         }
         toast('启动预排完成：已应用预设清洗拆解规则。');
@@ -3606,6 +3670,7 @@
     }
 
     const allPreplanOrdersBtn = document.getElementById('aps-all-preplan-orders-btn');
+    const orderCenterBtn = document.getElementById('aps-order-center-btn');
     const orderPrevPageBtn = document.getElementById('aps-order-prev-page');
     const orderNextPageBtn = document.getElementById('aps-order-next-page');
     const orderSyncBtn = document.getElementById('aps-order-sync-btn');
@@ -3616,6 +3681,11 @@
     allPreplanOrdersBtn?.addEventListener('click', () => {
       window.location.href = 'preplan-orders.html';
     });
+    if (orderCenterBtn) {
+      orderCenterBtn.addEventListener('click', () => {
+        window.location.href = 'order-center.html';
+      });
+    }
     orderPrevPageBtn?.addEventListener('click', () => changeOrderPage(-1));
     orderNextPageBtn?.addEventListener('click', () => changeOrderPage(1));
     orderSyncBtn?.addEventListener('click', syncOrders);

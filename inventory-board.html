@@ -5,7 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>库存列表 - 格力高级计划排程系统</title>
   <link rel="stylesheet" href="common.css" />
+  <script src="embed-mode.js"></script>
   <style>
+    html.is-embedded .aps-header-layout { display: none; }
+    html.is-embedded #app { padding: 0; }
+    html.is-embedded .inventory-list-page > .card { border: 0; border-radius: 0; box-shadow: none; }
+
     .inventory-list-page {
       display: flex;
       flex-direction: column;
@@ -406,7 +411,7 @@
         <div class="card-hd">
           <div class="inventory-title-row">
             <strong>库存列表</strong>
-            <a href="decision.html" class="btn sm">返回决策分析</a>
+            <a href="collab.html" target="_top" class="btn sm module-return-link">返回排产操作</a>
           </div>
         </div>
         <div class="card-bd">
@@ -616,6 +621,6 @@
       renderInventoryRows();
     });
   </script>
-  <script src="common.js"></script>
+  <script src="common.js?v=20260611-single-ai-assistant"></script>
 </body>
 </html>

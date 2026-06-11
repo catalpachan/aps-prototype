@@ -5,7 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>智能BOM - 格力高级计划排程系统</title>
   <link rel="stylesheet" href="common.css" />
+  <script src="embed-mode.js"></script>
   <style>
+    html.is-embedded .aps-header-layout { display: none; }
+    html.is-embedded #app { padding: 0; }
+    html.is-embedded .module-frame { border: 0; border-radius: 0; box-shadow: none; }
+
     .bom-page {
       display: flex;
       flex-direction: column;
@@ -573,7 +578,7 @@
               <button class="tab-btn active" type="button" data-bom-tab="global">全局BOM</button>
               <button class="tab-btn" type="button" data-bom-tab="split">BOM拆解</button>
             </div>
-            <a href="collab.html" class="btn sm">返回排产操作</a>
+            <a href="collab.html" target="_top" class="btn sm module-return-link">返回排产操作</a>
           </div>
         </div>
 
@@ -1113,12 +1118,10 @@
         renderDetailTree();
         toast(`层级已应用：最多显示 ${bomState.maxDepth} 层`);
       });
-      switchTab('global');
-      bomState.selectedCode = 'CA341N03400_X95953';
-      renderRootList();
-      renderDetailTree();
+      const initialTab = new URLSearchParams(window.location.search).get('tab');
+      switchTab(['global', 'split'].includes(initialTab) ? initialTab : 'global');
     });
   </script>
-  <script src="common.js"></script>
+  <script src="common.js?v=20260611-single-ai-assistant"></script>
 </body>
 </html>

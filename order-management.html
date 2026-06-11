@@ -5,7 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>订单管理 - 格力高级计划排程系统</title>
   <link rel="stylesheet" href="common.css" />
+  <script src="embed-mode.js"></script>
   <style>
+    html.is-embedded .aps-header-layout { display: none; }
+    html.is-embedded #app { padding: 0; }
+    html.is-embedded .orders-frame { border: 0; border-radius: 0; box-shadow: none; }
+    html.is-embedded .order-tool { min-height: 660px; }
+
     .orders-page {
       display: flex;
       flex-direction: column;
@@ -523,7 +529,7 @@
               <button class="order-tab-btn" type="button" data-order-tab="insert">插单订单</button>
               <button class="order-tab-btn" type="button" data-order-tab="production">生产订单</button>
             </div>
-            <a href="collab.html" class="btn sm">返回排产操作</a>
+            <a href="collab.html" target="_top" class="btn sm module-return-link">返回排产操作</a>
           </div>
         </div>
 
@@ -694,7 +700,6 @@
                   <button class="btn primary" type="button" onclick="toast('生产订单查询完成')">搜索</button>
                   <button class="btn" type="button" onclick="resetOrderFilters('production')">重置</button>
                   <button class="btn" type="button" onclick="openReturnOrderDialog()">新增返包订单</button>
-                  <button class="btn err txt-white" type="button" onclick="clearOpenedOrders()">清空开单</button>
                 </div>
                 <div class="order-filter-bar production-filter-secondary" id="production-filter-secondary">
                   <label class="order-filter-field" for="prod-plant">
@@ -1389,17 +1394,6 @@
       toast('返包订单已提交');
     }
 
-    async function clearOpenedOrders() {
-      const ok = await showConfirmDialog({
-        title: '清空开单确认',
-        message: '请再次确认：将清空当前筛选下的开单标记，已下发生产订单不受影响。',
-        confirmText: '确认清空',
-        cancelText: '取消',
-        confirmType: 'danger'
-      });
-      if (ok) toast('开单标记已清空');
-    }
-
     function resetOrderFilters(scope) {
       const panel = document.getElementById(`order-panel-${scope}`);
       if (!panel) return;
@@ -1418,6 +1412,8 @@
       document.querySelectorAll('[data-order-tab]').forEach((button) => {
         button.addEventListener('click', () => switchOrderTab(button.dataset.orderTab));
       });
+      const initialTab = new URLSearchParams(window.location.search).get('tab');
+      switchOrderTab(['plan', 'insert', 'production'].includes(initialTab) ? initialTab : 'plan');
       const insertMask = document.getElementById('insert-order-mask');
       insertMask?.addEventListener('click', (event) => {
         if (event.target === insertMask) closeInsertOrderDialog();
@@ -1436,6 +1432,6 @@
       });
     });
   </script>
-  <script src="common.js"></script>
+  <script src="common.js?v=20260611-single-ai-assistant"></script>
 </body>
 </html>
