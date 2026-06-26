@@ -155,26 +155,36 @@ test('order management center defaults to plan orders and exposes all three modu
   assert.match(html, /const requestedModule = params\.get\('module'\) \|\| 'orders'/);
 });
 
-test('resource matching card opens a screenshot-inspired resource management center', () => {
+test('resource matching card opens an order-center styled resource management center', () => {
   assert.ok(existsSync(path.join(root, 'resource-center.html')), 'resource-center.html should exist');
   const optimization = readHtml('aps-optimization.js');
   const html = readHtml('resource-center.html');
-  const resourceMatchIndex = optimization.indexOf('id="aps-resource-match-btn"');
   const resourceCenterIndex = optimization.indexOf('id="aps-resource-center-btn"');
+  const resourceMatchIndex = optimization.indexOf('id="aps-resource-match-btn"');
   const headers = readTableHeaders(html, 'resource-master-table');
 
   assert.ok(resourceMatchIndex > -1, 'resource match button should remain');
-  assert.ok(resourceCenterIndex > resourceMatchIndex, 'resource management center should sit to the right of resource matching');
+  assert.ok(resourceCenterIndex > -1, 'resource management center button should exist');
+  assert.ok(resourceCenterIndex < resourceMatchIndex, 'resource management center should sit to the left of resource matching');
   assert.match(optimization, /resourceCenterBtn\?\.addEventListener\('click',[\s\S]*window\.location\.href = 'resource-center\.html'/);
 
-  for (const label of ['资源管理中心', '资源层级', '设备资源', '人力资源', '注塑', '两器', '钣金', '品目表', '输入关键词查询']) {
+  for (const label of ['资源管理中心', '资源、设备与人力主数据统一工作区', '总装', '两器', '注塑', '钣金', '控制器', '设备管理', '人力资源', '品目表', '资源表', '制造BOM表', '配套分厂提前期', '生产订单表', '出勤模式表', '日历表', '输入关键词查询']) {
     assert.match(html, new RegExp(label), `missing resource center label: ${label}`);
   }
-  assert.match(html, /class="resource-tree"/);
+  assert.match(html, /\.resource-center-shell\s*{[\s\S]*?grid-template-columns:\s*196px minmax\(0, 1fr\)/, 'resource center shell should mirror order center layout width');
+  assert.match(html, /\.resource-center-sidebar\s*{[\s\S]*?background:\s*#10192b/, 'resource center sidebar should mirror order center color');
+  assert.match(html, /class="resource-center-nav"/);
+  assert.match(html, /data-factory="assembly"/);
+  assert.match(html, /data-factory="exchanger"/);
+  assert.match(html, /data-factory="injection"/);
+  assert.match(html, /data-factory="sheet"/);
+  assert.match(html, /data-factory="controller"/);
+  assert.match(html, /data-resource-area="equipment"/);
+  assert.match(html, /data-resource-area="labor"/);
   assert.match(html, /id="resource-search"/);
   assert.match(html, /id="resource-master-table"/);
   assert.match(html, /class="resource-center-pager"/);
-  for (const heading of ['序号', 'WLDM/物料代码', 'WLMC/物料名称', '列8', 'LJTH/图号', 'MJZ/模具组', 'COLO/颜色', 'MACHINE/机型']) {
+  for (const heading of ['序号', '资源编码', '资源名称', '所属分厂', '资源类型', '状态', '产能/班', '负责人']) {
     assert.ok(headers.includes(heading), `missing resource table heading: ${heading}`);
   }
 });
