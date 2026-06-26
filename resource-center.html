@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>资源管理中心 - 格力高级计划排程系统</title>
+  <link rel="stylesheet" href="common.css" />
+  <style>
+    :root {
+      --resource-bg: #080f22;
+      --resource-panel: #10192f;
+      --resource-panel-2: #121d36;
+      --resource-line: #254175;
+      --resource-line-soft: rgb(59 130 246 / 22%);
+      --resource-blue: #2ea8ff;
+      --resource-cyan: #22d3ee;
+      --resource-green: #5cc64d;
+      --resource-text: #eef5ff;
+      --resource-muted: #8da2c2;
+    }
+
+    body {
+      background:
+        radial-gradient(circle at 72% 8%, rgb(46 168 255 / 14%), transparent 32%),
+        radial-gradient(circle at 20% 74%, rgb(34 211 238 / 10%), transparent 34%),
+        #081020;
+    }
+
+    .resource-center-page {
+      min-height: calc(100vh - 96px);
+    }
+
+    .resource-center-shell {
+      min-height: calc(100vh - 96px);
+      display: grid;
+      grid-template-columns: minmax(210px, 13.5vw) minmax(0, 1fr);
+      gap: 12px;
+      color: var(--resource-text);
+    }
+
+    .resource-center-sidebar {
+      border: 1px solid #1f3b70;
+      border-radius: 10px;
+      background:
+        linear-gradient(180deg, rgb(21 32 58 / 94%), rgb(9 15 32 / 96%)),
+        var(--resource-panel);
+      box-shadow: inset -3px 0 0 #315ef4, 0 16px 38px rgb(2 6 23 / 26%);
+      padding: 14px 8px;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .resource-center-brand {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 0 4px 12px;
+    }
+
+    .resource-center-brand strong {
+      color: #38bdf8;
+      font-size: clamp(18px, 1.35vw, 22px);
+      letter-spacing: 0.02em;
+    }
+
+    .resource-tree {
+      display: grid;
+      gap: 6px;
+      max-height: calc(100vh - 164px);
+      overflow: auto;
+      padding-right: 2px;
+    }
+
+    .resource-tree-group {
+      display: grid;
+      gap: 5px;
+    }
+
+    .resource-tree-node,
+    .resource-tree-leaf {
+      border: 1px solid transparent;
+      border-radius: 6px;
+      min-height: 32px;
+      padding: 0 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #aebbd6;
+      background: rgb(34 43 70 / 72%);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: left;
+      transition: color var(--dur-fast), background var(--dur-fast), border-color var(--dur-fast), transform var(--dur-fast);
+    }
+
+    .resource-tree-node:hover,
+    .resource-tree-leaf:hover {
+      color: #fff;
+      border-color: #315ef4;
+      transform: translateX(2px);
+    }
+
+    .resource-tree-node .twisty {
+      width: 15px;
+      color: #c8d7f0;
+      text-align: center;
+      opacity: 0.85;
+    }
+
+    .resource-tree-node .add {
+      margin-left: auto;
+      min-width: 28px;
+      height: 24px;
+      border-radius: 7px;
+      display: inline-grid;
+      place-items: center;
+      color: #eafff2;
+      background: linear-gradient(135deg, #50b843, #6ad15b);
+      box-shadow: 0 6px 14px rgb(76 175 80 / 26%);
+      font-size: 15px;
+    }
+
+    .resource-tree-node.is-blue .add {
+      background: linear-gradient(135deg, #38bdf8, #4ade80);
+    }
+
+    .resource-tree-children {
+      display: grid;
+      gap: 5px;
+      padding-left: 0;
+    }
+
+    .resource-tree-leaf {
+      justify-content: center;
+      color: #7d8da8;
+      background: rgb(36 45 72 / 70%);
+    }
+
+    .resource-tree-leaf.active {
+      color: #1f2e48;
+      background: linear-gradient(180deg, #f8fbff, #dff2ff);
+      border-color: #45b7ff;
+      box-shadow: inset 3px 0 0 #31a8ff, 0 8px 18px rgb(46 168 255 / 18%);
+    }
+
+    .resource-center-workspace {
+      min-width: 0;
+      border: 1px solid #1d3766;
+      border-radius: 14px;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgb(16 26 52 / 90%), rgb(9 14 32 / 96%)),
+        var(--resource-bg);
+      box-shadow: 0 20px 52px rgb(2 6 23 / 35%);
+      position: relative;
+    }
+
+    .resource-center-workspace::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        repeating-linear-gradient(145deg, rgb(255 255 255 / 4%) 0 1px, transparent 1px 190px);
+      opacity: 0.28;
+      mix-blend-mode: screen;
+    }
+
+    .resource-master-card {
+      position: relative;
+      z-index: 1;
+      min-height: calc(100vh - 98px);
+      display: grid;
+      grid-template-rows: auto auto minmax(0, 1fr);
+    }
+
+    .resource-master-titlebar {
+      min-height: 92px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 20px 28px;
+      background: linear-gradient(90deg, rgb(26 41 78 / 94%), rgb(24 35 72 / 90%));
+      border-bottom: 1px solid #254175;
+    }
+
+    .resource-master-titlebar h1 {
+      margin: 0;
+      color: #fff;
+      font-size: clamp(28px, 2.4vw, 38px);
+      letter-spacing: 0.04em;
+    }
+
+    .resource-master-titlebar .return-link {
+      white-space: nowrap;
+    }
+
+    .resource-master-toolbar {
+      padding: 34px 24px 12px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .resource-search-wrap {
+      width: min(760px, 70%);
+      position: relative;
+    }
+
+    .resource-search-wrap input {
+      width: 100%;
+      height: 42px;
+      border-radius: 8px;
+      border: 1px solid #2e4f91;
+      background: rgb(34 42 72 / 84%);
+      color: #edf5ff;
+      text-align: center;
+      font-weight: 700;
+      box-shadow: inset 0 0 0 1px rgb(46 168 255 / 10%), 0 8px 24px rgb(2 6 23 / 24%);
+    }
+
+    .resource-search-wrap input::placeholder {
+      color: #aab8cf;
+    }
+
+    .resource-table-section {
+      min-width: 0;
+      padding: 0 24px 28px;
+      display: grid;
+      grid-template-rows: minmax(0, 1fr) auto;
+      gap: 12px;
+    }
+
+    .resource-table-wrap {
+      min-width: 0;
+      overflow: auto;
+      border: 1px solid #163b70;
+      border-radius: 14px;
+      background: rgb(5 11 28 / 72%);
+      box-shadow: inset 0 0 0 1px rgb(46 168 255 / 8%);
+    }
+
+    .resource-master-table {
+      width: 100%;
+      min-width: 1380px;
+      border-collapse: separate;
+      border-spacing: 0;
+      table-layout: fixed;
+      color: #dde7f6;
+    }
+
+    .resource-master-table th,
+    .resource-master-table td {
+      border-right: 1px solid rgb(50 75 130 / 58%);
+      border-bottom: 1px solid rgb(42 61 105 / 52%);
+      padding: 20px 18px;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .resource-master-table th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      color: #f5f8ff;
+      background: linear-gradient(180deg, rgb(58 68 105 / 96%), rgb(41 50 88 / 96%));
+      border-bottom: 4px solid var(--resource-blue);
+      height: 64px;
+    }
+
+    .resource-master-table td {
+      height: 58px;
+      background: rgb(11 18 39 / 82%);
+    }
+
+    .resource-master-table tbody tr:nth-child(even) td {
+      background: rgb(17 25 48 / 78%);
+    }
+
+    .resource-master-table tbody tr:hover td {
+      background: rgb(20 42 73 / 86%);
+      color: #fff;
+    }
+
+    .resource-master-table th:first-child,
+    .resource-master-table td:first-child {
+      width: 72px;
+    }
+
+    .resource-master-table th:nth-child(2),
+    .resource-master-table td:nth-child(2),
+    .resource-master-table th:nth-child(3),
+    .resource-master-table td:nth-child(3) {
+      width: 210px;
+    }
+
+    .resource-center-pager {
+      min-height: 48px;
+      border: 1px solid #0d4c78;
+      background: linear-gradient(90deg, rgb(2 28 48 / 88%), rgb(10 28 56 / 84%));
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      padding: 0 12px;
+      color: var(--resource-cyan);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .resource-center-pager button,
+    .resource-center-pager input {
+      height: 28px;
+      border-radius: 5px;
+      border: 1px solid #0b7bb0;
+      background: rgb(8 26 51 / 92%);
+      color: var(--resource-cyan);
+      font: inherit;
+      font-size: 12px;
+    }
+
+    .resource-center-pager button {
+      min-width: 32px;
+      cursor: pointer;
+    }
+
+    .resource-center-pager button:disabled {
+      opacity: 0.48;
+      cursor: not-allowed;
+    }
+
+    .resource-center-pager input {
+      width: 72px;
+      text-align: center;
+    }
+
+    [data-theme="light"] .resource-center-sidebar,
+    [data-theme="light"] .resource-center-workspace {
+      background: #f4f7fb;
+    }
+
+    @media (max-width: 980px) {
+      #app { padding: 10px; }
+      .resource-center-shell { grid-template-columns: 1fr; }
+      .resource-center-sidebar {
+        box-shadow: none;
+        padding: 10px;
+      }
+      .resource-center-brand { padding-bottom: 8px; }
+      .resource-tree {
+        display: flex;
+        overflow-x: auto;
+        max-height: none;
+        gap: 8px;
+      }
+      .resource-tree-group,
+      .resource-tree-children {
+        display: flex;
+        gap: 8px;
+      }
+      .resource-tree-node,
+      .resource-tree-leaf {
+        min-width: max-content;
+        padding: 0 12px;
+      }
+      .resource-master-titlebar {
+        min-height: auto;
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 18px;
+      }
+      .resource-master-toolbar {
+        padding: 18px 14px 10px;
+      }
+      .resource-search-wrap {
+        width: 100%;
+      }
+      .resource-table-section {
+        padding: 0 14px 18px;
+      }
+      .resource-center-pager {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="aps-header-layout">
+    <div class="brand-block">
+      <img class="header-logo" src="1c5703c9-aca0-43d1-9843-9d502cb66fd0.png" alt="APS Logo" width="143" height="44" />
+      <div class="aps-console-title">
+        <div class="aps-console-title-main">排产智能体</div>
+        <div class="aps-console-title-sub">格力高级计划排程系统</div>
+      </div>
+    </div>
+    <nav class="nav aps-main-nav" id="nav">
+      <a href="decision.html" class="nav-item">决策分析</a>
+      <a href="collab.html" class="nav-item active">排产操作</a>
+      <a href="settings.html" class="nav-item">系统设置</a>
+    </nav>
+    <div class="header-meta aps-header-meta" id="header-meta">
+      <div class="aps-site-switch">
+        <span class="aps-site-switch-label">制造基地</span>
+        <select id="hq-select" class="role-select" aria-label="基地切换">
+          <option>珠海格力总部</option>
+          <option>金湾基地</option>
+          <option>武汉基地</option>
+          <option>洛阳基地</option>
+        </select>
+      </div>
+      <span id="header-date" class="aps-clock-chip">2026-06-26 09:30:00</span>
+      <button type="button" class="aps-notify-btn" id="aps-notify-btn" aria-label="打开消息通知">
+        🔔<span class="aps-notify-badge" id="aps-notify-badge">0</span>
+      </button>
+      <div class="user-dropdown" id="user-dropdown">
+        <div class="user-dropdown-toggle" onclick="toggleUserDropdown()">
+          <div class="avatar">张</div>
+          <span class="name">张伟</span>
+          <span class="arrow">▼</span>
+        </div>
+        <div class="user-dropdown-menu">
+          <a href="settings.html?sub=profile" class="user-dropdown-item">👤 用户信息</a>
+          <a href="login.html" class="user-dropdown-item logout">🚪 退出</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="app">
+    <section class="view resource-center-page">
+      <div class="resource-center-shell">
+        <aside class="resource-center-sidebar" aria-label="资源层级">
+          <div class="resource-center-brand">
+            <strong>资源层级</strong>
+          </div>
+          <nav class="resource-tree" aria-label="资源管理中心层级树">
+            <div class="resource-tree-group">
+              <button class="resource-tree-node" type="button">
+                <span class="twisty">▼</span><span>设备资源</span><span class="add">+</span>
+              </button>
+              <div class="resource-tree-children">
+                <button class="resource-tree-leaf active" type="button" data-resource-table="品目表">品目表</button>
+                <button class="resource-tree-leaf" type="button" data-resource-table="资源表">资源表</button>
+                <button class="resource-tree-leaf" type="button" data-resource-table="制造BOM表">制造BOM表</button>
+                <button class="resource-tree-leaf" type="button" data-resource-table="配套分厂提前期">配套分厂提前期</button>
+                <button class="resource-tree-leaf" type="button" data-resource-table="生产订单表">生产订单表</button>
+              </div>
+            </div>
+            <div class="resource-tree-group">
+              <button class="resource-tree-node" type="button">
+                <span class="twisty">▶</span><span>人力资源</span><span class="add">+</span>
+              </button>
+            </div>
+            <div class="resource-tree-group">
+              <button class="resource-tree-node is-blue" type="button">
+                <span class="twisty">▼</span><span>控制器</span><span class="add">+</span>
+              </button>
+              <div class="resource-tree-children">
+                <button class="resource-tree-leaf" type="button" data-resource-table="设备资源">设备资源</button>
+                <button class="resource-tree-leaf" type="button" data-resource-table="人力资源">人力资源</button>
+              </div>
+            </div>
+            <div class="resource-tree-group">
+              <button class="resource-tree-node is-blue" type="button">
+                <span class="twisty">▼</span><span>注塑</span><span class="add">+</span>
+              </button>
+              <div class="resource-tree-children">
+                <button class="resource-tree-leaf" type="button" data-resource-table="设备资源">设备资源</button>
+                <button class="resource-tree-leaf" type="button" data-resource-table="品目表">品目表</button>
+                <button class="resource-tree-leaf" type="button" data-resource-table="资源表">资源表</button>
+                <button class="resource-tree-leaf" type="button" data-resource-table="制造BOM表">制造BOM表</button>
+                <button class="resource-tree-leaf" type="button" data-resource-table="换模时间表">换模时间表</button>
+                <button class="resource-tree-leaf" type="button" data-resource-table="换色时间表">换色时间表</button>
+                <button class="resource-tree-leaf" type="button" data-resource-table="原材料表">原材料表</button>
+              </div>
+            </div>
+            <div class="resource-tree-group">
+              <button class="resource-tree-node is-blue" type="button">
+                <span class="twisty">▶</span><span>人力资源</span><span class="add">+</span>
+              </button>
+            </div>
+            <div class="resource-tree-group">
+              <button class="resource-tree-node is-blue" type="button">
+                <span class="twisty">▶</span><span>两器</span><span class="add">+</span>
+              </button>
+            </div>
+            <div class="resource-tree-group">
+              <button class="resource-tree-node is-blue" type="button">
+                <span class="twisty">▶</span><span>钣金</span><span class="add">+</span>
+              </button>
+            </div>
+          </nav>
+        </aside>
+
+        <section class="resource-center-workspace" aria-label="资源管理中心工作区">
+          <article class="resource-master-card">
+            <header class="resource-master-titlebar">
+              <h1 id="resource-table-title">品目表</h1>
+              <a href="collab.html" class="btn sm module-return-link return-link">返回排产操作</a>
+            </header>
+            <div class="resource-master-toolbar">
+              <label class="resource-search-wrap">
+                <span class="sr-only">输入关键词查询</span>
+                <input id="resource-search" type="search" placeholder="输入关键词查询" autocomplete="off" />
+              </label>
+            </div>
+            <div class="resource-table-section">
+              <div class="resource-table-wrap">
+                <table class="resource-master-table" id="resource-master-table">
+                  <thead>
+                    <tr>
+                      <th>序号</th>
+                      <th>WLDM/物料代码</th>
+                      <th>WLMC/物料名称</th>
+                      <th>列8</th>
+                      <th>LJTH/图号</th>
+                      <th>MJZ/模具组</th>
+                      <th>COLO/颜色</th>
+                      <th>MACHINE/机型</th>
+                    </tr>
+                  </thead>
+                  <tbody id="resource-master-tbody"></tbody>
+                </table>
+              </div>
+              <footer class="resource-center-pager" aria-label="资源表分页">
+                <span id="resource-total">共 1449 条</span>
+                <button type="button" id="resource-prev-page" aria-label="上一页">‹</button>
+                <span id="resource-page-info">1 / 290</span>
+                <button type="button" id="resource-next-page" aria-label="下一页">›</button>
+                <span>跳至</span>
+                <input id="resource-page-input" inputmode="numeric" aria-label="跳转页码" />
+                <button type="button" id="resource-jump-page">跳转</button>
+              </footer>
+            </div>
+          </article>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const resourceRows = [
+      ['1', '230002000001S', '透明暗(透明)(丝印商标...', '', 'YAW1E00000004', '', '透明', ''],
+      ['2', '200057060012', '格栅(格力牌)(杏灰9082C)', '', 'KFR26WFNhXB01A1.15...', 'ZS301/27814', '杏灰', '1*2'],
+      ['3', '20000106003801', '底壳(无冷等离子)(冷灰...', '', 'GWH12AGCK3NNA1BI...', '', '冷灰', ''],
+      ['4', '200023060004', '曲轴(本色)', '', '(35564)FNhAaA3.0300...', 'ZS301/18296', '本色', '1*8'],
+      ['5', '200114060045', '支架(本色)', '', 'GWH12AGCK3NNA1BI...', '', '本色', '']
+    ];
+
+    function renderResourceRows() {
+      const tbody = document.getElementById('resource-master-tbody');
+      const query = document.getElementById('resource-search')?.value.trim().toLowerCase() || '';
+      if (!tbody) return;
+      const filtered = resourceRows.filter((row) => row.join(' ').toLowerCase().includes(query));
+      tbody.innerHTML = filtered.length
+        ? filtered.map((row) => `
+          <tr>
+            ${row.map((cell) => `<td title="${cell}">${cell}</td>`).join('')}
+          </tr>
+        `).join('')
+        : '<tr><td colspan="8">未找到匹配的资源主数据</td></tr>';
+      const total = document.getElementById('resource-total');
+      if (total) total.textContent = query ? `共 ${filtered.length} 条` : '共 1449 条';
+    }
+
+    function setActiveResourceTable(button) {
+      if (!button) return;
+      document.querySelectorAll('.resource-tree-leaf').forEach((item) => item.classList.remove('active'));
+      button.classList.add('active');
+      const title = document.getElementById('resource-table-title');
+      if (title) title.textContent = button.dataset.resourceTable || button.textContent.trim();
+      renderResourceRows();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderResourceRows();
+      document.getElementById('resource-search')?.addEventListener('input', renderResourceRows);
+      document.querySelectorAll('.resource-tree-leaf').forEach((button) => {
+        button.addEventListener('click', () => setActiveResourceTable(button));
+      });
+      document.getElementById('resource-prev-page')?.setAttribute('disabled', 'disabled');
+      document.getElementById('resource-next-page')?.addEventListener('click', () => {
+        const info = document.getElementById('resource-page-info');
+        if (info) info.textContent = '2 / 290';
+        document.getElementById('resource-prev-page')?.removeAttribute('disabled');
+      });
+      document.getElementById('resource-jump-page')?.addEventListener('click', () => {
+        const value = document.getElementById('resource-page-input')?.value.trim();
+        if (!value) return;
+        const safePage = Math.min(Math.max(Number(value) || 1, 1), 290);
+        const info = document.getElementById('resource-page-info');
+        if (info) info.textContent = `${safePage} / 290`;
+        document.getElementById('resource-prev-page')?.toggleAttribute('disabled', safePage === 1);
+      });
+    });
+  </script>
+  <script src="common.js?v=20260611-single-ai-assistant"></script>
+</body>
+</html>
