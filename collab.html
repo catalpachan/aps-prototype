@@ -43,6 +43,14 @@
     .view-btn.active { background: #2563eb; color: #fff; }
     .view-panel { display: none; min-height: 0; }
     .view-panel.active { display: flex; flex-direction: column; gap: 8px; flex: none; min-height: auto; }
+    .week-mode-tabs { display: inline-flex; align-items: center; align-self: flex-start; border: 1px solid #334155; border-radius: 8px; overflow: hidden; background: #0f172a; }
+    .week-mode-tab { appearance: none; border: 0; background: transparent; color: #94a3b8; min-height: 32px; padding: 0 14px; font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
+    .week-mode-tab + .week-mode-tab { border-left: 1px solid #334155; }
+    .week-mode-tab.active { background: #2563eb; color: #fff; }
+    .week-mode-tab:focus-visible { outline: none; box-shadow: inset 0 0 0 2px #93c5fd; }
+    .week-mode-panel { display: none; flex-direction: column; gap: 8px; min-width: 0; }
+    .week-mode-panel.active { display: flex; }
+    .week-mode-panel[hidden] { display: none; }
     .day-view-date-head { border: 1px solid #334155; border-radius: 8px; padding: 8px 10px; background: #111b2d; color: #dbeafe; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
     .day-date-title { font-size: 11px; color: #93c5fd; font-weight: 700; letter-spacing: 0.2px; }
     .day-date-text { font-size: 13px; color: #e2e8f0; font-weight: 700; }
@@ -100,6 +108,20 @@
     .week-day-table-head span { font-size: 11px; color: #94a3b8; }
     .week-day-table-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 10px; border-bottom: 1px solid #334155; background: #141f33; }
     .week-day-table-toolbar .muted { font-size: 11px; }
+    .week-list-calendar-shell { overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; scrollbar-color: #475569 transparent; }
+    .week-list-calendar { min-width: 650px; display: grid; grid-template-columns: repeat(7, minmax(82px, 1fr)); gap: 6px; }
+    .week-list-day { appearance: none; min-width: 0; min-height: 42px; border: 1px solid #334155; border-radius: 7px; background: #101a2d; color: #cbd5e1; padding: 6px 8px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 6px; font: inherit; cursor: pointer; transition: border-color var(--dur-fast), background var(--dur-fast), transform var(--dur-fast); }
+    .week-list-day:hover { transform: translateY(-1px); border-color: #4b6b98; }
+    .week-list-day.active { border-color: #60a5fa; background: #172b4d; box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2); }
+    .week-list-day:focus-visible { outline: none; border-color: #93c5fd; box-shadow: 0 0 0 2px rgba(147, 197, 253, 0.28); }
+    .week-list-day-week { color: #94a3b8; font-size: 10px; }
+    .week-list-day-date { color: #e2e8f0; font-size: 11px; font-weight: 700; text-align: center; }
+    .week-list-day-load { color: #cbd5e1; font-size: 11px; font-weight: 800; text-align: right; }
+    .week-list-day.load-low { border-color: #1f6a48; background: rgba(22, 101, 52, 0.2); }
+    .week-list-day.load-mid { border-color: #7c5d0a; background: rgba(202, 138, 4, 0.18); }
+    .week-list-day.load-high { border-color: #9a3412; background: rgba(194, 65, 12, 0.18); }
+    .week-list-day.load-full { border-color: #b91c1c; background: rgba(185, 28, 28, 0.22); }
+    .week-list-day.load-over { border-color: #5b2d1a; background: rgba(92, 45, 26, 0.32); }
     .workbench-note-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
     .workbench-note-row .muted { flex: 1 1 420px; min-width: 0; }
     .schedule-color-legend { display: inline-flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
@@ -126,6 +148,12 @@
     .week-page-info { font-size: 11px; color: #94a3b8; min-width: 56px; text-align: center; }
     [data-theme="light"] .week-day-pagination { background: #eef2ff; border-top-color: var(--line); }
     [data-theme="light"] #gantt-plant-filter { background: #fff; color: var(--txt); border-color: var(--line); }
+    [data-theme="light"] .week-mode-tabs,
+    [data-theme="light"] .week-list-day { background: #fff; border-color: var(--line); color: var(--txt); }
+    [data-theme="light"] .week-list-day-date { color: var(--txt); }
+    [data-theme="light"] .week-list-day-week,
+    [data-theme="light"] .week-list-day-load { color: var(--muted); }
+    [data-theme="light"] .week-mode-tab.active { background: #2563eb; color: #fff; }
     .week-day-table-empty { padding: 16px; text-align: center; color: #64748b; font-size: 11px; }
     .month-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
     .month-nav { display: flex; align-items: center; gap: 8px; }
@@ -185,7 +213,7 @@
     .lock-strip { display: flex; align-items: center; justify-content: space-between; gap: 8px; border: 1px solid #334155; border-radius: 8px; padding: 8px; background: #111a2a; margin-bottom: 8px; font-size: 12px; }
     .preplan-btn { border: 1px solid #3b82f6; border-radius: 8px; padding: 6px 10px; color: #dbeafe; font-weight: 700; background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 55%, #38bdf8 100%); cursor: pointer; font-size: 12px; }
     .execute-btn { border: 1px solid #22c55e; border-radius: 8px; padding: 6px 10px; color: #dcfce7; font-weight: 700; background: linear-gradient(135deg, #166534 0%, #16a34a 55%, #4ade80 100%); cursor: pointer; font-size: 12px; }
-    @media (max-width: 960px) { .collab-layout { grid-template-columns: 1fr; } .collab-right { position: static; height: auto; } .week-calendar { grid-template-columns: repeat(2, minmax(0, 1fr)); } .month-day { min-height: 160px; } .month-factory-row { grid-template-columns: 52px 1fr; } .month-plan-row { grid-template-columns: 52px 52px 1fr; } .month-row-score { text-align: left; } .task-editor-detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 960px) { .collab-layout { grid-template-columns: 1fr; } .collab-right { position: static; height: auto; } .week-calendar { grid-template-columns: repeat(2, minmax(0, 1fr)); } .week-mode-tabs { align-self: stretch; } .week-mode-tab { flex: 1; } .month-day { min-height: 160px; } .month-factory-row { grid-template-columns: 52px 1fr; } .month-plan-row { grid-template-columns: 52px 52px 1fr; } .month-row-score { text-align: left; } .task-editor-detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     @media (max-width: 720px) { .task-editor-detail-grid, .task-editor-time-grid { grid-template-columns: 1fr; } .month-finished-modal-row { grid-template-columns: 1fr 1fr; } .month-finished-modal-row.head { display: none; } }
   </style>
 </head>
@@ -256,19 +284,30 @@
           </div>
           <div class="card-bd">
             <div class="view-panel active" id="view-panel-week">
-              <div class="workbench-note-row">
-                <div class="muted">本周视角（默认）：查看未来一周的生产计划（周日历 + 甘特样式）。点击日期卡片可跳转到对应日期的日视角；双击甘特任务可编辑时间；周视角不支持拖拽与拉长。</div>
-                <div class="schedule-color-legend" aria-label="排程订单颜色说明">
-                  <span class="schedule-color-chip"><span class="schedule-color-dot blue"></span>排程订单</span>
-                  <span class="schedule-color-chip"><span class="schedule-color-dot yellow"></span>锁定订单</span>
-                  <span class="schedule-color-chip"><span class="schedule-color-dot red"></span>插单订单</span>
+              <div class="week-mode-tabs" id="week-mode-tabs" role="tablist" aria-label="周视图展示模式">
+                <button class="week-mode-tab active" id="week-mode-tab-gantt" type="button" role="tab" data-week-mode="gantt" aria-selected="true" aria-controls="week-mode-panel-gantt">甘特图模式</button>
+                <button class="week-mode-tab" id="week-mode-tab-list" type="button" role="tab" data-week-mode="list" aria-selected="false" aria-controls="week-mode-panel-list" tabindex="-1">列表模式</button>
+              </div>
+              <div class="week-mode-panel active" id="week-mode-panel-gantt" role="tabpanel" aria-labelledby="week-mode-tab-gantt">
+                <div class="workbench-note-row">
+                  <div class="muted">本周视角（默认）：查看未来一周的生产计划（周日历 + 甘特样式）。点击日期卡片可跳转到对应日期的日视角；双击甘特任务可编辑时间；周视角不支持拖拽与拉长。</div>
+                  <div class="schedule-color-legend" aria-label="排程订单颜色说明">
+                    <span class="schedule-color-chip"><span class="schedule-color-dot blue"></span>排程订单</span>
+                    <span class="schedule-color-chip"><span class="schedule-color-dot yellow"></span>锁定订单</span>
+                    <span class="schedule-color-chip"><span class="schedule-color-dot red"></span>插单订单</span>
+                  </div>
+                </div>
+                <div class="week-calendar" id="week-calendar"></div>
+                <div class="week-gantt-wrap">
+                  <div class="week-gantt" id="week-gantt"></div>
                 </div>
               </div>
-              <div class="week-calendar" id="week-calendar"></div>
-              <div class="week-gantt-wrap">
-                <div class="week-gantt" id="week-gantt"></div>
+              <div class="week-mode-panel" id="week-mode-panel-list" role="tabpanel" aria-labelledby="week-mode-tab-list" hidden>
+                <div class="week-list-calendar-shell" aria-label="列表模式日期切换">
+                  <div class="week-list-calendar" id="week-list-calendar"></div>
+                </div>
+                <div class="week-day-tables" id="week-day-tables"></div>
               </div>
-              <div class="week-day-tables" id="week-day-tables"></div>
             </div>
 
             <div class="view-panel" id="view-panel-day">
@@ -428,6 +467,7 @@
       ctrl: [16, 19]
     };
     let currentWorkbenchView = 'week';
+    let currentWeekMode = 'gantt';
     let monthViewOffset = 0;
     let selectedWeekDayIndex = 0;
     let selectedDayDate = new Date();
@@ -1007,7 +1047,35 @@
       weekDatesCache = weekDates;
       weekTaskRowsCache = weekTaskRows;
       selectedWeekDayIndex = clamp(selectedWeekDayIndex, 0, weekDatesCache.length - 1);
+      renderWeekListCalendar();
       renderSelectedWeekDayTasks();
+    }
+
+    function renderWeekListCalendar() {
+      const container = document.getElementById('week-list-calendar');
+      if (!container || !weekDatesCache.length) return;
+
+      const selectedKeys = getSelectedPlantKeys();
+      container.innerHTML = weekDatesCache.map((date, dayIdx) => {
+        const ratio = getScopeLoadPercent(selectedKeys, date);
+        const klass = getLoadClass(ratio);
+        const activeClass = dayIdx === selectedWeekDayIndex ? 'active' : '';
+        return `
+          <button class="week-list-day ${klass} ${activeClass}" type="button" data-day-idx="${dayIdx}" aria-pressed="${dayIdx === selectedWeekDayIndex}">
+            <span class="week-list-day-week">${WEEK_NAMES[date.getDay()]}</span>
+            <span class="week-list-day-date">${date.getMonth() + 1}/${date.getDate()}</span>
+            <span class="week-list-day-load">${ratio}%</span>
+          </button>
+        `;
+      }).join('');
+
+      container.querySelectorAll('[data-day-idx]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const dayIdx = Number(button.dataset.dayIdx);
+          if (!Number.isFinite(dayIdx)) return;
+          onWeekDaySelect(dayIdx);
+        });
+      });
     }
 
     function onWeekDaySelect(dayIdx, opts = {}) {
@@ -1015,6 +1083,11 @@
       weekDayPageByIndex[selectedWeekDayIndex] = 1;
       document.querySelectorAll('#week-calendar .week-day-card').forEach((card, idx) => {
         card.classList.toggle('active', idx === selectedWeekDayIndex);
+      });
+      document.querySelectorAll('#week-list-calendar [data-day-idx]').forEach((button, idx) => {
+        const active = idx === selectedWeekDayIndex;
+        button.classList.toggle('active', active);
+        button.setAttribute('aria-pressed', String(active));
       });
       renderSelectedWeekDayTasks();
       const selectedDate = weekDatesCache[selectedWeekDayIndex];
@@ -1345,6 +1418,37 @@
         renderMonthView();
       } else {
         renderWeekView();
+      }
+    }
+
+    function setWeekMode(mode, opts = {}) {
+      const targetMode = ['gantt', 'list'].includes(mode) ? mode : 'gantt';
+      currentWeekMode = targetMode;
+
+      document.querySelectorAll('[data-week-mode]').forEach((button) => {
+        const active = button.dataset.weekMode === targetMode;
+        button.classList.toggle('active', active);
+        button.setAttribute('aria-selected', String(active));
+        button.tabIndex = active ? 0 : -1;
+      });
+      const ganttPanel = document.getElementById('week-mode-panel-gantt');
+      const listPanel = document.getElementById('week-mode-panel-list');
+      if (ganttPanel) {
+        const active = targetMode === 'gantt';
+        ganttPanel.classList.toggle('active', active);
+        ganttPanel.hidden = !active;
+      }
+      if (listPanel) {
+        const active = targetMode === 'list';
+        listPanel.classList.toggle('active', active);
+        listPanel.hidden = !active;
+      }
+      if (targetMode === 'list') {
+        renderWeekListCalendar();
+        renderSelectedWeekDayTasks();
+      }
+      if (!opts.silentToast) {
+        toast(`已切换至${targetMode === 'gantt' ? '甘特图模式' : '列表模式'}`);
       }
     }
 
@@ -1886,6 +1990,20 @@
       document.querySelectorAll('#gantt-view-switch .view-btn').forEach((btn) => {
         btn.addEventListener('click', () => setWorkbenchView(btn.dataset.view));
       });
+      const weekModeButtons = Array.from(document.querySelectorAll('[data-week-mode]'));
+      weekModeButtons.forEach((button, index) => {
+        button.addEventListener('click', () => setWeekMode(button.dataset.weekMode));
+        button.addEventListener('keydown', (event) => {
+          if (!['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
+          event.preventDefault();
+          const offset = event.key === 'ArrowRight' ? 1 : -1;
+          const nextIndex = (index + offset + weekModeButtons.length) % weekModeButtons.length;
+          const nextButton = weekModeButtons[nextIndex];
+          nextButton?.focus();
+          if (nextButton) setWeekMode(nextButton.dataset.weekMode);
+        });
+      });
+      setWeekMode(currentWeekMode, { silentToast: true });
       document.getElementById('month-prev-btn')?.addEventListener('click', () => {
         monthViewOffset -= 1;
         renderMonthView();

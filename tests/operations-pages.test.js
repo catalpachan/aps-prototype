@@ -85,6 +85,31 @@ test('collab uses the order management center entry and removes legacy workbench
   assert.match(optimization, /orderCenterBtn\.addEventListener\('click',[\s\S]*window\.location\.href = 'order-center\.html'/);
 });
 
+test('collab week view separates gantt and list modes with shared date state', () => {
+  const html = readHtml('collab.html');
+  const [script] = readInlineScripts('collab.html').slice(-1);
+
+  assert.match(html, /id="week-mode-tabs"[^>]*role="tablist"/);
+  assert.match(html, /data-week-mode="gantt"[^>]*aria-selected="true"[^>]*>甘特图模式<\/button>/);
+  assert.match(html, /data-week-mode="list"[^>]*aria-selected="false"[^>]*>列表模式<\/button>/);
+  assert.match(
+    html,
+    /id="week-mode-panel-gantt"[\s\S]*class="workbench-note-row"[\s\S]*id="week-calendar"[\s\S]*class="week-gantt-wrap"/
+  );
+  assert.match(
+    html,
+    /id="week-mode-panel-list"[\s\S]*id="week-list-calendar"[\s\S]*id="week-day-tables"/
+  );
+
+  assert.match(script, /let currentWeekMode = 'gantt'/);
+  assert.match(script, /function setWeekMode\(mode, opts = \{\}\)/);
+  assert.match(script, /const targetMode = \['gantt', 'list'\]\.includes\(mode\) \? mode : 'gantt'/);
+  assert.match(script, /function renderWeekListCalendar\(\)/);
+  assert.match(script, /week-list-calendar[\s\S]*onWeekDaySelect\(dayIdx\)/);
+  assert.doesNotMatch(script, /week-list-calendar[\s\S]*onWeekDaySelect\(dayIdx, \{ openDayView: true \}\)/);
+  assert.match(script, /#week-calendar \.week-day-card[\s\S]*#week-list-calendar \[data-day-idx\]/);
+});
+
 test('preplan guide mirrors pending plan orders and reveals material details on hover', () => {
   const optimization = readHtml('aps-optimization.js');
   const guideMarkup = readBetween(
