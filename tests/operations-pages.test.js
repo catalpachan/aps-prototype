@@ -155,6 +155,30 @@ test('order management center defaults to plan orders and exposes all three modu
   assert.match(html, /const requestedModule = params\.get\('module'\) \|\| 'orders'/);
 });
 
+test('resource matching card opens a screenshot-inspired resource management center', () => {
+  assert.ok(existsSync(path.join(root, 'resource-center.html')), 'resource-center.html should exist');
+  const optimization = readHtml('aps-optimization.js');
+  const html = readHtml('resource-center.html');
+  const resourceMatchIndex = optimization.indexOf('id="aps-resource-match-btn"');
+  const resourceCenterIndex = optimization.indexOf('id="aps-resource-center-btn"');
+  const headers = readTableHeaders(html, 'resource-master-table');
+
+  assert.ok(resourceMatchIndex > -1, 'resource match button should remain');
+  assert.ok(resourceCenterIndex > resourceMatchIndex, 'resource management center should sit to the right of resource matching');
+  assert.match(optimization, /resourceCenterBtn\?\.addEventListener\('click',[\s\S]*window\.location\.href = 'resource-center\.html'/);
+
+  for (const label of ['资源管理中心', '资源层级', '设备资源', '人力资源', '注塑', '两器', '钣金', '品目表', '输入关键词查询']) {
+    assert.match(html, new RegExp(label), `missing resource center label: ${label}`);
+  }
+  assert.match(html, /class="resource-tree"/);
+  assert.match(html, /id="resource-search"/);
+  assert.match(html, /id="resource-master-table"/);
+  assert.match(html, /class="resource-center-pager"/);
+  for (const heading of ['序号', 'WLDM/物料代码', 'WLMC/物料名称', '列8', 'LJTH/图号', 'MJZ/模具组', 'COLO/颜色', 'MACHINE/机型']) {
+    assert.ok(headers.includes(heading), `missing resource table heading: ${heading}`);
+  }
+});
+
 test('legacy module pages support embedded mode and requested initial tabs', () => {
   const orderHtml = readHtml('order-management.html');
   const bomHtml = readHtml('smart-bom.html');

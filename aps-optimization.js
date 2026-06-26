@@ -3051,7 +3051,10 @@
       <article class="aps-upgrade-card" id="aps-resource-check-card">
         <h4>
           <span>全要素资源匹配预检</span>
-          <button class="btn sm warn" id="aps-resource-match-btn">执行资源匹配</button>
+          <div class="row">
+            <button class="btn sm warn" id="aps-resource-match-btn">执行资源匹配</button>
+            <button class="btn sm primary" id="aps-resource-center-btn">资源管理中心</button>
+          </div>
         </h4>
         <div class="aps-resource-list" id="aps-resource-list">
           <div class="muted">等待执行资源匹配预检...</div>
@@ -3681,6 +3684,7 @@
     const orderSyncBtn = document.getElementById('aps-order-sync-btn');
     const preplanBtn = document.getElementById('aps-preplan-start-btn');
     const resourceBtn = document.getElementById('aps-resource-match-btn');
+    const resourceCenterBtn = document.getElementById('aps-resource-center-btn');
     const smartBtn = document.getElementById('aps-smart-schedule-btn');
 
     allPreplanOrdersBtn?.addEventListener('click', () => {
@@ -3696,6 +3700,9 @@
     orderSyncBtn?.addEventListener('click', syncOrders);
     preplanBtn?.addEventListener('click', runPreplanWizard);
     resourceBtn?.addEventListener('click', runResourceMatch);
+    resourceCenterBtn?.addEventListener('click', () => {
+      window.location.href = 'resource-center.html';
+    });
     smartBtn?.addEventListener('click', runSmartSchedule);
 
     const originalRunSelfHealing = window.runSelfHealing;
