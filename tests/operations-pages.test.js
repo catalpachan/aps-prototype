@@ -127,6 +127,31 @@ test('collab week view separates gantt and list modes with shared date state', (
   assert.match(script, /#week-calendar \.week-day-card[\s\S]*#week-list-calendar \[data-day-idx\]/);
 });
 
+test('collab workbench exposes scheduling history before the date view switch', () => {
+  const html = readHtml('collab.html');
+  const [script] = readInlineScripts('collab.html').slice(-1);
+  const historyButtonIndex = html.indexOf('id="workbench-history-btn"');
+  const viewSwitchIndex = html.indexOf('id="gantt-view-switch"');
+  const headers = readTableHeaders(html, 'workbench-history-table');
+
+  assert.ok(historyButtonIndex > -1, 'history button should exist');
+  assert.ok(viewSwitchIndex > -1, 'date view switch should exist');
+  assert.ok(historyButtonIndex < viewSwitchIndex, 'history button should sit to the left of the date view switch');
+  assert.match(html, /id="workbench-history-panel"/, 'history panel should exist');
+  assert.match(html, /id="workbench-history-tbody"/, 'history table body should have stable id');
+
+  for (const heading of ['位置', '线体', '执行时间', '排产策略', '状态', '总订单', '可排产数量', '已排产数量', '是否生效', '执行人']) {
+    assert.ok(headers.includes(heading), `missing history table heading: ${heading}`);
+  }
+
+  assert.match(script, /const scheduleHistoryRecords = \[[\s\S]*?\n\s*\];/);
+  const scheduleHistoryBlock = script.match(/const scheduleHistoryRecords = \[([\s\S]*?)\n\s*\];/)?.[1] || '';
+  assert.equal((scheduleHistoryBlock.match(/\bexecutedAt:/g) || []).length, 5, 'history should default to 5 mock records');
+  assert.match(script, /function showScheduleHistory\(\)/);
+  assert.match(script, /renderScheduleHistoryRecords\(\)/);
+  assert.match(script, /workbench-history-btn[\s\S]*addEventListener\('click', showScheduleHistory\)/);
+});
+
 test('preplan guide mirrors pending plan orders and reveals material details on hover', () => {
   const optimization = readHtml('aps-optimization.js');
   const guideMarkup = readBetween(
@@ -204,6 +229,77 @@ test('resource matching card opens an order-center styled resource management ce
   for (const heading of ['序号', '资源编码', '资源名称', '所属分厂', '资源类型', '状态', '产能/班', '负责人']) {
     assert.ok(headers.includes(heading), `missing resource table heading: ${heading}`);
   }
+});
+
+test('smart scheduling card shows configured scheduling rules summary', () => {
+  const optimization = readHtml('aps-optimization.js');
+  const smartScheduleCard = readBetween(
+    optimization,
+    '<article class="aps-upgrade-card" id="aps-smart-schedule-card">',
+    '</article>'
+  );
+
+  assert.match(smartScheduleCard, /已配置排产规则/, 'smart scheduling card should include configured rules summary');
+  assert.match(smartScheduleCard, /id="aps-schedule-rule-summary"/, 'rules summary should have a stable container id');
+  assert.match(smartScheduleCard, /id="aps-schedule-rule-toggle"[\s\S]*aria-expanded="false"[\s\S]*aria-controls="aps-schedule-rule-tags"/, 'rules summary should default to collapsed with an accessible toggle');
+  assert.match(smartScheduleCard, /id="aps-schedule-rule-tags"[^>]*hidden/, 'rule tags should be hidden until expanded');
+  assert.match(optimization, /const configuredScheduleRules = \[/, 'rules should be data driven');
+  assert.match(optimization, /const enabledScheduleRuleCount = configuredScheduleRules\.filter\(\(rule\) => rule\.enabled\)\.length/);
+  assert.match(optimization, /const disabledScheduleRuleCount = configuredScheduleRules\.length - enabledScheduleRuleCount/);
+  assert.match(optimization, /已启用 \$\{enabledScheduleRuleCount\} 条/);
+  assert.match(optimization, /已禁用 \$\{disabledScheduleRuleCount\} 条/);
+  assert.match(optimization, /class="aps-schedule-rule-chip \$\{rule\.enabled \? 'enabled' : 'disabled'\}"/);
+  assert.match(optimization, /function setScheduleRuleExpanded\(expanded\)/);
+  assert.match(optimization, /aps-schedule-rule-toggle[\s\S]*addEventListener\('click',[\s\S]*setScheduleRuleExpanded/);
+  assert.match(optimization, /\.aps-schedule-rule-summary\.is-open \.aps-schedule-rule-tags/);
+  assert.match(optimization, /\.aps-schedule-rule-summary\.is-open \.aps-schedule-rule-arrow[\s\S]*transform:\s*rotate\(90deg\)/);
+
+  for (const label of [
+    '小批验证/试制白班约束',
+    '首次批量机型自动拆单',
+    '物料齐套性验证',
+    '模具/工装可用性校验',
+    '工艺走线可行性检查',
+    '质量状态合格性校验',
+    '返包方案同步排产',
+    '物料生产运输检验周期',
+    '指定顺序强制优先'
+  ]) {
+    assert.match(optimization, new RegExp(label), `missing configured scheduling rule: ${label}`);
+  }
+});
+
+test('one-click scheduling modal uses a platform-styled four-step flow', () => {
+  const optimization = readHtml('aps-optimization.js');
+  const runSmartScheduleBlock = readBetween(
+    optimization,
+    'function runSmartSchedule() {',
+    'const allPreplanOrdersBtn = document.getElementById'
+  );
+
+  assert.match(optimization, /\.aps-sync-flow-card\.aps-schedule-flow-card\s*{[\s\S]*?width:\s*min\(640px, calc\(100vw - 32px\)\)/, 'one-click scheduling modal should use the platform flow-card width');
+  assert.match(optimization, /\.aps-sync-flow-card\.aps-schedule-flow-card\s*{[\s\S]*?background:\s*linear-gradient\(180deg, rgba\(15, 23, 42/, 'one-click scheduling modal should use the platform dark card background');
+  assert.match(optimization, /\.aps-schedule-flow-card \.aps-sync-flow-top\s*{[\s\S]*?radial-gradient\(circle at top right, rgba\(56, 189, 248/, 'one-click scheduling header should mirror the order sync title area');
+  assert.match(optimization, /\.aps-schedule-flow-list \.aps-sync-flow-step\s*{[\s\S]*?grid-template-columns:\s*28px 1fr auto/, 'one-click scheduling steps should use the platform step layout');
+  assert.doesNotMatch(optimization, /background:\s*#fbfff9|#35c52f|aps-sync-flow-list\.aps-schedule-flow-list::before/, 'one-click scheduling modal should not use the previous white/green timeline style');
+  assert.match(runSmartScheduleBlock, /steps:\s*\[/, 'one-click scheduling should pass its own four-step flow');
+  assert.match(runSmartScheduleBlock, /variant:\s*'schedule'/, 'one-click scheduling should enable the scheduling flow variant');
+  assert.match(optimization, /const steps = systemExecutionFlowState\.steps\.length \? systemExecutionFlowState\.steps : SYSTEM_EXECUTION_FLOW_STEPS/);
+  assert.match(optimization, /card\.classList\.toggle\('aps-schedule-flow-card', isScheduleFlow\)/);
+  assert.match(optimization, /list\.classList\.toggle\('aps-schedule-flow-list', isScheduleFlow\)/);
+
+  const labels = ['订单导入', '可排产判断', '预排排序', '均衡排产'];
+  const metas = ['导入 96 条生产订单', '判断完成：90/96 可排产', '排序完成：90 条订单', '排产完成：90/90 条订单已排产'];
+  for (const label of labels) {
+    assert.match(runSmartScheduleBlock, new RegExp(label), `missing scheduling flow step: ${label}`);
+  }
+  for (const meta of metas) {
+    assert.match(runSmartScheduleBlock, new RegExp(meta), `missing scheduling flow copy: ${meta}`);
+  }
+
+  const scheduleStepsBlock = runSmartScheduleBlock.match(/steps:\s*\[([\s\S]*?)\]\s*,\s*variant:/)?.[1] || '';
+  const stepCount = (scheduleStepsBlock.match(/title:\s*'/g) || []).length;
+  assert.equal(stepCount, 4, 'one-click scheduling flow should have exactly 4 steps');
 });
 
 test('resource management center provides 20 mock rows per form and mold management queries', () => {
