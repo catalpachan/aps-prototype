@@ -209,6 +209,193 @@
       display: grid;
       grid-template-rows: minmax(0, 1fr) auto;
     }
+    .mold-management-panels {
+      min-width: 0;
+      display: grid;
+      gap: 14px;
+    }
+    .mold-panel {
+      display: grid;
+      gap: 14px;
+      min-width: 0;
+    }
+    .mold-panel[hidden],
+    .mold-management-panels[hidden] {
+      display: none;
+    }
+    .mold-query-card,
+    .mold-result-card {
+      min-width: 0;
+      border: 1px solid #2c3a51;
+      border-radius: 10px;
+      background: #10192b;
+      overflow: hidden;
+    }
+    .mold-query-card {
+      padding: 14px;
+      display: grid;
+      gap: 12px;
+    }
+    .mold-card-title {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      color: #f8fafc;
+      font-size: 15px;
+      font-weight: 800;
+    }
+    .mold-card-title span {
+      color: #7f91ad;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .mold-query-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(150px, 1fr)) auto;
+      gap: 10px;
+      align-items: end;
+    }
+    .mold-query-field {
+      display: grid;
+      gap: 6px;
+      min-width: 0;
+      color: #8ea1be;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .mold-query-field input,
+    .mold-query-field select {
+      width: 100%;
+      height: 34px;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      background: #0b1321;
+      color: #e2e8f0;
+      padding: 0 10px;
+      font: inherit;
+      font-size: 12px;
+      outline: none;
+    }
+    .mold-query-field input:focus,
+    .mold-query-field select:focus {
+      border-color: #2f68d8;
+      box-shadow: 0 0 0 3px rgb(37 99 235 / 18%);
+    }
+    .mold-query-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      min-width: 132px;
+    }
+    .mold-result-card {
+      padding: 14px;
+      display: grid;
+      gap: 14px;
+    }
+    .mold-result-head {
+      display: grid;
+      gap: 8px;
+    }
+    .mold-result-head h2 {
+      margin: 0;
+      color: #f8fafc;
+      font-size: 18px;
+    }
+    .mold-result-head p {
+      margin: 0;
+      color: #b7c8e3;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .mold-result-head strong {
+      color: #f8fafc;
+      font-weight: 900;
+    }
+    .mold-kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(126px, 1fr));
+      gap: 10px;
+    }
+    .mold-kpi-card {
+      min-height: 74px;
+      border: 1px solid #2c3a51;
+      border-radius: 10px;
+      background: #0d1525;
+      padding: 12px;
+      display: grid;
+      align-content: center;
+      gap: 6px;
+    }
+    .mold-kpi-card span {
+      color: #8ea1be;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .mold-kpi-card strong {
+      color: #f8fafc;
+      font-size: 24px;
+      line-height: 1;
+    }
+    .mold-kpi-card em {
+      color: #22d3ee;
+      font-style: normal;
+      font-size: 20px;
+      font-weight: 900;
+    }
+    .mold-subsection {
+      display: grid;
+      gap: 10px;
+      min-width: 0;
+    }
+    .mold-subsection h3 {
+      margin: 4px 0 0;
+      color: #f8fafc;
+      font-size: 16px;
+    }
+    .mold-table-shell {
+      min-width: 0;
+      overflow: auto;
+      border: 1px solid #2c3a51;
+      border-radius: 10px;
+      background: #0b1321;
+    }
+    .mold-table {
+      width: 100%;
+      min-width: 960px;
+      border-collapse: collapse;
+      color: #dbe7f6;
+      table-layout: fixed;
+    }
+    .mold-table th,
+    .mold-table td {
+      border-bottom: 1px solid #23334b;
+      border-right: 1px solid #1e2d43;
+      padding: 12px 14px;
+      text-align: left;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 12px;
+    }
+    .mold-table th {
+      color: #f8fafc;
+      background: #17243a;
+      font-weight: 800;
+    }
+    .mold-table tbody tr:hover td {
+      background: #132037;
+      color: #fff;
+    }
+    .mold-result-pager {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #7f91ad;
+      font-size: 12px;
+      flex-wrap: wrap;
+    }
     .resource-table-wrap {
       min-width: 0;
       overflow: auto;
@@ -303,13 +490,22 @@
     [data-theme="light"] .resource-center-workspace,
     [data-theme="light"] .resource-center-content,
     [data-theme="light"] .resource-toolbar-card,
-    [data-theme="light"] .resource-data-card { background: #f4f7fb; }
+    [data-theme="light"] .resource-data-card,
+    [data-theme="light"] .mold-query-card,
+    [data-theme="light"] .mold-result-card { background: #f4f7fb; }
+    [data-theme="light"] .mold-kpi-card,
+    [data-theme="light"] .mold-table-shell { background: #fff; }
     [data-theme="light"] .resource-center-sidebar { background: #fff; border-color: var(--line); }
     [data-theme="light"] .resource-center-brand { border-color: var(--line); }
     [data-theme="light"] .resource-center-brand strong,
-    [data-theme="light"] .resource-title-block h1 { color: var(--txt); }
+    [data-theme="light"] .resource-title-block h1,
+    [data-theme="light"] .mold-card-title,
+    [data-theme="light"] .mold-result-head h2,
+    [data-theme="light"] .mold-subsection h3 { color: var(--txt); }
     [data-theme="light"] .resource-center-brand span,
-    [data-theme="light"] .resource-title-block p { color: var(--muted); }
+    [data-theme="light"] .resource-title-block p,
+    [data-theme="light"] .mold-card-title span,
+    [data-theme="light"] .mold-result-head p { color: var(--muted); }
     [data-theme="light"] .resource-center-nav-btn,
     [data-theme="light"] .resource-center-area-btn,
     [data-theme="light"] .resource-center-leaf-btn { color: #52647d; }
@@ -340,6 +536,9 @@
         align-items: stretch;
         flex-direction: column;
       }
+      .mold-query-grid,
+      .mold-kpi-grid { grid-template-columns: 1fr; }
+      .mold-query-actions { justify-content: flex-start; }
     }
   </style>
 </head>
@@ -494,6 +693,15 @@
                 </div>
               </div>
             </div>
+            <div class="resource-center-factory" data-factory="mold">
+              <button class="resource-center-nav-btn" type="button" data-factory-nav="mold">模具管理</button>
+              <div class="resource-center-area">
+                <button class="resource-center-area-btn" type="button" data-mold-query="info">模具信息查询</button>
+              </div>
+              <div class="resource-center-area">
+                <button class="resource-center-area-btn" type="button" data-mold-query="transfer">模具调拨查询</button>
+              </div>
+            </div>
           </nav>
         </aside>
 
@@ -507,7 +715,7 @@
               <a href="collab.html" class="btn sm module-return-link">返回排产操作</a>
             </header>
 
-            <div class="resource-toolbar-card">
+            <div class="resource-toolbar-card" id="resource-toolbar-card">
               <label class="resource-search-wrap">
                 <span class="sr-only">输入关键词查询</span>
                 <input id="resource-search" type="search" placeholder="输入关键词查询" autocomplete="off" />
@@ -515,7 +723,7 @@
               <span class="resource-context-chip" id="resource-context-chip">总装 / 设备管理 / 品目表</span>
             </div>
 
-            <article class="resource-data-card">
+            <article class="resource-data-card" id="resource-data-card">
               <div class="resource-table-wrap">
                 <table class="resource-master-table" id="resource-master-table">
                   <thead>
@@ -543,6 +751,161 @@
                 <button type="button" id="resource-jump-page">跳转</button>
               </footer>
             </article>
+
+            <section class="mold-management-panels" id="mold-management-panels" hidden>
+              <article class="mold-panel" id="mold-info-panel" hidden>
+                <div class="mold-query-card">
+                  <div class="mold-card-title">模具信息查询<span>查询条件</span></div>
+                  <div class="mold-query-grid">
+                    <label class="mold-query-field">你所在的位置
+                      <select id="mold-info-location">
+                        <option value="">芜湖格力</option>
+                        <option>珠海格力总部</option>
+                        <option>安徽得高金属制品有限公司</option>
+                        <option>金湾基地</option>
+                      </select>
+                    </label>
+                    <label class="mold-query-field">工装编号
+                      <input id="mold-info-tool" placeholder="如 JM202/0013" />
+                    </label>
+                    <label class="mold-query-field">模具组
+                      <input id="mold-info-group" placeholder="输入模具组" />
+                    </label>
+                    <label class="mold-query-field">物料
+                      <input id="mold-info-material" placeholder="输入物料编码" />
+                    </label>
+                    <label class="mold-query-field">模具类型
+                      <select id="mold-info-type">
+                        <option value="">全部类型</option>
+                        <option>成形切断模</option>
+                        <option>翅片模</option>
+                        <option>冲孔模</option>
+                        <option>折弯模</option>
+                      </select>
+                    </label>
+                    <label class="mold-query-field">零件名称
+                      <input id="mold-info-part" placeholder="输入零件名称" />
+                    </label>
+                    <div class="mold-query-actions">
+                      <button class="btn sm primary" type="button" id="mold-info-query">查询</button>
+                      <button class="btn sm" type="button" id="mold-info-reset">重置</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mold-result-card">
+                  <div class="mold-result-head">
+                    <h2>模具组信息</h2>
+                    <p>查询条件: 位置: 芜湖格力</p>
+                    <p aria-label="共有 4696 套模具组，合计 5156 副模具">共有 <strong>4696</strong> 套模具组，合计 <strong>5156</strong> 副模具（工装编号）。具体模具信息如下:</p>
+                  </div>
+                  <div class="mold-kpi-grid">
+                    <div class="mold-kpi-card"><span>模具组数量</span><strong>4696</strong></div>
+                    <div class="mold-kpi-card"><span>模具数量</span><strong>5156</strong></div>
+                    <div class="mold-kpi-card"><span>需要报废</span><em>-</em></div>
+                    <div class="mold-kpi-card"><span>寿命预警</span><em>-</em></div>
+                    <div class="mold-kpi-card"><span>无需预警</span><em>-</em></div>
+                  </div>
+                  <div class="mold-subsection">
+                    <div class="mold-result-pager" id="mold-group-pager">首页 上一页 1 2 3 … 188 下一页 尾页 汇总每页：25</div>
+                    <div class="mold-table-shell">
+                      <table class="mold-table" id="mold-group-table">
+                        <thead>
+                          <tr>
+                            <th>模具组</th>
+                            <th>模具工装编号</th>
+                            <th>位置</th>
+                            <th>模具数量</th>
+                          </tr>
+                        </thead>
+                        <tbody id="mold-group-tbody"></tbody>
+                      </table>
+                    </div>
+                  </div>
+                  <div class="mold-subsection">
+                    <h3>模具信息明细</h3>
+                    <div class="mold-result-pager" id="mold-detail-pager">首页 上一页 1 2 3 … 400 下一页 尾页 明细每页：25</div>
+                    <div class="mold-table-shell">
+                      <table class="mold-table" id="mold-detail-table">
+                        <thead>
+                          <tr>
+                            <th>序号</th>
+                            <th>工装编号</th>
+                            <th>一级位置说明</th>
+                            <th>二级位置说明</th>
+                            <th>工序名称</th>
+                            <th>物料</th>
+                            <th>零件名称</th>
+                            <th>模具类型</th>
+                            <th>模具寿命</th>
+                            <th>模具预计修复时间</th>
+                            <th>模具重量</th>
+                            <th>模具组</th>
+                          </tr>
+                        </thead>
+                        <tbody id="mold-detail-tbody"></tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <article class="mold-panel" id="mold-transfer-panel" hidden>
+                <div class="mold-query-card">
+                  <div class="mold-card-title">模具调拨查询<span>查询条件</span></div>
+                  <div class="mold-query-grid">
+                    <label class="mold-query-field">你所在的位置
+                      <select id="mold-transfer-location">
+                        <option value="">芜湖格力</option>
+                        <option>珠海格力总部</option>
+                        <option>安徽得高金属制品有限公司</option>
+                        <option>金湾基地</option>
+                      </select>
+                    </label>
+                    <label class="mold-query-field">数量（预计使用数量）
+                      <input id="mold-transfer-quantity" inputmode="numeric" placeholder="如 120" />
+                    </label>
+                    <label class="mold-query-field">工装编号
+                      <input id="mold-transfer-tool" placeholder="如 JM202/0013" />
+                    </label>
+                    <label class="mold-query-field">物料
+                      <input id="mold-transfer-material" placeholder="输入物料编码" />
+                    </label>
+                    <div class="mold-query-actions">
+                      <button class="btn sm primary" type="button" id="mold-transfer-query">查询</button>
+                      <button class="btn sm" type="button" id="mold-transfer-reset">重置</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mold-result-card">
+                  <div class="mold-result-head">
+                    <h2>模具调拨查询结果</h2>
+                    <p>围绕预计使用数量、当前位置、工装编号与物料，查询可调拨模具和跨厂在途状态。</p>
+                  </div>
+                  <div class="mold-table-shell">
+                    <table class="mold-table" id="mold-transfer-table">
+                      <thead>
+                        <tr>
+                          <th>序号</th>
+                          <th>调拨单号</th>
+                          <th>当前位置</th>
+                          <th>目标位置</th>
+                          <th>预计使用数量</th>
+                          <th>工装编号</th>
+                          <th>物料</th>
+                          <th>调拨状态</th>
+                          <th>预计到达</th>
+                          <th>负责人</th>
+                        </tr>
+                      </thead>
+                      <tbody id="mold-transfer-tbody"></tbody>
+                    </table>
+                  </div>
+                  <div class="mold-result-pager" id="mold-transfer-pager">首页 上一页 1 2 3 下一页 尾页 调拨每页：25</div>
+                </div>
+              </article>
+            </section>
           </div>
         </section>
       </div>
@@ -569,6 +932,10 @@
       order: '生产订单表',
       attendance: '出勤模式表',
       calendar: '日历表'
+    };
+    const moldQueryLabels = {
+      info: '模具信息查询',
+      transfer: '模具调拨查询'
     };
     const factoryProfiles = {
       assembly: { label: '总装', prefix: 'ASM', capacity: 960, unit: '套', owners: ['张伟', '李娜', '王强'] },
@@ -612,38 +979,89 @@
         code: 'AT',
         names: ['早晚班出勤模式', '旺季加班模式'],
         status: ['启用', '启用'],
-        capacity: (factory, index) => `${Math.round(factory.capacity / (3.5 - index * 0.4))} 人`
+        capacity: (factory, index) => `${Math.round(factory.capacity / 3.5) + index * 6} 人`
       },
       calendar: {
         code: 'CAL',
         names: ['标准工作日历', '周日检修日历'],
         status: ['启用', '维护中'],
-        capacity: (_factory, index) => `${26 - index * 4} 天`
+        capacity: (_factory, index) => `${20 + (index % 8)} 天`
       }
     };
+    function padResourceNumber(value, length = 3) {
+      return String(value).padStart(length, '0');
+    }
     const resourceRows = Object.entries(factoryProfiles).flatMap(([factoryKey, factory], factoryIndex) => {
       return Object.entries(tableProfiles).flatMap(([tableKey, table], tableIndex) => {
-        return table.names.map((name, nameIndex) => {
-          const sequence = factoryIndex * 100 + tableIndex * 10 + nameIndex + 1;
+        return Array.from({ length: 20 }, (_, nameIndex) => {
+          const sequence = factoryIndex * 1000 + tableIndex * 100 + nameIndex + 1;
           const owner = factory.owners[(tableIndex + nameIndex) % factory.owners.length];
+          const baseName = table.names[nameIndex % table.names.length];
+          const batch = `批次${padResourceNumber(nameIndex + 1, 2)}`;
           return [
             String(sequence),
-            `${factory.prefix}-${table.code}-${String(sequence).padStart(3, '0')}`,
-            `${factory.label}${name}`,
+            `${factory.prefix}-${table.code}-${padResourceNumber(sequence)}`,
+            `${factory.label}${baseName}-${batch}`,
             factory.label,
             tableLabels[tableKey],
-            table.status[nameIndex],
+            table.status[nameIndex % table.status.length],
             table.capacity(factory, nameIndex),
             owner
           ];
         });
       });
     });
+    const moldInfoRows = Array.from({ length: 20 }, (_, index) => {
+      const sequence = index + 1;
+      const toolCode = index === 0 ? 'LC109/9914' : `JM202/${padResourceNumber(index + 12, 4)}`;
+      const moldGroup = index === 0 ? '' : toolCode;
+      const locations = ['芜湖格力', '安徽得高金属制品有限公司', '珠海格力总部', '金湾基地'];
+      const processes = ['成形切断', '冲孔', '折弯', '翻边', '切边'];
+      const types = ['成形切断模', '翅片模', '冲孔模', '折弯模'];
+      const parts = ['蒸发器左侧板', '冷凝器翅片', '控制器底壳', '钣金支架', '导风圈'];
+      return {
+        sequence,
+        moldGroup,
+        toolCode,
+        location: locations[index % locations.length],
+        primaryLocation: index % 4 === 1 ? '芜湖格力' : locations[index % locations.length],
+        secondaryLocation: locations[(index + 1) % locations.length],
+        processName: processes[index % processes.length],
+        material: `WL${padResourceNumber(230000 + index * 17, 6)}`,
+        partName: parts[index % parts.length],
+        moldType: types[index % types.length],
+        moldLife: index % 5 === 0 ? '-' : `${86 - index}%`,
+        repairEta: index % 4 === 0 ? '-' : `2026-07-${padResourceNumber((index % 20) + 1, 2)} 14:00`,
+        weight: `${420 + index * 18}kg`,
+        quantity: index % 6 === 0 ? 2 : 1
+      };
+    });
+    const moldTransferRows = Array.from({ length: 20 }, (_, index) => {
+      const sequence = index + 1;
+      const locations = ['芜湖格力', '珠海格力总部', '安徽得高金属制品有限公司', '金湾基地'];
+      const statuses = ['待确认', '运输中', '已到达', '待出库', '已取消'];
+      const owners = ['罗敏', '周海', '陈磊', '许青', '林舟'];
+      return {
+        sequence,
+        transferNo: `MD-TF-202606${padResourceNumber(sequence, 3)}`,
+        currentLocation: locations[index % locations.length],
+        targetLocation: locations[(index + 1) % locations.length],
+        quantity: 80 + index * 12,
+        toolCode: index % 3 === 0 ? 'LC109/9914' : `JM202/${padResourceNumber(index + 21, 4)}`,
+        material: `WL${padResourceNumber(660000 + index * 23, 6)}`,
+        status: statuses[index % statuses.length],
+        eta: `2026-06-${padResourceNumber((index % 8) + 21, 2)} ${padResourceNumber((index % 5) + 9, 2)}:30`,
+        owner: owners[index % owners.length]
+      };
+    });
     const PAGE_SIZE = 8;
     let currentFactory = 'assembly';
     let currentArea = 'equipment';
     let currentTable = 'item';
+    let currentMoldQuery = 'info';
     let currentPage = 1;
+    let moldInfoPage = 1;
+    let moldTransferPage = 1;
 
     function currentLabelSet() {
       return {
@@ -695,6 +1113,121 @@
       if (nextBtn) nextBtn.disabled = currentPage >= totalPages;
     }
 
+    function includesQuery(value, query) {
+      return String(value || '').toLowerCase().includes(String(query || '').trim().toLowerCase());
+    }
+
+    function filteredMoldInfoRows() {
+      const location = document.getElementById('mold-info-location')?.value || '';
+      const toolCode = document.getElementById('mold-info-tool')?.value || '';
+      const moldGroup = document.getElementById('mold-info-group')?.value || '';
+      const material = document.getElementById('mold-info-material')?.value || '';
+      const moldType = document.getElementById('mold-info-type')?.value || '';
+      const partName = document.getElementById('mold-info-part')?.value || '';
+      return moldInfoRows.filter((row) => {
+        return includesQuery(row.location, location)
+          && includesQuery(row.toolCode, toolCode)
+          && includesQuery(row.moldGroup || row.toolCode, moldGroup)
+          && includesQuery(row.material, material)
+          && includesQuery(row.moldType, moldType)
+          && includesQuery(row.partName, partName);
+      });
+    }
+
+    function renderMoldInfoRows() {
+      const groupBody = document.getElementById('mold-group-tbody');
+      const detailBody = document.getElementById('mold-detail-tbody');
+      const groupPager = document.getElementById('mold-group-pager');
+      const detailPager = document.getElementById('mold-detail-pager');
+      if (!groupBody || !detailBody) return;
+
+      const rows = filteredMoldInfoRows();
+      const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+      moldInfoPage = Math.min(Math.max(moldInfoPage, 1), totalPages);
+      const pageRows = rows.slice((moldInfoPage - 1) * PAGE_SIZE, moldInfoPage * PAGE_SIZE);
+
+      groupBody.innerHTML = pageRows.length
+        ? pageRows.map((row) => `
+          <tr>
+            <td title="${row.moldGroup}">${row.moldGroup}</td>
+            <td title="${row.toolCode}">${row.toolCode}</td>
+            <td title="${row.location}">${row.location}</td>
+            <td>${row.quantity}</td>
+          </tr>
+        `).join('')
+        : '<tr><td colspan="4">暂无匹配模具组</td></tr>';
+      detailBody.innerHTML = pageRows.length
+        ? pageRows.map((row) => `
+          <tr>
+            <td>${row.sequence}</td>
+            <td title="${row.toolCode}">${row.toolCode}</td>
+            <td title="${row.primaryLocation}">${row.primaryLocation}</td>
+            <td title="${row.secondaryLocation}">${row.secondaryLocation}</td>
+            <td>${row.processName}</td>
+            <td title="${row.material}">${row.material}</td>
+            <td title="${row.partName}">${row.partName}</td>
+            <td>${row.moldType}</td>
+            <td>${row.moldLife}</td>
+            <td>${row.repairEta}</td>
+            <td>${row.weight}</td>
+            <td title="${row.moldGroup || row.toolCode}">${row.moldGroup || row.toolCode}</td>
+          </tr>
+        `).join('')
+        : '<tr><td colspan="12">暂无匹配模具明细</td></tr>';
+      if (groupPager) groupPager.textContent = `首页 上一页 ${moldInfoPage}/${totalPages} 下一页 尾页 汇总每页：${PAGE_SIZE} · 共 ${rows.length} 条`;
+      if (detailPager) detailPager.textContent = `首页 上一页 ${moldInfoPage}/${totalPages} 下一页 尾页 明细每页：${PAGE_SIZE} · 共 ${rows.length} 条`;
+    }
+
+    function filteredMoldTransferRows() {
+      const location = document.getElementById('mold-transfer-location')?.value || '';
+      const quantity = Number(document.getElementById('mold-transfer-quantity')?.value || 0);
+      const toolCode = document.getElementById('mold-transfer-tool')?.value || '';
+      const material = document.getElementById('mold-transfer-material')?.value || '';
+      return moldTransferRows.filter((row) => {
+        const matchesQuantity = quantity ? row.quantity >= quantity : true;
+        return includesQuery(row.currentLocation, location)
+          && matchesQuantity
+          && includesQuery(row.toolCode, toolCode)
+          && includesQuery(row.material, material);
+      });
+    }
+
+    function renderMoldTransferRows() {
+      const tbody = document.getElementById('mold-transfer-tbody');
+      const pager = document.getElementById('mold-transfer-pager');
+      if (!tbody) return;
+
+      const rows = filteredMoldTransferRows();
+      const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+      moldTransferPage = Math.min(Math.max(moldTransferPage, 1), totalPages);
+      const pageRows = rows.slice((moldTransferPage - 1) * PAGE_SIZE, moldTransferPage * PAGE_SIZE);
+      tbody.innerHTML = pageRows.length
+        ? pageRows.map((row) => `
+          <tr>
+            <td>${row.sequence}</td>
+            <td title="${row.transferNo}">${row.transferNo}</td>
+            <td title="${row.currentLocation}">${row.currentLocation}</td>
+            <td title="${row.targetLocation}">${row.targetLocation}</td>
+            <td>${row.quantity}</td>
+            <td title="${row.toolCode}">${row.toolCode}</td>
+            <td title="${row.material}">${row.material}</td>
+            <td><span class="resource-status ${row.status === '已到达' ? 'ok' : row.status === '运输中' ? '' : 'warn'}">${row.status}</span></td>
+            <td>${row.eta}</td>
+            <td>${row.owner}</td>
+          </tr>
+        `).join('')
+        : '<tr><td colspan="10">暂无匹配调拨记录</td></tr>';
+      if (pager) pager.textContent = `首页 上一页 ${moldTransferPage}/${totalPages} 下一页 尾页 调拨每页：${PAGE_SIZE} · 共 ${rows.length} 条`;
+    }
+
+    function renderCurrentMoldRows() {
+      if (currentMoldQuery === 'transfer') {
+        renderMoldTransferRows();
+      } else {
+        renderMoldInfoRows();
+      }
+    }
+
     function syncNavState() {
       document.querySelectorAll('.resource-center-factory').forEach((factory) => {
         const factoryActive = factory.dataset.factory === currentFactory;
@@ -708,15 +1241,38 @@
           area.querySelectorAll('[data-resource-table]').forEach((leaf) => {
             leaf.classList.toggle('active', areaActive && leaf.dataset.resourceTable === currentTable);
           });
+          area.querySelectorAll('[data-mold-query]').forEach((button) => {
+            const moldActive = factoryActive && button.dataset.moldQuery === currentMoldQuery;
+            area.classList.toggle('active', factoryActive);
+            button.classList.toggle('active', moldActive);
+          });
         });
       });
-      const labels = currentLabelSet();
+      const isMoldMode = currentFactory === 'mold';
       const title = document.getElementById('resource-table-title');
       const desc = document.getElementById('resource-table-desc');
       const chip = document.getElementById('resource-context-chip');
-      if (title) title.textContent = labels.table;
-      if (desc) desc.textContent = `${labels.factory} · ${labels.area} · ${labels.table}，维护资源主数据、产能口径和执行状态。`;
-      if (chip) chip.textContent = `${labels.factory} / ${labels.area} / ${labels.table}`;
+      const resourceToolbar = document.getElementById('resource-toolbar-card');
+      const resourceDataCard = document.getElementById('resource-data-card');
+      const moldPanels = document.getElementById('mold-management-panels');
+      const moldInfoPanel = document.getElementById('mold-info-panel');
+      const moldTransferPanel = document.getElementById('mold-transfer-panel');
+      if (resourceToolbar) resourceToolbar.hidden = isMoldMode;
+      if (resourceDataCard) resourceDataCard.hidden = isMoldMode;
+      if (moldPanels) moldPanels.hidden = !isMoldMode;
+      if (moldInfoPanel) moldInfoPanel.hidden = !(isMoldMode && currentMoldQuery === 'info');
+      if (moldTransferPanel) moldTransferPanel.hidden = !(isMoldMode && currentMoldQuery === 'transfer');
+      if (isMoldMode) {
+        const moldTitle = moldQueryLabels[currentMoldQuery] || '模具信息查询';
+        if (title) title.textContent = moldTitle;
+        if (desc) desc.textContent = `模具管理 · ${moldTitle}，查询模具组、工装编号、位置和跨厂调拨状态。`;
+        if (chip) chip.textContent = `模具管理 / ${moldTitle}`;
+      } else {
+        const labels = currentLabelSet();
+        if (title) title.textContent = labels.table;
+        if (desc) desc.textContent = `${labels.factory} · ${labels.area} · ${labels.table}，维护资源主数据、产能口径和执行状态。`;
+        if (chip) chip.textContent = `${labels.factory} / ${labels.area} / ${labels.table}`;
+      }
     }
 
     function selectResourceContext(options = {}) {
@@ -730,9 +1286,24 @@
       renderResourceRows();
     }
 
+    function selectMoldQuery(query = 'info') {
+      currentFactory = 'mold';
+      currentMoldQuery = ['info', 'transfer'].includes(query) ? query : 'info';
+      moldInfoPage = 1;
+      moldTransferPage = 1;
+      syncNavState();
+      renderCurrentMoldRows();
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       document.querySelectorAll('[data-factory-nav]').forEach((button) => {
-        button.addEventListener('click', () => selectResourceContext({ factory: button.dataset.factoryNav, area: 'equipment', table: 'item' }));
+        button.addEventListener('click', () => {
+          if (button.dataset.factoryNav === 'mold') {
+            selectMoldQuery('info');
+            return;
+          }
+          selectResourceContext({ factory: button.dataset.factoryNav, area: 'equipment', table: 'item' });
+        });
       });
       document.querySelectorAll('[data-resource-area]').forEach((button) => {
         button.addEventListener('click', () => {
@@ -747,6 +1318,9 @@
           const area = button.closest('.resource-center-area')?.querySelector('[data-resource-area]')?.dataset.resourceArea;
           selectResourceContext({ factory, area, table: button.dataset.resourceTable });
         });
+      });
+      document.querySelectorAll('[data-mold-query]').forEach((button) => {
+        button.addEventListener('click', () => selectMoldQuery(button.dataset.moldQuery));
       });
       document.getElementById('resource-search')?.addEventListener('input', () => {
         currentPage = 1;
@@ -765,8 +1339,38 @@
         currentPage = Number.isFinite(next) ? next : 1;
         renderResourceRows();
       });
+      document.getElementById('mold-info-query')?.addEventListener('click', () => {
+        moldInfoPage = 1;
+        renderMoldInfoRows();
+      });
+      document.getElementById('mold-info-reset')?.addEventListener('click', () => {
+        ['mold-info-tool', 'mold-info-group', 'mold-info-material', 'mold-info-type', 'mold-info-part'].forEach((id) => {
+          const field = document.getElementById(id);
+          if (field) field.value = '';
+        });
+        const location = document.getElementById('mold-info-location');
+        if (location) location.value = '';
+        moldInfoPage = 1;
+        renderMoldInfoRows();
+      });
+      document.getElementById('mold-transfer-query')?.addEventListener('click', () => {
+        moldTransferPage = 1;
+        renderMoldTransferRows();
+      });
+      document.getElementById('mold-transfer-reset')?.addEventListener('click', () => {
+        ['mold-transfer-quantity', 'mold-transfer-tool', 'mold-transfer-material'].forEach((id) => {
+          const field = document.getElementById(id);
+          if (field) field.value = '';
+        });
+        const location = document.getElementById('mold-transfer-location');
+        if (location) location.value = '';
+        moldTransferPage = 1;
+        renderMoldTransferRows();
+      });
       syncNavState();
       renderResourceRows();
+      renderMoldInfoRows();
+      renderMoldTransferRows();
     });
   </script>
   <script src="common.js?v=20260611-single-ai-assistant"></script>

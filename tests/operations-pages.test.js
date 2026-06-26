@@ -42,6 +42,23 @@ function readBetween(html, startMarker, endMarker) {
   return end === -1 ? '' : html.slice(start, end);
 }
 
+function evalResourceCenterScript() {
+  const [script] = readInlineScripts('resource-center.html');
+  return require('node:vm').runInNewContext(
+    `${script}\n({ factoryLabels, tableLabels, resourceRows, moldInfoRows, moldTransferRows });`,
+    {
+      document: {
+        addEventListener() {},
+        querySelectorAll() { return []; },
+        getElementById() { return null; }
+      },
+      Object,
+      Set,
+      console
+    }
+  );
+}
+
 function maxDepth(nodes, depth = 1) {
   return nodes.reduce((max, node) => {
     const childDepth = Array.isArray(node.children) && node.children.length
@@ -187,6 +204,41 @@ test('resource matching card opens an order-center styled resource management ce
   for (const heading of ['序号', '资源编码', '资源名称', '所属分厂', '资源类型', '状态', '产能/班', '负责人']) {
     assert.ok(headers.includes(heading), `missing resource table heading: ${heading}`);
   }
+});
+
+test('resource management center provides 20 mock rows per form and mold management queries', () => {
+  const html = readHtml('resource-center.html');
+  const data = evalResourceCenterScript();
+
+  for (const factoryLabel of Object.values(data.factoryLabels)) {
+    for (const tableLabel of Object.values(data.tableLabels)) {
+      const rows = data.resourceRows.filter((row) => row[3] === factoryLabel && row[4] === tableLabel);
+      assert.equal(rows.length, 20, `${factoryLabel} / ${tableLabel} should provide 20 mock rows`);
+    }
+  }
+
+  assert.match(html, /data-factory="mold"/, 'mold management should be a first-level menu after controller');
+  assert.match(html, /data-factory-nav="mold"[\s\S]*>模具管理<\/button>/);
+  assert.match(html, /data-mold-query="info"[\s\S]*>模具信息查询<\/button>/);
+  assert.match(html, /data-mold-query="transfer"[\s\S]*>模具调拨查询<\/button>/);
+  assert.match(html, /id="mold-info-panel"/);
+  assert.match(html, /id="mold-transfer-panel"/);
+
+  for (const label of ['你所在的位置', '工装编号', '模具组', '物料', '模具类型', '零件名称', '查询', '重置']) {
+    assert.match(html, new RegExp(label), `missing mold info query label: ${label}`);
+  }
+  for (const label of ['你所在的位置', '数量（预计使用数量）', '工装编号', '物料', '查询', '重置']) {
+    assert.match(html, new RegExp(label), `missing mold transfer query label: ${label}`);
+  }
+  for (const label of ['模具组信息', '查询条件: 位置: 芜湖格力', '共有 4696 套模具组，合计 5156 副模具', '模具信息明细']) {
+    assert.match(html, new RegExp(label), `missing mold info reference copy: ${label}`);
+  }
+
+  assert.deepEqual(readTableHeaders(html, 'mold-group-table'), ['模具组', '模具工装编号', '位置', '模具数量']);
+  assert.deepEqual(readTableHeaders(html, 'mold-detail-table'), ['序号', '工装编号', '一级位置说明', '二级位置说明', '工序名称', '物料', '零件名称', '模具类型', '模具寿命', '模具预计修复时间', '模具重量', '模具组']);
+  assert.deepEqual(readTableHeaders(html, 'mold-transfer-table'), ['序号', '调拨单号', '当前位置', '目标位置', '预计使用数量', '工装编号', '物料', '调拨状态', '预计到达', '负责人']);
+  assert.equal(data.moldInfoRows.length, 20, 'mold info query should provide 20 mock rows');
+  assert.equal(data.moldTransferRows.length, 20, 'mold transfer query should provide 20 mock rows');
 });
 
 test('legacy module pages support embedded mode and requested initial tabs', () => {
