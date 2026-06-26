@@ -3052,8 +3052,8 @@
         <h4>
           <span>全要素资源匹配预检</span>
           <div class="row">
-            <button class="btn sm warn" id="aps-resource-match-btn">执行资源匹配</button>
             <button class="btn sm primary" id="aps-resource-center-btn">资源管理中心</button>
+            <button class="btn sm warn" id="aps-resource-match-btn">执行资源匹配</button>
           </div>
         </h4>
         <div class="aps-resource-list" id="aps-resource-list">

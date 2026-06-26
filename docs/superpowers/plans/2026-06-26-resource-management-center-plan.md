@@ -1,133 +1,57 @@
-# Resource Management Center Implementation Plan
+# Resource Management Center Refactor Implementation Plan
 
 > **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add a resource management center entry beside resource matching and build a screenshot-inspired resource master data page.
+**Goal:** Reorder the resource center entry and refactor the resource management center to match the order management center style with a three-level resource menu.
 
-**Architecture:** Keep the collab entry in `aps-optimization.js`, matching the existing order center navigation pattern. Add a standalone static `resource-center.html` that reuses global APS header assets and implements a local resource hierarchy/tree plus a resource master table.
+**Architecture:** Keep the collab entry in `aps-optimization.js`. Rebuild `resource-center.html` as a standalone static page that mirrors `order-center.html` shell/sidebar/workspace styling while rendering the requested factory → area → table hierarchy.
 
 **Tech Stack:** Static HTML, CSS, vanilla JavaScript, Node.js built-in test runner, in-app browser verification.
 
 ---
 
-### Task 1: Lock the entry and page contract with tests
+### Task 1: Update the contract tests
 
 **Files:**
 - Modify: `tests/operations-pages.test.js`
-- Reference: `docs/superpowers/specs/2026-06-26-resource-management-center-design.md`
 
-- [ ] **Step 1: Write the failing entry test**
+- [ ] Verify `#aps-resource-center-btn` appears before `#aps-resource-match-btn`.
+- [ ] Verify the resource center click listener navigates to `resource-center.html`.
+- [ ] Verify `resource-center.html` contains order-center-like shell/sidebar styles.
+- [ ] Verify five first-level factories: 总装、两器、注塑、钣金、控制器.
+- [ ] Verify second-level groups: 设备管理、人力资源.
+- [ ] Verify equipment third-level tables: 品目表、资源表、制造BOM表、配套分厂提前期、生产订单表.
+- [ ] Verify labor third-level tables: 出勤模式表、日历表.
+- [ ] Verify the table headers: 序号、资源编码、资源名称、所属分厂、资源类型、状态、产能/班、负责人.
 
-Add assertions that `aps-optimization.js` contains `#aps-resource-center-btn` after `#aps-resource-match-btn`, and that the click listener navigates to `resource-center.html`.
-
-- [ ] **Step 2: Write the failing page test**
-
-Add assertions that `resource-center.html` exists and contains:
-
-```js
-['资源管理中心', '资源层级', '品目表', '输入关键词查询']
-```
-
-Also verify the resource tree, search box, table, pager, and key table headers.
-
-- [ ] **Step 3: Run tests and verify RED**
-
-Run:
-
-```bash
-node --test tests/operations-pages.test.js
-```
-
-Expected: the new resource center test fails because the button and page do not exist.
-
-### Task 2: Add the collab entry
+### Task 2: Reorder the collab entry
 
 **Files:**
 - Modify: `aps-optimization.js`
-- Test: `tests/operations-pages.test.js`
 
-- [ ] **Step 1: Update resource card markup**
+- [ ] Move “资源管理中心” to the left of “执行资源匹配”.
+- [ ] Keep both event handlers unchanged except for the button order.
 
-Wrap the resource card actions in a `.row` and add:
-
-```html
-<button class="btn sm primary" id="aps-resource-center-btn">资源管理中心</button>
-```
-
-immediately after the resource match button.
-
-- [ ] **Step 2: Bind click navigation**
-
-Add:
-
-```js
-const resourceCenterBtn = document.getElementById('aps-resource-center-btn');
-resourceCenterBtn?.addEventListener('click', () => {
-  window.location.href = 'resource-center.html';
-});
-```
-
-- [ ] **Step 3: Run tests**
-
-Run:
-
-```bash
-node --test tests/operations-pages.test.js
-```
-
-Expected: entry assertions pass, page assertions still fail until the page is created.
-
-### Task 3: Build `resource-center.html`
+### Task 3: Refactor `resource-center.html`
 
 **Files:**
-- Create: `resource-center.html`
-- Test: `tests/operations-pages.test.js`
+- Modify: `resource-center.html`
 
-- [ ] **Step 1: Create the page shell**
+- [ ] Replace the screenshot-style blue resource tree with an order-center-like sidebar.
+- [ ] Add first-level factory buttons.
+- [ ] Add equipment/labor second-level groups under each factory.
+- [ ] Add the requested third-level table items.
+- [ ] Rebuild the right workspace as an order-center-like content area with title, description, search, table, and pager.
+- [ ] Add simple local interactivity for factory/table switching, search, and pagination.
 
-Reuse the APS header structure from `order-center.html`, with the 排产操作 nav item active.
-
-- [ ] **Step 2: Add resource layout**
-
-Create a two-column `.resource-center-shell` with:
-
-- `.resource-center-sidebar`
-- `.resource-center-workspace`
-
-- [ ] **Step 3: Add screenshot-inspired tree and table**
-
-Implement the resource tree, active 品目表 item, centered search input, data table, five rows, and pager.
-
-- [ ] **Step 4: Add minimal interactivity**
-
-Add search filtering for the static rows and pager button disabled states. Left tree buttons should update active state and keep the page in place.
-
-- [ ] **Step 5: Run tests and syntax checks**
-
-Run:
-
-```bash
-node --test tests/operations-pages.test.js
-node --check aps-optimization.js
-git diff --check
-```
-
-Expected: all tests pass and syntax checks are clean.
-
-### Task 4: Browser verify and publish
+### Task 4: Verify and publish
 
 **Files:**
 - Verify: `collab.html`
 - Verify: `resource-center.html`
 
-- [ ] **Step 1: Open collab page locally**
-
-Verify the resource card has both buttons and clicking “资源管理中心” opens the new page.
-
-- [ ] **Step 2: Verify resource center layout**
-
-Verify the left tree, active 品目表, search box, table headers/rows, pagination, and responsive behavior.
-
-- [ ] **Step 3: Publish**
-
-Use the same GitHub API publication flow if `git push` remains unavailable, then verify GitHub Pages contains the new page and entry.
+- [ ] Run `node --test tests/operations-pages.test.js`.
+- [ ] Run `node --check aps-optimization.js`.
+- [ ] Run `git diff --check`.
+- [ ] Browser verify local entry order, menu hierarchy, order-center visual style, search, and table switching.
+- [ ] Publish to GitHub Pages and verify the online script/page contain the new structure.
