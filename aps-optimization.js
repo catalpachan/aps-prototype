@@ -2206,6 +2206,294 @@
         font-size: 12px;
       }
 
+      .aps-rule-shell-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 14px;
+        flex-wrap: wrap;
+        margin-bottom: 14px;
+      }
+
+      .aps-rule-shell-head .aps-setting-subtitle {
+        margin-bottom: 0;
+      }
+
+      .aps-rule-factory-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(150px, 1fr));
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+
+      .aps-rule-factory-card {
+        position: relative;
+        min-height: 120px;
+        border: 1px solid rgba(51, 65, 85, 0.92);
+        border-radius: 12px;
+        background: linear-gradient(160deg, rgba(17, 27, 45, 0.96), rgba(15, 23, 42, 0.86));
+        color: #dbeafe;
+        padding: 14px;
+        text-align: left;
+        cursor: pointer;
+        overflow: hidden;
+        transition: transform var(--dur-fast) var(--ease-out), border-color var(--dur-fast), box-shadow var(--dur-fast), background var(--dur-fast);
+      }
+
+      .aps-rule-factory-card::after {
+        content: "";
+        position: absolute;
+        right: -22px;
+        bottom: -26px;
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(96, 165, 250, 0.22), rgba(96, 165, 250, 0));
+        pointer-events: none;
+      }
+
+      .aps-rule-factory-card:hover,
+      .aps-rule-factory-card.active {
+        transform: translateY(-2px);
+        border-color: rgba(96, 165, 250, 0.66);
+        box-shadow: 0 14px 30px rgba(2, 6, 23, 0.28);
+      }
+
+      .aps-rule-factory-card.active {
+        background: linear-gradient(135deg, #1e3a8a, #2563eb);
+        color: #fff;
+      }
+
+      .aps-rule-factory-title {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        font-size: 15px;
+        font-weight: 800;
+        line-height: 1.35;
+      }
+
+      .aps-rule-factory-desc {
+        position: relative;
+        z-index: 1;
+        margin-top: 8px;
+        min-height: 36px;
+        font-size: 12px;
+        color: #94a3b8;
+        line-height: 1.5;
+      }
+
+      .aps-rule-factory-card.active .aps-rule-factory-desc {
+        color: rgba(255, 255, 255, 0.86);
+      }
+
+      .aps-rule-factory-count {
+        position: relative;
+        z-index: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 34px;
+        height: 28px;
+        padding: 0 9px;
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.28);
+        background: rgba(15, 23, 42, 0.5);
+        color: #dbeafe;
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      .aps-rule-factory-card.active .aps-rule-factory-count {
+        background: rgba(255, 255, 255, 0.18);
+        border-color: rgba(255, 255, 255, 0.32);
+        color: inherit;
+      }
+
+      .aps-factory-rule-panel,
+      .aps-unified-pool {
+        border: 1px solid rgba(51, 65, 85, 0.86);
+        border-radius: 14px;
+        background: rgba(15, 23, 42, 0.56);
+        padding: 14px;
+      }
+
+      .aps-factory-rule-panel {
+        margin-bottom: 14px;
+      }
+
+      .aps-factory-rule-head,
+      .aps-unified-pool-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 12px;
+      }
+
+      .aps-factory-rule-title,
+      .aps-unified-pool-title {
+        font-size: 14px;
+        font-weight: 800;
+        color: #f8fafc;
+      }
+
+      .aps-factory-rule-sub,
+      .aps-unified-pool-sub {
+        margin-top: 4px;
+        color: #94a3b8;
+        font-size: 12px;
+        line-height: 1.55;
+      }
+
+      .aps-factory-rule-list,
+      .aps-unified-rule-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .aps-factory-rule-card,
+      .aps-unified-rule-card {
+        border: 1px solid rgba(51, 65, 85, 0.86);
+        border-radius: 12px;
+        background: rgba(17, 27, 45, 0.86);
+        padding: 12px;
+        box-shadow: inset 3px 0 0 rgba(59, 130, 246, 0.75);
+      }
+
+      .aps-factory-rule-card.hard,
+      .aps-unified-rule-card.hard {
+        box-shadow: inset 3px 0 0 #ef4444;
+      }
+
+      .aps-factory-rule-card.soft,
+      .aps-unified-rule-card.soft {
+        box-shadow: inset 3px 0 0 #2563eb;
+      }
+
+      .aps-factory-rule-card.temp,
+      .aps-unified-rule-card.temp {
+        box-shadow: inset 3px 0 0 #f59e0b;
+      }
+
+      .aps-factory-rule-card.sync {
+        box-shadow: inset 3px 0 0 #22c55e;
+      }
+
+      .aps-factory-rule-card-top,
+      .aps-unified-rule-card-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .aps-factory-rule-main,
+      .aps-unified-rule-main {
+        min-width: 0;
+        display: grid;
+        gap: 6px;
+      }
+
+      .aps-factory-rule-name,
+      .aps-unified-rule-name {
+        font-size: 14px;
+        font-weight: 800;
+        color: #f8fafc;
+        line-height: 1.45;
+      }
+
+      .aps-factory-rule-desc,
+      .aps-unified-rule-desc {
+        color: #94a3b8;
+        font-size: 12px;
+        line-height: 1.55;
+      }
+
+      .aps-factory-rule-meta,
+      .aps-unified-rule-meta {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .aps-rule-pill {
+        display: inline-flex;
+        align-items: center;
+        width: fit-content;
+        padding: 4px 9px;
+        border-radius: 999px;
+        border: 1px solid rgba(96, 165, 250, 0.3);
+        background: rgba(37, 99, 235, 0.14);
+        color: #bfdbfe;
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      .aps-rule-pill.hard {
+        border-color: rgba(248, 113, 113, 0.34);
+        background: rgba(127, 29, 29, 0.22);
+        color: #fecaca;
+      }
+
+      .aps-rule-pill.soft {
+        border-color: rgba(96, 165, 250, 0.34);
+        background: rgba(30, 64, 175, 0.2);
+        color: #bfdbfe;
+      }
+
+      .aps-rule-pill.temp {
+        border-color: rgba(251, 191, 36, 0.38);
+        background: rgba(146, 64, 14, 0.2);
+        color: #fde68a;
+      }
+
+      .aps-rule-pill.sync {
+        border-color: rgba(34, 197, 94, 0.34);
+        background: rgba(20, 83, 45, 0.2);
+        color: #bbf7d0;
+      }
+
+      .aps-unified-pool-controls {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 12px;
+      }
+
+      .aps-unified-search {
+        flex: 1 1 280px;
+        min-height: 38px;
+        border: 1px solid #334155;
+        border-radius: 10px;
+        background: rgba(15, 23, 42, 0.76);
+        color: #e2e8f0;
+        padding: 0 12px;
+        outline: none;
+      }
+
+      .aps-unified-search:focus {
+        border-color: #60a5fa;
+        box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.16);
+      }
+
+      .aps-rule-empty-panel {
+        padding: 22px 14px;
+        border-radius: 12px;
+        border: 1px dashed rgba(71, 85, 105, 0.86);
+        text-align: center;
+        color: #94a3b8;
+        font-size: 12px;
+        line-height: 1.6;
+      }
+
       .aps-rule-table-wrap {
         border: 1px solid #334155;
         border-radius: 12px;
@@ -2745,6 +3033,51 @@
         padding: 0 18px 18px;
       }
 
+
+      [data-theme="light"] .aps-rule-factory-card,
+      [data-theme="light"] .aps-factory-rule-panel,
+      [data-theme="light"] .aps-unified-pool,
+      [data-theme="light"] .aps-factory-rule-card,
+      [data-theme="light"] .aps-unified-rule-card,
+      [data-theme="light"] .aps-unified-search {
+        background: var(--panel) !important;
+        background-image: none !important;
+        border-color: var(--line) !important;
+        color: var(--txt) !important;
+      }
+
+      [data-theme="light"] .aps-rule-factory-card.active {
+        background: linear-gradient(135deg, #1e3a8a, #2563eb) !important;
+        border-color: #60a5fa !important;
+        color: #fff !important;
+      }
+
+      [data-theme="light"] .aps-rule-factory-card.active .aps-rule-factory-desc {
+        color: rgba(255, 255, 255, 0.86) !important;
+      }
+
+      [data-theme="light"] .aps-rule-factory-card.active .aps-rule-factory-count {
+        background: rgba(255, 255, 255, 0.18) !important;
+        border-color: rgba(255, 255, 255, 0.32) !important;
+        color: inherit !important;
+      }
+
+      [data-theme="light"] .aps-rule-factory-title,
+      [data-theme="light"] .aps-factory-rule-title,
+      [data-theme="light"] .aps-unified-pool-title,
+      [data-theme="light"] .aps-factory-rule-name,
+      [data-theme="light"] .aps-unified-rule-name {
+        color: var(--txt) !important;
+      }
+
+      [data-theme="light"] .aps-rule-factory-desc,
+      [data-theme="light"] .aps-factory-rule-sub,
+      [data-theme="light"] .aps-unified-pool-sub,
+      [data-theme="light"] .aps-factory-rule-desc,
+      [data-theme="light"] .aps-unified-rule-desc,
+      [data-theme="light"] .aps-rule-empty-panel {
+        color: var(--muted) !important;
+      }
       [data-theme="light"] .aps-rule-table-wrap,
       [data-theme="light"] .aps-rule-modal,
       [data-theme="light"] .aps-rule-preview,
@@ -3002,6 +3335,31 @@
         }
 
         .aps-kpi-mini-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 1180px) {
+        .aps-rule-factory-grid {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 960px) {
+        .aps-rule-factory-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .aps-factory-rule-card-top,
+        .aps-unified-rule-card-top {
+          flex-direction: column;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .aps-rule-factory-grid,
+        .aps-rule-form-grid,
+        .aps-rule-detail-grid {
           grid-template-columns: 1fr;
         }
       }
@@ -4808,10 +5166,17 @@
     const rulePoolOptions = ['总部统一规则池', '制造基地统一规则池', '跨厂共享规则池'];
     const versionOptions = ['v0.1', 'v0.2', 'v0.3', 'v0.4', 'v0.5', 'v0.6'];
     const departmentOptions = ['计划物流部 / APS推进科', '制造管理部 / 排程科', '供应链管理部 / 计划组', '品质运营部 / 协同科'];
+    const factoryOptions = [
+      { id: 'assembly', name: '总装分厂', desc: '整机总装、预装、装车节奏协同', ownerBase: '珠海格力总部' },
+      { id: 'heat-exchanger', name: '两器分厂', desc: '两器焊接、换热器齐套与产能约束', ownerBase: '金湾基地' },
+      { id: 'injection', name: '注塑分厂', desc: '注塑成型、模具可用性与颜色换产', ownerBase: '武汉基地' },
+      { id: 'sheet-metal', name: '钣金分厂', desc: '钣金冲压、喷涂、套印与二次加工', ownerBase: '洛阳基地' },
+      { id: 'controller', name: '控制器分厂', desc: '控制器板卡、固件批次与试制管控', ownerBase: '珠海格力总部' }
+    ];
     const mainRuleTypeOptions = [
       { value: 'sync', label: '协同策略' },
-      { value: 'hard', label: '硬约束条件' },
-      { value: 'soft', label: '软约束条件' },
+      { value: 'hard', label: '硬约束' },
+      { value: 'soft', label: '软约束' },
       { value: 'temp', label: '临时规则' }
     ];
     const currentUser = '张伟';
@@ -4833,17 +5198,24 @@
     function createDefaultRuleConfig() {
       return {
         logisticsBufferHours: 4,
-        syncRules: [],
+        syncRules: [
+          { id: 'P-S01', name: '注塑提前期', subtitle: '按成型、冷却与配送时间计算提前期，联动订单齐套和配送时间。', tag: '协同策略', enabled: true },
+          { id: 'P-S02', name: '总装齐套协同', subtitle: '总装上线前同步两器、注塑、钣金与控制器齐套状态，异常时自动提示改派。', tag: '跨分厂协同', enabled: true }
+        ],
         hardRules: [
-          { id: 'HR-001', name: '锁定产线节拍', subtitle: '当班工位节拍与设备能力必须满足标准节拍，不允许突破产线峰值上限。', tag: '产能硬约束', enabled: true },
-          { id: 'HR-002', name: '关键物料齐套', subtitle: '关键物料未齐套时禁止释放整机排产任务，避免上线后停线。', tag: '物料硬约束', enabled: true }
+          { id: 'CR-F02', name: '质量状态合格性校验', subtitle: '物料/模具质量状态不合暂停或不合格、物料信号为空时方可排产。', tag: '通用', enabled: true },
+          { id: 'CR-M01', name: '资源产能上限约束', subtitle: '每日排产不超过各配套资源最大产能，以瓶颈资源为限。', tag: '通用', enabled: true },
+          { id: 'CR-M02', name: '物料齐套性验证', subtitle: '排产前核实原材料与包材库存充足，配件确认齐套后进入拣选。', tag: '注塑分厂', enabled: true },
+          { id: 'CR-F03', name: '小批验证/试制白班约束', subtitle: '小批验证及试制订单必须安排白班，与后续批量计划间隔不低于配置值。', tag: '控制器分厂', enabled: true }
         ],
         softRules: [
-          { id: 'SR-001', name: '同基地优先协同', subtitle: '优先消化同基地闲置产能，减少跨基地协调成本与异常沟通。', tag: '协同建议', enabled: true },
-          { id: 'SR-002', name: '订单交期友好排序', subtitle: '在不突破硬约束前提下，提高临近交付订单的排产优先级。', tag: '交付偏好', enabled: false }
+          { id: 'S-BJ-03', name: '指定顺序强制优先', subtitle: '人工指定的排产顺序具有最高优先级，覆盖算法自动排序结果。', tag: '钣金分厂', enabled: true },
+          { id: 'S-ZS-03', name: '面板指定生产方式', subtitle: '因设备能力或客户指定安排的生产方式，优先于通用数量阈值规则。', tag: '注塑分厂', enabled: true },
+          { id: 'SR-012', name: '减少切换连续排产', subtitle: '相邻订单优先匹配相近属性，按切换耗时从低到高排序。', tag: '通用', enabled: true }
         ],
         tempRules: [
-          { id: 'TR-001', name: '五一前促销保障', subtitle: '针对节前促销订单增加柔性产能预留，优先保障明星机型供给。', tag: '临时业务规则', code: 'promo_buffer=1.25;expedite_top=20', enabled: true }
+          { id: 'TR-001', name: '生产计划变更审批控制', subtitle: '冻结计划不得随意调整，调整须走分级审批并受时间窗口控制。', tag: '临时规则', code: 'rolling_freeze_days=7', enabled: true },
+          { id: 'TR-002', name: '预装时间计算与开单逻辑', subtitle: '预装开单时间按总装上线与预装完成时间反推，计划周期滚动。', tag: '总装分厂', code: 'pre_assembly_offset=4', enabled: true }
         ]
       };
     }
@@ -4853,9 +5225,11 @@
     }
 
     let ruleRecords = [
-      { customName: '交期优先', baseName: '珠海格力总部', factoryName: '东区总装', version: 'v0.3', timestamp: '202604021520', createdAt: '2026-04-02 15:20', createdBy: '张伟', ownerBase: '珠海格力总部', department: '计划物流部 / APS推进科', poolName: '总部统一规则池', status: '正在应用' },
-      { customName: '旺季抢产', baseName: '金湾基地', factoryName: '西区总装', version: 'v0.2', timestamp: '202604021445', createdAt: '2026-04-02 14:45', createdBy: '李敏', ownerBase: '金湾基地', department: '制造管理部 / 排程科', poolName: '制造基地统一规则池', status: '正在应用' },
-      { customName: '稳态平衡', baseName: '武汉基地', factoryName: '注塑分厂', version: 'v0.4', timestamp: '202604021310', createdAt: '2026-04-02 13:10', createdBy: '王磊', ownerBase: '武汉基地', department: '供应链管理部 / 计划组', poolName: '跨厂共享规则池', status: '停用' }
+      { customName: '总装交期优先', baseName: '珠海格力总部', factoryId: 'assembly', factoryName: '总装分厂', version: 'v0.3', timestamp: '202604021520', createdAt: '2026-04-02 15:20', createdBy: '张伟', ownerBase: '珠海格力总部', department: '计划物流部 / APS推进科', poolName: '总部统一规则池', status: '正在应用' },
+      { customName: '两器旺季抢产', baseName: '金湾基地', factoryId: 'heat-exchanger', factoryName: '两器分厂', version: 'v0.2', timestamp: '202604021445', createdAt: '2026-04-02 14:45', createdBy: '李敏', ownerBase: '金湾基地', department: '制造管理部 / 排程科', poolName: '制造基地统一规则池', status: '正在应用' },
+      { customName: '注塑稳态平衡', baseName: '武汉基地', factoryId: 'injection', factoryName: '注塑分厂', version: 'v0.4', timestamp: '202604021310', createdAt: '2026-04-02 13:10', createdBy: '王磊', ownerBase: '武汉基地', department: '供应链管理部 / 计划组', poolName: '跨厂共享规则池', status: '停用' },
+      { customName: '钣金二次加工', baseName: '洛阳基地', factoryId: 'sheet-metal', factoryName: '钣金分厂', version: 'v0.1', timestamp: '202604020930', createdAt: '2026-04-02 09:30', createdBy: '陈婷', ownerBase: '洛阳基地', department: '制造管理部 / 排程科', poolName: '制造基地统一规则池', status: '正在应用' },
+      { customName: '控制器试制管控', baseName: '珠海格力总部', factoryId: 'controller', factoryName: '控制器分厂', version: 'v0.2', timestamp: '202604011650', createdAt: '2026-04-01 16:50', createdBy: '赵磊', ownerBase: '珠海格力总部', department: '品质运营部 / 协同科', poolName: '总部统一规则池', status: '正在应用' }
     ].map((item, index) => ({
       ...item,
       ruleName: buildRuleName(item),
@@ -4864,6 +5238,17 @@
         logisticsBufferHours: 3 + index
       }
     }));
+
+    const standaloneMasterRules = [
+      { id: 'UR-H01', type: 'hard', name: '模具/工装可用性校验', subtitle: '模具持有效准证且状态合格，在厂可用后才允许进入排产。', tag: '通用', sourceDept: '制造管理部 / 排程科', enabled: true },
+      { id: 'UR-S01', type: 'soft', name: '颜色换产顺序规则', subtitle: '颜色按由浅入深排序，或由深入浅时优先保持同色连续。', tag: '注塑分厂', sourceDept: '计划物流部 / APS推进科', enabled: true },
+      { id: 'UR-T01', type: 'temp', name: '节假日前保供模板', subtitle: '节假日前 3 天提高关键机型与战略客户订单排产优先级。', tag: '临时规则', sourceDept: '供应链管理部 / 计划组', code: 'holiday_supply_rank=high', enabled: true }
+    ];
+
+    let currentFactoryId = factoryOptions[0].id;
+    let currentFactoryRuleTab = 'sync';
+    let unifiedPoolKeyword = '';
+    let mainRuleModalContext = 'detail';
 
     let ruleDetailState = {
       mode: 'create',
@@ -4876,29 +5261,44 @@
     listBlock.id = 'aps-settings-upgrade';
     listBlock.innerHTML = `
       <div class="aps-setting-block" id="aps-rule-list-stage">
-        <div class="aps-setting-title">排程规则配置</div>
-        <div class="aps-setting-subtitle">按基地和分厂统一维护排程规则，点击新增规则后切换到独立的新建面板。</div>
-        <div class="aps-rule-toolbar">
-          <span class="muted">规则池支持协同策略、硬约束、软约束与临时规则统一维护。</span>
+        <div class="aps-rule-shell-head">
+          <div>
+            <div class="aps-setting-title">排程规则配置</div>
+            <div class="aps-setting-subtitle">点击分厂模块进入规则列表，按协同策略、硬约束、软约束、临时规则维护分厂排程规则。</div>
+          </div>
           <button type="button" class="btn sm primary" id="aps-rule-create-btn">新增规则</button>
         </div>
-        <div class="aps-rule-table-wrap">
-          <table class="aps-rule-table">
-            <thead>
-              <tr>
-                <th>规则名称</th>
-                <th>创建时间</th>
-                <th>创建用户</th>
-                <th>所属基地</th>
-                <th>部门科室</th>
-                <th>统一规则池</th>
-                <th>规则状态</th>
-                <th>操作</th>
-              </tr>
-            </thead>
-            <tbody id="aps-rule-tbody"></tbody>
-          </table>
-        </div>
+
+        <div class="aps-rule-factory-grid" id="aps-rule-factory-grid"></div>
+
+        <section class="aps-factory-rule-panel" id="aps-factory-rule-panel">
+          <div class="aps-factory-rule-head">
+            <div>
+              <div class="aps-factory-rule-title" id="aps-factory-rule-title">总装分厂</div>
+              <div class="aps-factory-rule-sub" id="aps-factory-rule-sub">进入分厂后可在固定页签下查看和编辑现有规则。</div>
+            </div>
+            <span class="aps-rule-pill" id="aps-factory-rule-count">0 条规则</span>
+          </div>
+          <div class="aps-rule-tabbar" id="aps-factory-rule-tabbar">
+            ${mainRuleTypeOptions.map((item) => `<button type="button" class="aps-rule-tab${item.value === 'sync' ? ' active' : ''}" data-factory-rule-tab="${item.value}">${item.label}</button>`).join('')}
+          </div>
+          <div class="aps-factory-rule-list" id="aps-factory-rule-list"></div>
+        </section>
+
+        <section class="aps-unified-pool" id="aps-unified-pool">
+          <div class="aps-unified-pool-head">
+            <div>
+              <div class="aps-unified-pool-title">统一规则池</div>
+              <div class="aps-unified-pool-sub">汇总已设置的硬规则、软规则、临时规则，支持按规则名、ID、分厂和描述检索。</div>
+            </div>
+            <button type="button" class="btn primary" id="aps-unified-main-rule-btn">新建主规则</button>
+          </div>
+          <div class="aps-unified-pool-controls">
+            <input class="aps-unified-search" id="aps-unified-rule-search" type="search" placeholder="输入关键词搜索规则..." aria-label="搜索统一规则池" />
+            <span class="aps-rule-pill" id="aps-unified-rule-count">0 条规则</span>
+          </div>
+          <div class="aps-unified-rule-list" id="aps-unified-rule-list"></div>
+        </section>
       </div>
     `;
 
@@ -4935,6 +5335,10 @@
             <div class="aps-rule-form-field">
               <label for="aps-detail-rule-base">所属基地</label>
               <select id="aps-detail-rule-base" disabled>${ruleBaseOptions.map((item) => `<option value="${item}">${item}</option>`).join('')}</select>
+            </div>
+            <div class="aps-rule-form-field">
+              <label for="aps-detail-rule-factory">所属分厂</label>
+              <select id="aps-detail-rule-factory">${factoryOptions.map((item) => `<option value="${item.id}">${item.name}</option>`).join('')}</select>
             </div>
             <div class="aps-rule-form-field">
               <label for="aps-detail-rule-department">部门/科室</label>
@@ -5024,7 +5428,17 @@
     upgradeHost.appendChild(listBlock);
     createHost.appendChild(detailBlock);
 
-    const tbody = document.getElementById('aps-rule-tbody');
+    const factoryGrid = document.getElementById('aps-rule-factory-grid');
+    const factoryRulePanel = document.getElementById('aps-factory-rule-panel');
+    const factoryRuleTitle = document.getElementById('aps-factory-rule-title');
+    const factoryRuleSub = document.getElementById('aps-factory-rule-sub');
+    const factoryRuleCount = document.getElementById('aps-factory-rule-count');
+    const factoryRuleTabbar = document.getElementById('aps-factory-rule-tabbar');
+    const factoryRuleList = document.getElementById('aps-factory-rule-list');
+    const unifiedRuleSearch = document.getElementById('aps-unified-rule-search');
+    const unifiedRuleCount = document.getElementById('aps-unified-rule-count');
+    const unifiedRuleList = document.getElementById('aps-unified-rule-list');
+    const unifiedMainRuleBtn = document.getElementById('aps-unified-main-rule-btn');
     const detailTitle = document.getElementById('aps-rule-detail-title');
     const detailSubtitle = document.getElementById('aps-rule-detail-subtitle');
     const saveRuleBtn = document.getElementById('aps-rule-save-btn');
@@ -5034,6 +5448,7 @@
     const tabbar = document.getElementById('aps-rule-tabbar');
     const detailNameInput = document.getElementById('aps-detail-rule-name');
     const detailBaseSelect = document.getElementById('aps-detail-rule-base');
+    const detailFactorySelect = document.getElementById('aps-detail-rule-factory');
     const detailDeptSelect = document.getElementById('aps-detail-rule-department');
     const detailUserInput = document.getElementById('aps-detail-rule-user');
     const detailPreview = document.getElementById('aps-detail-rule-preview');
@@ -5050,36 +5465,178 @@
     const mainRuleParamInput = document.getElementById('aps-main-rule-param');
     const mainRulePrioritySelect = document.getElementById('aps-main-rule-priority');
 
-    function renderRuleTable() {
-      if (!tbody) return;
-      if (!ruleRecords.length) {
-        tbody.innerHTML = '<tr><td colspan="8" class="aps-rule-empty">当前没有排程规则，请先新增规则。</td></tr>';
+    if (mainRuleModalMask && mainRuleModalMask.parentElement !== document.body) {
+      document.body.appendChild(mainRuleModalMask);
+    }
+
+    function getRuleTypeMeta(type) {
+      return mainRuleTypeOptions.find((item) => item.value === type) || mainRuleTypeOptions[0];
+    }
+
+    function getFactoryMeta(factoryId) {
+      return factoryOptions.find((item) => item.id === factoryId) || factoryOptions[0];
+    }
+
+    function getRuleBucket(config, type) {
+      const mapping = {
+        sync: config?.syncRules || [],
+        hard: config?.hardRules || [],
+        soft: config?.softRules || [],
+        temp: config?.tempRules || []
+      };
+      return mapping[type] || [];
+    }
+
+    function getFactoryRuleEntries(factoryId, type) {
+      return ruleRecords.flatMap((record, recordIndex) => {
+        if (record.factoryId !== factoryId) return [];
+        return getRuleBucket(record.config, type).map((rule) => ({
+          ...rule,
+          type,
+          record,
+          recordIndex
+        }));
+      });
+    }
+
+    function getFactoryRuleTotal(factoryId) {
+      return mainRuleTypeOptions.reduce((sum, item) => sum + getFactoryRuleEntries(factoryId, item.value).length, 0);
+    }
+
+    function renderFactoryModules() {
+      if (!factoryGrid) return;
+      factoryGrid.innerHTML = factoryOptions.map((factory) => {
+        const total = getFactoryRuleTotal(factory.id);
+        return `
+          <button type="button" class="aps-rule-factory-card${factory.id === currentFactoryId ? ' active' : ''}" data-factory-id="${factory.id}">
+            <div class="aps-rule-factory-title">
+              <span>${esc(factory.name)}</span>
+              <span class="aps-rule-factory-count">${total}</span>
+            </div>
+            <div class="aps-rule-factory-desc">${esc(factory.desc)}</div>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function renderFactoryRuleList() {
+      if (!factoryRulePanel || !factoryRuleList) return;
+      const factory = getFactoryMeta(currentFactoryId);
+      const entries = getFactoryRuleEntries(currentFactoryId, currentFactoryRuleTab);
+      const typeMeta = getRuleTypeMeta(currentFactoryRuleTab);
+      const total = getFactoryRuleTotal(currentFactoryId);
+
+      if (factoryRuleTitle) factoryRuleTitle.textContent = factory.name;
+      if (factoryRuleSub) factoryRuleSub.textContent = `${factory.desc}，当前查看：${typeMeta.label}。`;
+      if (factoryRuleCount) factoryRuleCount.textContent = `${total} 条规则`;
+      factoryRuleTabbar?.querySelectorAll('[data-factory-rule-tab]').forEach((button) => {
+        button.classList.toggle('active', button.getAttribute('data-factory-rule-tab') === currentFactoryRuleTab);
+      });
+
+      if (!entries.length) {
+        factoryRuleList.innerHTML = `<div class="aps-rule-empty-panel">${esc(factory.name)} 当前没有${esc(typeMeta.label)}，可通过“新增规则”或“新建主规则”补充。</div>`;
         return;
       }
-      tbody.innerHTML = ruleRecords.map((item, index) => `
-        <tr>
-          <td><div class="aps-rule-name">${esc(item.ruleName)}</div></td>
-          <td>${esc(item.createdAt)}</td>
-          <td>${esc(item.createdBy)}</td>
-          <td>${esc(item.ownerBase)}</td>
-          <td>${esc(item.department)}</td>
-          <td><span class="aps-rule-pool">${esc(item.poolName)}</span></td>
-          <td><span class="aps-rule-status ${item.status === '正在应用' ? 'active' : 'disabled'}">${esc(item.status)}</span></td>
-          <td>
-            <div class="aps-rule-actions">
-              <button type="button" class="btn sm" data-rule-action="view" data-rule-index="${index}">查看</button>
-              <button type="button" class="btn sm" data-rule-action="edit" data-rule-index="${index}">编辑</button>
-              <button type="button" class="btn sm err txt-white" data-rule-action="delete" data-rule-index="${index}">删除</button>
+
+      factoryRuleList.innerHTML = entries.map((entry) => `
+        <div class="aps-factory-rule-card ${entry.type}">
+          <div class="aps-factory-rule-card-top">
+            <div class="aps-factory-rule-main">
+              <div class="aps-factory-rule-meta">
+                <span class="aps-rule-pill ${entry.type}">${esc(typeMeta.label)}</span>
+                <span class="aps-rule-pill">${esc(entry.id)}</span>
+                <span class="aps-rule-pill">${esc(entry.tag || '通用')}</span>
+                <span class="aps-rule-status ${entry.enabled ? 'active' : 'disabled'}">${entry.enabled ? '已启用' : '已停用'}</span>
+              </div>
+              <div class="aps-factory-rule-name">${esc(entry.name)}</div>
+              <div class="aps-factory-rule-desc">${esc(entry.subtitle || '')}</div>
+              <div class="aps-factory-rule-desc">归属规则：${esc(entry.record.customName)} · ${esc(entry.record.createdBy)} · ${esc(entry.record.createdAt)}</div>
             </div>
-          </td>
-        </tr>
+            <div class="aps-rule-actions">
+              <button type="button" class="btn sm" data-rule-action="view" data-rule-index="${entry.recordIndex}">查看</button>
+              <button type="button" class="btn sm" data-rule-action="edit" data-rule-index="${entry.recordIndex}">编辑</button>
+              <button type="button" class="btn sm err txt-white" data-rule-action="delete" data-rule-index="${entry.recordIndex}">删除</button>
+            </div>
+          </div>
+        </div>
       `).join('');
     }
 
+    function collectUnifiedRules() {
+      const configuredRules = ruleRecords.flatMap((record, recordIndex) => {
+        return ['hard', 'soft', 'temp'].flatMap((type) => getRuleBucket(record.config, type).map((rule) => ({
+          ...rule,
+          type,
+          recordIndex,
+          factoryName: record.factoryName,
+          recordName: record.customName,
+          sourceDept: record.department,
+          source: '已添加'
+        })));
+      });
+      const masterRules = standaloneMasterRules.map((rule) => ({
+        ...rule,
+        factoryName: '统一规则池',
+        recordName: '主规则',
+        source: '未添加'
+      }));
+      return [...masterRules, ...configuredRules];
+    }
+
+    function renderUnifiedPool() {
+      if (!unifiedRuleList) return;
+      const keyword = unifiedPoolKeyword.trim().toLowerCase();
+      const allRules = collectUnifiedRules();
+      const visibleRules = keyword
+        ? allRules.filter((rule) => [rule.id, rule.name, rule.subtitle, rule.tag, rule.factoryName, rule.recordName, rule.sourceDept]
+          .some((value) => String(value || '').toLowerCase().includes(keyword)))
+        : allRules;
+
+      if (unifiedRuleCount) unifiedRuleCount.textContent = `${visibleRules.length} / ${allRules.length} 条规则`;
+      if (!visibleRules.length) {
+        unifiedRuleList.innerHTML = '<div class="aps-rule-empty-panel">没有找到匹配的规则，请更换关键词或新建主规则。</div>';
+        return;
+      }
+
+      unifiedRuleList.innerHTML = visibleRules.map((rule) => {
+        const typeMeta = getRuleTypeMeta(rule.type);
+        const actionHtml = Number.isInteger(rule.recordIndex)
+          ? `<button type="button" class="btn sm" data-rule-action="view" data-rule-index="${rule.recordIndex}">查看来源</button>`
+          : '<button type="button" class="btn sm" disabled>主数据</button>';
+        return `
+          <div class="aps-unified-rule-card ${rule.type}">
+            <div class="aps-unified-rule-card-top">
+              <div class="aps-unified-rule-main">
+                <div class="aps-unified-rule-meta">
+                  <span class="aps-rule-pill ${rule.type}">${esc(typeMeta.label)}</span>
+                  <span class="aps-rule-pill">${esc(rule.id)}</span>
+                  <span class="aps-rule-pill">${esc(rule.source)}</span>
+                  <span class="aps-rule-status ${rule.enabled ? 'active' : 'disabled'}">${rule.enabled ? '已启用' : '已停用'}</span>
+                </div>
+                <div class="aps-unified-rule-name">${esc(rule.name)}</div>
+                <div class="aps-unified-rule-desc">${esc(rule.subtitle || '')}</div>
+                <div class="aps-unified-rule-desc">来源：${esc(rule.factoryName)} · ${esc(rule.recordName)} · ${esc(rule.sourceDept || '未指定部门')}</div>
+              </div>
+              <div class="aps-rule-actions">${actionHtml}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderRuleTable() {
+      renderFactoryModules();
+      renderFactoryRuleList();
+      renderUnifiedPool();
+    }
+
     function getDetailDraft() {
+      const factory = getFactoryMeta(detailFactorySelect?.value || currentFactoryId);
       return {
         ruleName: (detailNameInput?.value || '').trim(),
         ownerBase: detailBaseSelect?.value || ruleBaseOptions[0],
+        factoryId: factory.id,
+        factoryName: factory.name,
         department: detailDeptSelect?.value || departmentOptions[0],
         createdBy: detailUserInput?.value || currentUser,
         overview: (detailPreview?.value || '').trim()
@@ -5091,13 +5648,13 @@
       if (!detailPreview.value.trim()) {
         const draft = getDetailDraft();
         detailPreview.value = draft.ruleName
-          ? `${draft.ruleName} · ${draft.ownerBase} · ${draft.department}`
+          ? `${draft.ruleName} · ${draft.factoryName} · ${draft.department}`
           : '';
       }
     }
 
     function setDetailReadonly(disabled) {
-      [detailNameInput, detailPreview].forEach((el) => {
+      [detailNameInput, detailFactorySelect, detailPreview].forEach((el) => {
         if (el) el.disabled = disabled;
       });
       if (saveRuleBtn) saveRuleBtn.style.display = disabled ? 'none' : '';
@@ -5105,8 +5662,10 @@
     }
 
     function populateDetailForm(record) {
+      const factory = record?.factoryId ? getFactoryMeta(record.factoryId) : getFactoryMeta(currentFactoryId);
       if (detailNameInput) detailNameInput.value = record?.customName || record?.ruleName || '';
-      if (detailBaseSelect) detailBaseSelect.value = record?.ownerBase || ruleBaseOptions[0];
+      if (detailBaseSelect) detailBaseSelect.value = record?.ownerBase || factory.ownerBase || ruleBaseOptions[0];
+      if (detailFactorySelect) detailFactorySelect.value = factory.id;
       if (detailDeptSelect) detailDeptSelect.value = record?.department || departmentOptions[0];
       if (detailUserInput) detailUserInput.value = record?.createdBy || currentUser;
       if (detailPreview) detailPreview.value = record?.overview || '';
@@ -5242,7 +5801,8 @@
         poolName: rulePoolOptions[0],
         status: '正在应用',
         baseName: draft.ownerBase,
-        factoryName: '未指定分厂',
+        factoryId: draft.factoryId,
+        factoryName: draft.factoryName,
         version: versionOptions[0],
         timestamp,
         config: cloneRuleConfig(ruleDetailState.config)
@@ -5256,14 +5816,25 @@
         toast('排程规则已新增');
       }
 
+      currentFactoryId = record.factoryId;
       renderRuleTable();
       showListStage();
     }
 
-    function openMainRuleModal() {
-      if (ruleDetailState.mode === 'view' || !mainRuleModalMask) return;
+    function setMainRuleTypeOptions(context) {
+      if (!mainRuleTypeSelect) return;
+      const options = context === 'pool'
+        ? mainRuleTypeOptions.filter((item) => item.value !== 'sync')
+        : mainRuleTypeOptions;
+      mainRuleTypeSelect.innerHTML = options.map((item) => `<option value="${item.value}">${item.label}</option>`).join('');
+    }
+
+    function openMainRuleModal(context = 'detail') {
+      if ((context !== 'pool' && ruleDetailState.mode === 'view') || !mainRuleModalMask) return;
+      mainRuleModalContext = context;
+      setMainRuleTypeOptions(context);
       mainRuleModalMask.classList.add('show');
-      if (mainRuleTypeSelect) mainRuleTypeSelect.value = ruleDetailState.activeTab;
+      if (mainRuleTypeSelect) mainRuleTypeSelect.value = context === 'pool' ? 'hard' : ruleDetailState.activeTab;
       if (mainRuleDeptSelect) mainRuleDeptSelect.value = detailDeptSelect?.value || departmentOptions[0];
       if (mainRuleIdInput) mainRuleIdInput.value = '';
       if (mainRuleNameInput) mainRuleNameInput.value = '';
@@ -5297,14 +5868,27 @@
         return;
       }
 
+      const typeMeta = getRuleTypeMeta(targetType);
       const card = {
         id: ruleId,
         name: ruleName,
         subtitle: businessDesc || `来源部门：${sourceDept}；优先级：${priority}`,
-        tag: `${mainRuleTypeOptions.find((item) => item.value === targetType)?.label || '规则'} · ${priority}`,
+        tag: `${typeMeta.label} · ${priority}`,
+        sourceDept,
         code: defaultParam,
         enabled: true
       };
+
+      if (mainRuleModalContext === 'pool') {
+        standaloneMasterRules.unshift({
+          ...card,
+          type: targetType
+        });
+        renderUnifiedPool();
+        closeMainRuleModal();
+        toast('主规则已加入统一规则池');
+        return;
+      }
 
       if (targetType === 'sync') {
         ruleDetailState.config.syncRules.unshift(card);
@@ -5325,13 +5909,73 @@
       toast('主规则已加入当前规则池');
     }
 
+    async function handleRuleAction(action, index) {
+      if (!action || Number.isNaN(index) || !ruleRecords[index]) return;
+
+      if (action === 'view') {
+        showDetailStage('view', index);
+        return;
+      }
+
+      if (action === 'edit') {
+        showDetailStage('edit', index);
+        return;
+      }
+
+      if (action === 'delete') {
+        await showConfirmDialog({
+          title: '无权限删除规则',
+          message: '仅超级管理员有权限删除规则。',
+          confirmText: '知道了',
+          cancelText: '关闭'
+        });
+      }
+    }
+
     document.getElementById('aps-rule-create-btn')?.addEventListener('click', () => showDetailStage('create'));
     backBtn?.addEventListener('click', showListStage);
     saveRuleBtn?.addEventListener('click', saveCurrentRule);
-    newMainRuleBtn?.addEventListener('click', openMainRuleModal);
-    [detailNameInput, detailPreview].forEach((el) => {
+    newMainRuleBtn?.addEventListener('click', () => openMainRuleModal('detail'));
+    unifiedMainRuleBtn?.addEventListener('click', () => openMainRuleModal('pool'));
+
+    factoryGrid?.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      const card = target.closest('[data-factory-id]');
+      if (!(card instanceof HTMLElement)) return;
+      const factoryId = card.getAttribute('data-factory-id');
+      if (!factoryId) return;
+      currentFactoryId = factoryId;
+      currentFactoryRuleTab = 'sync';
+      renderFactoryModules();
+      renderFactoryRuleList();
+    });
+
+    factoryRuleTabbar?.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      const tab = target.closest('[data-factory-rule-tab]');
+      if (!(tab instanceof HTMLElement)) return;
+      const nextTab = tab.getAttribute('data-factory-rule-tab');
+      if (!nextTab) return;
+      currentFactoryRuleTab = nextTab;
+      renderFactoryRuleList();
+    });
+
+    unifiedRuleSearch?.addEventListener('input', () => {
+      unifiedPoolKeyword = unifiedRuleSearch.value || '';
+      renderUnifiedPool();
+    });
+
+    [detailNameInput, detailFactorySelect, detailPreview].forEach((el) => {
       el?.addEventListener('input', updateDetailPreview);
       el?.addEventListener('change', updateDetailPreview);
+    });
+
+    detailFactorySelect?.addEventListener('change', () => {
+      const factory = getFactoryMeta(detailFactorySelect.value);
+      if (detailBaseSelect) detailBaseSelect.value = factory.ownerBase;
+      updateDetailPreview();
     });
 
     tabbar?.addEventListener('click', (event) => {
@@ -5406,31 +6050,20 @@
       if (event.target === mainRuleModalMask) closeMainRuleModal();
     });
 
-    tbody?.addEventListener('click', async (event) => {
+    factoryRuleList?.addEventListener('click', async (event) => {
       const target = event.target;
       if (!(target instanceof HTMLElement)) return;
       const action = target.dataset.ruleAction;
       const index = Number(target.dataset.ruleIndex);
-      if (!action || Number.isNaN(index) || !ruleRecords[index]) return;
+      await handleRuleAction(action, index);
+    });
 
-      if (action === 'view') {
-        showDetailStage('view', index);
-        return;
-      }
-
-      if (action === 'edit') {
-        showDetailStage('edit', index);
-        return;
-      }
-
-      if (action === 'delete') {
-        await showConfirmDialog({
-          title: '无权限删除规则',
-          message: '仅超级管理员有权限删除规则。',
-          confirmText: '知道了',
-          cancelText: '关闭'
-        });
-      }
+    unifiedRuleList?.addEventListener('click', async (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      const action = target.dataset.ruleAction;
+      const index = Number(target.dataset.ruleIndex);
+      await handleRuleAction(action, index);
     });
 
     updateDetailPreview();
