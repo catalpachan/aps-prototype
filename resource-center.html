@@ -1,0 +1,1378 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>资源管理中心 - 格力高级计划排程系统</title>
+  <link rel="stylesheet" href="common.css" />
+  <style>
+    .resource-center-page { min-height: calc(100vh - 96px); }
+    .resource-center-shell {
+      min-height: calc(100vh - 96px);
+      display: grid;
+      grid-template-columns: 196px minmax(0, 1fr);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #0d1525;
+      box-shadow: 0 12px 30px rgba(2, 6, 23, 0.28);
+    }
+    .resource-center-sidebar {
+      padding: 16px 12px;
+      border-right: 1px solid #2c3a51;
+      background: #10192b;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      min-width: 0;
+    }
+    .resource-center-brand {
+      padding: 0 8px 14px;
+      border-bottom: 1px solid #2c3a51;
+      display: grid;
+      gap: 4px;
+    }
+    .resource-center-brand strong { color: #f8fafc; font-size: 16px; }
+    .resource-center-brand span { color: #7f91ad; font-size: 11px; line-height: 1.5; }
+    .resource-center-nav {
+      display: grid;
+      gap: 8px;
+      overflow: auto;
+      padding-right: 2px;
+    }
+    .resource-center-factory {
+      display: grid;
+      gap: 6px;
+    }
+    .resource-center-nav-btn,
+    .resource-center-area-btn,
+    .resource-center-leaf-btn {
+      width: 100%;
+      min-height: 36px;
+      border: 1px solid transparent;
+      border-radius: 7px;
+      background: transparent;
+      color: #aebdd2;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      text-align: left;
+      padding: 0 12px;
+      cursor: pointer;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      transition: background var(--dur-fast), border-color var(--dur-fast), color var(--dur-fast), transform var(--dur-fast);
+    }
+    .resource-center-nav-btn {
+      min-height: 40px;
+    }
+    .resource-center-nav-btn:hover,
+    .resource-center-area-btn:hover,
+    .resource-center-leaf-btn:hover {
+      color: #fff;
+      border-color: #3b4d68;
+      background: #17243a;
+      transform: translateX(2px);
+    }
+    .resource-center-nav-btn.active {
+      color: #fff;
+      border-color: #2f68d8;
+      background: #1d4ed8;
+    }
+    .resource-center-area {
+      display: none;
+      gap: 5px;
+      padding-left: 8px;
+    }
+    .resource-center-factory.active .resource-center-area {
+      display: grid;
+    }
+    .resource-center-area-btn {
+      min-height: 32px;
+      color: #8ea1be;
+      font-size: 12px;
+      padding-left: 14px;
+    }
+    .resource-center-area-btn.active {
+      color: #eaf2ff;
+      background: #17243a;
+      border-color: #334a69;
+    }
+    .resource-center-leaf-list {
+      display: none;
+      gap: 5px;
+      padding-left: 10px;
+    }
+    .resource-center-area.active .resource-center-leaf-list {
+      display: grid;
+    }
+    .resource-center-leaf-btn {
+      min-height: 30px;
+      color: #7f91ad;
+      font-size: 12px;
+      padding-left: 16px;
+    }
+    .resource-center-leaf-btn.active {
+      color: #fff;
+      border-color: #2f68d8;
+      background: #1d4ed8;
+    }
+    .resource-center-workspace {
+      min-width: 0;
+      background: #0b1321;
+    }
+    .resource-center-content {
+      min-width: 0;
+      min-height: 720px;
+      background: #0d1525;
+      padding: 18px;
+      display: grid;
+      grid-template-rows: auto auto minmax(0, 1fr);
+      gap: 14px;
+    }
+    .resource-workspace-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 2px 2px 12px;
+      border-bottom: 1px solid #2c3a51;
+    }
+    .resource-title-block {
+      display: grid;
+      gap: 6px;
+      min-width: 0;
+    }
+    .resource-title-block h1 {
+      margin: 0;
+      color: #f8fafc;
+      font-size: 22px;
+      line-height: 1.25;
+    }
+    .resource-title-block p {
+      margin: 0;
+      color: #7f91ad;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+    .resource-toolbar-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px;
+      border: 1px solid #2c3a51;
+      border-radius: 10px;
+      background: #10192b;
+    }
+    .resource-search-wrap {
+      width: min(460px, 100%);
+      display: block;
+    }
+    .resource-search-wrap input {
+      width: 100%;
+      height: 36px;
+      border-radius: 8px;
+      border: 1px solid #334155;
+      background: #0b1321;
+      color: #e2e8f0;
+      padding: 0 12px;
+      font: inherit;
+      font-size: 12px;
+      outline: none;
+    }
+    .resource-search-wrap input:focus {
+      border-color: #2f68d8;
+      box-shadow: 0 0 0 3px rgb(37 99 235 / 18%);
+    }
+    .resource-context-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 30px;
+      padding: 0 10px;
+      border-radius: 999px;
+      color: #b7c8e3;
+      background: #17243a;
+      border: 1px solid #334a69;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .resource-data-card {
+      min-width: 0;
+      border: 1px solid #2c3a51;
+      border-radius: 10px;
+      background: #10192b;
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: minmax(0, 1fr) auto;
+    }
+    .mold-management-panels {
+      min-width: 0;
+      display: grid;
+      gap: 14px;
+    }
+    .mold-panel {
+      display: grid;
+      gap: 14px;
+      min-width: 0;
+    }
+    .mold-panel[hidden],
+    .mold-management-panels[hidden] {
+      display: none;
+    }
+    .mold-query-card,
+    .mold-result-card {
+      min-width: 0;
+      border: 1px solid #2c3a51;
+      border-radius: 10px;
+      background: #10192b;
+      overflow: hidden;
+    }
+    .mold-query-card {
+      padding: 14px;
+      display: grid;
+      gap: 12px;
+    }
+    .mold-card-title {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      color: #f8fafc;
+      font-size: 15px;
+      font-weight: 800;
+    }
+    .mold-card-title span {
+      color: #7f91ad;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .mold-query-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(150px, 1fr)) auto;
+      gap: 10px;
+      align-items: end;
+    }
+    .mold-query-field {
+      display: grid;
+      gap: 6px;
+      min-width: 0;
+      color: #8ea1be;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .mold-query-field input,
+    .mold-query-field select {
+      width: 100%;
+      height: 34px;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      background: #0b1321;
+      color: #e2e8f0;
+      padding: 0 10px;
+      font: inherit;
+      font-size: 12px;
+      outline: none;
+    }
+    .mold-query-field input:focus,
+    .mold-query-field select:focus {
+      border-color: #2f68d8;
+      box-shadow: 0 0 0 3px rgb(37 99 235 / 18%);
+    }
+    .mold-query-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      min-width: 132px;
+    }
+    .mold-result-card {
+      padding: 14px;
+      display: grid;
+      gap: 14px;
+    }
+    .mold-result-head {
+      display: grid;
+      gap: 8px;
+    }
+    .mold-result-head h2 {
+      margin: 0;
+      color: #f8fafc;
+      font-size: 18px;
+    }
+    .mold-result-head p {
+      margin: 0;
+      color: #b7c8e3;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .mold-result-head strong {
+      color: #f8fafc;
+      font-weight: 900;
+    }
+    .mold-kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(126px, 1fr));
+      gap: 10px;
+    }
+    .mold-kpi-card {
+      min-height: 74px;
+      border: 1px solid #2c3a51;
+      border-radius: 10px;
+      background: #0d1525;
+      padding: 12px;
+      display: grid;
+      align-content: center;
+      gap: 6px;
+    }
+    .mold-kpi-card span {
+      color: #8ea1be;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .mold-kpi-card strong {
+      color: #f8fafc;
+      font-size: 24px;
+      line-height: 1;
+    }
+    .mold-kpi-card em {
+      color: #22d3ee;
+      font-style: normal;
+      font-size: 20px;
+      font-weight: 900;
+    }
+    .mold-subsection {
+      display: grid;
+      gap: 10px;
+      min-width: 0;
+    }
+    .mold-subsection h3 {
+      margin: 4px 0 0;
+      color: #f8fafc;
+      font-size: 16px;
+    }
+    .mold-table-shell {
+      min-width: 0;
+      overflow: auto;
+      border: 1px solid #2c3a51;
+      border-radius: 10px;
+      background: #0b1321;
+    }
+    .mold-table {
+      width: 100%;
+      min-width: 960px;
+      border-collapse: collapse;
+      color: #dbe7f6;
+      table-layout: fixed;
+    }
+    .mold-table th,
+    .mold-table td {
+      border-bottom: 1px solid #23334b;
+      border-right: 1px solid #1e2d43;
+      padding: 12px 14px;
+      text-align: left;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 12px;
+    }
+    .mold-table th {
+      color: #f8fafc;
+      background: #17243a;
+      font-weight: 800;
+    }
+    .mold-table tbody tr:hover td {
+      background: #132037;
+      color: #fff;
+    }
+    .mold-result-pager {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #7f91ad;
+      font-size: 12px;
+      flex-wrap: wrap;
+    }
+    .resource-table-wrap {
+      min-width: 0;
+      overflow: auto;
+    }
+    .resource-master-table {
+      width: 100%;
+      min-width: 980px;
+      border-collapse: collapse;
+      color: #dbe7f6;
+      table-layout: fixed;
+    }
+    .resource-master-table th,
+    .resource-master-table td {
+      border-bottom: 1px solid #23334b;
+      padding: 12px 14px;
+      text-align: left;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 12px;
+    }
+    .resource-master-table th {
+      color: #f8fafc;
+      background: #17243a;
+      font-weight: 800;
+    }
+    .resource-master-table td {
+      color: #cbd7e8;
+    }
+    .resource-master-table tbody tr:hover td {
+      background: #132037;
+      color: #fff;
+    }
+    .resource-status {
+      display: inline-flex;
+      align-items: center;
+      min-height: 22px;
+      padding: 0 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      color: #bfdbfe;
+      background: rgb(37 99 235 / 16%);
+      border: 1px solid rgb(59 130 246 / 32%);
+    }
+    .resource-status.warn {
+      color: #fde68a;
+      background: rgb(245 158 11 / 14%);
+      border-color: rgb(245 158 11 / 32%);
+    }
+    .resource-status.ok {
+      color: #bbf7d0;
+      background: rgb(34 197 94 / 13%);
+      border-color: rgb(34 197 94 / 30%);
+    }
+    .resource-center-pager {
+      min-height: 48px;
+      padding: 0 12px;
+      border-top: 1px solid #2c3a51;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      color: #7f91ad;
+      font-size: 12px;
+      flex-wrap: wrap;
+    }
+    .resource-center-pager button,
+    .resource-center-pager input {
+      height: 28px;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      background: #0b1321;
+      color: #cbd7e8;
+      font: inherit;
+      font-size: 12px;
+    }
+    .resource-center-pager button {
+      min-width: 30px;
+      cursor: pointer;
+      padding: 0 10px;
+    }
+    .resource-center-pager button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .resource-center-pager input {
+      width: 64px;
+      text-align: center;
+    }
+    [data-theme="light"] .resource-center-shell,
+    [data-theme="light"] .resource-center-workspace,
+    [data-theme="light"] .resource-center-content,
+    [data-theme="light"] .resource-toolbar-card,
+    [data-theme="light"] .resource-data-card,
+    [data-theme="light"] .mold-query-card,
+    [data-theme="light"] .mold-result-card { background: #f4f7fb; }
+    [data-theme="light"] .mold-kpi-card,
+    [data-theme="light"] .mold-table-shell { background: #fff; }
+    [data-theme="light"] .resource-center-sidebar { background: #fff; border-color: var(--line); }
+    [data-theme="light"] .resource-center-brand { border-color: var(--line); }
+    [data-theme="light"] .resource-center-brand strong,
+    [data-theme="light"] .resource-title-block h1,
+    [data-theme="light"] .mold-card-title,
+    [data-theme="light"] .mold-result-head h2,
+    [data-theme="light"] .mold-subsection h3 { color: var(--txt); }
+    [data-theme="light"] .resource-center-brand span,
+    [data-theme="light"] .resource-title-block p,
+    [data-theme="light"] .mold-card-title span,
+    [data-theme="light"] .mold-result-head p { color: var(--muted); }
+    [data-theme="light"] .resource-center-nav-btn,
+    [data-theme="light"] .resource-center-area-btn,
+    [data-theme="light"] .resource-center-leaf-btn { color: #52647d; }
+    [data-theme="light"] .resource-center-nav-btn.active,
+    [data-theme="light"] .resource-center-leaf-btn.active { color: #fff; background: #2563eb; }
+    @media (max-width: 900px) {
+      #app { padding: 10px; }
+      .resource-center-shell { grid-template-columns: 1fr; }
+      .resource-center-sidebar {
+        padding: 10px;
+        border-right: 0;
+        border-bottom: 1px solid #2c3a51;
+        gap: 10px;
+      }
+      .resource-center-brand { padding: 0 2px 8px; }
+      .resource-center-nav {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        padding-bottom: 2px;
+      }
+      .resource-center-factory {
+        min-width: 176px;
+      }
+      .resource-center-content { min-height: 680px; padding: 12px; }
+      .resource-workspace-head,
+      .resource-toolbar-card {
+        align-items: stretch;
+        flex-direction: column;
+      }
+      .mold-query-grid,
+      .mold-kpi-grid { grid-template-columns: 1fr; }
+      .mold-query-actions { justify-content: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <header class="aps-header-layout">
+    <div class="brand-block">
+      <img class="header-logo" src="1c5703c9-aca0-43d1-9843-9d502cb66fd0.png" alt="APS Logo" width="143" height="44" />
+      <div class="aps-console-title">
+        <div class="aps-console-title-main">排产智能体</div>
+        <div class="aps-console-title-sub">格力高级计划排程系统</div>
+      </div>
+    </div>
+    <nav class="nav aps-main-nav" id="nav">
+      <a href="decision.html" class="nav-item">决策分析</a>
+      <a href="collab.html" class="nav-item active">排产操作</a>
+      <a href="settings.html" class="nav-item">系统设置</a>
+    </nav>
+    <div class="header-meta aps-header-meta" id="header-meta">
+      <div class="aps-site-switch">
+        <span class="aps-site-switch-label">制造基地</span>
+        <select id="hq-select" class="role-select" aria-label="基地切换">
+          <option>珠海格力总部</option>
+          <option>金湾基地</option>
+          <option>武汉基地</option>
+          <option>洛阳基地</option>
+        </select>
+      </div>
+      <span id="header-date" class="aps-clock-chip">2026-06-26 09:30:00</span>
+      <button type="button" class="aps-notify-btn" id="aps-notify-btn" aria-label="打开消息通知">
+        🔔<span class="aps-notify-badge" id="aps-notify-badge">0</span>
+      </button>
+      <div class="user-dropdown" id="user-dropdown">
+        <div class="user-dropdown-toggle" onclick="toggleUserDropdown()">
+          <div class="avatar">张</div>
+          <span class="name">张伟</span>
+          <span class="arrow">▼</span>
+        </div>
+        <div class="user-dropdown-menu">
+          <a href="settings.html?sub=profile" class="user-dropdown-item">👤 用户信息</a>
+          <a href="login.html" class="user-dropdown-item logout">🚪 退出</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="app">
+    <section class="view resource-center-page">
+      <div class="resource-center-shell">
+        <aside class="resource-center-sidebar">
+          <div class="resource-center-brand">
+            <strong>资源管理中心</strong>
+            <span>资源、设备与人力主数据统一工作区</span>
+          </div>
+          <nav class="resource-center-nav" aria-label="资源管理中心菜单">
+            <div class="resource-center-factory active" data-factory="assembly">
+              <button class="resource-center-nav-btn active" type="button" data-factory-nav="assembly">总装</button>
+              <div class="resource-center-area active">
+                <button class="resource-center-area-btn active" type="button" data-resource-area="equipment">设备管理</button>
+                <div class="resource-center-leaf-list">
+                  <button class="resource-center-leaf-btn active" type="button" data-resource-table="item">品目表</button>
+                  <button class="resource-center-leaf-btn" type="button" data-resource-table="resource">资源表</button>
+                  <button class="resource-center-leaf-btn" type="button" data-resource-table="bom">制造BOM表</button>
+                  <button class="resource-center-leaf-btn" type="button" data-resource-table="leadtime">配套分厂提前期</button>
+                  <button class="resource-center-leaf-btn" type="button" data-resource-table="order">生产订单表</button>
+                </div>
+              </div>
+              <div class="resource-center-area">
+                <button class="resource-center-area-btn" type="button" data-resource-area="labor">人力资源</button>
+                <div class="resource-center-leaf-list">
+                  <button class="resource-center-leaf-btn" type="button" data-resource-table="attendance">出勤模式表</button>
+                  <button class="resource-center-leaf-btn" type="button" data-resource-table="calendar">日历表</button>
+                </div>
+              </div>
+            </div>
+            <div class="resource-center-factory" data-factory="exchanger">
+              <button class="resource-center-nav-btn" type="button" data-factory-nav="exchanger">两器</button>
+              <div class="resource-center-area">
+                <button class="resource-center-area-btn" type="button" data-resource-area="equipment">设备管理</button>
+                <div class="resource-center-leaf-list">
+                  <button class="resource-center-leaf-btn" type="button" data-resource-table="item">品目表</button>
+                  <button class="resource-center-leaf-btn" type="button" data-resource-table="resource">资源表</button>
+                  <button class="resource-center-leaf-btn" type="button" data-resource-table="bom">制造BOM表</button>
+                  <button class="resource-center-leaf-btn" type="button" data-resource-table="leadtime">配套分厂提前期</button>
+                  <button class="resource-center-leaf-btn" type="button" data-resource-table="order">生产订单表</button>
+                </div>
+              </div>
+              <div class="resource-center-area">
+                <button class="resource-center-area-btn" type="button" data-resource-area="labor">人力资源</button>
+                <div class="resource-center-leaf-list">
+                  <button class="resource-center-leaf-btn" type="button" data-resource-table="attendance">出勤模式表</button>
+                  <button class="resource-center-leaf-btn" type="button" data-resource-table="calendar">日历表</button>
+                </div>
+              </div>
+            </div>
+            <div class="resource-center-factory" data-factory="injection">
+              <button class="resource-center-nav-btn" type="button" data-factory-nav="injection">注塑</button>
+              <div class="resource-center-area">
+                <button class="resource-center-area-btn" type="button" data-resource-area="equipment">设备管理</button>
+                <div class="resource-center-leaf-list">
+                  <button class="resource-center-leaf-btn" type="button" data-resource-table="item">品目表</button>
+                  <button class="resource-center-leaf-btn" type="button" data-resource-table="resource">资源表</button>
+                  <button class="resource-center-leaf-btn" type="button" data-resource-table="bom">制造BOM表</button>
+                  <button class="resource-center-leaf-btn" type="button" data-resource-table="leadtime">配套分厂提前期</button>
+                  <button class="resource-center-leaf-btn" type="button" data-resource-table="order">生产订单表</button>
+                </div>
+              </div>
+              <div class="resource-center-area">
+                <button class="resource-center-area-btn" type="button" data-resource-area="labor">人力资源</button>
+                <div class="resource-center-leaf-list">
+                  <button class="resource-center-leaf-btn" type="button" data-resource-table="attendance">出勤模式表</button>
+                  <button class="resource-center-leaf-btn" type="button" data-resource-table="calendar">日历表</button>
+                </div>
+              </div>
+            </div>
+            <div class="resource-center-factory" data-factory="sheet">
+              <button class="resource-center-nav-btn" type="button" data-factory-nav="sheet">钣金</button>
+              <div class="resource-center-area">
+                <button class="resource-center-area-btn" type="button" data-resource-area="equipment">设备管理</button>
+                <div class="resource-center-leaf-list">
+                  <button class="resource-center-leaf-btn" type="button" data-resource-table="item">品目表</button>
+                  <button class="resource-center-leaf-btn" type="button" data-resource-table="resource">资源表</button>
+                  <button class="resource-center-leaf-btn" type="button" data-resource-table="bom">制造BOM表</button>
+                  <button class="resource-center-leaf-btn" type="button" data-resource-table="leadtime">配套分厂提前期</button>
+                  <button class="resource-center-leaf-btn" type="button" data-resource-table="order">生产订单表</button>
+                </div>
+              </div>
+              <div class="resource-center-area">
+                <button class="resource-center-area-btn" type="button" data-resource-area="labor">人力资源</button>
+                <div class="resource-center-leaf-list">
+                  <button class="resource-center-leaf-btn" type="button" data-resource-table="attendance">出勤模式表</button>
+                  <button class="resource-center-leaf-btn" type="button" data-resource-table="calendar">日历表</button>
+                </div>
+              </div>
+            </div>
+            <div class="resource-center-factory" data-factory="controller">
+              <button class="resource-center-nav-btn" type="button" data-factory-nav="controller">控制器</button>
+              <div class="resource-center-area">
+                <button class="resource-center-area-btn" type="button" data-resource-area="equipment">设备管理</button>
+                <div class="resource-center-leaf-list">
+                  <button class="resource-center-leaf-btn" type="button" data-resource-table="item">品目表</button>
+                  <button class="resource-center-leaf-btn" type="button" data-resource-table="resource">资源表</button>
+                  <button class="resource-center-leaf-btn" type="button" data-resource-table="bom">制造BOM表</button>
+                  <button class="resource-center-leaf-btn" type="button" data-resource-table="leadtime">配套分厂提前期</button>
+                  <button class="resource-center-leaf-btn" type="button" data-resource-table="order">生产订单表</button>
+                </div>
+              </div>
+              <div class="resource-center-area">
+                <button class="resource-center-area-btn" type="button" data-resource-area="labor">人力资源</button>
+                <div class="resource-center-leaf-list">
+                  <button class="resource-center-leaf-btn" type="button" data-resource-table="attendance">出勤模式表</button>
+                  <button class="resource-center-leaf-btn" type="button" data-resource-table="calendar">日历表</button>
+                </div>
+              </div>
+            </div>
+            <div class="resource-center-factory" data-factory="mold">
+              <button class="resource-center-nav-btn" type="button" data-factory-nav="mold">模具管理</button>
+              <div class="resource-center-area">
+                <button class="resource-center-area-btn" type="button" data-mold-query="info">模具信息查询</button>
+              </div>
+              <div class="resource-center-area">
+                <button class="resource-center-area-btn" type="button" data-mold-query="transfer">模具调拨查询</button>
+              </div>
+            </div>
+          </nav>
+        </aside>
+
+        <section class="resource-center-workspace">
+          <div class="resource-center-content">
+            <header class="resource-workspace-head">
+              <div class="resource-title-block">
+                <h1 id="resource-table-title">品目表</h1>
+                <p id="resource-table-desc">总装 · 设备管理 · 品目表，维护品目与资源映射、产能口径和执行状态。</p>
+              </div>
+              <a href="collab.html" class="btn sm module-return-link">返回排产操作</a>
+            </header>
+
+            <div class="resource-toolbar-card" id="resource-toolbar-card">
+              <label class="resource-search-wrap">
+                <span class="sr-only">输入关键词查询</span>
+                <input id="resource-search" type="search" placeholder="输入关键词查询" autocomplete="off" />
+              </label>
+              <span class="resource-context-chip" id="resource-context-chip">总装 / 设备管理 / 品目表</span>
+            </div>
+
+            <article class="resource-data-card" id="resource-data-card">
+              <div class="resource-table-wrap">
+                <table class="resource-master-table" id="resource-master-table">
+                  <thead>
+                    <tr>
+                      <th>序号</th>
+                      <th>资源编码</th>
+                      <th>资源名称</th>
+                      <th>所属分厂</th>
+                      <th>资源类型</th>
+                      <th>状态</th>
+                      <th>产能/班</th>
+                      <th>负责人</th>
+                    </tr>
+                  </thead>
+                  <tbody id="resource-master-tbody"></tbody>
+                </table>
+              </div>
+              <footer class="resource-center-pager" aria-label="资源表分页">
+                <span id="resource-total">共 0 条</span>
+                <button type="button" id="resource-prev-page" aria-label="上一页">上一页</button>
+                <span id="resource-page-info">1 / 1</span>
+                <button type="button" id="resource-next-page" aria-label="下一页">下一页</button>
+                <span>跳至</span>
+                <input id="resource-page-input" inputmode="numeric" aria-label="跳转页码" />
+                <button type="button" id="resource-jump-page">跳转</button>
+              </footer>
+            </article>
+
+            <section class="mold-management-panels" id="mold-management-panels" hidden>
+              <article class="mold-panel" id="mold-info-panel" hidden>
+                <div class="mold-query-card">
+                  <div class="mold-card-title">模具信息查询<span>查询条件</span></div>
+                  <div class="mold-query-grid">
+                    <label class="mold-query-field">你所在的位置
+                      <select id="mold-info-location">
+                        <option value="">芜湖格力</option>
+                        <option>珠海格力总部</option>
+                        <option>安徽得高金属制品有限公司</option>
+                        <option>金湾基地</option>
+                      </select>
+                    </label>
+                    <label class="mold-query-field">工装编号
+                      <input id="mold-info-tool" placeholder="如 JM202/0013" />
+                    </label>
+                    <label class="mold-query-field">模具组
+                      <input id="mold-info-group" placeholder="输入模具组" />
+                    </label>
+                    <label class="mold-query-field">物料
+                      <input id="mold-info-material" placeholder="输入物料编码" />
+                    </label>
+                    <label class="mold-query-field">模具类型
+                      <select id="mold-info-type">
+                        <option value="">全部类型</option>
+                        <option>成形切断模</option>
+                        <option>翅片模</option>
+                        <option>冲孔模</option>
+                        <option>折弯模</option>
+                      </select>
+                    </label>
+                    <label class="mold-query-field">零件名称
+                      <input id="mold-info-part" placeholder="输入零件名称" />
+                    </label>
+                    <div class="mold-query-actions">
+                      <button class="btn sm primary" type="button" id="mold-info-query">查询</button>
+                      <button class="btn sm" type="button" id="mold-info-reset">重置</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mold-result-card">
+                  <div class="mold-result-head">
+                    <h2>模具组信息</h2>
+                    <p>查询条件: 位置: 芜湖格力</p>
+                    <p aria-label="共有 4696 套模具组，合计 5156 副模具">共有 <strong>4696</strong> 套模具组，合计 <strong>5156</strong> 副模具（工装编号）。具体模具信息如下:</p>
+                  </div>
+                  <div class="mold-kpi-grid">
+                    <div class="mold-kpi-card"><span>模具组数量</span><strong>4696</strong></div>
+                    <div class="mold-kpi-card"><span>模具数量</span><strong>5156</strong></div>
+                    <div class="mold-kpi-card"><span>需要报废</span><em>-</em></div>
+                    <div class="mold-kpi-card"><span>寿命预警</span><em>-</em></div>
+                    <div class="mold-kpi-card"><span>无需预警</span><em>-</em></div>
+                  </div>
+                  <div class="mold-subsection">
+                    <div class="mold-result-pager" id="mold-group-pager">首页 上一页 1 2 3 … 188 下一页 尾页 汇总每页：25</div>
+                    <div class="mold-table-shell">
+                      <table class="mold-table" id="mold-group-table">
+                        <thead>
+                          <tr>
+                            <th>模具组</th>
+                            <th>模具工装编号</th>
+                            <th>位置</th>
+                            <th>模具数量</th>
+                          </tr>
+                        </thead>
+                        <tbody id="mold-group-tbody"></tbody>
+                      </table>
+                    </div>
+                  </div>
+                  <div class="mold-subsection">
+                    <h3>模具信息明细</h3>
+                    <div class="mold-result-pager" id="mold-detail-pager">首页 上一页 1 2 3 … 400 下一页 尾页 明细每页：25</div>
+                    <div class="mold-table-shell">
+                      <table class="mold-table" id="mold-detail-table">
+                        <thead>
+                          <tr>
+                            <th>序号</th>
+                            <th>工装编号</th>
+                            <th>一级位置说明</th>
+                            <th>二级位置说明</th>
+                            <th>工序名称</th>
+                            <th>物料</th>
+                            <th>零件名称</th>
+                            <th>模具类型</th>
+                            <th>模具寿命</th>
+                            <th>模具预计修复时间</th>
+                            <th>模具重量</th>
+                            <th>模具组</th>
+                          </tr>
+                        </thead>
+                        <tbody id="mold-detail-tbody"></tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <article class="mold-panel" id="mold-transfer-panel" hidden>
+                <div class="mold-query-card">
+                  <div class="mold-card-title">模具调拨查询<span>查询条件</span></div>
+                  <div class="mold-query-grid">
+                    <label class="mold-query-field">你所在的位置
+                      <select id="mold-transfer-location">
+                        <option value="">芜湖格力</option>
+                        <option>珠海格力总部</option>
+                        <option>安徽得高金属制品有限公司</option>
+                        <option>金湾基地</option>
+                      </select>
+                    </label>
+                    <label class="mold-query-field">数量（预计使用数量）
+                      <input id="mold-transfer-quantity" inputmode="numeric" placeholder="如 120" />
+                    </label>
+                    <label class="mold-query-field">工装编号
+                      <input id="mold-transfer-tool" placeholder="如 JM202/0013" />
+                    </label>
+                    <label class="mold-query-field">物料
+                      <input id="mold-transfer-material" placeholder="输入物料编码" />
+                    </label>
+                    <div class="mold-query-actions">
+                      <button class="btn sm primary" type="button" id="mold-transfer-query">查询</button>
+                      <button class="btn sm" type="button" id="mold-transfer-reset">重置</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mold-result-card">
+                  <div class="mold-result-head">
+                    <h2>模具调拨查询结果</h2>
+                    <p>围绕预计使用数量、当前位置、工装编号与物料，查询可调拨模具和跨厂在途状态。</p>
+                  </div>
+                  <div class="mold-table-shell">
+                    <table class="mold-table" id="mold-transfer-table">
+                      <thead>
+                        <tr>
+                          <th>序号</th>
+                          <th>调拨单号</th>
+                          <th>当前位置</th>
+                          <th>目标位置</th>
+                          <th>预计使用数量</th>
+                          <th>工装编号</th>
+                          <th>物料</th>
+                          <th>调拨状态</th>
+                          <th>预计到达</th>
+                          <th>负责人</th>
+                        </tr>
+                      </thead>
+                      <tbody id="mold-transfer-tbody"></tbody>
+                    </table>
+                  </div>
+                  <div class="mold-result-pager" id="mold-transfer-pager">首页 上一页 1 2 3 下一页 尾页 调拨每页：25</div>
+                </div>
+              </article>
+            </section>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const factoryLabels = {
+      assembly: '总装',
+      exchanger: '两器',
+      injection: '注塑',
+      sheet: '钣金',
+      controller: '控制器'
+    };
+    const areaLabels = {
+      equipment: '设备管理',
+      labor: '人力资源'
+    };
+    const tableLabels = {
+      item: '品目表',
+      resource: '资源表',
+      bom: '制造BOM表',
+      leadtime: '配套分厂提前期',
+      order: '生产订单表',
+      attendance: '出勤模式表',
+      calendar: '日历表'
+    };
+    const moldQueryLabels = {
+      info: '模具信息查询',
+      transfer: '模具调拨查询'
+    };
+    const factoryProfiles = {
+      assembly: { label: '总装', prefix: 'ASM', capacity: 960, unit: '套', owners: ['张伟', '李娜', '王强'] },
+      exchanger: { label: '两器', prefix: 'EXC', capacity: 680, unit: '件', owners: ['冯越', '周岚', '许青'] },
+      injection: { label: '注塑', prefix: 'INJ', capacity: 520, unit: '件', owners: ['宋佳', '钱程', '吴越'] },
+      sheet: { label: '钣金', prefix: 'SHT', capacity: 720, unit: '件', owners: ['马宁', '高峰', '刘洋'] },
+      controller: { label: '控制器', prefix: 'CTL', capacity: 430, unit: '板', owners: ['何青', '林舟', '沈悦'] }
+    };
+    const tableProfiles = {
+      item: {
+        code: 'ITEM',
+        names: ['核心品目主数据', '新品试制品目池'],
+        status: ['启用', '启用'],
+        capacity: (factory, index) => `${factory.capacity + index * 36} ${factory.unit}`
+      },
+      resource: {
+        code: 'RES',
+        names: ['主线资源能力组', '瓶颈工序资源池'],
+        status: ['启用', '检修'],
+        capacity: (factory, index) => `${Math.round(factory.capacity * (0.46 + index * 0.08))} ${factory.unit}`
+      },
+      bom: {
+        code: 'BOM',
+        names: ['标准制造BOM基线', '柔性替代BOM方案'],
+        status: ['启用', '维护中'],
+        capacity: (factory, index) => `${factory.capacity + 180 + index * 48} 件`
+      },
+      leadtime: {
+        code: 'LT',
+        names: ['配套提前期规则', '跨厂齐套缓冲策略'],
+        status: ['启用', '启用'],
+        capacity: (_factory, index) => `${index + 2} 天`
+      },
+      order: {
+        code: 'PO',
+        names: ['本周生产订单池', '急单插单队列'],
+        status: ['启用', '维护中'],
+        capacity: (factory, index) => `${Math.round(factory.capacity * (1.7 + index * 0.35))} 单`
+      },
+      attendance: {
+        code: 'AT',
+        names: ['早晚班出勤模式', '旺季加班模式'],
+        status: ['启用', '启用'],
+        capacity: (factory, index) => `${Math.round(factory.capacity / 3.5) + index * 6} 人`
+      },
+      calendar: {
+        code: 'CAL',
+        names: ['标准工作日历', '周日检修日历'],
+        status: ['启用', '维护中'],
+        capacity: (_factory, index) => `${20 + (index % 8)} 天`
+      }
+    };
+    function padResourceNumber(value, length = 3) {
+      return String(value).padStart(length, '0');
+    }
+    const resourceRows = Object.entries(factoryProfiles).flatMap(([factoryKey, factory], factoryIndex) => {
+      return Object.entries(tableProfiles).flatMap(([tableKey, table], tableIndex) => {
+        return Array.from({ length: 20 }, (_, nameIndex) => {
+          const sequence = factoryIndex * 1000 + tableIndex * 100 + nameIndex + 1;
+          const owner = factory.owners[(tableIndex + nameIndex) % factory.owners.length];
+          const baseName = table.names[nameIndex % table.names.length];
+          const batch = `批次${padResourceNumber(nameIndex + 1, 2)}`;
+          return [
+            String(sequence),
+            `${factory.prefix}-${table.code}-${padResourceNumber(sequence)}`,
+            `${factory.label}${baseName}-${batch}`,
+            factory.label,
+            tableLabels[tableKey],
+            table.status[nameIndex % table.status.length],
+            table.capacity(factory, nameIndex),
+            owner
+          ];
+        });
+      });
+    });
+    const moldInfoRows = Array.from({ length: 20 }, (_, index) => {
+      const sequence = index + 1;
+      const toolCode = index === 0 ? 'LC109/9914' : `JM202/${padResourceNumber(index + 12, 4)}`;
+      const moldGroup = index === 0 ? '' : toolCode;
+      const locations = ['芜湖格力', '安徽得高金属制品有限公司', '珠海格力总部', '金湾基地'];
+      const processes = ['成形切断', '冲孔', '折弯', '翻边', '切边'];
+      const types = ['成形切断模', '翅片模', '冲孔模', '折弯模'];
+      const parts = ['蒸发器左侧板', '冷凝器翅片', '控制器底壳', '钣金支架', '导风圈'];
+      return {
+        sequence,
+        moldGroup,
+        toolCode,
+        location: locations[index % locations.length],
+        primaryLocation: index % 4 === 1 ? '芜湖格力' : locations[index % locations.length],
+        secondaryLocation: locations[(index + 1) % locations.length],
+        processName: processes[index % processes.length],
+        material: `WL${padResourceNumber(230000 + index * 17, 6)}`,
+        partName: parts[index % parts.length],
+        moldType: types[index % types.length],
+        moldLife: index % 5 === 0 ? '-' : `${86 - index}%`,
+        repairEta: index % 4 === 0 ? '-' : `2026-07-${padResourceNumber((index % 20) + 1, 2)} 14:00`,
+        weight: `${420 + index * 18}kg`,
+        quantity: index % 6 === 0 ? 2 : 1
+      };
+    });
+    const moldTransferRows = Array.from({ length: 20 }, (_, index) => {
+      const sequence = index + 1;
+      const locations = ['芜湖格力', '珠海格力总部', '安徽得高金属制品有限公司', '金湾基地'];
+      const statuses = ['待确认', '运输中', '已到达', '待出库', '已取消'];
+      const owners = ['罗敏', '周海', '陈磊', '许青', '林舟'];
+      return {
+        sequence,
+        transferNo: `MD-TF-202606${padResourceNumber(sequence, 3)}`,
+        currentLocation: locations[index % locations.length],
+        targetLocation: locations[(index + 1) % locations.length],
+        quantity: 80 + index * 12,
+        toolCode: index % 3 === 0 ? 'LC109/9914' : `JM202/${padResourceNumber(index + 21, 4)}`,
+        material: `WL${padResourceNumber(660000 + index * 23, 6)}`,
+        status: statuses[index % statuses.length],
+        eta: `2026-06-${padResourceNumber((index % 8) + 21, 2)} ${padResourceNumber((index % 5) + 9, 2)}:30`,
+        owner: owners[index % owners.length]
+      };
+    });
+    const PAGE_SIZE = 8;
+    let currentFactory = 'assembly';
+    let currentArea = 'equipment';
+    let currentTable = 'item';
+    let currentMoldQuery = 'info';
+    let currentPage = 1;
+    let moldInfoPage = 1;
+    let moldTransferPage = 1;
+
+    function currentLabelSet() {
+      return {
+        factory: factoryLabels[currentFactory] || '总装',
+        area: areaLabels[currentArea] || '设备管理',
+        table: tableLabels[currentTable] || '品目表'
+      };
+    }
+
+    function filteredRows() {
+      const labels = currentLabelSet();
+      const query = document.getElementById('resource-search')?.value.trim().toLowerCase() || '';
+      return resourceRows.filter((row) => {
+        const matchesContext = row[3] === labels.factory && row[4] === labels.table;
+        const matchesQuery = row.join(' ').toLowerCase().includes(query);
+        return matchesContext && matchesQuery;
+      });
+    }
+
+    function renderResourceRows() {
+      const tbody = document.getElementById('resource-master-tbody');
+      const total = document.getElementById('resource-total');
+      const pageInfo = document.getElementById('resource-page-info');
+      const prevBtn = document.getElementById('resource-prev-page');
+      const nextBtn = document.getElementById('resource-next-page');
+      if (!tbody) return;
+
+      const rows = filteredRows();
+      const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+      currentPage = Math.min(Math.max(currentPage, 1), totalPages);
+      const pageRows = rows.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+      tbody.innerHTML = pageRows.length
+        ? pageRows.map((row) => `
+          <tr>
+            <td>${row[0]}</td>
+            <td title="${row[1]}">${row[1]}</td>
+            <td title="${row[2]}">${row[2]}</td>
+            <td>${row[3]}</td>
+            <td>${row[4]}</td>
+            <td><span class="resource-status ${row[5] === '检修' || row[5] === '维护中' ? 'warn' : 'ok'}">${row[5]}</span></td>
+            <td>${row[6]}</td>
+            <td>${row[7]}</td>
+          </tr>
+        `).join('')
+        : '<tr><td colspan="8">当前分厂和表单暂无匹配数据</td></tr>';
+      if (total) total.textContent = `共 ${rows.length} 条`;
+      if (pageInfo) pageInfo.textContent = `${currentPage} / ${totalPages}`;
+      if (prevBtn) prevBtn.disabled = currentPage <= 1;
+      if (nextBtn) nextBtn.disabled = currentPage >= totalPages;
+    }
+
+    function includesQuery(value, query) {
+      return String(value || '').toLowerCase().includes(String(query || '').trim().toLowerCase());
+    }
+
+    function filteredMoldInfoRows() {
+      const location = document.getElementById('mold-info-location')?.value || '';
+      const toolCode = document.getElementById('mold-info-tool')?.value || '';
+      const moldGroup = document.getElementById('mold-info-group')?.value || '';
+      const material = document.getElementById('mold-info-material')?.value || '';
+      const moldType = document.getElementById('mold-info-type')?.value || '';
+      const partName = document.getElementById('mold-info-part')?.value || '';
+      return moldInfoRows.filter((row) => {
+        return includesQuery(row.location, location)
+          && includesQuery(row.toolCode, toolCode)
+          && includesQuery(row.moldGroup || row.toolCode, moldGroup)
+          && includesQuery(row.material, material)
+          && includesQuery(row.moldType, moldType)
+          && includesQuery(row.partName, partName);
+      });
+    }
+
+    function renderMoldInfoRows() {
+      const groupBody = document.getElementById('mold-group-tbody');
+      const detailBody = document.getElementById('mold-detail-tbody');
+      const groupPager = document.getElementById('mold-group-pager');
+      const detailPager = document.getElementById('mold-detail-pager');
+      if (!groupBody || !detailBody) return;
+
+      const rows = filteredMoldInfoRows();
+      const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+      moldInfoPage = Math.min(Math.max(moldInfoPage, 1), totalPages);
+      const pageRows = rows.slice((moldInfoPage - 1) * PAGE_SIZE, moldInfoPage * PAGE_SIZE);
+
+      groupBody.innerHTML = pageRows.length
+        ? pageRows.map((row) => `
+          <tr>
+            <td title="${row.moldGroup}">${row.moldGroup}</td>
+            <td title="${row.toolCode}">${row.toolCode}</td>
+            <td title="${row.location}">${row.location}</td>
+            <td>${row.quantity}</td>
+          </tr>
+        `).join('')
+        : '<tr><td colspan="4">暂无匹配模具组</td></tr>';
+      detailBody.innerHTML = pageRows.length
+        ? pageRows.map((row) => `
+          <tr>
+            <td>${row.sequence}</td>
+            <td title="${row.toolCode}">${row.toolCode}</td>
+            <td title="${row.primaryLocation}">${row.primaryLocation}</td>
+            <td title="${row.secondaryLocation}">${row.secondaryLocation}</td>
+            <td>${row.processName}</td>
+            <td title="${row.material}">${row.material}</td>
+            <td title="${row.partName}">${row.partName}</td>
+            <td>${row.moldType}</td>
+            <td>${row.moldLife}</td>
+            <td>${row.repairEta}</td>
+            <td>${row.weight}</td>
+            <td title="${row.moldGroup || row.toolCode}">${row.moldGroup || row.toolCode}</td>
+          </tr>
+        `).join('')
+        : '<tr><td colspan="12">暂无匹配模具明细</td></tr>';
+      if (groupPager) groupPager.textContent = `首页 上一页 ${moldInfoPage}/${totalPages} 下一页 尾页 汇总每页：${PAGE_SIZE} · 共 ${rows.length} 条`;
+      if (detailPager) detailPager.textContent = `首页 上一页 ${moldInfoPage}/${totalPages} 下一页 尾页 明细每页：${PAGE_SIZE} · 共 ${rows.length} 条`;
+    }
+
+    function filteredMoldTransferRows() {
+      const location = document.getElementById('mold-transfer-location')?.value || '';
+      const quantity = Number(document.getElementById('mold-transfer-quantity')?.value || 0);
+      const toolCode = document.getElementById('mold-transfer-tool')?.value || '';
+      const material = document.getElementById('mold-transfer-material')?.value || '';
+      return moldTransferRows.filter((row) => {
+        const matchesQuantity = quantity ? row.quantity >= quantity : true;
+        return includesQuery(row.currentLocation, location)
+          && matchesQuantity
+          && includesQuery(row.toolCode, toolCode)
+          && includesQuery(row.material, material);
+      });
+    }
+
+    function renderMoldTransferRows() {
+      const tbody = document.getElementById('mold-transfer-tbody');
+      const pager = document.getElementById('mold-transfer-pager');
+      if (!tbody) return;
+
+      const rows = filteredMoldTransferRows();
+      const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+      moldTransferPage = Math.min(Math.max(moldTransferPage, 1), totalPages);
+      const pageRows = rows.slice((moldTransferPage - 1) * PAGE_SIZE, moldTransferPage * PAGE_SIZE);
+      tbody.innerHTML = pageRows.length
+        ? pageRows.map((row) => `
+          <tr>
+            <td>${row.sequence}</td>
+            <td title="${row.transferNo}">${row.transferNo}</td>
+            <td title="${row.currentLocation}">${row.currentLocation}</td>
+            <td title="${row.targetLocation}">${row.targetLocation}</td>
+            <td>${row.quantity}</td>
+            <td title="${row.toolCode}">${row.toolCode}</td>
+            <td title="${row.material}">${row.material}</td>
+            <td><span class="resource-status ${row.status === '已到达' ? 'ok' : row.status === '运输中' ? '' : 'warn'}">${row.status}</span></td>
+            <td>${row.eta}</td>
+            <td>${row.owner}</td>
+          </tr>
+        `).join('')
+        : '<tr><td colspan="10">暂无匹配调拨记录</td></tr>';
+      if (pager) pager.textContent = `首页 上一页 ${moldTransferPage}/${totalPages} 下一页 尾页 调拨每页：${PAGE_SIZE} · 共 ${rows.length} 条`;
+    }
+
+    function renderCurrentMoldRows() {
+      if (currentMoldQuery === 'transfer') {
+        renderMoldTransferRows();
+      } else {
+        renderMoldInfoRows();
+      }
+    }
+
+    function syncNavState() {
+      document.querySelectorAll('.resource-center-factory').forEach((factory) => {
+        const factoryActive = factory.dataset.factory === currentFactory;
+        factory.classList.toggle('active', factoryActive);
+        factory.querySelector('.resource-center-nav-btn')?.classList.toggle('active', factoryActive);
+        factory.querySelectorAll('.resource-center-area').forEach((area) => {
+          const areaButton = area.querySelector('[data-resource-area]');
+          const areaActive = factoryActive && areaButton?.dataset.resourceArea === currentArea;
+          area.classList.toggle('active', areaActive);
+          areaButton?.classList.toggle('active', areaActive);
+          area.querySelectorAll('[data-resource-table]').forEach((leaf) => {
+            leaf.classList.toggle('active', areaActive && leaf.dataset.resourceTable === currentTable);
+          });
+          area.querySelectorAll('[data-mold-query]').forEach((button) => {
+            const moldActive = factoryActive && button.dataset.moldQuery === currentMoldQuery;
+            area.classList.toggle('active', factoryActive);
+            button.classList.toggle('active', moldActive);
+          });
+        });
+      });
+      const isMoldMode = currentFactory === 'mold';
+      const title = document.getElementById('resource-table-title');
+      const desc = document.getElementById('resource-table-desc');
+      const chip = document.getElementById('resource-context-chip');
+      const resourceToolbar = document.getElementById('resource-toolbar-card');
+      const resourceDataCard = document.getElementById('resource-data-card');
+      const moldPanels = document.getElementById('mold-management-panels');
+      const moldInfoPanel = document.getElementById('mold-info-panel');
+      const moldTransferPanel = document.getElementById('mold-transfer-panel');
+      if (resourceToolbar) resourceToolbar.hidden = isMoldMode;
+      if (resourceDataCard) resourceDataCard.hidden = isMoldMode;
+      if (moldPanels) moldPanels.hidden = !isMoldMode;
+      if (moldInfoPanel) moldInfoPanel.hidden = !(isMoldMode && currentMoldQuery === 'info');
+      if (moldTransferPanel) moldTransferPanel.hidden = !(isMoldMode && currentMoldQuery === 'transfer');
+      if (isMoldMode) {
+        const moldTitle = moldQueryLabels[currentMoldQuery] || '模具信息查询';
+        if (title) title.textContent = moldTitle;
+        if (desc) desc.textContent = `模具管理 · ${moldTitle}，查询模具组、工装编号、位置和跨厂调拨状态。`;
+        if (chip) chip.textContent = `模具管理 / ${moldTitle}`;
+      } else {
+        const labels = currentLabelSet();
+        if (title) title.textContent = labels.table;
+        if (desc) desc.textContent = `${labels.factory} · ${labels.area} · ${labels.table}，维护资源主数据、产能口径和执行状态。`;
+        if (chip) chip.textContent = `${labels.factory} / ${labels.area} / ${labels.table}`;
+      }
+    }
+
+    function selectResourceContext(options = {}) {
+      if (options.factory) currentFactory = options.factory;
+      if (options.area) currentArea = options.area;
+      if (options.table) currentTable = options.table;
+      if (currentArea === 'labor' && !['attendance', 'calendar'].includes(currentTable)) currentTable = 'attendance';
+      if (currentArea === 'equipment' && ['attendance', 'calendar'].includes(currentTable)) currentTable = 'item';
+      currentPage = 1;
+      syncNavState();
+      renderResourceRows();
+    }
+
+    function selectMoldQuery(query = 'info') {
+      currentFactory = 'mold';
+      currentMoldQuery = ['info', 'transfer'].includes(query) ? query : 'info';
+      moldInfoPage = 1;
+      moldTransferPage = 1;
+      syncNavState();
+      renderCurrentMoldRows();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('[data-factory-nav]').forEach((button) => {
+        button.addEventListener('click', () => {
+          if (button.dataset.factoryNav === 'mold') {
+            selectMoldQuery('info');
+            return;
+          }
+          selectResourceContext({ factory: button.dataset.factoryNav, area: 'equipment', table: 'item' });
+        });
+      });
+      document.querySelectorAll('[data-resource-area]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const factory = button.closest('.resource-center-factory')?.dataset.factory;
+          const area = button.dataset.resourceArea;
+          selectResourceContext({ factory, area, table: area === 'labor' ? 'attendance' : 'item' });
+        });
+      });
+      document.querySelectorAll('[data-resource-table]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const factory = button.closest('.resource-center-factory')?.dataset.factory;
+          const area = button.closest('.resource-center-area')?.querySelector('[data-resource-area]')?.dataset.resourceArea;
+          selectResourceContext({ factory, area, table: button.dataset.resourceTable });
+        });
+      });
+      document.querySelectorAll('[data-mold-query]').forEach((button) => {
+        button.addEventListener('click', () => selectMoldQuery(button.dataset.moldQuery));
+      });
+      document.getElementById('resource-search')?.addEventListener('input', () => {
+        currentPage = 1;
+        renderResourceRows();
+      });
+      document.getElementById('resource-prev-page')?.addEventListener('click', () => {
+        currentPage -= 1;
+        renderResourceRows();
+      });
+      document.getElementById('resource-next-page')?.addEventListener('click', () => {
+        currentPage += 1;
+        renderResourceRows();
+      });
+      document.getElementById('resource-jump-page')?.addEventListener('click', () => {
+        const next = Number(document.getElementById('resource-page-input')?.value || 1);
+        currentPage = Number.isFinite(next) ? next : 1;
+        renderResourceRows();
+      });
+      document.getElementById('mold-info-query')?.addEventListener('click', () => {
+        moldInfoPage = 1;
+        renderMoldInfoRows();
+      });
+      document.getElementById('mold-info-reset')?.addEventListener('click', () => {
+        ['mold-info-tool', 'mold-info-group', 'mold-info-material', 'mold-info-type', 'mold-info-part'].forEach((id) => {
+          const field = document.getElementById(id);
+          if (field) field.value = '';
+        });
+        const location = document.getElementById('mold-info-location');
+        if (location) location.value = '';
+        moldInfoPage = 1;
+        renderMoldInfoRows();
+      });
+      document.getElementById('mold-transfer-query')?.addEventListener('click', () => {
+        moldTransferPage = 1;
+        renderMoldTransferRows();
+      });
+      document.getElementById('mold-transfer-reset')?.addEventListener('click', () => {
+        ['mold-transfer-quantity', 'mold-transfer-tool', 'mold-transfer-material'].forEach((id) => {
+          const field = document.getElementById(id);
+          if (field) field.value = '';
+        });
+        const location = document.getElementById('mold-transfer-location');
+        if (location) location.value = '';
+        moldTransferPage = 1;
+        renderMoldTransferRows();
+      });
+      syncNavState();
+      renderResourceRows();
+      renderMoldInfoRows();
+      renderMoldTransferRows();
+    });
+  </script>
+  <script src="common.js?v=20260611-single-ai-assistant"></script>
+</body>
+</html>

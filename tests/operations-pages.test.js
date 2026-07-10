@@ -83,6 +83,225 @@ test('collab uses the order management center entry and removes legacy workbench
   assert.ok(allOrdersIndex > -1, 'all preplan orders button should remain');
   assert.ok(centerIndex > allOrdersIndex, 'order management center should sit to the right of all preplan orders');
   assert.match(optimization, /orderCenterBtn\.addEventListener\('click',[\s\S]*window\.location\.href = 'order-center\.html'/);
+  assert.doesNotMatch(
+    readBetween(
+      optimization,
+      '<div class="aps-order-footer-actions">',
+      '<div class="aps-order-pager">'
+    ),
+    /id="aps-resource-center-btn"/,
+    'resource management center should not sit in the preplan order footer'
+  );
+});
+
+test('collab places resource management center at the lower-left of the resource card', () => {
+  const optimization = readHtml('aps-optimization.js');
+  const resourceMarkup = readBetween(
+    optimization,
+    '<article class="aps-upgrade-card" id="aps-resource-check-card">',
+    '<article class="aps-upgrade-card" id="aps-smart-schedule-card">'
+  );
+  const resourceListIndex = resourceMarkup.indexOf('id="aps-resource-list"');
+  const resourceCenterIndex = resourceMarkup.indexOf('id="aps-resource-center-btn"');
+  const resourceActionsIndex = resourceMarkup.indexOf('class="aps-card-bottom-actions"');
+
+  assert.match(
+    resourceMarkup,
+    /<button class="btn sm primary" id="aps-resource-center-btn">资源管理中心<\/button>/,
+    'resource management center should match the order management center button style'
+  );
+  assert.ok(resourceActionsIndex > resourceListIndex, 'resource management center actions should sit below the resource list');
+  assert.ok(resourceCenterIndex > resourceActionsIndex, 'resource management center should sit inside the lower-left action row');
+  assert.match(optimization, /resourceCenterBtn\.addEventListener\('click',[\s\S]*window\.location\.href = 'resource-center\.html'/);
+});
+
+test('resource management center mirrors the referenced standalone page', () => {
+  assert.ok(existsSync(path.join(root, 'resource-center.html')), 'resource-center.html should exist');
+  const html = readHtml('resource-center.html');
+
+  for (const label of [
+    '资源管理中心',
+    '总装',
+    '两器',
+    '注塑',
+    '钣金',
+    '控制器',
+    '模具管理',
+    '模具信息查询',
+    '模具调拨查询',
+    '返回排产操作'
+  ]) {
+    assert.match(html, new RegExp(label), `missing resource center label: ${label}`);
+  }
+
+  assert.match(html, /class="resource-center-shell"/);
+  assert.match(html, /id="resource-master-table"/);
+  assert.match(html, /id="mold-group-table"/);
+  assert.match(html, /id="mold-detail-table"/);
+  assert.match(html, /id="mold-transfer-table"/);
+  assert.match(html, /href="collab\.html" class="btn sm module-return-link">返回排产操作<\/a>/);
+});
+
+test('collab exposes schedule history beside one-click scheduling', () => {
+  const optimization = readHtml('aps-optimization.js');
+  const scheduleMarkup = readBetween(
+    optimization,
+    '<article class="aps-upgrade-card" id="aps-smart-schedule-card">',
+    '</article>'
+  );
+  const optionsIndex = scheduleMarkup.indexOf('id="aps-schedule-options"');
+  const historyIndex = scheduleMarkup.indexOf('id="aps-schedule-history-btn"');
+  const scheduleActionsIndex = scheduleMarkup.indexOf('class="aps-card-bottom-actions"');
+
+  assert.match(
+    scheduleMarkup,
+    /<button class="btn sm primary" id="aps-schedule-history-btn">排产结果<\/button>/,
+    'schedule result should match the order management center button style'
+  );
+  assert.doesNotMatch(scheduleMarkup, /排产历史/, 'the collab entry should no longer use the legacy history label');
+  assert.ok(scheduleActionsIndex > optionsIndex, 'schedule history actions should sit below the schedule options');
+  assert.ok(historyIndex > scheduleActionsIndex, 'schedule history should sit inside the lower-left action row');
+  assert.match(optimization, /scheduleHistoryBtn\.addEventListener\('click',[\s\S]*window\.location\.href = 'schedule-history\.html'/);
+});
+
+test('schedule history page mirrors the referenced scheduling snapshot layout', () => {
+  assert.ok(existsSync(path.join(root, 'schedule-history.html')), 'schedule-history.html should exist');
+  const html = readHtml('schedule-history.html');
+
+  for (const label of [
+    '排产结果',
+    '排产管理',
+    '排产规则配置',
+    '交期优先',
+    '订单明细',
+    '甘特视图',
+    '历史记录',
+    '总订单数',
+    '可排产',
+    '已排产',
+    '延期订单',
+    '排产策略'
+  ]) {
+    assert.match(html, new RegExp(label), `missing schedule history label: ${label}`);
+  }
+
+  assert.match(html, /<title>排产结果 - 格力高级计划排程系统<\/title>/);
+  assert.match(html, /class="schedule-history-shell"/);
+  assert.match(html, /\.schedule-history-shell\s*{[\s\S]*?background:\s*#0d1525/, 'schedule history should use the platform dark center shell');
+  assert.match(html, /\.schedule-history-side\s*{[\s\S]*?background:\s*#10192b/, 'schedule history sidebar should match center/sidebar styling');
+  assert.doesNotMatch(readCssRuleBody(html, '.schedule-history-shell'), /background:\s*#f3f6fa/, 'schedule history shell should not use the reference image light background');
+  assert.match(html, /data-history-id="21"/);
+  assert.match(html, /<span class="history-run-id">排产结果 ID：202607071347<\/span>/, 'visible history run ids should use the time-based result id naming');
+  assert.match(html, /current-run-badge" id="current-run-badge">当前生效: 排产结果 ID：202607071347<\/span>/, 'current run badge should use the time-based result id naming');
+  assert.doesNotMatch(html, /AST-\d{6}|resultId:/, 'schedule history should no longer use randomized AST ids');
+  assert.match(html, /function buildScheduleResultId\(record\)/, 'schedule history should derive result ids from record time');
+  assert.match(html, /function formatScheduleResultId\(record\)/, 'schedule history should format result ids through one helper');
+  assert.match(html, /return `2026\$\{month\.padStart\(2, '0'\)\}\$\{day\.padStart\(2, '0'\)\}\$\{hour\.padStart\(2, '0'\)\}\$\{minute\.padStart\(2, '0'\)\}`/, 'schedule result ids should use YYYYMMDDHHmm formatting');
+  assert.match(html, /<span class="history-run-id">\$\{formatScheduleResultId\(record\)\}<\/span>/, 'rendered history list should use the shared result id formatter');
+  assert.match(html, /current-run-badge'\)\.textContent = `当前生效: \$\{formatScheduleResultId\(record\)\}`/, 'current run badge should use the shared result id formatter');
+  assert.doesNotMatch(html, /history-run-id">#|当前生效: #/, 'old visible # run ids should be removed');
+  assert.match(html, /id="schedule-history-table"/);
+  assert.match(html, /scheduleHistoryRecords/);
+  assert.match(html, /scheduleHistoryRules/);
+  assert.match(html, /href="collab\.html"[^>]*>返回排产操作<\/a>/);
+  assert.deepEqual(readTableHeaders(html, 'schedule-history-table'), [
+    '排名',
+    '计划订单号',
+    '物料编码',
+    '成品码',
+    '订单量',
+    '计划量',
+    '壳体',
+    '冷媒',
+    '产品类型',
+    '报关日期',
+    '交货期',
+    '需求交期'
+  ]);
+});
+
+test('schedule result page keeps platform styling across toolbar, gantt, and history records', () => {
+  const html = readHtml('schedule-history.html');
+
+  assert.match(html, /<strong>排产结果<\/strong>/, 'the schedule page should use the result naming');
+  assert.match(html, /排产结果已导出 Excel/, 'result export copy should use the result naming');
+  assert.match(html, /\.schedule-history-toolbar\s*\{[\s\S]*?background:\s*#10192b/, 'toolbar should use the platform panel background');
+  assert.match(html, /\.schedule-history-toolbar\s*\{[\s\S]*?box-shadow:\s*none/, 'toolbar should avoid a separate heavy shadow treatment');
+  assert.match(html, /\.execute-btn\s*\{[\s\S]*?background:\s*#1f2937/, 'execute plan should use the platform secondary button surface');
+  assert.match(html, /\.schedule-gantt-preview\s*\{[\s\S]*?background:\s*#0b1321/, 'gantt should use the platform dark surface');
+  assert.match(html, /\.schedule-gantt-head-cell\s*\{[\s\S]*?background:\s*#17243a/, 'gantt headers should match platform table headers');
+  assert.match(html, /\.schedule-gantt-cell\s*\{[\s\S]*?background:\s*#10192b/, 'gantt cells should match platform data cards');
+  assert.match(html, /\.schedule-record-table-shell\s*\{[\s\S]*?border:\s*1px solid #2c3a51/, 'history records should use platform borders');
+  assert.match(html, /\.schedule-history-record-table\s*\{[\s\S]*?background:\s*#10192b/, 'history records should use platform panel background');
+  assert.match(html, /\.schedule-history-record-table th\s*\{[\s\S]*?background:\s*#17243a/, 'history record headers should match platform table headers');
+  assert.match(html, /\.schedule-history-record-table tbody tr:hover\s*\{[\s\S]*?background:\s*#132037/, 'history record rows should match platform hover styling');
+});
+
+test('schedule history supports strategy switching and execution flow controls', () => {
+  const html = readHtml('schedule-history.html');
+
+  assert.match(html, /data-schedule-strategy="交期优先"[^>]*class="active"/, 'delivery priority should be the default active strategy');
+  assert.match(html, /data-schedule-strategy="效率优先"/, 'efficiency priority should be clickable');
+  assert.match(html, /function setScheduleStrategy\(strategy\)/, 'strategy switch should have a state updater');
+  assert.match(html, /querySelectorAll\('\[data-schedule-strategy\]'\)/, 'strategy buttons should be wired by data attribute');
+  assert.match(html, /id="schedule-run-btn"[^>]*class="schedule-action primary"/, 'one-click scheduling should keep the primary action style');
+  assert.match(html, /id="schedule-execute-btn"[^>]*class="execute-btn"/, 'execute plan button should sit beside one-click scheduling');
+  assert.match(html, /schedule-run-btn'\)\?\.addEventListener\('click', \(\) => runScheduleExecutionFlow/, 'one-click scheduling should open the execution flow');
+  assert.match(html, /class="modal-card aps-sync-flow-card"/, 'execution flow should reuse the platform sync flow modal card');
+  assert.match(html, /id="schedule-system-flow-mask"/, 'execution flow modal mask should exist');
+  assert.match(html, /function runScheduleExecutionFlow\(/, 'schedule execution flow should have a runner');
+  assert.doesNotMatch(html, /\.rules-title::before/, 'rules title dropdown icon should be removed');
+});
+
+test('schedule history gantt view mirrors the referenced resource load matrix', () => {
+  const html = readHtml('schedule-history.html');
+
+  for (const label of [
+    '线体',
+    'CK1N04',
+    'CK1N06',
+    'PH: 240',
+    '7/8',
+    '延36',
+    '延68',
+    '90 / 5080',
+    '每日总利用率'
+  ]) {
+    assert.match(html, new RegExp(label), `missing gantt reference label: ${label}`);
+  }
+
+  assert.match(html, /class="schedule-gantt-matrix"/);
+  assert.match(html, /class="schedule-gantt-resource-row"/);
+  assert.match(html, /type:\s*'delay'/);
+  assert.match(html, /type:\s*'ahead'/);
+  assert.match(html, /class="schedule-gantt-load-bar \$\{load\.type\}"/);
+  assert.match(html, /class="schedule-gantt-tooltip"/);
+  assert.match(html, /const ganttRows = \[/, 'gantt rows should be data-driven');
+  assert.match(html, /const ganttHoverOrders = \[/, 'gantt tooltip orders should be data-driven');
+});
+
+test('schedule history records tab mirrors the referenced execution table', () => {
+  const html = readHtml('schedule-history.html');
+
+  assert.match(html, /id="schedule-history-record-table"/);
+  assert.match(html, /const scheduleExecutionRecords = \[/, 'history records should be data-driven');
+  assert.match(html, /function renderHistoryRecordsTable\(\)/, 'history records tab should render a table');
+  assert.deepEqual(readTableHeaders(html, 'schedule-history-record-table'), [
+    '#',
+    '执行时间',
+    '策略',
+    '状态',
+    '总订单',
+    '可排产',
+    '已排产',
+    '生效',
+    '执行人'
+  ]);
+  assert.match(html, /2026-07-07 13:47:59/);
+  assert.match(html, /class="history-strategy-pill"/);
+  assert.match(html, /class="history-status-pill"/);
+  assert.match(html, /class="history-effective-check"/);
+  assert.match(html, />admin</);
 });
 
 test('preplan guide mirrors pending plan orders and reveals material details on hover', () => {

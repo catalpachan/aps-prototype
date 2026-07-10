@@ -1,0 +1,1916 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>排产结果 - 格力高级计划排程系统</title>
+  <link rel="stylesheet" href="common.css" />
+  <style>
+    .schedule-history-page {
+      min-height: calc(100vh - 96px);
+    }
+
+    .schedule-history-shell {
+      display: grid;
+      grid-template-columns: 196px minmax(0, 1fr);
+      min-height: calc(100vh - 96px);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #0d1525;
+      box-shadow: 0 12px 30px rgba(2, 6, 23, 0.28);
+    }
+
+    .schedule-history-side {
+      background: #10192b;
+      color: #dbeafe;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      border-right: 1px solid #2c3a51;
+    }
+
+    .schedule-history-side-head {
+      height: 52px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 0 16px;
+      border-bottom: 1px solid #2c3a51;
+      color: #f8fafc;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .schedule-history-side-icon {
+      width: 16px;
+      height: 16px;
+      border: 2px solid #7f91ad;
+      border-radius: 50%;
+      position: relative;
+      flex: 0 0 auto;
+    }
+
+    .schedule-history-side-icon::after {
+      content: "";
+      position: absolute;
+      left: 6px;
+      top: 3px;
+      width: 5px;
+      height: 6px;
+      border-left: 2px solid #7f91ad;
+      border-bottom: 2px solid #7f91ad;
+    }
+
+    .history-run-list {
+      display: grid;
+      gap: 0;
+      padding: 10px 0;
+      overflow: auto;
+    }
+
+    .history-run-btn {
+      appearance: none;
+      border: 0;
+      width: 100%;
+      min-height: 58px;
+      border: 1px solid transparent;
+      border-radius: 7px;
+      background: transparent;
+      color: #aebdd2;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      column-gap: 10px;
+      padding: 8px 16px;
+      margin: 0 10px;
+      width: calc(100% - 20px);
+      text-align: left;
+      cursor: pointer;
+      font: inherit;
+      transition: background var(--dur-fast), color var(--dur-fast);
+    }
+
+    .history-run-btn:hover,
+    .history-run-btn.active {
+      border-color: #3b4d68;
+      background: #17243a;
+      color: #fff;
+    }
+
+    .history-run-btn.active {
+      border-color: #2f68d8;
+      background: #1d4ed8;
+    }
+
+    .history-run-main {
+      display: grid;
+      gap: 5px;
+      min-width: 0;
+    }
+
+    .history-run-id {
+      color: #dbeafe;
+      font-size: 11px;
+      font-weight: 900;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    .history-run-time {
+      color: #7f91ad;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .history-run-status {
+      justify-self: end;
+      border-radius: 5px;
+      background: rgba(16, 185, 129, 0.18);
+      border: 1px solid rgba(16, 185, 129, 0.42);
+      color: #bbf7d0;
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1;
+      padding: 6px 9px;
+      white-space: nowrap;
+    }
+
+    .schedule-history-main {
+      min-width: 0;
+      padding: 14px;
+      background: #0b1321;
+      overflow: auto;
+    }
+
+    .schedule-history-toolbar,
+    .schedule-rules-panel,
+    .schedule-detail-panel {
+      border: 1px solid #334155;
+      border-radius: 10px;
+    }
+
+    .schedule-history-toolbar {
+      background: #10192b;
+      box-shadow: none;
+    }
+
+    .schedule-rules-panel,
+    .schedule-detail-panel {
+      background: #0f172a;
+      box-shadow: 0 8px 20px rgba(2, 6, 23, 0.22);
+    }
+
+    .schedule-history-toolbar {
+      min-height: 62px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .schedule-history-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .schedule-history-title-mark {
+      width: 20px;
+      height: 18px;
+      border: 2px solid #7f91ad;
+      border-radius: 3px;
+      position: relative;
+      flex: 0 0 auto;
+    }
+
+    .schedule-history-title-mark::before,
+    .schedule-history-title-mark::after {
+      content: "";
+      position: absolute;
+      background: #7f91ad;
+    }
+
+    .schedule-history-title-mark::before {
+      left: 4px;
+      top: -6px;
+      width: 2px;
+      height: 8px;
+    }
+
+    .schedule-history-title-mark::after {
+      left: 5px;
+      right: 5px;
+      bottom: 4px;
+      height: 2px;
+      box-shadow: 0 -5px 0 #7f91ad;
+    }
+
+    .schedule-history-title strong {
+      color: #f8fafc;
+      font-size: 16px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .current-run-badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      border-radius: 6px;
+      background: #16a34a;
+      color: #fff;
+      padding: 0 9px;
+      font-size: 11px;
+      font-weight: 900;
+      white-space: nowrap;
+      box-shadow: none;
+    }
+
+    .schedule-toolbar-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .strategy-switch {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      background: #111b2d;
+      overflow: hidden;
+      min-height: 34px;
+    }
+
+    .strategy-switch button {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: #94a3b8;
+      height: 34px;
+      padding: 0 14px;
+      cursor: pointer;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .strategy-switch button + button {
+      border-left: 1px solid #334155;
+    }
+
+    .strategy-switch button.active {
+      background: #2563eb;
+      color: #fff;
+    }
+
+    .schedule-window-select,
+    .schedule-search-input {
+      height: 34px;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      background: #111b2d;
+      color: #e2e8f0;
+      padding: 0 12px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .schedule-action {
+      min-height: 34px;
+      border: 0;
+      border-radius: 8px;
+      padding: 6px 10px;
+      color: #fff;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: none;
+      transition: transform var(--dur-fast), filter var(--dur-fast), box-shadow var(--dur-fast);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+    }
+
+    .schedule-action:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.04);
+      box-shadow: 0 8px 16px rgba(2, 6, 23, 0.28);
+    }
+
+    .schedule-action.primary { background: #2563eb; }
+    .schedule-action.success { background: #16a34a; }
+    .schedule-action.ghost {
+      border: 1px solid #334155;
+      background: #111b2d;
+      color: #cbd5e1;
+      box-shadow: none;
+    }
+
+    .execute-btn {
+      min-height: 34px;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 6px 10px;
+      color: #dbeafe;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 800;
+      background: #1f2937;
+      cursor: pointer;
+      box-shadow: none;
+      transition: transform var(--dur-fast), filter var(--dur-fast), box-shadow var(--dur-fast);
+      white-space: nowrap;
+    }
+
+    .execute-btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.04);
+      border-color: #2563eb;
+      background: #17243a;
+      box-shadow: 0 8px 16px rgba(2, 6, 23, 0.28);
+    }
+
+    .aps-sync-flow-card {
+      width: min(560px, calc(100vw - 32px));
+      border-radius: 18px;
+      overflow: hidden;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.94));
+      border: 1px solid rgba(59, 130, 246, 0.22);
+      box-shadow: 0 28px 80px rgba(2, 6, 23, 0.5);
+    }
+
+    .aps-sync-flow-top {
+      padding: 18px 20px 14px;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.75);
+      background:
+        radial-gradient(circle at top right, rgba(56, 189, 248, 0.2), transparent 42%),
+        linear-gradient(135deg, rgba(30, 41, 59, 0.88), rgba(15, 23, 42, 0.96));
+    }
+
+    .aps-sync-flow-top h3 {
+      margin: 0;
+      font-size: 18px;
+      color: #e2e8f0;
+      letter-spacing: 0.2px;
+    }
+
+    .aps-sync-flow-top p {
+      margin: 8px 0 0;
+      font-size: 12px;
+      line-height: 1.6;
+      color: #94a3b8;
+    }
+
+    .aps-sync-flow-progress {
+      margin-top: 14px;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(30, 41, 59, 0.95);
+      overflow: hidden;
+    }
+
+    .aps-sync-flow-progress > span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #2563eb, #38bdf8, #7dd3fc);
+      transition: width 320ms ease;
+    }
+
+    .aps-sync-flow-list {
+      padding: 16px 20px 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .aps-sync-flow-step {
+      display: grid;
+      grid-template-columns: 28px 1fr auto;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(51, 65, 85, 0.82);
+      background: rgba(15, 23, 42, 0.88);
+      transition: transform 220ms ease, border-color 220ms ease, background 220ms ease, box-shadow 220ms ease;
+    }
+
+    .aps-sync-flow-step.waiting .aps-sync-flow-index {
+      color: #64748b;
+      border-color: rgba(71, 85, 105, 0.8);
+    }
+
+    .aps-sync-flow-step.active {
+      border-color: rgba(56, 189, 248, 0.5);
+      background: linear-gradient(135deg, rgba(8, 47, 73, 0.8), rgba(15, 23, 42, 0.94));
+      box-shadow: 0 12px 28px rgba(8, 47, 73, 0.18);
+      transform: translateY(-1px);
+    }
+
+    .aps-sync-flow-step.done {
+      border-color: rgba(34, 197, 94, 0.35);
+      background: linear-gradient(135deg, rgba(5, 46, 22, 0.68), rgba(15, 23, 42, 0.94));
+    }
+
+    .aps-sync-flow-index {
+      width: 28px;
+      height: 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      border: 1px solid rgba(125, 211, 252, 0.35);
+      color: #7dd3fc;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .aps-sync-flow-step.done .aps-sync-flow-index {
+      color: #bbf7d0;
+      border-color: rgba(34, 197, 94, 0.35);
+    }
+
+    .aps-sync-flow-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: #e2e8f0;
+    }
+
+    .aps-sync-flow-meta {
+      margin-top: 4px;
+      font-size: 11px;
+      color: #94a3b8;
+    }
+
+    .aps-sync-flow-status {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(71, 85, 105, 0.85);
+      color: #94a3b8;
+      background: rgba(15, 23, 42, 0.92);
+    }
+
+    .aps-sync-flow-step.active .aps-sync-flow-status {
+      color: #e0f2fe;
+      border-color: rgba(56, 189, 248, 0.4);
+      background: rgba(8, 47, 73, 0.7);
+    }
+
+    .aps-sync-flow-step.done .aps-sync-flow-status {
+      color: #bbf7d0;
+      border-color: rgba(34, 197, 94, 0.35);
+      background: rgba(5, 46, 22, 0.7);
+    }
+
+    .aps-sync-flow-foot {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 20px 18px;
+    }
+
+    .aps-sync-flow-note {
+      font-size: 12px;
+      line-height: 1.6;
+      color: #94a3b8;
+    }
+
+    .schedule-rules-panel {
+      margin-bottom: 14px;
+      overflow: hidden;
+    }
+
+    .rules-head {
+      min-height: 46px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 0 16px;
+      border-bottom: 1px solid #334155;
+      flex-wrap: wrap;
+    }
+
+    .rules-title {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: #e2e8f0;
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .rules-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .rule-count {
+      min-height: 24px;
+      border-radius: 6px;
+      padding: 0 10px;
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid #334155;
+      background: #111b2d;
+      color: #94a3b8;
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .rule-count.enabled {
+      border-color: rgba(34, 197, 94, 0.42);
+      background: rgba(34, 197, 94, 0.12);
+      color: #86efac;
+    }
+
+    .rules-chip-wrap {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      flex-wrap: wrap;
+      padding: 12px 16px 14px;
+    }
+
+    .rule-chip {
+      min-height: 25px;
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid rgba(96, 165, 250, 0.34);
+      border-radius: 5px;
+      background: rgba(37, 99, 235, 0.14);
+      color: #bfdbfe;
+      padding: 0 9px;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .rule-chip.is-disabled {
+      border-color: #334155;
+      background: #111b2d;
+      color: #94a3b8;
+    }
+
+    .schedule-kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(150px, 1fr));
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .schedule-kpi {
+      min-height: 94px;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      background: #111b2d;
+      display: grid;
+      place-items: center;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .schedule-kpi.ok {
+      border-color: rgba(34, 197, 94, 0.42);
+      background: rgba(34, 197, 94, 0.12);
+    }
+
+    .schedule-kpi.info {
+      border-color: rgba(96, 165, 250, 0.45);
+      background: rgba(37, 99, 235, 0.16);
+    }
+
+    .schedule-kpi.danger {
+      border-color: rgba(248, 113, 113, 0.42);
+      background: rgba(127, 29, 29, 0.2);
+    }
+
+    .schedule-kpi-value {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 6px;
+      color: #f8fafc;
+      font-size: 28px;
+      line-height: 1;
+      font-weight: 900;
+    }
+
+    .schedule-kpi.ok .schedule-kpi-value { color: #16a34a; }
+    .schedule-kpi.info .schedule-kpi-value { color: #2563eb; }
+    .schedule-kpi.danger .schedule-kpi-value { color: #dc2626; }
+
+    .schedule-kpi-sub {
+      color: #94a3b8;
+      font-size: 13px;
+      font-weight: 800;
+      margin-top: 8px;
+    }
+
+    .schedule-kpi-rate {
+      color: #4baf63;
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .schedule-detail-panel {
+      overflow: hidden;
+    }
+
+    .schedule-tabs {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      min-height: 58px;
+      padding: 0 16px;
+      border-bottom: 1px solid #334155;
+      overflow-x: auto;
+    }
+
+    .schedule-tab-btn {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: #cbd5e1;
+      height: 58px;
+      cursor: pointer;
+      font: inherit;
+      font-size: 14px;
+      font-weight: 900;
+      white-space: nowrap;
+      position: relative;
+    }
+
+    .schedule-tab-btn.active {
+      color: #60a5fa;
+    }
+
+    .schedule-tab-btn.active::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 3px;
+      border-radius: 999px 999px 0 0;
+      background: #2563eb;
+    }
+
+    .schedule-table-tools {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px 10px;
+      flex-wrap: wrap;
+    }
+
+    .schedule-filter-tabs {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid #334155;
+      border-radius: 7px;
+      background: #111b2d;
+      overflow: hidden;
+    }
+
+    .schedule-filter-tabs button {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: #94a3b8;
+      height: 30px;
+      padding: 0 13px;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .schedule-filter-tabs button + button {
+      border-left: 1px solid #334155;
+    }
+
+    .schedule-filter-tabs button.active {
+      background: #1d4ed8;
+      color: #fff;
+    }
+
+    .schedule-search-input {
+      width: min(420px, 100%);
+      height: 30px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .schedule-table-shell {
+      margin: 0 16px 16px;
+      border: 1px solid #334155;
+      border-radius: 7px;
+      overflow: auto;
+      background: #0f172a;
+      min-height: 400px;
+    }
+
+    .schedule-history-table {
+      width: 100%;
+      min-width: 1500px;
+      border-collapse: collapse;
+    }
+
+    .schedule-history-table th,
+    .schedule-history-table td {
+      border-right: 1px solid #243246;
+      border-bottom: 1px solid #243246;
+      padding: 13px 14px;
+      text-align: left;
+      color: #d1d5db;
+      font-size: 13px;
+      line-height: 1.45;
+      white-space: nowrap;
+    }
+
+    .schedule-history-table th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: #172033;
+      color: #dbe5f7;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .schedule-history-table th:first-child,
+    .schedule-history-table td:first-child {
+      text-align: center;
+      width: 72px;
+    }
+
+    .schedule-history-table th:last-child,
+    .schedule-history-table td:last-child {
+      border-right: 0;
+    }
+
+    .schedule-history-table tbody tr:hover {
+      background: rgba(37, 99, 235, 0.14);
+    }
+
+    .schedule-history-table .key {
+      color: #93c5fd;
+      font-weight: 800;
+    }
+
+    .schedule-history-table .plan-qty {
+      color: #f97316;
+      font-weight: 900;
+      text-decoration: underline;
+      text-decoration-style: dotted;
+      text-underline-offset: 4px;
+    }
+
+    .schedule-tab-panel {
+      display: none;
+      padding: 16px;
+    }
+
+    .schedule-tab-panel.active {
+      display: block;
+    }
+
+    .schedule-gantt-preview {
+      border: 1px solid #334155;
+      border-radius: 10px;
+      overflow: auto;
+      background: #0b1321;
+    }
+
+    .schedule-gantt-matrix {
+      min-width: 980px;
+      display: grid;
+      grid-template-columns: 112px repeat(2, minmax(360px, 1fr));
+      color: #cbd5e1;
+      background: #0b1321;
+    }
+
+    .schedule-gantt-resource-row {
+      display: contents;
+    }
+
+    .schedule-gantt-cell,
+    .schedule-gantt-line-cell,
+    .schedule-gantt-head-cell,
+    .schedule-gantt-utilization-label {
+      border-right: 1px solid #23334b;
+      border-bottom: 1px solid #23334b;
+      min-height: 86px;
+      background: #10192b;
+    }
+
+    .schedule-gantt-head-cell {
+      min-height: 46px;
+      display: grid;
+      place-items: center;
+      color: #f8fafc;
+      font-size: 13px;
+      font-weight: 900;
+      background: #17243a;
+    }
+
+    .schedule-gantt-line-cell {
+      padding: 16px 12px;
+      display: grid;
+      align-content: center;
+      gap: 8px;
+      color: #e2e8f0;
+      font-weight: 900;
+      background: #10192b;
+    }
+
+    .schedule-gantt-line-cell span {
+      color: #8ea1be;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .schedule-gantt-cell {
+      position: relative;
+      display: grid;
+      place-items: center;
+      padding: 12px;
+      background: #0b1321;
+    }
+
+    .schedule-gantt-cell.is-muted::after {
+      content: "-";
+      color: #64748b;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .schedule-gantt-load-bar {
+      position: relative;
+      width: 100%;
+      min-height: 62px;
+      border-radius: 7px;
+      display: grid;
+      place-items: center;
+      gap: 3px;
+      padding: 8px 10px;
+      overflow: visible;
+      font-weight: 900;
+    }
+
+    .schedule-gantt-load-bar::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 7px;
+      bottom: 7px;
+      width: 5px;
+      border-radius: 999px;
+    }
+
+    .schedule-gantt-load-bar.delay {
+      background: linear-gradient(90deg, rgba(127, 29, 29, 0.32), rgba(127, 29, 29, 0.08));
+      color: #dbe7f6;
+    }
+
+    .schedule-gantt-load-bar.delay::before {
+      background: #ef4444;
+    }
+
+    .schedule-gantt-load-bar.ahead {
+      background: rgba(22, 101, 52, 0.28);
+      color: #dbe7f6;
+    }
+
+    .schedule-gantt-load-bar.ahead::before {
+      background: #16a34a;
+    }
+
+    .schedule-gantt-delay-tag {
+      position: absolute;
+      left: 18px;
+      top: 9px;
+      border: 1px solid rgba(248, 113, 113, 0.42);
+      border-radius: 5px;
+      background: #0d1525;
+      color: #fca5a5;
+      padding: 2px 5px;
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .schedule-gantt-total {
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .schedule-gantt-rate {
+      font-size: 12px;
+      color: #8ea1be;
+    }
+
+    .schedule-gantt-tooltip {
+      position: absolute;
+      left: 50%;
+      top: -152px;
+      z-index: 5;
+      width: min(320px, calc(100vw - 48px));
+      border: 1px solid #3b4c67;
+      border-radius: 8px;
+      background: #111b2d;
+      box-shadow: 0 12px 24px rgba(2, 6, 23, 0.42);
+      padding: 12px 14px;
+      display: none;
+      color: #cbd5e1;
+      text-align: left;
+    }
+
+    .schedule-gantt-load-bar:hover .schedule-gantt-tooltip,
+    .schedule-gantt-load-bar:focus-within .schedule-gantt-tooltip {
+      display: block;
+    }
+
+    .schedule-gantt-tooltip h4 {
+      margin: 0 0 9px;
+      color: #f8fafc;
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .schedule-gantt-tooltip-summary,
+    .schedule-gantt-tooltip-sub {
+      font-size: 12px;
+      line-height: 1.55;
+      margin-bottom: 8px;
+    }
+
+    .schedule-gantt-tooltip-order {
+      border-top: 1px solid #23334b;
+      padding: 8px 0 0;
+      margin-top: 8px;
+      display: grid;
+      gap: 4px;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .schedule-gantt-tooltip-order strong {
+      color: #dbe7f6;
+      font-size: 13px;
+    }
+
+    .schedule-gantt-tooltip-order b {
+      justify-self: end;
+      color: #60a5fa;
+    }
+
+    .schedule-gantt-tooltip-order .is-delay {
+      color: #ef4444;
+      font-weight: 900;
+    }
+
+    .schedule-gantt-tooltip-order .is-ahead {
+      color: #16a34a;
+      font-weight: 900;
+    }
+
+    .schedule-gantt-utilization-label {
+      min-height: 54px;
+      display: grid;
+      place-items: center;
+      color: #60a5fa;
+      font-weight: 900;
+      background: #10192b;
+    }
+
+    .schedule-gantt-utilization-row {
+      min-height: 54px;
+      display: grid;
+      place-items: center;
+      margin: 8px 12px;
+      border-radius: 7px;
+      background: rgba(34, 197, 94, 0.13);
+      color: #4ade80;
+      font-size: 17px;
+      font-weight: 900;
+    }
+
+    .schedule-record-table-shell {
+      border: 1px solid #2c3a51;
+      border-radius: 10px;
+      overflow: auto;
+      background: #0b1321;
+    }
+
+    .schedule-history-record-table {
+      width: 100%;
+      min-width: 1120px;
+      border-collapse: collapse;
+      background: #10192b;
+      color: #dbe7f6;
+    }
+
+    .schedule-history-record-table th,
+    .schedule-history-record-table td {
+      border-right: 1px solid #1e2d43;
+      border-bottom: 1px solid #23334b;
+      padding: 13px 16px;
+      font-size: 14px;
+      line-height: 1.45;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .schedule-history-record-table th {
+      color: #f8fafc;
+      font-size: 15px;
+      font-weight: 900;
+      background: #17243a;
+    }
+
+    .schedule-history-record-table td:nth-child(2),
+    .schedule-history-record-table th:nth-child(2),
+    .schedule-history-record-table td:last-child,
+    .schedule-history-record-table th:last-child {
+      text-align: left;
+    }
+
+    .schedule-history-record-table tbody tr:nth-child(odd) {
+      background: #0d1525;
+    }
+
+    .schedule-history-record-table tbody tr:hover {
+      background: #132037;
+    }
+
+    .history-strategy-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 28px;
+      border: 1px solid rgb(59 130 246 / 42%);
+      border-radius: 5px;
+      color: #93c5fd;
+      background: rgb(37 99 235 / 16%);
+      padding: 0 10px;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .history-status-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 52px;
+      min-height: 28px;
+      border-radius: 5px;
+      color: #fff;
+      background: #16a34a;
+      font-size: 13px;
+      font-weight: 900;
+      box-shadow: inset 0 -1px 0 rgba(15, 23, 42, 0.12);
+    }
+
+    .history-effective-check {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #16a34a;
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .schedule-history-log {
+      display: grid;
+      gap: 10px;
+    }
+
+    .schedule-history-log-item {
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 12px 14px;
+      background: #111b2d;
+      color: #cbd5e1;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .schedule-history-log-item b {
+      color: #93c5fd;
+      margin-right: 8px;
+    }
+
+    @media (max-width: 1120px) {
+      .schedule-history-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .schedule-history-side {
+        border-right: 0;
+        border-bottom: 1px solid #2c3a51;
+      }
+
+      .history-run-list {
+        display: flex;
+        overflow-x: auto;
+        padding: 0;
+      }
+
+      .history-run-btn {
+        width: 150px;
+        min-width: 150px;
+        margin: 10px 0;
+      }
+
+      .schedule-kpi-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 720px) {
+      .aps-header-layout {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        overflow: hidden;
+      }
+
+      .aps-header-layout .brand-block {
+        min-width: 0;
+      }
+
+      .aps-header-layout .nav.aps-main-nav {
+        grid-column: auto;
+        justify-self: stretch;
+        justify-content: flex-start;
+        max-width: 100%;
+      }
+
+      .aps-header-layout .aps-header-meta {
+        justify-self: stretch;
+        flex-wrap: wrap;
+        white-space: normal;
+        width: 100%;
+        margin-left: 0;
+      }
+
+      .aps-header-meta .aps-site-switch {
+        width: 100%;
+        margin-right: 0;
+      }
+
+      .aps-header-meta .aps-site-switch .role-select {
+        width: min(220px, calc(100vw - 104px));
+      }
+
+      #app {
+        padding: 10px;
+      }
+
+      .schedule-history-main {
+        padding: 10px;
+      }
+
+      .schedule-history-toolbar,
+      .rules-head,
+      .schedule-table-tools {
+        align-items: stretch;
+      }
+
+      .schedule-toolbar-actions,
+      .strategy-switch,
+      .schedule-window-select,
+      .schedule-action,
+      .schedule-search-input {
+        width: 100%;
+      }
+
+      .strategy-switch button {
+        flex: 1 1 0;
+      }
+
+      .schedule-kpi-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="aps-header-layout">
+    <div class="brand-block">
+      <img class="header-logo" src="1c5703c9-aca0-43d1-9843-9d502cb66fd0.png" alt="APS Logo" width="143" height="44" />
+      <div class="aps-console-title">
+        <div class="aps-console-title-main">排产智能体</div>
+        <div class="aps-console-title-sub">格力高级计划排程系统</div>
+      </div>
+    </div>
+    <nav class="nav aps-main-nav" id="nav">
+      <a href="decision.html" class="nav-item">决策分析</a>
+      <a href="collab.html" class="nav-item active">排产操作</a>
+      <a href="settings.html" class="nav-item">系统设置</a>
+    </nav>
+    <div class="header-meta aps-header-meta" id="header-meta">
+      <div class="aps-site-switch">
+        <span class="aps-site-switch-label">制造基地</span>
+        <select id="hq-select" class="role-select" aria-label="基地切换">
+          <option>珠海格力总部</option>
+          <option>金湾基地</option>
+          <option>武汉基地</option>
+          <option>洛阳基地</option>
+        </select>
+      </div>
+      <span id="header-date" class="aps-clock-chip">2026-07-07 13:47:00</span>
+      <button type="button" class="aps-notify-btn" id="aps-notify-btn" aria-label="打开消息通知">
+        🔔<span class="aps-notify-badge" id="aps-notify-badge">0</span>
+      </button>
+      <div class="user-dropdown" id="user-dropdown">
+        <div class="user-dropdown-toggle" onclick="toggleUserDropdown()">
+          <div class="avatar">张</div>
+          <span class="name">张伟</span>
+          <span class="arrow">▼</span>
+        </div>
+        <div class="user-dropdown-menu">
+          <a href="settings.html?sub=profile" class="user-dropdown-item">👤 用户信息</a>
+          <a href="login.html" class="user-dropdown-item logout">🚪 退出</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="app">
+    <section class="view schedule-history-page">
+      <div class="schedule-history-shell">
+        <aside class="schedule-history-side" aria-label="排产结果列表">
+          <div class="schedule-history-side-head">
+            <span class="schedule-history-side-icon" aria-hidden="true"></span>
+            <strong>排产结果</strong>
+          </div>
+          <div class="history-run-list" id="history-run-list">
+            <button class="history-run-btn active" type="button" data-history-id="21">
+              <span class="history-run-main">
+                <span class="history-run-id">排产结果 ID：202607071347</span>
+                <span class="history-run-time">7/7 13:47</span>
+              </span>
+              <span class="history-run-status">完成</span>
+            </button>
+          </div>
+        </aside>
+
+        <section class="schedule-history-main">
+          <div class="schedule-history-toolbar">
+            <div class="schedule-history-title">
+              <span class="schedule-history-title-mark" aria-hidden="true"></span>
+              <strong>排产管理</strong>
+              <span class="current-run-badge" id="current-run-badge">当前生效: 排产结果 ID：202607071347</span>
+            </div>
+            <div class="schedule-toolbar-actions">
+              <div class="strategy-switch" aria-label="排产策略">
+                <button data-schedule-strategy="交期优先" class="active" type="button" aria-pressed="true">交期优先</button>
+                <button data-schedule-strategy="效率优先" type="button" aria-pressed="false">效率优先</button>
+              </div>
+              <select class="schedule-window-select" aria-label="排产窗口">
+                <option>未来30天</option>
+                <option>未来15天</option>
+                <option>未来60天</option>
+              </select>
+              <button id="schedule-run-btn" class="schedule-action primary" type="button">一键排产</button>
+              <button id="schedule-execute-btn" class="execute-btn" type="button">执行方案</button>
+              <button class="schedule-action success" type="button" onclick="toast('排产结果已导出 Excel')">导出 Excel</button>
+              <a class="schedule-action ghost" href="collab.html">返回排产操作</a>
+            </div>
+          </div>
+
+          <section class="schedule-rules-panel" aria-labelledby="rules-heading">
+            <div class="rules-head">
+              <div class="rules-title" id="rules-heading">排产规则配置</div>
+              <div class="rules-status">
+                <span class="rule-count enabled">已启用 10 条</span>
+                <span class="rule-count">已禁用 21 条</span>
+              </div>
+            </div>
+            <div class="rules-chip-wrap" id="rules-chip-wrap"></div>
+          </section>
+
+          <section class="schedule-kpi-grid" aria-label="排产汇总指标">
+            <div class="schedule-kpi">
+              <div>
+                <div class="schedule-kpi-value" id="kpi-total">53</div>
+                <div class="schedule-kpi-sub">总订单数</div>
+              </div>
+            </div>
+            <div class="schedule-kpi ok">
+              <div>
+                <div class="schedule-kpi-value"><span id="kpi-ready">46</span><span class="schedule-kpi-rate">(87%)</span></div>
+                <div class="schedule-kpi-sub">可排产</div>
+              </div>
+            </div>
+            <div class="schedule-kpi info">
+              <div>
+                <div class="schedule-kpi-value"><span id="kpi-scheduled">46</span><span class="schedule-kpi-rate" id="kpi-scheduled-rate">(100%)</span></div>
+                <div class="schedule-kpi-sub">已排产</div>
+              </div>
+            </div>
+            <div class="schedule-kpi danger">
+              <div>
+                <div class="schedule-kpi-value" id="kpi-delayed">24</div>
+                <div class="schedule-kpi-sub">延期订单</div>
+              </div>
+            </div>
+            <div class="schedule-kpi">
+              <div>
+                <div class="schedule-kpi-value" id="kpi-strategy">交期优先</div>
+                <div class="schedule-kpi-sub">排产策略</div>
+              </div>
+            </div>
+          </section>
+
+          <section class="schedule-detail-panel">
+            <div class="schedule-tabs" role="tablist" aria-label="排产结果详情">
+              <button class="schedule-tab-btn active" type="button" role="tab" aria-selected="true" data-schedule-tab="orders">订单明细</button>
+              <button class="schedule-tab-btn" type="button" role="tab" aria-selected="false" data-schedule-tab="gantt">甘特视图</button>
+              <button class="schedule-tab-btn" type="button" role="tab" aria-selected="false" data-schedule-tab="logs">历史记录</button>
+            </div>
+
+            <div class="schedule-tab-panel active" id="schedule-tab-orders">
+              <div class="schedule-table-tools">
+                <div class="schedule-filter-tabs" aria-label="订单状态筛选">
+                  <button class="active" type="button">全部 (53)</button>
+                  <button type="button">可排产 (46)</button>
+                  <button type="button">不可排产 (7)</button>
+                </div>
+                <input class="schedule-search-input" type="search" placeholder="搜索计划订单号 / 物料编码 / 成品码" aria-label="搜索计划订单号、物料编码或成品码" />
+              </div>
+              <div class="schedule-table-shell">
+                <table class="schedule-history-table" id="schedule-history-table">
+                  <thead>
+                    <tr>
+                      <th>排名</th>
+                      <th>计划订单号</th>
+                      <th>物料编码</th>
+                      <th>成品码</th>
+                      <th>订单量</th>
+                      <th>计划量</th>
+                      <th>壳体</th>
+                      <th>冷媒</th>
+                      <th>产品类型</th>
+                      <th>报关日期</th>
+                      <th>交货期</th>
+                      <th>需求交期</th>
+                    </tr>
+                  </thead>
+                  <tbody id="schedule-history-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="schedule-tab-panel" id="schedule-tab-gantt">
+              <div class="schedule-gantt-preview" id="schedule-gantt-preview"></div>
+            </div>
+
+            <div class="schedule-tab-panel" id="schedule-tab-logs">
+              <div class="schedule-record-table-shell">
+                <table class="schedule-history-record-table" id="schedule-history-record-table">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>执行时间</th>
+                      <th>策略</th>
+                      <th>状态</th>
+                      <th>总订单</th>
+                      <th>可排产</th>
+                      <th>已排产</th>
+                      <th>生效</th>
+                      <th>执行人</th>
+                    </tr>
+                  </thead>
+                  <tbody id="schedule-history-record-tbody">
+                    <tr>
+                      <td>21</td>
+                      <td>2026-07-07 13:47:59</td>
+                      <td><span class="history-strategy-pill">效率优先</span></td>
+                      <td><span class="history-status-pill">完成</span></td>
+                      <td>53</td>
+                      <td>46</td>
+                      <td>46</td>
+                      <td><span class="history-effective-check">✓</span></td>
+                      <td>admin</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal-mask" id="schedule-system-flow-mask">
+    <div class="modal-card aps-sync-flow-card" role="dialog" aria-modal="true" aria-labelledby="schedule-system-flow-title">
+      <div class="aps-sync-flow-top">
+        <h3 id="schedule-system-flow-title">系统执行流程</h3>
+        <p id="schedule-system-flow-desc">系统将依次完成策略确认、资源复核、计划排产与结果发布。</p>
+        <div class="aps-sync-flow-progress"><span id="schedule-system-flow-progress"></span></div>
+      </div>
+      <div class="aps-sync-flow-list" id="schedule-system-flow-steps"></div>
+      <div class="aps-sync-flow-foot">
+        <div class="aps-sync-flow-note" id="schedule-system-flow-note">准备执行排产流程...</div>
+        <button type="button" class="btn primary" id="schedule-system-flow-close" disabled>处理中</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const scheduleHistoryRules = [
+      '小批验证/试制占班约束',
+      '首次批量机型自动拆单',
+      '交期优先排序序列',
+      '提前期/排班安排时间',
+      '模具/工装可用性校验',
+      '散件/配件报关节点保障',
+      '物料齐套性验证',
+      '同编码订单合批生产',
+      '减少切换连续排产',
+      '特殊/新品独立排产通道',
+      '配套订单同步协调',
+      '效率最大化专线/专机',
+      '生产计划保密管控',
+      '物料生产运输检验周期',
+      '质量状态合格性校验',
+      '返回方案同步排产',
+      '出口订单客户/LC文件',
+      '多工作中心资源评分优选',
+      '计划连续无断层',
+      '资源产能上限约束',
+      '生产计划变更审批控制',
+      '缺料/异常分级预警响应',
+      '技术与工艺新品实现识别',
+      '实时维护制造BOM与工艺数据',
+      '滚动计划冻结与调整审批',
+      '各单位物料反馈时间窗口',
+      '采购踩点到货提前预警',
+      '物料缺料三级预警响应',
+      '停止上报时长阈值',
+      '生产计划保密管控（总装专项）',
+      '指定顺序强制优先'
+    ];
+
+    const scheduleHistoryRecords = [
+      {
+        id: 21,
+        time: '7/7 13:47',
+        status: '完成',
+        active: true,
+        metrics: { total: 53, ready: 46, readyRate: '87%', scheduled: 46, scheduledRate: '100%', delayed: 24, strategy: '交期优先' },
+        rows: [
+          ['1', 'CC0003061', 'CB617N01501_Y63060', 'CB617N01501_Y63060', '10', '126', 'AWA', 'R32', 'AYG', '1970-01-01', '2026-06-01', '2026-06-01'],
+          ['2', 'CC0003063', 'CB617N01302_Y63060', 'CB617N01302_Y63060', '10', '402', 'AWB', 'R32', 'AYG', '1970-01-01', '2026-06-01', '2026-06-01'],
+          ['3', 'CC0003065', 'CB603N10700_X64747', 'CB603N10700_X64747', '10', '345', 'AWC', 'R32', 'AWW', '1970-01-01', '2026-06-01', '2026-06-01'],
+          ['4', 'CC0003067', 'CB574N23401_Y63466', 'CB574N23401_Y63466', '10', '77', 'ATA', 'R32', 'AVP', '1970-01-01', '2026-06-01', '2026-06-01'],
+          ['5', 'CC0003070', 'CB590N03400_X92113', 'CB590N03400_X92113', '10', '236', 'ATB', 'R32', 'AVP', '1970-01-01', '2026-06-02', '2026-06-02'],
+          ['6', 'CC0003074', 'CA477N09301_X77012', 'CA477N09301_X77012', '10', '188', 'AWA', 'R410A', 'AYG', '1970-01-01', '2026-06-02', '2026-06-02'],
+          ['7', 'CC0003079', 'CA385W11400_X56087', 'CA385W11400_X56087', '10', '95', 'AWD', 'R32', 'AYM', '1970-01-01', '2026-06-03', '2026-06-03']
+        ],
+        logs: [
+          ['13:47', '排产流程执行完成，46 条可排产订单已同步到工作台。'],
+          ['13:44', '完成质量状态合格性校验与物料齐套性验证。'],
+          ['13:39', '按交期优先策略重算订单排序。']
+        ]
+      },
+      { id: 20, time: '7/7 13:47', status: '完成', metrics: { total: 51, ready: 44, readyRate: '86%', scheduled: 44, scheduledRate: '100%', delayed: 21, strategy: '交期优先' } },
+      { id: 19, time: '7/7 10:12', status: '完成', metrics: { total: 48, ready: 41, readyRate: '85%', scheduled: 41, scheduledRate: '100%', delayed: 18, strategy: '效率优先' } },
+      { id: 18, time: '7/7 9:23', status: '完成', metrics: { total: 50, ready: 43, readyRate: '86%', scheduled: 43, scheduledRate: '100%', delayed: 20, strategy: '交期优先' } },
+      { id: 17, time: '7/7 9:10', status: '完成', metrics: { total: 46, ready: 40, readyRate: '87%', scheduled: 40, scheduledRate: '100%', delayed: 17, strategy: '交期优先' } },
+      { id: 16, time: '7/1 17:10', status: '完成', metrics: { total: 42, ready: 37, readyRate: '88%', scheduled: 37, scheduledRate: '100%', delayed: 15, strategy: '效率优先' } },
+      { id: 15, time: '7/1 14:13', status: '完成', metrics: { total: 43, ready: 38, readyRate: '88%', scheduled: 38, scheduledRate: '100%', delayed: 14, strategy: '交期优先' } },
+      { id: 14, time: '7/1 14:04', status: '完成', metrics: { total: 39, ready: 35, readyRate: '90%', scheduled: 35, scheduledRate: '100%', delayed: 12, strategy: '交期优先' } },
+      { id: 13, time: '7/1 14:04', status: '完成', metrics: { total: 37, ready: 33, readyRate: '89%', scheduled: 33, scheduledRate: '100%', delayed: 11, strategy: '效率优先' } },
+      { id: 12, time: '7/1 13:59', status: '完成', metrics: { total: 36, ready: 31, readyRate: '86%', scheduled: 31, scheduledRate: '100%', delayed: 10, strategy: '交期优先' } }
+    ];
+
+    const ganttDays = ['7/7', '7/8'];
+    const ganttRows = [
+      {
+        line: 'CK1N04',
+        capacity: 'PH: 240',
+        loads: [
+          { type: 'delay', tag: '延68', total: '', rate: '', muted: false },
+          { muted: true }
+        ]
+      },
+      {
+        line: 'CK1N05',
+        capacity: 'PH: 240',
+        loads: [
+          { type: 'delay', tag: '延36', total: '', rate: '', muted: false },
+          { muted: true }
+        ]
+      },
+      {
+        line: 'CK1N06',
+        capacity: 'PH: 240',
+        loads: [
+          { type: 'delay', tag: '延36', total: '90 / 5080', rate: '2%', tooltip: true },
+          { type: 'ahead', total: '30 / 5080', rate: '1%' }
+        ]
+      },
+      {
+        line: 'CK1W05',
+        capacity: 'PH: 200',
+        loads: [
+          { type: 'delay', tag: '延36', total: '80 / 4233', rate: '2%' },
+          { muted: true }
+        ]
+      },
+      {
+        line: 'CK1W06',
+        capacity: 'PH: 200',
+        loads: [
+          { type: 'delay', tag: '延68', total: '130 / 4233', rate: '3%' },
+          { muted: true }
+        ]
+      },
+      {
+        line: 'CK1Z01',
+        capacity: 'PH: 5',
+        loads: [
+          { type: 'delay', tag: '延36', total: '60 / 105', rate: '57%' },
+          { muted: true }
+        ]
+      }
+    ];
+
+    const ganttHoverOrders = [
+      { order: 'CC0003065', material: 'CB603N10700_X64747', product: 'CB603N10700_X64747', qty: '10 台', due: '需求交期 2026-06-01 · 延期 36 天', tone: 'delay' },
+      { order: 'CC0004831', material: 'CB622N00400_200185', product: 'CB622N00400_200185', qty: '10 台', due: '需求交期 2026-07-31 · 提前 24 天', tone: 'ahead' },
+      { order: 'CC0004839', material: 'CA625N02001_X76117', product: 'CA625N02001_X76117', qty: '10 台', due: '需求交期 2026-07-30 · 提前 23 天', tone: 'ahead' }
+    ];
+
+    const scheduleExecutionRecords = [
+      { id: 21, executedAt: '2026-07-07 13:47:59', strategy: '效率优先', status: '完成', total: 53, ready: 46, scheduled: 46, effective: true, executor: 'admin' },
+      { id: 20, executedAt: '2026-07-07 13:47:52', strategy: '交期优先', status: '完成', total: 53, ready: 46, scheduled: 46, effective: true, executor: 'admin' },
+      { id: 19, executedAt: '2026-07-07 10:12:10', strategy: '交期优先', status: '完成', total: 53, ready: 46, scheduled: 46, effective: true, executor: 'admin' },
+      { id: 18, executedAt: '2026-07-07 09:23:59', strategy: '交期优先', status: '完成', total: 53, ready: 46, scheduled: 46, effective: true, executor: 'admin' },
+      { id: 17, executedAt: '2026-07-07 09:10:02', strategy: '交期优先', status: '完成', total: 53, ready: 46, scheduled: 46, effective: true, executor: 'admin' },
+      { id: 16, executedAt: '2026-07-01 17:10:52', strategy: '效率优先', status: '完成', total: 26, ready: 18, scheduled: 18, effective: true, executor: 'admin' },
+      { id: 15, executedAt: '2026-07-01 14:13:06', strategy: '效率优先', status: '完成', total: 26, ready: 18, scheduled: 18, effective: true, executor: 'admin' },
+      { id: 14, executedAt: '2026-07-01 14:04:37', strategy: '交期优先', status: '完成', total: 26, ready: 18, scheduled: 18, effective: true, executor: 'admin' },
+      { id: 13, executedAt: '2026-07-01 14:04:33', strategy: '交期优先', status: '完成', total: 32, ready: 20, scheduled: 20, effective: true, executor: 'admin' },
+      { id: 12, executedAt: '2026-07-01 13:59:50', strategy: '交期优先', status: '完成', total: 32, ready: 20, scheduled: 20, effective: true, executor: 'admin' },
+      { id: 11, executedAt: '2026-07-01 13:59:45', strategy: '交期优先', status: '完成', total: 26, ready: 18, scheduled: 18, effective: true, executor: 'admin' }
+    ];
+
+    const scheduleExecutionFlowSteps = [
+      { title: '策略确认', desc: '读取当前排产策略、规则启停状态与窗口范围。' },
+      { title: '资源复核', desc: '校验线体、班制、模具与多工作中心可用性。' },
+      { title: '计划排产', desc: '生成订单排序、合批结果和资源负荷矩阵。' },
+      { title: '结果发布', desc: '写入排产结果 ID，并同步订单明细、甘特视图和历史记录。' }
+    ];
+
+    const defaultRows = scheduleHistoryRecords[0].rows;
+    const defaultLogs = scheduleHistoryRecords[0].logs;
+    let activeHistoryId = 21;
+    let selectedScheduleStrategy = scheduleHistoryRecords[0].metrics.strategy;
+    let scheduleExecutionFlowTimer = 0;
+    const scheduleExecutionFlowState = {
+      running: false,
+      currentStep: 0,
+      title: '系统执行流程',
+      readyText: '准备执行排产流程...',
+      doneText: '排产流程执行完成，排产结果已写入历史记录。'
+    };
+
+    function buildScheduleResultId(record) {
+      const [datePart = '0/0', timePart = '0:00'] = String(record.time || '').split(/\s+/);
+      const [month = '0', day = '0'] = datePart.split('/');
+      const [hour = '0', minute = '00'] = timePart.split(':');
+      return `2026${month.padStart(2, '0')}${day.padStart(2, '0')}${hour.padStart(2, '0')}${minute.padStart(2, '0')}`;
+    }
+
+    function formatScheduleResultId(record) {
+      return `排产结果 ID：${buildScheduleResultId(record)}`;
+    }
+
+    function setScheduleStrategy(strategy) {
+      selectedScheduleStrategy = strategy;
+      document.querySelectorAll('[data-schedule-strategy]').forEach((button) => {
+        const active = button.dataset.scheduleStrategy === selectedScheduleStrategy;
+        button.classList.toggle('active', active);
+        button.setAttribute('aria-pressed', active ? 'true' : 'false');
+      });
+      const strategyTarget = document.getElementById('kpi-strategy');
+      if (strategyTarget) strategyTarget.textContent = selectedScheduleStrategy;
+    }
+
+    function clearScheduleExecutionFlow() {
+      if (scheduleExecutionFlowTimer) {
+        clearInterval(scheduleExecutionFlowTimer);
+        scheduleExecutionFlowTimer = 0;
+      }
+    }
+
+    function renderScheduleExecutionFlow() {
+      const title = document.getElementById('schedule-system-flow-title');
+      const desc = document.getElementById('schedule-system-flow-desc');
+      const list = document.getElementById('schedule-system-flow-steps');
+      const note = document.getElementById('schedule-system-flow-note');
+      const progress = document.getElementById('schedule-system-flow-progress');
+      const closeBtn = document.getElementById('schedule-system-flow-close');
+      if (!title || !desc || !list || !note || !progress || !closeBtn) return;
+
+      const doneCount = scheduleExecutionFlowState.currentStep >= scheduleExecutionFlowSteps.length
+        ? scheduleExecutionFlowSteps.length
+        : Math.max(0, scheduleExecutionFlowState.currentStep);
+      const activeIndex = scheduleExecutionFlowState.running ? scheduleExecutionFlowState.currentStep : -1;
+      const progressValue = Math.round((doneCount / scheduleExecutionFlowSteps.length) * 100);
+
+      title.textContent = scheduleExecutionFlowState.title;
+      desc.textContent = `系统将按“${selectedScheduleStrategy}”依次完成策略确认、资源复核、计划排产与结果发布。`;
+      list.innerHTML = scheduleExecutionFlowSteps.map((step, index) => {
+        const isDone = index < doneCount;
+        const isActive = index === activeIndex && scheduleExecutionFlowState.running;
+        const klass = isDone ? 'done' : isActive ? 'active' : 'waiting';
+        const status = isDone ? '已完成' : isActive ? '执行中' : '等待中';
+        const indexLabel = isDone ? '✓' : String(index + 1).padStart(2, '0');
+        return `
+          <div class="aps-sync-flow-step ${klass}">
+            <span class="aps-sync-flow-index">${indexLabel}</span>
+            <div>
+              <div class="aps-sync-flow-name">${step.title}</div>
+              <div class="aps-sync-flow-meta">${step.desc}</div>
+            </div>
+            <span class="aps-sync-flow-status">${status}</span>
+          </div>
+        `;
+      }).join('');
+
+      if (scheduleExecutionFlowState.running && scheduleExecutionFlowSteps[activeIndex]) {
+        note.textContent = `正在执行：${scheduleExecutionFlowSteps[activeIndex].title}`;
+      } else if (!scheduleExecutionFlowState.running && doneCount === scheduleExecutionFlowSteps.length) {
+        note.textContent = scheduleExecutionFlowState.doneText;
+      } else {
+        note.textContent = scheduleExecutionFlowState.readyText;
+      }
+
+      progress.style.width = `${progressValue}%`;
+      closeBtn.disabled = scheduleExecutionFlowState.running;
+      closeBtn.textContent = scheduleExecutionFlowState.running ? '处理中' : '关闭';
+    }
+
+    function runScheduleExecutionFlow(source = '一键排产') {
+      const mask = document.getElementById('schedule-system-flow-mask');
+      if (!mask) return;
+      if (scheduleExecutionFlowState.running) {
+        mask.classList.add('show');
+        return;
+      }
+
+      clearScheduleExecutionFlow();
+      scheduleExecutionFlowState.running = true;
+      scheduleExecutionFlowState.currentStep = 0;
+      scheduleExecutionFlowState.title = source === '执行方案' ? '执行方案确认' : '系统执行流程';
+      scheduleExecutionFlowState.readyText = source === '执行方案'
+        ? '准备发布当前排产方案...'
+        : '准备执行一键排产流程...';
+      scheduleExecutionFlowState.doneText = source === '执行方案'
+        ? '执行方案已发布，生效状态已同步到历史记录。'
+        : '一键排产流程执行完成，排产结果已写入历史记录。';
+      renderScheduleExecutionFlow();
+      mask.classList.add('show');
+
+      scheduleExecutionFlowTimer = setInterval(() => {
+        scheduleExecutionFlowState.currentStep += 1;
+        if (scheduleExecutionFlowState.currentStep >= scheduleExecutionFlowSteps.length) {
+          clearScheduleExecutionFlow();
+          scheduleExecutionFlowState.running = false;
+          scheduleExecutionFlowState.currentStep = scheduleExecutionFlowSteps.length;
+        }
+        renderScheduleExecutionFlow();
+      }, 620);
+    }
+
+    function renderHistoryList() {
+      const target = document.getElementById('history-run-list');
+      if (!target) return;
+      target.innerHTML = scheduleHistoryRecords.map((record) => `
+        <button class="history-run-btn${record.id === activeHistoryId ? ' active' : ''}" type="button" data-history-id="${record.id}">
+          <span class="history-run-main">
+            <span class="history-run-id">${formatScheduleResultId(record)}</span>
+            <span class="history-run-time">${record.time}</span>
+          </span>
+          <span class="history-run-status">${record.status}</span>
+        </button>
+      `).join('');
+
+      target.querySelectorAll('[data-history-id]').forEach((button) => {
+        button.addEventListener('click', () => {
+          activeHistoryId = Number(button.dataset.historyId);
+          renderScheduleSnapshot();
+        });
+      });
+    }
+
+    function getActiveRecord() {
+      return scheduleHistoryRecords.find((record) => record.id === activeHistoryId) || scheduleHistoryRecords[0];
+    }
+
+    function buildDerivedRows(record) {
+      if (record.rows) return record.rows;
+      return defaultRows.map((row, index) => {
+        const next = [...row];
+        next[0] = String(index + 1);
+        next[1] = `CC000${3000 + record.id * 3 + index}`;
+        next[5] = String(Math.max(48, Number(row[5]) - (21 - record.id) * 7));
+        return next;
+      });
+    }
+
+    function renderMetrics(record) {
+      const metrics = record.metrics;
+      document.getElementById('current-run-badge').textContent = `当前生效: ${formatScheduleResultId(record)}`;
+      document.getElementById('kpi-total').textContent = metrics.total;
+      document.getElementById('kpi-ready').textContent = metrics.ready;
+      document.querySelector('.schedule-kpi.ok .schedule-kpi-rate').textContent = `(${metrics.readyRate})`;
+      document.getElementById('kpi-scheduled').textContent = metrics.scheduled;
+      document.getElementById('kpi-scheduled-rate').textContent = `(${metrics.scheduledRate})`;
+      document.getElementById('kpi-delayed').textContent = metrics.delayed;
+      setScheduleStrategy(metrics.strategy);
+    }
+
+    function renderRules() {
+      const target = document.getElementById('rules-chip-wrap');
+      if (!target) return;
+      target.innerHTML = scheduleHistoryRules.map((rule, index) => (
+        `<span class="rule-chip${index > 9 ? ' is-disabled' : ''}">${rule}</span>`
+      )).join('');
+    }
+
+    function renderTable(record) {
+      const rows = buildDerivedRows(record);
+      const target = document.getElementById('schedule-history-tbody');
+      if (!target) return;
+      target.innerHTML = rows.map((row) => `
+        <tr>
+          <td>${row[0]}</td>
+          <td class="key">${row[1]}</td>
+          <td>${row[2]}</td>
+          <td>${row[3]}</td>
+          <td>${row[4]}</td>
+          <td class="plan-qty">${row[5]}</td>
+          <td>${row[6]}</td>
+          <td>${row[7]}</td>
+          <td>${row[8]}</td>
+          <td>${row[9]}</td>
+          <td>${row[10]}</td>
+          <td>${row[11]}</td>
+        </tr>
+      `).join('');
+    }
+
+    function renderGantt(record) {
+      const target = document.getElementById('schedule-gantt-preview');
+      if (!target) return;
+      const renderTooltip = () => `
+        <div class="schedule-gantt-tooltip">
+          <h4>2026-07-07 · CK1N06（PH 240）</h4>
+          <div class="schedule-gantt-tooltip-summary">排产合计 90 / 5080（2%） · 两班制</div>
+          <div class="schedule-gantt-tooltip-sub">订单明细（9 条）</div>
+          ${ganttHoverOrders.map((order) => `
+            <div class="schedule-gantt-tooltip-order">
+              <strong>${order.order}</strong>
+              <b>${order.qty}</b>
+              <span>${order.material}</span>
+              <span>${order.product}</span>
+              <span class="${order.tone === 'delay' ? 'is-delay' : 'is-ahead'}">${order.due}</span>
+            </div>
+          `).join('')}
+        </div>
+      `;
+      const renderLoad = (load) => {
+        if (!load || load.muted) return '<div class="schedule-gantt-cell is-muted"></div>';
+        return `
+          <div class="schedule-gantt-cell">
+            <div class="schedule-gantt-load-bar ${load.type}" tabindex="0">
+              ${load.tag ? `<span class="schedule-gantt-delay-tag">${load.tag}</span>` : ''}
+              ${load.total ? `<span class="schedule-gantt-total">${load.total}</span>` : ''}
+              ${load.rate ? `<span class="schedule-gantt-rate">${load.rate}</span>` : ''}
+              ${load.tooltip ? renderTooltip() : ''}
+            </div>
+          </div>
+        `;
+      };
+      target.innerHTML = `
+        <div class="schedule-gantt-matrix" aria-label="线体资源负荷甘特图">
+          <div class="schedule-gantt-head-cell">线体</div>
+          ${ganttDays.map((day) => `<div class="schedule-gantt-head-cell">${day}</div>`).join('')}
+          ${ganttRows.map((row) => `
+            <div class="schedule-gantt-resource-row">
+              <div class="schedule-gantt-line-cell">
+                <strong>${row.line}</strong>
+                <span>${row.capacity}</span>
+              </div>
+              ${row.loads.map(renderLoad).join('')}
+            </div>
+          `).join('')}
+          <div class="schedule-gantt-utilization-label">每日总利用率</div>
+          <div class="schedule-gantt-utilization-row">1%</div>
+          <div class="schedule-gantt-utilization-row">0%</div>
+        </div>
+      `;
+    }
+
+    function renderHistoryRecordsTable() {
+      const target = document.getElementById('schedule-history-record-tbody');
+      if (!target) return;
+      target.innerHTML = scheduleExecutionRecords.map((record) => `
+        <tr>
+          <td>${record.id}</td>
+          <td>${record.executedAt}</td>
+          <td><span class="history-strategy-pill">${record.strategy}</span></td>
+          <td><span class="history-status-pill">${record.status}</span></td>
+          <td>${record.total}</td>
+          <td>${record.ready}</td>
+          <td>${record.scheduled}</td>
+          <td>${record.effective ? '<span class="history-effective-check">✓</span>' : '-'}</td>
+          <td>${record.executor}</td>
+        </tr>
+      `).join('');
+    }
+
+    function renderScheduleSnapshot() {
+      const record = getActiveRecord();
+      renderHistoryList();
+      renderMetrics(record);
+      renderTable(record);
+      renderGantt(record);
+      renderHistoryRecordsTable();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderRules();
+      renderScheduleSnapshot();
+      document.querySelectorAll('[data-schedule-strategy]').forEach((button) => {
+        button.addEventListener('click', () => {
+          setScheduleStrategy(button.dataset.scheduleStrategy || '交期优先');
+        });
+      });
+      document.getElementById('schedule-run-btn')?.addEventListener('click', () => runScheduleExecutionFlow('一键排产'));
+      document.getElementById('schedule-execute-btn')?.addEventListener('click', () => runScheduleExecutionFlow('执行方案'));
+      document.getElementById('schedule-system-flow-close')?.addEventListener('click', () => {
+        if (scheduleExecutionFlowState.running) return;
+        document.getElementById('schedule-system-flow-mask')?.classList.remove('show');
+      });
+      document.getElementById('schedule-system-flow-mask')?.addEventListener('click', (event) => {
+        if (event.target === event.currentTarget && !scheduleExecutionFlowState.running) {
+          event.currentTarget.classList.remove('show');
+        }
+      });
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && !scheduleExecutionFlowState.running) {
+          document.getElementById('schedule-system-flow-mask')?.classList.remove('show');
+        }
+      });
+      document.querySelectorAll('[data-schedule-tab]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const tab = button.dataset.scheduleTab;
+          document.querySelectorAll('[data-schedule-tab]').forEach((tabButton) => {
+            const active = tabButton === button;
+            tabButton.classList.toggle('active', active);
+            tabButton.setAttribute('aria-selected', active ? 'true' : 'false');
+          });
+          document.querySelectorAll('.schedule-tab-panel').forEach((panel) => {
+            panel.classList.toggle('active', panel.id === `schedule-tab-${tab}`);
+          });
+        });
+      });
+    });
+  </script>
+  <script src="common.js"></script>
+</body>
+</html>
