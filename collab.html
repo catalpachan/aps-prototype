@@ -15,6 +15,11 @@
     .collab-metric-item { border: 1px solid #2f3d55; border-radius: 8px; padding: 8px; background: #111c2f; }
     .collab-metric-bar { height: 6px; border-radius: 999px; background: #223147; overflow: hidden; margin-top: 6px; }
     .collab-metric-fill { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #38bdf8 0%, #2563eb 100%); }
+    .workbench-title-group { display: inline-flex; align-items: center; gap: 10px; min-width: 0; flex-wrap: wrap; }
+    .workbench-result-state { display: inline-flex; align-items: center; gap: 8px; min-width: 0; flex-wrap: wrap; }
+    .current-run-badge { display: inline-flex; align-items: center; min-height: 24px; border-radius: 6px; background: #16a34a; color: #fff; padding: 0 9px; font-size: 11px; font-weight: 900; line-height: 1; white-space: nowrap; }
+    .workbench-unsaved-hint { display: inline-flex; align-items: center; min-height: 24px; border: 1px solid rgba(250, 204, 21, 0.38); border-radius: 6px; background: rgba(202, 138, 4, 0.16); color: #fde68a; padding: 0 9px; font-size: 11px; font-weight: 800; line-height: 1; white-space: nowrap; }
+    .workbench-unsaved-hint[hidden] { display: none; }
     .collab-right { min-width: 0; height: auto; position: static; top: auto; align-self: start; display: flex; flex-direction: column; }
     .collab-right .card-bd { flex: none; min-height: auto; display: flex; flex-direction: column; }
     .gantt-wrap { border: 1px solid #334155; border-radius: 8px; overflow: auto; max-height: 620px; background: #0d1525; }
@@ -296,7 +301,13 @@
 
         <article class="card collab-right">
           <div class="card-hd">
-            <span>可视化交互工作台</span>
+            <div class="workbench-title-group">
+              <span>可视化交互工作台</span>
+              <div class="workbench-result-state" aria-live="polite">
+                <span class="current-run-badge" id="workbench-current-run-badge">当前生效: 排产结果 ID：202607071347</span>
+                <span class="workbench-unsaved-hint" id="workbench-unsaved-hint" role="status" hidden>当前排产结果未保存执行</span>
+              </div>
+            </div>
             <div class="row">
               <button class="workbench-history-btn" id="workbench-history-btn" type="button">历史记录</button>
               <div class="view-switch" id="gantt-view-switch" aria-label="视角切换">
@@ -2095,6 +2106,7 @@
     }
 
     function executePreplan() {
+      setWorkbenchSchedulePending(false);
       document.getElementById('execute-confirm-mask')?.classList.add('show');
     }
 
@@ -2105,8 +2117,18 @@
 
     function confirmExecutePreplan() {
       closeExecuteConfirm(false);
+      setWorkbenchSchedulePending(false);
       toast('方案已执行：当前预排结果已生效');
     }
+
+    function setWorkbenchSchedulePending(pending) {
+      const hint = document.getElementById('workbench-unsaved-hint');
+      if (!hint) return;
+      hint.hidden = !pending;
+      hint.setAttribute('aria-hidden', String(!pending));
+    }
+
+    window.setWorkbenchSchedulePending = setWorkbenchSchedulePending;
 
     document.addEventListener('DOMContentLoaded', () => {
       updateDayViewDateHead();

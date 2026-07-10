@@ -793,7 +793,7 @@ header {
 }
 
 .aps-console-title-main::after {
-  content: "v3.6";
+  content: "v3.7";
   display: inline-flex;
   align-items: center;
   height: 20px;

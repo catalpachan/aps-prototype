@@ -77,6 +77,16 @@ test('site root opens the scheduling operations workspace', () => {
   assert.doesNotMatch(html, /url=decision\.html|href="decision\.html"/);
 });
 
+test('system version badge is updated to v3.7', () => {
+  const common = readHtml('common.css');
+  const optimization = readHtml('aps-optimization.js');
+
+  assert.match(common, /content:\s*"v3\.7"/);
+  assert.match(optimization, /content:\s*"v3\.7"/);
+  assert.doesNotMatch(common, /content:\s*"v3\.6"/);
+  assert.doesNotMatch(optimization, /content:\s*"v3\.6"/);
+});
+
 test('page enhancements support Cloudflare extensionless routes', () => {
   const optimization = readHtml('aps-optimization.js');
 
@@ -369,6 +379,25 @@ test('collab workbench exposes scheduling history before the date view switch', 
   assert.match(script, /function showScheduleHistory\(\)/);
   assert.match(script, /renderScheduleHistoryRecords\(\)/);
   assert.match(script, /workbench-history-btn[\s\S]*addEventListener\('click', showScheduleHistory\)/);
+});
+
+test('collab workbench shows the active result and unsaved execution hint', () => {
+  const html = readHtml('collab.html');
+  const optimization = readHtml('aps-optimization.js');
+  const [script] = readInlineScripts('collab.html').slice(-1);
+  const executePreplanBlock = readBetween(script, 'function executePreplan() {', 'function closeExecuteConfirm');
+
+  assert.match(html, /class="workbench-title-group"[\s\S]*可视化交互工作台/);
+  assert.match(html, /class="current-run-badge" id="workbench-current-run-badge">当前生效: 排产结果 ID：202607071347<\/span>/);
+  assert.match(html, /class="workbench-unsaved-hint" id="workbench-unsaved-hint"[^>]*hidden[^>]*>当前排产结果未保存执行<\/span>/);
+  assert.match(html, /\.workbench-result-state\s*\{/);
+  assert.match(html, /\.workbench-unsaved-hint\s*\{/);
+  assert.match(html, /\.workbench-unsaved-hint\[hidden\]\s*\{\s*display:\s*none/);
+  assert.match(script, /function setWorkbenchSchedulePending\(pending\)/);
+  assert.match(script, /window\.setWorkbenchSchedulePending = setWorkbenchSchedulePending/);
+  assert.match(executePreplanBlock, /setWorkbenchSchedulePending\(false\)/);
+  assert.match(script, /confirmExecutePreplan\(\)[\s\S]*setWorkbenchSchedulePending\(false\)/);
+  assert.match(optimization, /setWorkbenchSchedulePending\?\.\(true\)/);
 });
 
 test('preplan guide mirrors pending plan orders and reveals material details on hover', () => {

@@ -154,7 +154,7 @@
       }
 
       .aps-console-title-main::after {
-        content: "v3.6";
+        content: "v3.7";
         display: inline-flex;
         align-items: center;
         height: 20px;
@@ -4466,6 +4466,7 @@
     }
 
     function runSmartSchedule() {
+      window.setWorkbenchSchedulePending?.(true);
       runSystemExecutionFlow({
         title: '一键智能排产执行流程',
         descText: '系统将依次完成订单导入、可排产判断、预排排序与均衡排产。',
