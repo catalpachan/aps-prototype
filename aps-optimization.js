@@ -821,6 +821,108 @@
         color: #94a3b8;
       }
 
+      .aps-sync-flow-card.aps-schedule-flow-card {
+        width: min(640px, calc(100vw - 32px));
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.94));
+        border-color: rgba(59, 130, 246, 0.22);
+        box-shadow: 0 28px 80px rgba(2, 6, 23, 0.5);
+      }
+
+      .aps-schedule-flow-card .aps-sync-flow-top {
+        padding: 18px 20px 14px;
+        border-bottom: 1px solid rgba(51, 65, 85, 0.75);
+        background:
+          radial-gradient(circle at top right, rgba(56, 189, 248, 0.2), transparent 42%),
+          linear-gradient(135deg, rgba(30, 41, 59, 0.88), rgba(15, 23, 42, 0.96));
+      }
+
+      .aps-schedule-flow-card .aps-sync-flow-top h3 {
+        color: #e2e8f0;
+        font-size: 18px;
+      }
+
+      .aps-schedule-flow-card .aps-sync-flow-top p {
+        color: #94a3b8;
+        margin-top: 8px;
+      }
+
+      .aps-schedule-flow-card .aps-sync-flow-progress {
+        display: block;
+      }
+
+      .aps-sync-flow-list.aps-schedule-flow-list {
+        padding: 16px 20px 4px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .aps-schedule-flow-list .aps-sync-flow-step {
+        display: grid;
+        grid-template-columns: 28px 1fr auto;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 14px;
+        border-radius: 12px;
+        border: 1px solid rgba(51, 65, 85, 0.82);
+        background: rgba(15, 23, 42, 0.88);
+        text-align: left;
+      }
+
+      .aps-schedule-flow-list .aps-sync-flow-step.active {
+        border-color: rgba(56, 189, 248, 0.5);
+        background: linear-gradient(135deg, rgba(8, 47, 73, 0.8), rgba(15, 23, 42, 0.94));
+        box-shadow: 0 12px 28px rgba(8, 47, 73, 0.18);
+      }
+
+      .aps-schedule-flow-list .aps-sync-flow-step.done {
+        border-color: rgba(34, 197, 94, 0.35);
+        background: linear-gradient(135deg, rgba(5, 46, 22, 0.68), rgba(15, 23, 42, 0.94));
+      }
+
+      .aps-schedule-flow-list .aps-sync-flow-index {
+        width: 28px;
+        height: 28px;
+        border: 1px solid rgba(125, 211, 252, 0.35);
+        background: transparent;
+        color: #7dd3fc;
+        font-size: 12px;
+      }
+
+      .aps-schedule-flow-list .aps-sync-flow-step.waiting .aps-sync-flow-index {
+        color: #64748b;
+        border-color: rgba(71, 85, 105, 0.8);
+      }
+
+      .aps-schedule-flow-list .aps-sync-flow-body {
+        min-width: 0;
+      }
+
+      .aps-schedule-flow-list .aps-sync-flow-name {
+        color: #e2e8f0;
+        font-size: 14px;
+      }
+
+      .aps-schedule-flow-list .aps-sync-flow-meta {
+        margin-top: 4px;
+        color: #94a3b8;
+        font-size: 11px;
+        font-weight: 500;
+        line-height: normal;
+      }
+
+      .aps-schedule-flow-list .aps-sync-flow-status {
+        display: inline-flex;
+      }
+
+      .aps-schedule-flow-card .aps-sync-flow-foot {
+        padding: 14px 20px 18px;
+      }
+
+      .aps-schedule-flow-card .aps-sync-flow-note {
+        color: #94a3b8;
+      }
+
       .aps-schedule-tablist {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -886,6 +988,133 @@
         margin-top: 2px;
         font-size: 14px;
         line-height: 1.6;
+      }
+
+      .aps-schedule-rule-summary {
+        margin-top: 10px;
+        border: 1px solid #2f3d55;
+        border-radius: 10px;
+        background: rgba(15, 23, 42, 0.78);
+        overflow: hidden;
+      }
+
+      .aps-schedule-rule-head {
+        min-height: 42px;
+        padding: 0 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        border-bottom: 1px solid rgba(51, 65, 85, 0.72);
+      }
+
+      .aps-schedule-rule-title {
+        appearance: none;
+        border: 0;
+        background: transparent;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #e2e8f0;
+        font: inherit;
+        font-weight: 800;
+        font-size: 13px;
+        cursor: pointer;
+      }
+
+      .aps-schedule-rule-title:hover {
+        color: #bfdbfe;
+      }
+
+      .aps-schedule-rule-title:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.28);
+        border-radius: 6px;
+      }
+
+      .aps-schedule-rule-arrow {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #94a3b8;
+        font-size: 14px;
+        transition: transform 180ms ease, color 180ms ease;
+      }
+
+      .aps-schedule-rule-summary.is-open .aps-schedule-rule-arrow {
+        transform: rotate(90deg);
+        color: #93c5fd;
+      }
+
+      .aps-schedule-rule-counts {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .aps-schedule-rule-count {
+        display: inline-flex;
+        align-items: center;
+        min-height: 24px;
+        padding: 0 9px;
+        border-radius: 7px;
+        font-size: 12px;
+        font-weight: 800;
+        white-space: nowrap;
+      }
+
+      .aps-schedule-rule-count.enabled {
+        color: #86efac;
+        border: 1px solid rgba(34, 197, 94, 0.42);
+        background: rgba(22, 101, 52, 0.18);
+      }
+
+      .aps-schedule-rule-count.disabled {
+        color: #cbd5e1;
+        border: 1px solid rgba(148, 163, 184, 0.36);
+        background: rgba(71, 85, 105, 0.16);
+      }
+
+      .aps-schedule-rule-tags {
+        padding: 10px 12px 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .aps-schedule-rule-tags[hidden] {
+        display: none;
+      }
+
+      .aps-schedule-rule-summary.is-open .aps-schedule-rule-tags {
+        display: flex;
+      }
+
+      .aps-schedule-rule-chip {
+        display: inline-flex;
+        align-items: center;
+        min-height: 24px;
+        padding: 0 9px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1.2;
+        white-space: nowrap;
+      }
+
+      .aps-schedule-rule-chip.enabled {
+        color: #93c5fd;
+        border: 1px solid rgba(96, 165, 250, 0.36);
+        background: rgba(37, 99, 235, 0.13);
+      }
+
+      .aps-schedule-rule-chip.disabled {
+        color: #94a3b8;
+        border: 1px solid rgba(148, 163, 184, 0.32);
+        background: rgba(71, 85, 105, 0.12);
       }
 
       .aps-kpi-band {
@@ -1862,6 +2091,80 @@
         color: #475569 !important;
       }
 
+      [data-theme="light"] .aps-schedule-rule-summary {
+        background: #ffffff !important;
+        border-color: #e2e8f0 !important;
+        box-shadow: 0 10px 28px rgb(15 23 42 / 0.08) !important;
+      }
+
+      [data-theme="light"] .aps-schedule-rule-head {
+        border-color: #e2e8f0 !important;
+      }
+
+      [data-theme="light"] .aps-schedule-rule-title {
+        color: #1f2937 !important;
+      }
+
+      [data-theme="light"] .aps-schedule-rule-count.enabled {
+        color: #16a34a !important;
+        border-color: #bbf7d0 !important;
+        background: #f0fdf4 !important;
+      }
+
+      [data-theme="light"] .aps-schedule-rule-count.disabled {
+        color: #64748b !important;
+        border-color: #cbd5e1 !important;
+        background: #f8fafc !important;
+      }
+
+      [data-theme="light"] .aps-schedule-rule-chip.enabled {
+        color: #2563eb !important;
+        border-color: #bfdbfe !important;
+        background: #eff6ff !important;
+      }
+
+      [data-theme="light"] .aps-schedule-rule-chip.disabled {
+        color: #64748b !important;
+        border-color: #cbd5e1 !important;
+        background: #f8fafc !important;
+      }
+
+      [data-theme="light"] .aps-sync-flow-card.aps-schedule-flow-card,
+      [data-theme="light"] .aps-schedule-flow-card .aps-sync-flow-top,
+      [data-theme="light"] .aps-schedule-flow-list .aps-sync-flow-index {
+        background: var(--panel) !important;
+        background-image: none !important;
+      }
+
+      [data-theme="light"] .aps-sync-flow-card.aps-schedule-flow-card {
+        border-color: var(--line) !important;
+        box-shadow: 0 10px 28px rgb(15 23 42 / 0.08) !important;
+      }
+
+      [data-theme="light"] .aps-schedule-flow-card .aps-sync-flow-top {
+        border-color: var(--line) !important;
+      }
+
+      [data-theme="light"] .aps-schedule-flow-card .aps-sync-flow-top h3 {
+        color: var(--txt) !important;
+      }
+
+      [data-theme="light"] .aps-schedule-flow-card .aps-sync-flow-top p,
+      [data-theme="light"] .aps-schedule-flow-card .aps-sync-flow-note {
+        color: var(--muted) !important;
+      }
+
+      [data-theme="light"] .aps-schedule-flow-list .aps-sync-flow-name,
+      [data-theme="light"] .aps-schedule-flow-list .aps-sync-flow-meta,
+      [data-theme="light"] .aps-schedule-flow-list .aps-sync-flow-step.waiting .aps-sync-flow-index {
+        color: var(--txt) !important;
+      }
+
+      [data-theme="light"] .aps-schedule-flow-list .aps-sync-flow-index {
+        border-color: var(--line) !important;
+        box-shadow: none !important;
+      }
+
       [data-theme="light"] .aps-sim-select-shell.is-open .aps-sim-selectbox,
       [data-theme="light"] .aps-sim-option:hover,
       [data-theme="light"] .aps-sim-option.is-selected {
@@ -2739,6 +3042,51 @@
         padding: 0 18px 18px;
       }
 
+
+      [data-theme="light"] .aps-rule-factory-card,
+      [data-theme="light"] .aps-factory-rule-panel,
+      [data-theme="light"] .aps-unified-pool,
+      [data-theme="light"] .aps-factory-rule-card,
+      [data-theme="light"] .aps-unified-rule-card,
+      [data-theme="light"] .aps-unified-search {
+        background: var(--panel) !important;
+        background-image: none !important;
+        border-color: var(--line) !important;
+        color: var(--txt) !important;
+      }
+
+      [data-theme="light"] .aps-rule-factory-card.active {
+        background: linear-gradient(135deg, #1e3a8a, #2563eb) !important;
+        border-color: #60a5fa !important;
+        color: #fff !important;
+      }
+
+      [data-theme="light"] .aps-rule-factory-card.active .aps-rule-factory-desc {
+        color: rgba(255, 255, 255, 0.86) !important;
+      }
+
+      [data-theme="light"] .aps-rule-factory-card.active .aps-rule-factory-count {
+        background: rgba(255, 255, 255, 0.18) !important;
+        border-color: rgba(255, 255, 255, 0.32) !important;
+        color: inherit !important;
+      }
+
+      [data-theme="light"] .aps-rule-factory-title,
+      [data-theme="light"] .aps-factory-rule-title,
+      [data-theme="light"] .aps-unified-pool-title,
+      [data-theme="light"] .aps-factory-rule-name,
+      [data-theme="light"] .aps-unified-rule-name {
+        color: var(--txt) !important;
+      }
+
+      [data-theme="light"] .aps-rule-factory-desc,
+      [data-theme="light"] .aps-factory-rule-sub,
+      [data-theme="light"] .aps-unified-pool-sub,
+      [data-theme="light"] .aps-factory-rule-desc,
+      [data-theme="light"] .aps-unified-rule-desc,
+      [data-theme="light"] .aps-rule-empty-panel {
+        color: var(--muted) !important;
+      }
       [data-theme="light"] .aps-rule-table-wrap,
       [data-theme="light"] .aps-rule-factory-card,
       [data-theme="light"] .aps-factory-rule-panel,
@@ -3046,6 +3394,11 @@
         }
       }
 
+      @media (max-width: 1180px) {
+        .aps-rule-factory-grid {
+          grid-template-columns: repeat(3, minmax(150px, 1fr));
+        }
+      }
       @media (max-width: 640px) {
         .aps-rule-factory-grid,
         .aps-rule-form-grid,
@@ -3402,7 +3755,9 @@
       <article class="aps-upgrade-card" id="aps-resource-check-card">
         <h4>
           <span>全要素资源匹配预检</span>
-          <button class="btn sm warn" id="aps-resource-match-btn">执行资源匹配</button>
+          <div class="row">
+            <button class="btn sm warn" id="aps-resource-match-btn">执行资源匹配</button>
+          </div>
         </h4>
         <div class="aps-resource-list" id="aps-resource-list">
           <div class="muted">等待执行资源匹配预检...</div>
@@ -3423,6 +3778,16 @@
         <div class="aps-card-bottom-actions">
           <button class="btn sm primary" id="aps-schedule-history-btn">排产结果</button>
         </div>
+        <section class="aps-schedule-rule-summary" id="aps-schedule-rule-summary" aria-label="已配置排产规则">
+          <div class="aps-schedule-rule-head">
+            <button class="aps-schedule-rule-title" id="aps-schedule-rule-toggle" type="button" aria-expanded="false" aria-controls="aps-schedule-rule-tags">
+              <span class="aps-schedule-rule-arrow" aria-hidden="true">›</span>
+              <span>已配置排产规则</span>
+            </button>
+            <div class="aps-schedule-rule-counts" id="aps-schedule-rule-counts"></div>
+          </div>
+          <div class="aps-schedule-rule-tags" id="aps-schedule-rule-tags" hidden></div>
+        </section>
       </article>
 
     `;
@@ -3501,6 +3866,37 @@
         description: '交付、利用率与成本折中，适合常态化稳态排产。'
       }
     ];
+    const configuredScheduleRules = [
+      { label: '小批验证/试制白班约束', enabled: true },
+      { label: '首次批量机型自动拆单', enabled: true },
+      { label: '物料齐套性验证', enabled: true },
+      { label: '交期优先排产序列', enabled: true },
+      { label: '提前期/卧排排产时间', enabled: true },
+      { label: '软件/配件报关节点保障', enabled: true },
+      { label: '模具/工装可用性校验', enabled: false },
+      { label: '工艺走线可行性检查', enabled: true },
+      { label: '同编码订单合批生产', enabled: true },
+      { label: '减少切换连续排产', enabled: true },
+      { label: '配套订单同步协调', enabled: true },
+      { label: '效率最大化专线/专机', enabled: true },
+      { label: '特殊/新品独立排产通道', enabled: true },
+      { label: '出口订单客户化文件', enabled: true },
+      { label: '生产计划变更审批控制', enabled: true },
+      { label: '缺料/异常分级预警响应', enabled: true },
+      { label: '生产计划保密管控', enabled: true },
+      { label: '技术与工艺新增预识别', enabled: true },
+      { label: '实时维护制造BOM与工艺数据', enabled: true },
+      { label: '滚动计划冻结与调整审批', enabled: true },
+      { label: '各单位物料反馈时间窗口', enabled: true },
+      { label: '采购踩点到货提前预警', enabled: true },
+      { label: '物料缺料三级预警响应', enabled: true },
+      { label: '停线上报时长阈值', enabled: true },
+      { label: '生产计划保密管控（总装专项）', enabled: true },
+      { label: '质量状态合格性校验', enabled: true },
+      { label: '返包方案同步排产', enabled: false },
+      { label: '物料生产运输检验周期', enabled: false },
+      { label: '指定顺序强制优先', enabled: true }
+    ];
     let selectedScheduleMode = schedulePlans[0].mode;
 
     function ensureTaskTags() {
@@ -3577,8 +3973,11 @@
       currentStep: -1,
       timers: [],
       title: '系统执行流程',
+      descText: '系统将依次完成机台指定、批次合并、计划排产与工作台回写。',
       readyText: '准备执行排产流程...',
-      doneText: '系统执行完成，工作台已同步更新。'
+      doneText: '系统执行完成，工作台已同步更新。',
+      steps: [],
+      variant: 'default'
     };
 
     function clearOrderSyncFlowTimers() {
@@ -3710,6 +4109,7 @@
     }
 
     function renderSystemExecutionFlow() {
+      const card = document.querySelector('#aps-system-flow-mask .aps-sync-flow-card');
       const title = document.getElementById('aps-system-flow-title');
       const desc = document.getElementById('aps-system-flow-desc');
       const list = document.getElementById('aps-system-flow-steps');
@@ -3718,15 +4118,20 @@
       const closeBtn = document.getElementById('aps-system-flow-close');
       if (!title || !desc || !list || !note || !progress || !closeBtn) return;
 
-      const doneCount = systemExecutionFlowState.currentStep >= SYSTEM_EXECUTION_FLOW_STEPS.length
-        ? SYSTEM_EXECUTION_FLOW_STEPS.length
+      const steps = systemExecutionFlowState.steps.length ? systemExecutionFlowState.steps : SYSTEM_EXECUTION_FLOW_STEPS;
+      const isScheduleFlow = systemExecutionFlowState.variant === 'schedule';
+      if (card) card.classList.toggle('aps-schedule-flow-card', isScheduleFlow);
+      list.classList.toggle('aps-schedule-flow-list', isScheduleFlow);
+
+      const doneCount = systemExecutionFlowState.currentStep >= steps.length
+        ? steps.length
         : Math.max(0, systemExecutionFlowState.currentStep);
       const activeIndex = systemExecutionFlowState.running ? systemExecutionFlowState.currentStep : -1;
-      const progressValue = Math.round((doneCount / SYSTEM_EXECUTION_FLOW_STEPS.length) * 100);
+      const progressValue = Math.round((doneCount / steps.length) * 100);
 
       title.textContent = systemExecutionFlowState.title;
-      desc.textContent = '系统将依次完成机台指定、批次合并、计划排产与工作台回写。';
-      list.innerHTML = SYSTEM_EXECUTION_FLOW_STEPS.map((step, idx) => {
+      desc.textContent = systemExecutionFlowState.descText;
+      list.innerHTML = steps.map((step, idx) => {
         const isDone = idx < doneCount;
         const isActive = idx === activeIndex && systemExecutionFlowState.running;
         const status = isDone ? '已完成' : isActive ? '执行中' : '等待中';
@@ -3735,7 +4140,7 @@
         return `
           <div class="aps-sync-flow-step ${klass}">
             <span class="aps-sync-flow-index">${indexLabel}</span>
-            <div>
+            <div class="aps-sync-flow-body">
               <div class="aps-sync-flow-name">${step.title}</div>
               <div class="aps-sync-flow-meta">${step.desc}</div>
             </div>
@@ -3744,9 +4149,9 @@
         `;
       }).join('');
 
-      if (systemExecutionFlowState.running && SYSTEM_EXECUTION_FLOW_STEPS[activeIndex]) {
-        note.textContent = `正在执行：${SYSTEM_EXECUTION_FLOW_STEPS[activeIndex].title}`;
-      } else if (!systemExecutionFlowState.running && doneCount === SYSTEM_EXECUTION_FLOW_STEPS.length) {
+      if (systemExecutionFlowState.running && steps[activeIndex]) {
+        note.textContent = `正在执行：${steps[activeIndex].title}`;
+      } else if (!systemExecutionFlowState.running && doneCount === steps.length) {
         note.textContent = systemExecutionFlowState.doneText;
       } else {
         note.textContent = systemExecutionFlowState.readyText;
@@ -3772,12 +4177,15 @@
       systemExecutionFlowState.running = true;
       systemExecutionFlowState.currentStep = 0;
       systemExecutionFlowState.title = options.title || '系统执行流程';
+      systemExecutionFlowState.descText = options.descText || '系统将依次完成机台指定、批次合并、计划排产与工作台回写。';
       systemExecutionFlowState.readyText = options.readyText || '准备执行排产流程...';
       systemExecutionFlowState.doneText = options.doneText || '系统执行完成，工作台已同步更新。';
+      systemExecutionFlowState.steps = Array.isArray(options.steps) && options.steps.length ? options.steps : SYSTEM_EXECUTION_FLOW_STEPS;
+      systemExecutionFlowState.variant = options.variant || 'default';
       renderSystemExecutionFlow();
       mask.classList.add('show');
 
-      SYSTEM_EXECUTION_FLOW_STEPS.forEach((_, idx) => {
+      systemExecutionFlowState.steps.forEach((_, idx) => {
         const timer = setTimeout(() => {
           systemExecutionFlowState.currentStep = idx;
           renderSystemExecutionFlow();
@@ -3786,13 +4194,13 @@
       });
 
       const finishTimer = setTimeout(() => {
-        systemExecutionFlowState.currentStep = SYSTEM_EXECUTION_FLOW_STEPS.length;
+        systemExecutionFlowState.currentStep = systemExecutionFlowState.steps.length;
         systemExecutionFlowState.running = false;
         if (typeof options.onComplete === 'function') {
           options.onComplete();
         }
         renderSystemExecutionFlow();
-      }, SYSTEM_EXECUTION_FLOW_STEPS.length * 650 + 300);
+      }, systemExecutionFlowState.steps.length * 650 + 300);
       systemExecutionFlowState.timers.push(finishTimer);
     }
 
@@ -4009,6 +4417,41 @@
       updateScheduleSelectionHint();
     }
 
+    function renderScheduleRuleSummary() {
+      const counts = document.getElementById('aps-schedule-rule-counts');
+      const tags = document.getElementById('aps-schedule-rule-tags');
+      if (!counts || !tags) return;
+      const enabledScheduleRuleCount = configuredScheduleRules.filter((rule) => rule.enabled).length;
+      const disabledScheduleRuleCount = configuredScheduleRules.length - enabledScheduleRuleCount;
+
+      counts.innerHTML = `
+        <span class="aps-schedule-rule-count enabled">已启用 ${enabledScheduleRuleCount} 条</span>
+        <span class="aps-schedule-rule-count disabled">已禁用 ${disabledScheduleRuleCount} 条</span>
+      `;
+      tags.innerHTML = configuredScheduleRules
+        .map(
+          (rule) => `
+            <span class="aps-schedule-rule-chip ${rule.enabled ? 'enabled' : 'disabled'}">${rule.label}</span>
+          `
+        )
+        .join('');
+    }
+
+    function setScheduleRuleExpanded(expanded) {
+      const summary = document.getElementById('aps-schedule-rule-summary');
+      const toggle = document.getElementById('aps-schedule-rule-toggle');
+      const tags = document.getElementById('aps-schedule-rule-tags');
+      const isExpanded = Boolean(expanded);
+      summary?.classList.toggle('is-open', isExpanded);
+      if (toggle) {
+        toggle.setAttribute('aria-expanded', String(isExpanded));
+        toggle.title = isExpanded ? '收起已配置排产规则' : '展开已配置排产规则';
+      }
+      if (tags) {
+        tags.hidden = !isExpanded;
+      }
+    }
+
     function executeSmartSchedule() {
       const plan = getSchedulePlan(selectedScheduleMode);
       applyScheduleMode(plan.mode);
@@ -4024,9 +4467,17 @@
 
     function runSmartSchedule() {
       runSystemExecutionFlow({
-        title: '系统执行流程',
+        title: '一键智能排产执行流程',
+        descText: '系统将依次完成订单导入、可排产判断、预排排序与均衡排产。',
         readyText: '准备执行一键排产流程...',
         doneText: '一键排产流程执行完成，排产记录已更新到工作台。',
+        steps: [
+          { title: '订单导入', desc: '导入 96 条生产订单' },
+          { title: '可排产判断', desc: '判断完成：90/96 可排产' },
+          { title: '预排排序', desc: '排序完成：90 条订单' },
+          { title: '均衡排产', desc: '排产完成：90/90 条订单已排产' }
+        ],
+        variant: 'schedule',
         onComplete: executeSmartSchedule
       });
     }
@@ -4066,6 +4517,11 @@
       });
     }
     smartBtn?.addEventListener('click', runSmartSchedule);
+    document.getElementById('aps-schedule-rule-toggle')?.addEventListener('click', () => {
+      const toggle = document.getElementById('aps-schedule-rule-toggle');
+      setScheduleRuleExpanded(toggle?.getAttribute('aria-expanded') !== 'true');
+    });
+    setScheduleRuleExpanded(false);
 
     const originalRunSelfHealing = window.runSelfHealing;
     function executeSelfHealing() {
@@ -4113,6 +4569,7 @@
     ensureTaskTags();
     renderOrderTable();
     renderSmartScheduleOptions();
+    renderScheduleRuleSummary();
   }
 
   function enhanceDecisionPage() {

@@ -101,16 +101,6 @@
       font-size: 11px;
     }
     .settings-base-chip b { color: #7dd3fc; margin-left: 4px; }
-    .settings-base-side-note {
-      border: 1px dashed rgba(96, 165, 250, 0.35);
-      border-radius: 12px;
-      background: rgba(15, 23, 42, 0.62);
-      padding: 14px;
-      color: #cbd5e1;
-      font-size: 12px;
-      line-height: 1.65;
-    }
-    .settings-base-side-note strong { color: #f8fafc; display: block; margin-bottom: 6px; }
     .user-profile-panel { border: 1px solid #334155; border-radius: 14px; background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.9)); overflow: hidden; }
     .user-profile-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 18px 20px; border-bottom: 1px solid rgba(51, 65, 85, 0.75); background: linear-gradient(135deg, rgba(37, 99, 235, 0.18), rgba(14, 165, 233, 0.08)); }
     .user-profile-head-main { display: flex; align-items: center; gap: 14px; }
@@ -263,7 +253,7 @@
       <div class="resource-layout">
         <aside class="resource-sidebar">
           <div class="resource-menu">
-            <button class="resource-menu-item active" data-settings-sub="base" onclick="switchSettingsSub('base', this)">基础设置</button>
+            <button class="resource-menu-item active" data-settings-sub="base" onclick="switchSettingsSub('base', this)">规则配置</button>
             <button class="resource-menu-item" data-settings-sub="version" onclick="switchSettingsSub('version', this)">版本公告</button>
             <button class="resource-menu-item" data-settings-sub="integration" onclick="switchSettingsSub('integration', this)">系统对接</button>
             <button class="resource-menu-item" data-settings-sub="sync" onclick="switchSettingsSub('sync', this)">数据同步</button>
@@ -431,7 +421,7 @@
 
           <div class="settings-subview active" id="settings-sub-base">
             <article class="card">
-              <div class="card-hd"><span>基础设置</span><button class="btn ok" onclick="saveBaseSettings()">保存设置</button></div>
+              <div class="card-hd"><span>规则配置</span><button class="btn ok" onclick="saveBaseSettings()">保存配置</button></div>
               <div class="card-bd">
                 <div class="settings-base-page">
                   <div class="settings-base-hero-grid">
@@ -475,10 +465,6 @@
                   </div>
 
                   <div class="settings-base-layout">
-                    <div class="settings-base-side-note">
-                      <strong>配置说明</strong>
-                      基础设置用于控制系统级默认行为。顶部 4 项为可直接编辑的系统基线参数，下方继续承载约束规则、参数权重、场景包和时间尺对齐配置，便于按同一页面完成保存。
-                    </div>
                     <div id="aps-settings-upgrade-host"></div>
                   </div>
                 </div>
@@ -930,13 +916,13 @@
 
     async function saveBaseSettings() {
       const confirmed = await showConfirmDialog({
-        title: '确认保存基础设置',
-        message: '将按当前页面内容保存基础设置。是否继续？',
+        title: '确认保存规则配置',
+        message: '将按当前页面内容保存规则配置。是否继续？',
         confirmText: '确认保存',
         cancelText: '取消'
       });
       if (!confirmed) return;
-      toast('基础设置已保存');
+      toast('规则配置已保存');
     }
 
     const reportDefinitions = [
