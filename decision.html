@@ -1720,6 +1720,44 @@
       }[character]));
     }
 
+    function escapeKpiScriptArgument(value) {
+      return escapeKpiCatalogValue(JSON.stringify(String(value)));
+    }
+
+    function handleConfiguredKpiCard(metricId) {
+      const inventoryMetricIds = [
+        'inventory-turnover',
+        'inventory-days',
+        'shortage-count',
+        'overstock-rate',
+        'safety-stock-hit-rate'
+      ];
+      const planMetricIds = ['plan-completion-rate', 'plan-on-time-rate'];
+
+      if (inventoryMetricIds.includes(metricId)) {
+        openInventoryBoardPage();
+        return;
+      }
+      if (planMetricIds.includes(metricId)) {
+        openPlanCompletionPage();
+        return;
+      }
+      if (metricId === 'bottleneck-order-count') {
+        openWipOrdersPage();
+        return;
+      }
+
+      const metric = KPI_METRICS.find((item) => item.id === metricId);
+      toast(`${metric ? metric.name : '该指标'}当前仅支持看板展示。`);
+    }
+
+    function handleConfiguredKpiCardKey(event, metricId) {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        handleConfiguredKpiCard(metricId);
+      }
+    }
+
     function renderConfiguredKpiCards() {
       const container = document.getElementById('decision-kpi-cards');
       if (!container) return;
@@ -1747,7 +1785,7 @@
         const paletteClass = paletteClasses[index % paletteClasses.length];
         const icon = icons[index % icons.length];
         return `
-          <div class="kpi-card ${paletteClass}" data-kpi-id="${escapeKpiCatalogValue(metric.id)}">
+          <div class="kpi-card ${paletteClass}" data-kpi-id="${escapeKpiCatalogValue(metric.id)}" role="button" tabindex="0" aria-label="打开 ${escapeKpiCatalogValue(metric.name)}" onclick="handleConfiguredKpiCard(${escapeKpiScriptArgument(metric.id)})" onkeydown="handleConfiguredKpiCardKey(event, ${escapeKpiScriptArgument(metric.id)})">
             <div class="kpi-card-bg"></div>
             <div class="kpi-card-content">
               <div class="kpi-card-header">
