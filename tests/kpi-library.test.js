@@ -77,7 +77,8 @@ function createStorage(initialValue = null, { failWrites = false } = {}) {
   let value = initialValue;
 
   return {
-    getItem() {
+    getItem(key) {
+      assert.equal(key, KPI_LIBRARY_STORAGE_KEY);
       return value;
     },
     setItem(key, nextValue) {
