@@ -1137,6 +1137,26 @@
       min-width: 0;
     }
 
+    .decision-kpi-cards {
+      display: contents;
+    }
+
+    .decision-kpi-empty-state {
+      grid-column: 1 / -1;
+      min-height: 132px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      border: 1px dashed #475569;
+      border-radius: 16px;
+      background: rgba(15, 23, 42, 0.72);
+      color: #cbd5e1;
+      font-size: 13px;
+      line-height: 1.6;
+      text-align: center;
+    }
+
     .decision-kpi-module-note {
       font-size: 12px;
       color: #94a3b8;
@@ -1597,66 +1617,7 @@
                   </div>
                 </div>
 
-                <div class="kpi-card kpi-oee" role="button" tabindex="0" onclick="openInventoryBoardPage()" onkeydown="handleInventoryCardKey(event)">
-                  <div class="kpi-card-bg"></div>
-                  <div class="kpi-card-content">
-                    <div class="kpi-card-header">
-                      <div class="kpi-icon">📦</div>
-                      <div class="kpi-trend up">
-                        <span class="trend-arrow">↑</span>
-                        <span class="trend-value">6.4%</span>
-                      </div>
-                    </div>
-                    <div class="kpi-value" id="d-kpi-oee">5.6<span class="kpi-unit">次/月</span></div>
-                    <div class="kpi-label">库存周转率</div>
-                    <div class="kpi-sub">
-                      <span class="sub-item">今日出货 1286 台</span>
-                      <span class="sub-divider">|</span>
-                      <span class="sub-item">较上周 +6.4%</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="kpi-card kpi-plan" role="button" tabindex="0" onclick="openPlanCompletionPage()" onkeydown="handlePlanCardKey(event)">
-                  <div class="kpi-card-bg"></div>
-                  <div class="kpi-card-content">
-                    <div class="kpi-card-header">
-                      <div class="kpi-icon">📊</div>
-                      <div class="kpi-trend up">
-                        <span class="trend-arrow">↑</span>
-                        <span class="trend-value">5.3%</span>
-                      </div>
-                    </div>
-                    <div class="kpi-value" id="d-kpi-plan">92<span class="kpi-unit">/120</span></div>
-                    <div class="kpi-label">今日计划完成</div>
-                    <div class="kpi-progress">
-                      <div class="kpi-progress-bar">
-                        <div class="kpi-progress-fill" style="width:76.7%"></div>
-                      </div>
-                      <span class="kpi-progress-text">76.7%</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="kpi-card kpi-wip" role="button" tabindex="0" onclick="openWipOrdersPage()" onkeydown="handleWipCardKey(event)">
-                  <div class="kpi-card-bg"></div>
-                  <div class="kpi-card-content">
-                    <div class="kpi-card-header">
-                      <div class="kpi-icon">🏭</div>
-                      <div class="kpi-trend stable">
-                        <span class="trend-arrow">→</span>
-                        <span class="trend-value">平稳</span>
-                      </div>
-                    </div>
-                    <div class="kpi-value" id="d-kpi-wip">34</div>
-                    <div class="kpi-label">在制订单 (WIP)</div>
-                    <div class="kpi-sub">
-                      <span class="sub-item">内机 20</span>
-                      <span class="sub-divider">|</span>
-                      <span class="sub-item">外机 14</span>
-                    </div>
-                  </div>
-                </div>
+                <div id="decision-kpi-cards" class="decision-kpi-cards"></div>
 
                 <div class="kpi-card kpi-ai" id="planner-todo-entry-card" role="button" tabindex="0" onclick="openPlannerTodoPage()" onkeydown="handleTodoCardKey(event)">
                   <div class="kpi-card-bg"></div>
@@ -1713,6 +1674,7 @@
   <div id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
   <script src="common.js"></script>
+  <script src="kpi-library.js"></script>
   <script>
     // ========== AI建议系统 ==========
     const aiSuggestions = [
@@ -1748,7 +1710,66 @@
     let approvedSuggestions = [];
     let rejectedSuggestions = [];
 
+    function escapeKpiCatalogValue(value) {
+      return String(value ?? '').replace(/[&<>"']/g, (character) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      }[character]));
+    }
+
+    function renderConfiguredKpiCards() {
+      const container = document.getElementById('decision-kpi-cards');
+      if (!container) return;
+
+      const { selectedIds } = loadKpiLibraryConfig();
+      const paletteClasses = ['kpi-oee', 'kpi-plan', 'kpi-wip', 'kpi-ai'];
+      const icons = ['📦', '📊', '🏭', '📈'];
+      const trendArrows = { up: '↑', down: '↓', stable: '→' };
+      const trendLabels = { up: '上升', down: '下降', stable: '稳定' };
+      const selectedMetrics = selectedIds
+        .map((id) => KPI_METRICS.find((metric) => metric.id === id))
+        .filter(Boolean);
+
+      if (selectedMetrics.length === 0) {
+        container.innerHTML = `
+          <div class="decision-kpi-empty-state" role="status" aria-live="polite">
+            当前未选择 KPI，请前往系统设置 → 指标库选择要展示的指标。
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = selectedMetrics.map((metric, index) => {
+        const trend = trendArrows[metric.trend] ? metric.trend : 'stable';
+        const paletteClass = paletteClasses[index % paletteClasses.length];
+        const icon = icons[index % icons.length];
+        return `
+          <div class="kpi-card ${paletteClass}" data-kpi-id="${escapeKpiCatalogValue(metric.id)}">
+            <div class="kpi-card-bg"></div>
+            <div class="kpi-card-content">
+              <div class="kpi-card-header">
+                <div class="kpi-icon" aria-hidden="true">${icon}</div>
+                <div class="kpi-trend ${trend}">
+                  <span class="trend-arrow" aria-hidden="true">${trendArrows[trend]}</span>
+                  <span class="trend-value">${trendLabels[trend]}</span>
+                </div>
+              </div>
+              <div class="kpi-value">${escapeKpiCatalogValue(metric.value)}${metric.unit ? `<span class="kpi-unit">${escapeKpiCatalogValue(metric.unit)}</span>` : ''}</div>
+              <div class="kpi-label">${escapeKpiCatalogValue(metric.name)}</div>
+              <div class="kpi-sub">
+                <span class="sub-item">${escapeKpiCatalogValue(metric.note)}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
     function renderDecisionCenter() {
+      renderConfiguredKpiCards();
       renderTodoList();
     }
 
