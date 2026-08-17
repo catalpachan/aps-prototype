@@ -198,6 +198,7 @@
     .kpi-library-actions { display: flex; justify-content: flex-end; gap: 10px; padding-top: 4px; }
     [data-theme="light"] .kpi-library-card { background: #fff; box-shadow: 0 8px 18px rgba(30, 41, 59, 0.08); }
     [data-theme="light"] .kpi-library-card.selected { background: linear-gradient(155deg, #eff6ff 0%, #fff 100%); box-shadow: 0 10px 24px rgba(37, 99, 235, 0.14); }
+    [data-theme="light"] .kpi-library-card-category { background: #dbeafe; color: #1d4ed8; }
     [data-theme="light"] .kpi-library-category { background: #fff; }
     [data-theme="light"] .kpi-library-category.active { background: #2563eb; }
     @media (max-width: 1180px) { .kpi-library-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
@@ -531,19 +532,7 @@
                       <span class="kpi-library-search-icon" aria-hidden="true">⌕</span>
                       <input id="kpi-library-search" type="search" placeholder="搜索指标名称或描述" aria-label="搜索指标名称或描述" oninput="kpiLibraryQuery = this.value; renderKpiLibrary()" />
                     </label>
-                    <div class="kpi-library-category-list" role="group" aria-label="指标类别筛选">
-                      <button type="button" class="kpi-library-category" data-kpi-category="全部" onclick="kpiLibraryCategory = '全部'; renderKpiLibrary()">全部</button>
-                      <button type="button" class="kpi-library-category" data-kpi-category="产能类" onclick="kpiLibraryCategory = '产能类'; renderKpiLibrary()">产能类</button>
-                      <button type="button" class="kpi-library-category" data-kpi-category="设备类" onclick="kpiLibraryCategory = '设备类'; renderKpiLibrary()">设备类</button>
-                      <button type="button" class="kpi-library-category" data-kpi-category="人员类" onclick="kpiLibraryCategory = '人员类'; renderKpiLibrary()">人员类</button>
-                      <button type="button" class="kpi-library-category" data-kpi-category="柔性类" onclick="kpiLibraryCategory = '柔性类'; renderKpiLibrary()">柔性类</button>
-                      <button type="button" class="kpi-library-category" data-kpi-category="效率类" onclick="kpiLibraryCategory = '效率类'; renderKpiLibrary()">效率类</button>
-                      <button type="button" class="kpi-library-category" data-kpi-category="排序质量类" onclick="kpiLibraryCategory = '排序质量类'; renderKpiLibrary()">排序质量类</button>
-                      <button type="button" class="kpi-library-category" data-kpi-category="计划类" onclick="kpiLibraryCategory = '计划类'; renderKpiLibrary()">计划类</button>
-                      <button type="button" class="kpi-library-category" data-kpi-category="瓶颈类" onclick="kpiLibraryCategory = '瓶颈类'; renderKpiLibrary()">瓶颈类</button>
-                      <button type="button" class="kpi-library-category" data-kpi-category="库存类" onclick="kpiLibraryCategory = '库存类'; renderKpiLibrary()">库存类</button>
-                      <button type="button" class="kpi-library-category" data-kpi-category="订单类" onclick="kpiLibraryCategory = '订单类'; renderKpiLibrary()">订单类</button>
-                    </div>
+                    <div class="kpi-library-category-list" id="kpi-library-category-list" role="group" aria-label="指标类别筛选"></div>
                   </div>
 
                   <div class="kpi-library-meta">
@@ -647,6 +636,7 @@
       const grid = document.getElementById('kpi-library-grid');
       if (!grid) return;
 
+      const activeMetricId = document.activeElement?.dataset?.kpiMetricId || '';
       const query = kpiLibraryQuery.trim().toLocaleLowerCase();
       const filteredMetrics = KPI_METRICS.filter(metric => {
         const matchesQuery = !query || `${metric.name} ${metric.description}`.toLocaleLowerCase().includes(query);
@@ -655,19 +645,30 @@
       });
       const selectedIds = new Set(kpiLibrarySelectedIds);
 
+      const categoryList = document.getElementById('kpi-library-category-list');
+      if (categoryList && categoryList.childElementCount === 0) {
+        categoryList.innerHTML = KPI_LIBRARY_CATEGORIES.map(category => `
+          <button type="button" class="kpi-library-category" data-kpi-category="${escapeHtml(category)}" onclick="kpiLibraryCategory = this.dataset.kpiCategory; renderKpiLibrary()">${escapeHtml(category)}</button>
+        `).join('');
+      }
+
       grid.innerHTML = filteredMetrics.map(metric => `
-        <label class="kpi-library-card${selectedIds.has(metric.id) ? ' selected' : ''}" for="kpi-library-${metric.id}">
+        <label class="kpi-library-card${selectedIds.has(metric.id) ? ' selected' : ''}" data-kpi-metric-id="${escapeHtml(metric.id)}" for="kpi-library-${escapeHtml(metric.id)}">
           <div class="kpi-library-card-head">
             <span class="kpi-library-card-check">
-              <input id="kpi-library-${metric.id}" type="checkbox" value="${metric.id}" ${selectedIds.has(metric.id) ? 'checked' : ''} aria-label="选择${metric.name}" onchange="toggleKpiLibraryMetric('${metric.id}', this.checked)" />
-              <span class="kpi-library-card-name">${metric.name}</span>
+              <input id="kpi-library-${escapeHtml(metric.id)}" data-kpi-metric-id="${escapeHtml(metric.id)}" type="checkbox" value="${escapeHtml(metric.id)}" ${selectedIds.has(metric.id) ? 'checked' : ''} aria-label="选择${escapeHtml(metric.name)}" onchange="toggleKpiLibraryMetric(this.dataset.kpiMetricId, this.checked)" />
+              <span class="kpi-library-card-name">${escapeHtml(metric.name)}</span>
             </span>
-            <span class="kpi-library-card-category">${metric.category}</span>
+            <span class="kpi-library-card-category">${escapeHtml(metric.category)}</span>
           </div>
-          <div class="kpi-library-card-description">${metric.description}</div>
-          <div class="kpi-library-card-unit">单位：<strong>${metric.unit}</strong></div>
+          <div class="kpi-library-card-description">${escapeHtml(metric.description)}</div>
+          <div class="kpi-library-card-unit">单位：<strong>${escapeHtml(metric.unit)}</strong></div>
         </label>
       `).join('');
+
+      if (activeMetricId) {
+        document.getElementById(`kpi-library-${activeMetricId}`)?.focus();
+      }
 
       const empty = document.getElementById('kpi-library-empty');
       if (empty) empty.hidden = filteredMetrics.length > 0;
