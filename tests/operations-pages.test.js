@@ -2,6 +2,7 @@ const assert = require('node:assert/strict');
 const { readFileSync, existsSync } = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
+const vm = require('node:vm');
 
 const root = path.resolve(__dirname, '..');
 
@@ -40,6 +41,15 @@ function readBetween(html, startMarker, endMarker) {
   if (start === -1) return '';
   const end = html.indexOf(endMarker, start);
   return end === -1 ? '' : html.slice(start, end);
+}
+
+function assertInlineScriptsCompile(fileName) {
+  const scripts = readInlineScripts(fileName);
+  assert.ok(scripts.length > 0, `${fileName} should contain an inline script`);
+
+  scripts.forEach((script, index) => {
+    new vm.Script(script, { filename: `${fileName}#inline-${index + 1}` });
+  });
 }
 
 function evalResourceCenterScript() {
@@ -85,6 +95,67 @@ test('system version badge is updated to v3.7', () => {
   assert.match(optimization, /content:\s*"v3\.7"/);
   assert.doesNotMatch(common, /content:\s*"v3\.6"/);
   assert.doesNotMatch(optimization, /content:\s*"v3\.6"/);
+});
+
+test('settings wires the KPI library subview and its controls', () => {
+  const html = readHtml('settings.html');
+  const kpiLibraryView = readBetween(
+    html,
+    '<div class="settings-subview" id="settings-sub-kpi-library">',
+    '<div class="settings-subview" id="settings-sub-rule-create">'
+  );
+
+  assert.match(
+    html,
+    /<button class="resource-menu-item" data-settings-sub="kpi-library" onclick="switchSettingsSub\('kpi-library', this\)">指标库<\/button>/,
+    'settings should expose the KPI library menu item'
+  );
+  assert.ok(kpiLibraryView, 'settings should contain the KPI library subview');
+  assert.match(html, /<script src="kpi-library\.js"><\/script>/, 'settings should load the shared KPI library module');
+
+  for (const id of [
+    'kpi-library-search',
+    'kpi-library-category-list',
+    'kpi-library-grid',
+    'kpi-library-reset',
+    'kpi-library-save'
+  ]) {
+    assert.match(kpiLibraryView, new RegExp(`id="${id}"`), `KPI library should expose ${id}`);
+  }
+  assert.match(
+    kpiLibraryView,
+    /<button[^>]*onclick="clearKpiLibrarySelection\(\)"[^>]*>清空选择<\/button>/,
+    'KPI library should expose a clear-selection control'
+  );
+
+  const categories = html.match(/const KPI_LIBRARY_CATEGORIES = \[([^\]]+)\];/);
+  assert.ok(categories, 'KPI library should declare its category filter labels');
+  assert.deepEqual(
+    [...categories[1].matchAll(/'([^']+)'/g)].map((match) => match[1]),
+    ['全部', '产能类', '设备类', '人员类', '柔性类', '效率类', '排序质量类', '计划类', '瓶颈类', '库存类', '订单类']
+  );
+
+  assert.doesNotMatch(
+    kpiLibraryView,
+    /<[^>]+class="[^"]*\b(?:top-tabs?|tabs?|tab-nav)\b[^"]*"/i,
+    'KPI library should not retain removed top-tab markup'
+  );
+});
+
+test('decision uses configured KPI cards while preserving the planner todo entry', () => {
+  const html = readHtml('decision.html');
+  const dashboard = readBetween(html, '<div class="kpi-dashboard">', '<div class="decision-top-side">');
+
+  assert.match(html, /<script src="kpi-library\.js"><\/script>/, 'decision should load the shared KPI library module');
+  assert.match(dashboard, /<div id="decision-kpi-cards" class="decision-kpi-cards"><\/div>/);
+  assert.match(html, /当前未选择 KPI，请前往系统设置 → 指标库选择要展示的指标。/);
+  assert.match(dashboard, /id="planner-todo-entry-card"/, 'planner todo entry card should remain in the KPI dashboard');
+  assert.doesNotMatch(dashboard, /id="d-kpi-(?:oee|plan|wip)"/, 'configurable hard-coded KPI IDs should be removed from the dashboard');
+});
+
+test('settings and decision inline scripts syntax-compile without DOM execution', () => {
+  assertInlineScriptsCompile('settings.html');
+  assertInlineScriptsCompile('decision.html');
 });
 
 test('page enhancements support Cloudflare extensionless routes', () => {
