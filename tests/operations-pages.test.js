@@ -118,6 +118,7 @@ test('settings wires the KPI library subview and its controls', () => {
     'kpi-library-category-list',
     'kpi-library-grid',
     'kpi-library-selected-count',
+    'kpi-library-clear',
     'kpi-library-reset',
     'kpi-library-save'
   ]) {
