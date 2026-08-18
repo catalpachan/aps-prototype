@@ -249,6 +249,12 @@ test('insert simulation page exposes required structure', () => {
 
   assert.match(html, /<html[^>]*lang="zh-CN"[^>]*data-theme="light"[^>]*>/);
   assert.match(html, /<title>插单模拟<\/title>/);
+  assert.match(html, /<link rel="stylesheet" href="common\.css"\s*\/>/);
+  assert.match(html, /<link rel="stylesheet" href="insert-simulation\.css"\s*\/>/);
+  assert.match(html, /<script src="insert-simulation\.js"><\/script>/);
+  assert.ok(existsSync(path.join(root, 'common.css')), 'common.css should exist');
+  assert.ok(existsSync(path.join(root, 'insert-simulation.css')), 'insert-simulation.css should exist');
+  assert.ok(existsSync(path.join(root, 'insert-simulation.js')), 'insert-simulation.js should exist');
   assert.match(html, /插单列表/);
   assert.match(html, /模拟结果/);
   assert.match(html, /<a[^>]*href="collab\.html"[^>]*>返回排产操作<\/a>/);
@@ -265,6 +271,12 @@ test('insert simulation page exposes required structure', () => {
   assert.deepEqual(readTableHeaders(html, 'simulation-result-table'), [
     '序号', '分厂编号', '物料编码', '工作中心', '已排产能', '插单产能', '剩余产能', '插单利用率', '状态'
   ]);
+
+  const css = readHtml('insert-simulation.css');
+  assert.match(css, /body\s*\{[\s\S]*background:\s*#f1f5f9/);
+  assert.match(css, /\.table-scroll\s*\{[\s\S]*overflow-x:\s*auto/);
+  assert.match(css, /\.simulation-table\s*\{[\s\S]*min-width:\s*1120px/);
+  assert.match(css, /\.simulation-status-normal\s*\{[\s\S]*color:\s*#15803d/);
 });
 
 test('collab exposes schedule history beside one-click scheduling', () => {
