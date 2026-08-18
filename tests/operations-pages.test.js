@@ -276,6 +276,11 @@ test('insert simulation page exposes required structure', () => {
   assert.match(css, /body\s*\{[\s\S]*background:\s*#f1f5f9/);
   assert.match(css, /\.table-scroll\s*\{[\s\S]*overflow-x:\s*auto/);
   assert.match(css, /\.simulation-table\s*\{[\s\S]*min-width:\s*1120px/);
+  assert.match(
+    css,
+    /\.simulation-table td:nth-child\(9\)\s*\{[\s\S]*overflow:\s*hidden[\s\S]*text-overflow:\s*ellipsis[\s\S]*white-space:\s*nowrap/,
+    'material descriptions should truncate in the ninth table column'
+  );
   assert.match(css, /\.simulation-table td\.simulation-status-normal\s*\{[\s\S]*color:\s*#15803d/);
   assert.match(css, /\.simulation-table td\.simulation-status-attention\s*\{[\s\S]*color:\s*#b45309/);
 });

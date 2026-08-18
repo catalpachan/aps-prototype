@@ -156,6 +156,12 @@ h2 {
   text-overflow: ellipsis;
 }
 
+.simulation-table td:nth-child(9) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .simulation-table td.simulation-status-normal {
   color: #15803d;
   font-weight: 700;
