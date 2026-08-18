@@ -454,6 +454,22 @@ test('collab workbench exposes scheduling history before the date view switch', 
   assert.match(script, /workbench-history-btn[\s\S]*addEventListener\('click', showScheduleHistory\)/);
 });
 
+test('insert simulation entry sits beside workbench history', () => {
+  const html = readHtml('collab.html');
+  const [script] = readInlineScripts('collab.html').slice(-1);
+
+  assert.match(
+    html,
+    /<button[^>]*id="workbench-history-btn"[^>]*>历史记录<\/button>\s*<button[^>]*id="insert-simulation-btn"[^>]*>插单模拟<\/button>/,
+    'insert simulation button should follow the workbench history button'
+  );
+  assert.match(
+    script,
+    /getElementById\('insert-simulation-btn'\)[\s\S]*addEventListener\('click',[\s\S]*window\.location\.href\s*=\s*['"]insert-simulation\.html['"]/
+  );
+  assert.match(script, /workbench-history-btn[\s\S]*addEventListener\('click', showScheduleHistory\)/);
+});
+
 test('collab workbench shows the active result and unsaved execution hint', () => {
   const html = readHtml('collab.html');
   const optimization = readHtml('aps-optimization.js');
