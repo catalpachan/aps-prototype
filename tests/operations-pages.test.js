@@ -1100,3 +1100,286 @@ test('inventory board is rebuilt as a stock list page with the requested columns
     assert.match(html, new RegExp(`<th[^>]*>\\s*${header}\\s*</th>`), `missing inventory table header: ${header}`);
   }
 });
+
+function evaluateInsertSimulation(documentMock) {
+  const script = readFileSync(path.join(root, 'insert-simulation.js'), 'utf8');
+  const window = {};
+  const document = documentMock || { addEventListener() {} };
+  const context = { window, document, Set, console, Math, Object };
+
+  vm.runInNewContext(script, context, { filename: 'insert-simulation.js' });
+  return { api: window.InsertSimulation, context };
+}
+
+class InsertSimulationMockElement {
+  constructor(tagName, ownerDocument) {
+    this.tagName = tagName.toUpperCase();
+    this.ownerDocument = ownerDocument;
+    this.children = [];
+    this.parentNode = null;
+    this.attributes = {};
+    this.attributeHistory = [];
+    this.listeners = {};
+    this._textContent = '';
+    this._id = '';
+    this.checked = false;
+    this.indeterminate = false;
+    this.disabled = false;
+    this.hidden = false;
+    this.className = '';
+    this.classList = {
+      toggle: (className, force) => {
+        const shouldHaveClass = force === undefined ? !this.className.includes(className) : force;
+        const classes = new Set(this.className.split(/\s+/).filter(Boolean));
+        if (shouldHaveClass) classes.add(className);
+        else classes.delete(className);
+        this.className = [...classes].join(' ');
+        return shouldHaveClass;
+      }
+    };
+  }
+
+  get id() {
+    return this._id;
+  }
+
+  set id(value) {
+    this._id = String(value);
+    this.ownerDocument.register(this);
+  }
+
+  get textContent() {
+    if (this.children.length === 0) return this._textContent;
+    return this._textContent + this.children.map((child) => child.textContent).join('');
+  }
+
+  set textContent(value) {
+    this._textContent = String(value);
+    this.children = [];
+  }
+
+  get innerHTML() {
+    return '';
+  }
+
+  set innerHTML(value) {
+    this.attributeHistory.push({ name: 'innerHTML', value: String(value) });
+    this.children = [];
+  }
+
+  appendChild(child) {
+    child.parentNode = this;
+    this.children.push(child);
+    return child;
+  }
+
+  replaceChildren(...children) {
+    this.children = [];
+    children.forEach((child) => this.appendChild(child));
+  }
+
+  setAttribute(name, value) {
+    const stringValue = String(value);
+    this.attributes[name] = stringValue;
+    this.attributeHistory.push({ name, value: stringValue });
+    if (name === 'id') this.id = stringValue;
+  }
+
+  getAttribute(name) {
+    return this.attributes[name] ?? null;
+  }
+
+  addEventListener(eventName, handler) {
+    this.listeners[eventName] = handler;
+  }
+
+  dispatchEvent(eventName) {
+    const handler = this.listeners[eventName];
+    if (handler) handler.call(this, { target: this, currentTarget: this });
+  }
+}
+
+class InsertSimulationMockDocument {
+  constructor() {
+    this.elements = new Map();
+    this.domContentLoadedHandler = null;
+    this.body = this.createElement('body');
+  }
+
+  createElement(tagName) {
+    return new InsertSimulationMockElement(tagName, this);
+  }
+
+  register(element) {
+    if (element.id) this.elements.set(element.id, element);
+  }
+
+  addEventListener(eventName, handler) {
+    if (eventName === 'DOMContentLoaded') this.domContentLoadedHandler = handler;
+  }
+
+  getElementById(id) {
+    return this.elements.get(id) || null;
+  }
+
+  fireDOMContentLoaded() {
+    this.domContentLoadedHandler?.();
+  }
+
+  addElement(id, tagName) {
+    const element = this.createElement(tagName);
+    element.id = id;
+    this.body.appendChild(element);
+    return element;
+  }
+}
+
+function createInsertSimulationDocumentMock() {
+  const document = new InsertSimulationMockDocument();
+  document.addElement('insert-order-tbody', 'tbody');
+  document.addElement('simulation-result-tbody', 'tbody');
+  document.addElement('insert-order-select-all', 'input');
+  document.addElement('insert-order-selected-count', 'span');
+  document.addElement('simulation-run-btn', 'button');
+  return document;
+}
+
+test('insert simulation calculates deterministic capacity results', () => {
+  const { api } = evaluateInsertSimulation();
+
+  assert.ok(api.insertOrders.length >= 5);
+  assert.equal(api.insertOrders[0].orderQty, 34);
+  assert.equal(api.insertOrders[1].orderQty, 32);
+  assert.equal(api.simulationResultTemplates.length, 8);
+  assert.equal(api.simulationResultTemplates[0].capacityLimit, 1800);
+  assert.equal(api.simulationResultTemplates[0].scheduledCapacity, 0);
+  assert.equal(api.simulationResultTemplates[0].allocationRate, 0.15);
+  const allocationTotal = api.simulationResultTemplates.reduce((sum, row) => sum + row.allocationRate, 0);
+  assert.ok(Math.abs(allocationTotal - 1) < 1e-10);
+
+  const totalCount = api.insertOrders.length;
+  const emptyState = api.getSelectionState(new Set(), totalCount);
+  assert.equal(emptyState.selectedCount, 0);
+  assert.equal(emptyState.totalCount, totalCount);
+  assert.equal(emptyState.isAllSelected, false);
+  assert.equal(emptyState.isIndeterminate, false);
+
+  const partialState = api.getSelectionState(new Set(['order-1']), totalCount);
+  assert.equal(partialState.selectedCount, 1);
+  assert.equal(partialState.totalCount, totalCount);
+  assert.equal(partialState.isAllSelected, false);
+  assert.equal(partialState.isIndeterminate, true);
+
+  const allState = api.getSelectionState(new Set(api.insertOrders.map(({ id }) => id)), totalCount);
+  assert.equal(allState.selectedCount, totalCount);
+  assert.equal(allState.totalCount, totalCount);
+  assert.equal(allState.isAllSelected, true);
+  assert.equal(allState.isIndeterminate, false);
+
+  const results = api.calculateSimulationResults(
+    api.insertOrders,
+    new Set(['order-1', 'order-2']),
+    api.simulationResultTemplates
+  );
+  assert.equal(results[0].insertCapacity, 10);
+  assert.equal(results[0].remainingCapacity, 1790);
+  assert.equal(results[0].utilization, '0.6%');
+  assert.equal(results[0].status, '正常');
+  assert.notEqual(results[0], api.simulationResultTemplates[0]);
+  assert.equal(api.simulationResultTemplates[0].insertCapacity, 32);
+});
+
+test('insert simulation preserves results without a selection', () => {
+  const document = createInsertSimulationDocumentMock();
+  const { api } = evaluateInsertSimulation(document);
+  const unsafeDescription = '<img src=x onerror="window.__insertSimulationPwned = true">';
+  api.insertOrders[0].materialDescription = unsafeDescription;
+  document.fireDOMContentLoaded();
+
+  const orderTbody = document.getElementById('insert-order-tbody');
+  const resultTbody = document.getElementById('simulation-result-tbody');
+  const selectAll = document.getElementById('insert-order-select-all');
+  const selectedCount = document.getElementById('insert-order-selected-count');
+  const runButton = document.getElementById('simulation-run-btn');
+
+  assert.equal(orderTbody.children.length, 5);
+  assert.equal(resultTbody.children.length, 8);
+  const defaultFirstInsertCapacity = resultTbody.children[0].children[5].textContent;
+  assert.equal(defaultFirstInsertCapacity, '32');
+  assert.equal(selectedCount.textContent, '已选 3 条');
+  assert.equal(selectAll.indeterminate, true);
+  assert.equal(selectAll.getAttribute('aria-checked'), 'mixed');
+  assert.equal(selectAll.getAttribute('aria-label'), '全选插单订单');
+
+  const descriptionCell = orderTbody.children[0].children[8];
+  assert.equal(descriptionCell.textContent, unsafeDescription);
+  assert.equal(descriptionCell.getAttribute('title'), unsafeDescription);
+  assert.equal(descriptionCell.innerHTML, '');
+
+  selectAll.checked = false;
+  selectAll.dispatchEvent('change');
+  assert.equal(selectedCount.textContent, '已选 0 条');
+  assert.equal(selectAll.indeterminate, false);
+  assert.equal(selectAll.getAttribute('aria-checked'), 'false');
+  assert.equal(runButton.disabled, false);
+  const emptyResult = resultTbody.children[0].children[5].textContent;
+  runButton.dispatchEvent('click');
+  assert.equal(document.getElementById('simulation-status').textContent, '请先选择插单订单');
+  assert.equal(resultTbody.children.length, 8);
+  assert.equal(resultTbody.children[0].children[5].textContent, emptyResult);
+  assert.equal(runButton.disabled, false);
+
+  const firstOrderCheckbox = orderTbody.children[0].children[0].children[0];
+  const secondOrderCheckbox = orderTbody.children[1].children[0].children[0];
+  firstOrderCheckbox.checked = true;
+  firstOrderCheckbox.dispatchEvent('change');
+  secondOrderCheckbox.checked = true;
+  secondOrderCheckbox.dispatchEvent('change');
+  runButton.dispatchEvent('click');
+
+  assert.equal(resultTbody.children.length, 8);
+  assert.equal(resultTbody.children[0].children[5].textContent, '10');
+  assert.equal(resultTbody.children[0].children[8].textContent, '正常');
+  assert.equal(runButton.disabled, false);
+  assert.equal(runButton.getAttribute('aria-busy'), 'false');
+  assert.deepEqual(
+    runButton.attributeHistory.filter(({ name }) => name === 'aria-busy').map(({ value }) => value),
+    ['true', 'false']
+  );
+});
+
+test('insert simulation keeps selection state accessible', () => {
+  const document = createInsertSimulationDocumentMock();
+  const { api } = evaluateInsertSimulation(document);
+  document.fireDOMContentLoaded();
+
+  const orderTbody = document.getElementById('insert-order-tbody');
+  const selectAll = document.getElementById('insert-order-select-all');
+  const selectedCount = document.getElementById('insert-order-selected-count');
+  const firstCheckbox = orderTbody.children[0].children[0].children[0];
+
+  assert.equal(firstCheckbox.checked, true);
+  assert.equal(firstCheckbox.getAttribute('aria-checked'), 'true');
+  assert.match(firstCheckbox.getAttribute('aria-label'), /选择插单订单/);
+  firstCheckbox.checked = false;
+  firstCheckbox.dispatchEvent('change');
+  assert.equal(selectedCount.textContent, '已选 2 条');
+  assert.equal(selectAll.indeterminate, true);
+  assert.equal(selectAll.getAttribute('aria-checked'), 'mixed');
+
+  selectAll.checked = true;
+  selectAll.dispatchEvent('change');
+  assert.equal(selectedCount.textContent, `已选 ${api.insertOrders.length} 条`);
+  assert.equal(selectAll.checked, true);
+  assert.equal(selectAll.indeterminate, false);
+  assert.equal(selectAll.getAttribute('aria-checked'), 'true');
+  assert.equal(orderTbody.children.every((row) => row.children[0].children[0].checked), true);
+
+  selectAll.checked = false;
+  selectAll.dispatchEvent('change');
+  assert.equal(selectedCount.textContent, '已选 0 条');
+  assert.equal(selectAll.checked, false);
+  assert.equal(selectAll.indeterminate, false);
+  assert.equal(selectAll.getAttribute('aria-checked'), 'false');
+  assert.equal(document.getElementById('simulation-run-btn').hidden, false);
+});
