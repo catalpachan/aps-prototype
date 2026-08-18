@@ -276,7 +276,8 @@ test('insert simulation page exposes required structure', () => {
   assert.match(css, /body\s*\{[\s\S]*background:\s*#f1f5f9/);
   assert.match(css, /\.table-scroll\s*\{[\s\S]*overflow-x:\s*auto/);
   assert.match(css, /\.simulation-table\s*\{[\s\S]*min-width:\s*1120px/);
-  assert.match(css, /\.simulation-status-normal\s*\{[\s\S]*color:\s*#15803d/);
+  assert.match(css, /\.simulation-table td\.simulation-status-normal\s*\{[\s\S]*color:\s*#15803d/);
+  assert.match(css, /\.simulation-table td\.simulation-status-attention\s*\{[\s\S]*color:\s*#b45309/);
 });
 
 test('collab exposes schedule history beside one-click scheduling', () => {
@@ -1158,15 +1159,6 @@ class InsertSimulationMockElement {
     this.children = [];
   }
 
-  get innerHTML() {
-    return '';
-  }
-
-  set innerHTML(value) {
-    this.attributeHistory.push({ name: 'innerHTML', value: String(value) });
-    this.children = [];
-  }
-
   appendChild(child) {
     child.parentNode = this;
     this.children.push(child);
@@ -1190,12 +1182,13 @@ class InsertSimulationMockElement {
   }
 
   addEventListener(eventName, handler) {
-    this.listeners[eventName] = handler;
+    if (!this.listeners[eventName]) this.listeners[eventName] = [];
+    this.listeners[eventName].push(handler);
   }
 
   dispatchEvent(eventName) {
-    const handler = this.listeners[eventName];
-    if (handler) handler.call(this, { target: this, currentTarget: this });
+    const handlers = this.listeners[eventName] || [];
+    handlers.forEach((handler) => handler.call(this, { target: this, currentTarget: this }));
   }
 }
 
@@ -1314,7 +1307,6 @@ test('insert simulation preserves results without a selection', () => {
   const descriptionCell = orderTbody.children[0].children[8];
   assert.equal(descriptionCell.textContent, unsafeDescription);
   assert.equal(descriptionCell.getAttribute('title'), unsafeDescription);
-  assert.equal(descriptionCell.innerHTML, '');
 
   selectAll.checked = false;
   selectAll.dispatchEvent('change');
@@ -1352,6 +1344,7 @@ test('insert simulation keeps selection state accessible', () => {
   const document = createInsertSimulationDocumentMock();
   const { api } = evaluateInsertSimulation(document);
   document.fireDOMContentLoaded();
+  document.fireDOMContentLoaded();
 
   const orderTbody = document.getElementById('insert-order-tbody');
   const selectAll = document.getElementById('insert-order-select-all');
@@ -1375,6 +1368,13 @@ test('insert simulation keeps selection state accessible', () => {
   assert.equal(selectAll.getAttribute('aria-checked'), 'true');
   assert.equal(orderTbody.children.every((row) => row.children[0].children[0].checked), true);
 
+  document.getElementById('simulation-run-btn').dispatchEvent('click');
+  assert.deepEqual(
+    document.getElementById('simulation-run-btn').attributeHistory
+      .filter(({ name }) => name === 'aria-busy').map(({ value }) => value),
+    ['true', 'false']
+  );
+
   selectAll.checked = false;
   selectAll.dispatchEvent('change');
   assert.equal(selectedCount.textContent, '已选 0 条');
@@ -1382,4 +1382,13 @@ test('insert simulation keeps selection state accessible', () => {
   assert.equal(selectAll.indeterminate, false);
   assert.equal(selectAll.getAttribute('aria-checked'), 'false');
   assert.equal(document.getElementById('simulation-run-btn').hidden, false);
+});
+
+test('insert simulation escapeHTML encodes the future HTML boundary', () => {
+  const { api } = evaluateInsertSimulation();
+
+  assert.equal(
+    api.escapeHTML(`<img src="x" onerror="alert('x')"> & 'quoted'`),
+    '&lt;img src=&quot;x&quot; onerror=&quot;alert(&#39;x&#39;)&quot;&gt; &amp; &#39;quoted&#39;'
+  );
 });

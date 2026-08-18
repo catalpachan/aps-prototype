@@ -156,8 +156,13 @@ h2 {
   text-overflow: ellipsis;
 }
 
-.simulation-status-normal {
+.simulation-table td.simulation-status-normal {
   color: #15803d;
+  font-weight: 700;
+}
+
+.simulation-table td.simulation-status-attention {
+  color: #b45309;
   font-weight: 700;
 }
 

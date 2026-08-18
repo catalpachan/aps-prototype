@@ -174,6 +174,9 @@ function escapeHTML(value) {
     .replace(/'/g, '&#39;');
 }
 
+// DOM 渲染当前统一使用 textContent 和 setAttribute('title', value)；
+// escapeHTML 保留并暴露为未来使用 innerHTML 时的安全边界。
+
 function getSelectionState(selectedIds, totalCount = insertOrders.length) {
   const selectedCount = selectedIds && typeof selectedIds.size === 'number' ? selectedIds.size : 0;
   const normalizedTotalCount = Number.isFinite(totalCount) ? Math.max(0, totalCount) : insertOrders.length;
@@ -249,6 +252,8 @@ function createStatusElement(documentRef, runButton) {
   return statusElement;
 }
 
+let initializedDocument = null;
+
 function initializeInsertSimulation() {
   const orderTbody = document.getElementById('insert-order-tbody');
   const resultTbody = document.getElementById('simulation-result-tbody');
@@ -257,6 +262,8 @@ function initializeInsertSimulation() {
   const runButton = document.getElementById('simulation-run-btn');
 
   if (!orderTbody || !resultTbody || !selectAll || !selectedCountElement || !runButton) return;
+  if (initializedDocument === document) return;
+  initializedDocument = document;
 
   const selectedOrderIds = new Set(insertOrders.slice(0, 3).map((order) => order.id));
   const orderCheckboxes = new Map();
