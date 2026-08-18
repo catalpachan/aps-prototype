@@ -50,6 +50,9 @@
     .workbench-history-btn:hover { border-color: #4b6b98; background: #13213a; color: #e2e8f0; transform: translateY(-1px); }
     .workbench-history-btn.active { border-color: #60a5fa; background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%); color: #fff; box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.18); }
     .workbench-history-btn:focus-visible { outline: none; border-color: #93c5fd; box-shadow: 0 0 0 2px rgba(147, 197, 253, 0.28); }
+    .insert-simulation-btn { border: 1px solid #2563eb; border-radius: 8px; background: #172554; color: #bfdbfe; min-height: 30px; padding: 0 12px; font-size: 12px; font-weight: 700; cursor: pointer; transition: border-color var(--dur-fast), background var(--dur-fast), color var(--dur-fast), transform var(--dur-fast); }
+    .insert-simulation-btn:hover { border-color: #60a5fa; background: #1d4ed8; color: #fff; transform: translateY(-1px); }
+    .insert-simulation-btn:focus-visible { outline: none; border-color: #93c5fd; box-shadow: 0 0 0 2px rgba(147, 197, 253, 0.28); }
     .view-panel { display: none; min-height: 0; }
     .view-panel.active { display: flex; flex-direction: column; gap: 8px; flex: none; min-height: auto; }
     .workbench-history-panel[hidden] { display: none; }
@@ -310,6 +313,7 @@
             </div>
             <div class="row">
               <button class="workbench-history-btn" id="workbench-history-btn" type="button">历史记录</button>
+              <button class="insert-simulation-btn" id="insert-simulation-btn" type="button">插单模拟</button>
               <div class="view-switch" id="gantt-view-switch" aria-label="视角切换">
                 <button class="view-btn" type="button" data-view="month">月</button>
                 <button class="view-btn active" type="button" data-view="week">周</button>
@@ -2141,6 +2145,9 @@
       setWorkbenchView(['day', 'week', 'month'].includes(initialView) ? initialView : 'week', { silentToast: true });
       buildTaskEditorOptions();
       document.getElementById('workbench-history-btn')?.addEventListener('click', showScheduleHistory);
+      document.getElementById('insert-simulation-btn')?.addEventListener('click', () => {
+        window.location.href = 'insert-simulation.html';
+      });
       document.querySelectorAll('#gantt-view-switch .view-btn').forEach((btn) => {
         btn.addEventListener('click', () => setWorkbenchView(btn.dataset.view));
       });

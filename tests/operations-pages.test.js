@@ -468,6 +468,7 @@ test('insert simulation entry sits beside workbench history', () => {
     /getElementById\('insert-simulation-btn'\)[\s\S]*addEventListener\('click',[\s\S]*window\.location\.href\s*=\s*['"]insert-simulation\.html['"]/
   );
   assert.match(script, /workbench-history-btn[\s\S]*addEventListener\('click', showScheduleHistory\)/);
+  assertInlineScriptsCompile('collab.html');
 });
 
 test('collab workbench shows the active result and unsaved execution hint', () => {
