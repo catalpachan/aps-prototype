@@ -247,7 +247,10 @@ function createStatusElement(documentRef, runButton) {
   statusElement.id = 'simulation-status';
   statusElement.setAttribute('aria-live', 'polite');
   statusElement.className = 'simulation-status-message';
-  const host = runButton.parentNode || documentRef.body || documentRef.documentElement;
+  const resultHeading = documentRef.getElementById('simulation-result-heading');
+  const host = resultHeading && resultHeading.parentNode && resultHeading.parentNode.parentNode
+    ? resultHeading.parentNode.parentNode
+    : runButton.parentNode || documentRef.body || documentRef.documentElement;
   if (host && typeof host.appendChild === 'function') host.appendChild(statusElement);
   return statusElement;
 }
@@ -350,6 +353,16 @@ function initializeInsertSimulation() {
     replaceElementChildren(resultTbody, rows);
   }
 
+  function renderEmptyResults() {
+    const row = document.createElement('tr');
+    const cell = document.createElement('td');
+    cell.colSpan = 9;
+    cell.className = 'simulation-empty-cell';
+    setDynamicText(cell, '请选择插单订单并点击“运行模拟”查看结果');
+    row.appendChild(cell);
+    replaceElementChildren(resultTbody, [row]);
+  }
+
   selectAll.addEventListener('change', () => {
     if (selectAll.checked) insertOrders.forEach((order) => selectedOrderIds.add(order.id));
     else selectedOrderIds.clear();
@@ -374,7 +387,8 @@ function initializeInsertSimulation() {
   });
 
   renderOrders();
-  renderResults(simulationResultTemplates);
+  renderEmptyResults();
+  statusElement.textContent = '等待运行模拟';
 }
 
 window.InsertSimulation = {

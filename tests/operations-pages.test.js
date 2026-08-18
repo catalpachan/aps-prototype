@@ -247,7 +247,9 @@ test('insert simulation page exposes required structure', () => {
   assert.ok(existsSync(path.join(root, fileName)), `${fileName} should exist`);
   const html = readHtml(fileName);
 
-  assert.match(html, /<html[^>]*lang="zh-CN"[^>]*data-theme="light"[^>]*>/);
+  assert.match(html, /<html[^>]*lang="zh-CN"[^>]*>/);
+  assert.doesNotMatch(html, /<html[^>]*data-theme="light"/, 'insert simulation should use the platform dark theme');
+  assert.match(html, /<header class="aps-header-layout"/, 'insert simulation should include the platform global navigation');
   assert.match(html, /<title>插单模拟<\/title>/);
   assert.match(html, /<link rel="stylesheet" href="common\.css"\s*\/>/);
   assert.match(html, /<link rel="stylesheet" href="insert-simulation\.css"\s*\/>/);
@@ -273,7 +275,9 @@ test('insert simulation page exposes required structure', () => {
   ]);
 
   const css = readHtml('insert-simulation.css');
-  assert.match(css, /body\s*\{[\s\S]*background:\s*#f1f5f9/);
+  assert.match(css, /body\s*\{[\s\S]*background:\s*#0b1321/);
+  assert.match(css, /\.insert-simulation-toolbar\s*\{[\s\S]*background:\s*#10192b/);
+  assert.match(css, /\.simulation-panel\s*\{[\s\S]*background:\s*#0f172a/);
   assert.match(css, /\.table-scroll\s*\{[\s\S]*overflow-x:\s*auto/);
   assert.match(css, /\.simulation-table\s*\{[\s\S]*min-width:\s*1120px/);
   assert.match(
@@ -281,8 +285,8 @@ test('insert simulation page exposes required structure', () => {
     /\.simulation-table td:nth-child\(9\)\s*\{[\s\S]*overflow:\s*hidden[\s\S]*text-overflow:\s*ellipsis[\s\S]*white-space:\s*nowrap/,
     'material descriptions should truncate in the ninth table column'
   );
-  assert.match(css, /\.simulation-table td\.simulation-status-normal\s*\{[\s\S]*color:\s*#15803d/);
-  assert.match(css, /\.simulation-table td\.simulation-status-attention\s*\{[\s\S]*color:\s*#b45309/);
+  assert.match(css, /\.simulation-table td\.simulation-status-normal\s*\{[\s\S]*color:\s*#4ade80/);
+  assert.match(css, /\.simulation-table td\.simulation-status-attention\s*\{[\s\S]*color:\s*#fbbf24/);
 });
 
 test('collab exposes schedule history beside one-click scheduling', () => {
@@ -1287,7 +1291,7 @@ test('insert simulation calculates deterministic capacity results', () => {
   assert.equal(api.simulationResultTemplates[0].insertCapacity, 32);
 });
 
-test('insert simulation preserves results without a selection', () => {
+test('insert simulation renders empty results until run', () => {
   const document = createInsertSimulationDocumentMock();
   const { api } = evaluateInsertSimulation(document);
   const unsafeDescription = '<img src=x onerror="window.__insertSimulationPwned = true">';
@@ -1301,9 +1305,8 @@ test('insert simulation preserves results without a selection', () => {
   const runButton = document.getElementById('simulation-run-btn');
 
   assert.equal(orderTbody.children.length, 5);
-  assert.equal(resultTbody.children.length, 8);
-  const defaultFirstInsertCapacity = resultTbody.children[0].children[5].textContent;
-  assert.equal(defaultFirstInsertCapacity, '32');
+  assert.equal(resultTbody.children.length, 1, 'result table should start with an empty placeholder row');
+  assert.match(resultTbody.children[0].textContent, /请选择插单订单并点击“运行模拟”/);
   assert.equal(selectedCount.textContent, '已选 3 条');
   assert.equal(selectAll.indeterminate, true);
   assert.equal(selectAll.getAttribute('aria-checked'), 'mixed');
@@ -1319,11 +1322,9 @@ test('insert simulation preserves results without a selection', () => {
   assert.equal(selectAll.indeterminate, false);
   assert.equal(selectAll.getAttribute('aria-checked'), 'false');
   assert.equal(runButton.disabled, false);
-  const emptyResult = resultTbody.children[0].children[5].textContent;
   runButton.dispatchEvent('click');
   assert.equal(document.getElementById('simulation-status').textContent, '请先选择插单订单');
-  assert.equal(resultTbody.children.length, 8);
-  assert.equal(resultTbody.children[0].children[5].textContent, emptyResult);
+  assert.equal(resultTbody.children.length, 1, 'empty result placeholder should remain when no orders are selected');
   assert.equal(runButton.disabled, false);
 
   const firstOrderCheckbox = orderTbody.children[0].children[0].children[0];

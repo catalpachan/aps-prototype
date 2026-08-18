@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-theme="light">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,70 +8,120 @@
   <link rel="stylesheet" href="insert-simulation.css" />
 </head>
 <body>
-  <main class="insert-simulation-page">
-    <header class="insert-simulation-header">
-      <div>
-        <p class="eyebrow">排产操作 / What-if</p>
-        <h1>插单模拟</h1>
-        <p class="page-subtitle">选择待插入订单，预览其对当前产能的影响。</p>
+  <header class="aps-header-layout">
+    <div class="brand-block">
+      <img class="header-logo" src="1c5703c9-aca0-43d1-9843-9d502cb66fd0.png" alt="APS Logo" width="143" height="44" />
+      <div class="aps-console-title">
+        <div class="aps-console-title-main">排产智能体</div>
+        <div class="aps-console-title-sub">格力高级计划排程系统</div>
       </div>
-      <a href="collab.html" class="module-return-link">返回排产操作</a>
-    </header>
-
-    <section class="simulation-card" aria-labelledby="insert-order-heading">
-      <div class="section-heading">
-        <div>
-          <h2 id="insert-order-heading">插单列表</h2>
-          <p>勾选需要加入本次模拟的插单订单。</p>
+    </div>
+    <nav class="nav aps-main-nav" id="nav">
+      <a href="decision.html" class="nav-item">决策分析</a>
+      <a href="collab.html" class="nav-item active">排产操作</a>
+      <a href="settings.html" class="nav-item">系统设置</a>
+    </nav>
+    <div class="header-meta aps-header-meta" id="header-meta">
+      <div class="aps-site-switch">
+        <span class="aps-site-switch-label">制造基地</span>
+        <select id="hq-select" class="role-select" aria-label="基地切换">
+          <option>珠海格力总部</option>
+          <option>金湾基地</option>
+          <option>武汉基地</option>
+          <option>洛阳基地</option>
+        </select>
+      </div>
+      <span id="header-date" class="aps-clock-chip">2026-07-07 13:47:00</span>
+      <button type="button" class="aps-notify-btn" id="aps-notify-btn" aria-label="打开消息通知">
+        🔔<span class="aps-notify-badge" id="aps-notify-badge">0</span>
+      </button>
+      <div class="user-dropdown" id="user-dropdown">
+        <div class="user-dropdown-toggle" onclick="toggleUserDropdown()">
+          <div class="avatar">张</div>
+          <span class="name">张伟</span>
+          <span class="arrow">▼</span>
         </div>
-        <span id="insert-order-selected-count" aria-live="polite">已选 0 条</span>
-      </div>
-      <div class="table-scroll">
-        <table id="insert-order-table" class="simulation-table insert-order-table">
-          <thead>
-            <tr>
-              <th scope="col"><input id="insert-order-select-all" type="checkbox" aria-label="全选插单订单" /> <span>选择框</span></th>
-              <th scope="col">序号</th>
-              <th scope="col">row_index</th>
-              <th scope="col">company</th>
-              <th scope="col">planned_order_code</th>
-              <th scope="col">order_category</th>
-              <th scope="col">source_order_code</th>
-              <th scope="col">material_code</th>
-              <th scope="col">material_description</th>
-              <th scope="col">order_qty</th>
-            </tr>
-          </thead>
-          <tbody id="insert-order-tbody"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <section class="simulation-card" aria-labelledby="simulation-result-heading">
-      <div class="section-heading">
-        <div>
-          <h2 id="simulation-result-heading">模拟结果</h2>
-          <p>查看插单后各分厂与工作中心的产能变化。</p>
+        <div class="user-dropdown-menu">
+          <a href="settings.html?sub=profile" class="user-dropdown-item">👤 用户信息</a>
+          <a href="login.html" class="user-dropdown-item logout">🚪 退出</a>
         </div>
-        <button class="simulation-run-btn" id="simulation-run-btn" type="button" aria-busy="false">运行模拟</button>
       </div>
-      <div class="table-scroll">
-        <table id="simulation-result-table" class="simulation-table simulation-result-table">
-          <thead>
-            <tr>
-              <th scope="col">序号</th>
-              <th scope="col">分厂编号</th>
-              <th scope="col">物料编码</th>
-              <th scope="col">工作中心</th>
-              <th scope="col">已排产能</th>
-              <th scope="col">插单产能</th>
-              <th scope="col">剩余产能</th>
-              <th scope="col">插单利用率</th>
-              <th scope="col">状态</th>
-            </tr>
-          </thead>
-          <tbody id="simulation-result-tbody"></tbody>
-        </table>
+    </div>
+  </header>
+
+  <main id="app">
+    <section class="view insert-simulation-page" aria-labelledby="insert-simulation-title">
+      <div class="insert-simulation-shell">
+        <div class="insert-simulation-toolbar">
+          <div class="insert-simulation-title">
+            <span class="insert-simulation-title-mark" aria-hidden="true"></span>
+            <div>
+              <h1 id="insert-simulation-title">插单模拟</h1>
+              <p class="insert-simulation-subtitle">选择待插入订单，预览其对当前产能的影响。</p>
+            </div>
+          </div>
+          <div class="insert-simulation-toolbar-actions">
+            <span id="insert-order-selected-count" aria-live="polite">已选 0 条</span>
+            <button class="simulation-run-btn" id="simulation-run-btn" type="button" aria-busy="false">运行模拟</button>
+            <a href="collab.html" class="insert-simulation-return-link">返回排产操作</a>
+          </div>
+        </div>
+
+        <section class="simulation-panel" aria-labelledby="insert-order-heading">
+          <div class="simulation-panel-head">
+            <div class="simulation-panel-title">
+              <h2 id="insert-order-heading">插单列表</h2>
+              <p>勾选需要加入本次模拟的插单订单。</p>
+            </div>
+          </div>
+          <div class="table-scroll">
+            <table id="insert-order-table" class="simulation-table insert-order-table">
+              <thead>
+                <tr>
+                  <th scope="col"><input id="insert-order-select-all" type="checkbox" aria-label="全选插单订单" /> <span>选择框</span></th>
+                  <th scope="col">序号</th>
+                  <th scope="col">row_index</th>
+                  <th scope="col">company</th>
+                  <th scope="col">planned_order_code</th>
+                  <th scope="col">order_category</th>
+                  <th scope="col">source_order_code</th>
+                  <th scope="col">material_code</th>
+                  <th scope="col">material_description</th>
+                  <th scope="col">order_qty</th>
+                </tr>
+              </thead>
+              <tbody id="insert-order-tbody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="simulation-panel" aria-labelledby="simulation-result-heading">
+          <div class="simulation-panel-head">
+            <div class="simulation-panel-title">
+              <h2 id="simulation-result-heading">模拟结果</h2>
+              <p>查看插单后各分厂与工作中心的产能变化。</p>
+            </div>
+            <span id="simulation-status" class="simulation-status-message" aria-live="polite"></span>
+          </div>
+          <div class="table-scroll">
+            <table id="simulation-result-table" class="simulation-table simulation-result-table">
+              <thead>
+                <tr>
+                  <th scope="col">序号</th>
+                  <th scope="col">分厂编号</th>
+                  <th scope="col">物料编码</th>
+                  <th scope="col">工作中心</th>
+                  <th scope="col">已排产能</th>
+                  <th scope="col">插单产能</th>
+                  <th scope="col">剩余产能</th>
+                  <th scope="col">插单利用率</th>
+                  <th scope="col">状态</th>
+                </tr>
+              </thead>
+              <tbody id="simulation-result-tbody"></tbody>
+            </table>
+          </div>
+        </section>
       </div>
     </section>
   </main>
