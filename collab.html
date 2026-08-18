@@ -185,6 +185,7 @@
     [data-theme="light"] .workbench-history-btn,
     [data-theme="light"] .workbench-history-head,
     [data-theme="light"] .workbench-history-card { background: #fff; border-color: var(--line); color: var(--txt); }
+    [data-theme="light"] .insert-simulation-btn { background: #fff; border-color: var(--line); color: var(--txt); }
     [data-theme="light"] .workbench-history-title b { color: var(--txt); }
     [data-theme="light"] .workbench-history-title span { color: var(--muted); }
     .week-day-table-empty { padding: 16px; text-align: center; color: #64748b; font-size: 11px; }
@@ -2134,6 +2135,10 @@
 
     window.setWorkbenchSchedulePending = setWorkbenchSchedulePending;
 
+    function openInsertSimulation() {
+      window.location.href = 'insert-simulation.html';
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       updateDayViewDateHead();
       renderScheduleLegend();
@@ -2145,9 +2150,7 @@
       setWorkbenchView(['day', 'week', 'month'].includes(initialView) ? initialView : 'week', { silentToast: true });
       buildTaskEditorOptions();
       document.getElementById('workbench-history-btn')?.addEventListener('click', showScheduleHistory);
-      document.getElementById('insert-simulation-btn')?.addEventListener('click', () => {
-        window.location.href = 'insert-simulation.html';
-      });
+      document.getElementById('insert-simulation-btn')?.addEventListener('click', openInsertSimulation);
       document.querySelectorAll('#gantt-view-switch .view-btn').forEach((btn) => {
         btn.addEventListener('click', () => setWorkbenchView(btn.dataset.view));
       });

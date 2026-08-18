@@ -465,8 +465,33 @@ test('insert simulation entry sits beside workbench history', () => {
   );
   assert.match(
     script,
-    /getElementById\('insert-simulation-btn'\)[\s\S]*addEventListener\('click',[\s\S]*window\.location\.href\s*=\s*['"]insert-simulation\.html['"]/
+    /getElementById\('insert-simulation-btn'\)\?\.addEventListener\('click', openInsertSimulation\)/
   );
+  const openInsertSimulation = script.match(/function openInsertSimulation\(\) \{[\s\S]*?\n    \}/)?.[0];
+  const insertSimulationRegistration = script.match(/document\.getElementById\('insert-simulation-btn'\)\?\.addEventListener\('click', openInsertSimulation\);/)?.[0];
+  assert.ok(openInsertSimulation, 'insert simulation navigation should have a named function');
+  assert.ok(insertSimulationRegistration, 'insert simulation navigation should register the named function');
+
+  let clickHandler;
+  const button = {
+    addEventListener(eventName, handler) {
+      assert.equal(eventName, 'click');
+      clickHandler = handler;
+    }
+  };
+  const navigationContext = {
+    document: {
+      getElementById(elementId) {
+        assert.equal(elementId, 'insert-simulation-btn');
+        return button;
+      }
+    },
+    window: { location: { href: 'collab.html' } }
+  };
+  vm.runInNewContext(`${openInsertSimulation}\n${insertSimulationRegistration}`, navigationContext);
+  assert.equal(typeof clickHandler, 'function', 'insert simulation click handler should be registered');
+  clickHandler();
+  assert.equal(navigationContext.window.location.href, 'insert-simulation.html');
   assert.match(script, /workbench-history-btn[\s\S]*addEventListener\('click', showScheduleHistory\)/);
   assertInlineScriptsCompile('collab.html');
 });
