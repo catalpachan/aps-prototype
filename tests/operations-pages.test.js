@@ -242,6 +242,31 @@ test('resource management center mirrors the referenced standalone page', () => 
   assert.match(html, /href="collab\.html" class="btn sm module-return-link">返回排产操作<\/a>/);
 });
 
+test('insert simulation page exposes required structure', () => {
+  const fileName = 'insert-simulation.html';
+  assert.ok(existsSync(path.join(root, fileName)), `${fileName} should exist`);
+  const html = readHtml(fileName);
+
+  assert.match(html, /<html[^>]*lang="zh-CN"[^>]*data-theme="light"[^>]*>/);
+  assert.match(html, /<title>插单模拟<\/title>/);
+  assert.match(html, /插单列表/);
+  assert.match(html, /模拟结果/);
+  assert.match(html, /<a[^>]*href="collab\.html"[^>]*>返回排产操作<\/a>/);
+  assert.match(html, /<button[^>]*id="simulation-run-btn"[^>]*aria-busy="false"[^>]*>运行模拟<\/button>/);
+  assert.match(html, /<table[^>]*id="insert-order-table"/);
+  assert.match(html, /<table[^>]*id="simulation-result-table"/);
+  assert.match(html, /<input[^>]*id="insert-order-select-all"[^>]*aria-label="全选插单订单"/);
+  assert.match(html, /id="insert-order-selected-count"[^>]*aria-live="polite"/);
+
+  assert.deepEqual(readTableHeaders(html, 'insert-order-table'), [
+    '选择框', '序号', 'row_index', 'company', 'planned_order_code', 'order_category',
+    'source_order_code', 'material_code', 'material_description', 'order_qty'
+  ]);
+  assert.deepEqual(readTableHeaders(html, 'simulation-result-table'), [
+    '序号', '分厂编号', '物料编码', '工作中心', '已排产能', '插单产能', '剩余产能', '插单利用率', '状态'
+  ]);
+});
+
 test('collab exposes schedule history beside one-click scheduling', () => {
   const optimization = readHtml('aps-optimization.js');
   const scheduleMarkup = readBetween(

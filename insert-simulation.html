@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>插单模拟</title>
+  <link rel="stylesheet" href="common.css" />
+  <link rel="stylesheet" href="insert-simulation.css" />
+</head>
+<body>
+  <main class="insert-simulation-page">
+    <header class="insert-simulation-header">
+      <div>
+        <p class="eyebrow">排产操作 / What-if</p>
+        <h1>插单模拟</h1>
+        <p class="page-subtitle">选择待插入订单，预览其对当前产能的影响。</p>
+      </div>
+      <a href="collab.html" class="module-return-link">返回排产操作</a>
+    </header>
+
+    <section class="simulation-card" aria-labelledby="insert-order-heading">
+      <div class="section-heading">
+        <div>
+          <h2 id="insert-order-heading">插单列表</h2>
+          <p>勾选需要加入本次模拟的插单订单。</p>
+        </div>
+        <span id="insert-order-selected-count" aria-live="polite">已选 0 条</span>
+      </div>
+      <div class="table-scroll">
+        <table id="insert-order-table" class="simulation-table insert-order-table">
+          <thead>
+            <tr>
+              <th scope="col"><input id="insert-order-select-all" type="checkbox" aria-label="全选插单订单" /> <span>选择框</span></th>
+              <th scope="col">序号</th>
+              <th scope="col">row_index</th>
+              <th scope="col">company</th>
+              <th scope="col">planned_order_code</th>
+              <th scope="col">order_category</th>
+              <th scope="col">source_order_code</th>
+              <th scope="col">material_code</th>
+              <th scope="col">material_description</th>
+              <th scope="col">order_qty</th>
+            </tr>
+          </thead>
+          <tbody id="insert-order-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="simulation-card" aria-labelledby="simulation-result-heading">
+      <div class="section-heading">
+        <div>
+          <h2 id="simulation-result-heading">模拟结果</h2>
+          <p>查看插单后各分厂与工作中心的产能变化。</p>
+        </div>
+        <button class="simulation-run-btn" id="simulation-run-btn" type="button" aria-busy="false">运行模拟</button>
+      </div>
+      <div class="table-scroll">
+        <table id="simulation-result-table" class="simulation-table simulation-result-table">
+          <thead>
+            <tr>
+              <th scope="col">序号</th>
+              <th scope="col">分厂编号</th>
+              <th scope="col">物料编码</th>
+              <th scope="col">工作中心</th>
+              <th scope="col">已排产能</th>
+              <th scope="col">插单产能</th>
+              <th scope="col">剩余产能</th>
+              <th scope="col">插单利用率</th>
+              <th scope="col">状态</th>
+            </tr>
+          </thead>
+          <tbody id="simulation-result-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="insert-simulation.js"></script>
+</body>
+</html>
